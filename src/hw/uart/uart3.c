@@ -62,7 +62,7 @@ UART_HandleTypeDef UartHandle;
   * @param  None
   * @retval None
   */
-__io_putchar(int ch)
+int __io_putchar(int ch)
 {
   /* Place your implementation of fputc here */
   /* e.g. write a character to the EVAL_COM1 and Loop until the end of transmission */

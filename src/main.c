@@ -54,6 +54,9 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+osThreadId LEDThread1Handle, LEDThread2Handle;
+
+
 /* Private function prototypes -----------------------------------------------*/
 static void os_init(void);
 static void os_tasks(void);
@@ -78,12 +81,13 @@ static void os_init(void)
        - Configure the Systick to generate an interrupt each 1 msec
        - Set NVIC Group Priority to 4
        - Global MSP (MCU Support Package) initialization
-     */
+  */
   HAL_Init();
   
   /* Configure the system clock to 168 MHz */
   SystemClock_Config();
 
+  /* Configure LEDs */
   BSP_LED_Init(LED1);
   BSP_LED_Init(LED2);
 
@@ -93,10 +97,10 @@ static void os_tasks(void)
 {
 
   osThreadDef(led1, LED1_thread,   osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
-  osThreadCreate( osThread(led1),  NULL);
+  LEDThread1Handle = osThreadCreate( osThread(led1),  NULL);
 
   osThreadDef(led2, LED2_thread,   osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
-  osThreadCreate( osThread(led2),  NULL);
+  LEDThread2Handle = osThreadCreate( osThread(led2),  NULL);
 
   osThreadDef(gui, GUI_start,      osPriorityNormal, 0, 256);
   osThreadCreate( osThread(gui),   NULL);
@@ -107,10 +111,11 @@ static void os_tasks(void)
 int main(void)
 {
 
+  /* Initialize modules and hardware */
 	os_init();
 
+  /* Create all tasks */
   os_tasks();
-
 
   /* Start scheduler - should never leave this ;) */
   osKernelStart();
