@@ -22,10 +22,17 @@ CSRC += $(LIB_HAL)/Src/stm32f4xx_hal.c \
 		$(LIB_HAL)/Src/stm32f4xx_hal_tim_ex.c \
 		$(LIB_HAL)/Src/stm32f4xx_hal_uart.c \
 		$(LIB_HAL)/Src/stm32f4xx_hal_cortex.c \
+		$(LIB_HAL)/Src/stm32f4xx_hal_usart.c \
+		$(LIB_HAL)/Src/stm32f4xx_hal_rng.c \
+		$(LIB_HAL)/Src/stm32f4xx_hal_rtc.c \
 
 
 # Low Level routines
 CSRC +=	$(LIB_HAL)/Src/stm32f4xx_ll_fsmc.c \
+		$(LIB_HAL)/Src/stm32f4xx_ll_usart.c \
+		$(LIB_HAL)/Src/stm32f4xx_ll_fmc.c \
+		$(LIB_HAL)/Src/stm32f4xx_ll_sdmmc.c \
+		$(LIB_HAL)/Src/stm32f4xx_ll_usb.c \
 
 		#$(LIB_HAL)/Src/stm32f4xx_hal_adc.c \
 		#$(LIB_HAL)/Src/stm32f4xx_hal_adc_ex.c \
@@ -59,8 +66,6 @@ CSRC +=	$(LIB_HAL)/Src/stm32f4xx_ll_fsmc.c \
 		#$(LIB_HAL)/Src/stm32f4xx_hal_pcd.c \
 		#$(LIB_HAL)/Src/stm32f4xx_hal_pcd_ex.c \
 		#$(LIB_HAL)/Src/stm32f4xx_hal_qspi.c \
-		#$(LIB_HAL)/Src/stm32f4xx_hal_rng.c \
-		#$(LIB_HAL)/Src/stm32f4xx_hal_rtc.c \
 		#$(LIB_HAL)/Src/stm32f4xx_hal_rtc_ex.c \
 		#$(LIB_HAL)/Src/stm32f4xx_hal_sai.c \
 		#$(LIB_HAL)/Src/stm32f4xx_hal_sai_ex.c \
@@ -68,7 +73,6 @@ CSRC +=	$(LIB_HAL)/Src/stm32f4xx_ll_fsmc.c \
 		#$(LIB_HAL)/Src/stm32f4xx_hal_sdram.c \
 		#$(LIB_HAL)/Src/stm32f4xx_hal_smartcard.c \
 		#$(LIB_HAL)/Src/stm32f4xx_hal_spdifrx.c \
-		#$(LIB_HAL)/Src/stm32f4xx_hal_usart.c \
 		#$(LIB_HAL)/Src/stm32f4xx_hal_wwdg.c \
 		#$(LIB_HAL)/Src/stm32f4xx_ll_adc.c \
 		#$(LIB_HAL)/Src/stm32f4xx_ll_crc.c \
@@ -76,7 +80,6 @@ CSRC +=	$(LIB_HAL)/Src/stm32f4xx_ll_fsmc.c \
 		#$(LIB_HAL)/Src/stm32f4xx_ll_dma2d.c \
 		#$(LIB_HAL)/Src/stm32f4xx_ll_dma.c \
 		#$(LIB_HAL)/Src/stm32f4xx_ll_exti.c \
-		#$(LIB_HAL)/Src/stm32f4xx_ll_fmc.c \
 		#$(LIB_HAL)/Src/stm32f4xx_ll_gpio.c \
 		#$(LIB_HAL)/Src/stm32f4xx_ll_i2c.c \
 		#$(LIB_HAL)/Src/stm32f4xx_ll_lptim.c \
@@ -84,11 +87,8 @@ CSRC +=	$(LIB_HAL)/Src/stm32f4xx_ll_fsmc.c \
 		#$(LIB_HAL)/Src/stm32f4xx_ll_rcc.c \
 		#$(LIB_HAL)/Src/stm32f4xx_ll_rng.c \
 		#$(LIB_HAL)/Src/stm32f4xx_ll_rtc.c \
-		#$(LIB_HAL)/Src/stm32f4xx_ll_sdmmc.c \
 		#$(LIB_HAL)/Src/stm32f4xx_ll_spi.c \
 		#$(LIB_HAL)/Src/stm32f4xx_ll_tim.c \
-		#$(LIB_HAL)/Src/stm32f4xx_ll_usart.c \
-		#$(LIB_HAL)/Src/stm32f4xx_ll_usb.c \
 		#$(LIB_HAL)/Src/stm32f4xx_ll_utils.c \
 		#$(LIB_HAL)/Src/stm32f4xx_hal_timebase_rtc_alarm_template.c \
 		#$(LIB_HAL)/Src/stm32f4xx_hal_timebase_rtc_wakeup_template.c \

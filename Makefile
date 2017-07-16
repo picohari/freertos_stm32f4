@@ -32,7 +32,8 @@ include ./src/gui/GUI.mk
 
 CSRC += ./src/main.c \
 		./src/stm32f4xx_it.c \
-		./src/os/syscalls.c \
+		./src/stm32f4xx_hal_msp.c \
+#		./src/os/syscalls.c \
 #		./src/syscalls.c \
 #		./src/stm32f4xx_hal_msp.c \
 

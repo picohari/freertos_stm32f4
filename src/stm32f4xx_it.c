@@ -32,6 +32,11 @@
 #include "stm32f4xx_it.h"
 #include "cmsis_os.h"
 
+#include "uart3.h"
+
+extern SPI_HandleTypeDef    SpiHandle;
+
+
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
@@ -129,12 +134,35 @@ void SysTick_Handler(void)
 /*  file (startup_stm32f4xx.s).                                               */
 /******************************************************************************/
 
+#if 0
+void ETH_IRQHandler(void)
+{
+  ETHERNET_IRQHandler();
+}
+#endif
 
 
+/**
+  * @brief  This function handles SPI interrupt request.  
+  * @param  None
+  * @retval None  
+  */
+void SPI2_IRQHandler(void)
+{
+  HAL_SPI_IRQHandler(&SpiHandle);
+}
 
-
-
-
+/**
+  * @brief  This function handles UART interrupt request.  
+  * @param  None
+  * @retval None
+  * @Note   This function is redefined in "main.h" and related to DMA stream 
+  *         used for USART data transmission     
+  */
+void USARTx_IRQHandler(void)
+{
+  HAL_UART_IRQHandler(&hUART);
+}
 
 
 

@@ -41,10 +41,12 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
-//#include "stm324xg_eval.h"
 #include "stdio.h"
 
 /* Exported types ------------------------------------------------------------*/
+extern UART_HandleTypeDef   hUART;
+
+
 /* Exported constants --------------------------------------------------------*/
 /* User can use this section to tailor USARTx/UARTx instance used and associated 
    resources */
@@ -61,14 +63,43 @@
 #define USARTx_TX_PIN                    GPIO_PIN_10
 #define USARTx_TX_GPIO_PORT              GPIOC  
 #define USARTx_TX_AF                     GPIO_AF7_USART3
+
 #define USARTx_RX_PIN                    GPIO_PIN_11
 #define USARTx_RX_GPIO_PORT              GPIOC 
 #define USARTx_RX_AF                     GPIO_AF7_USART3
   
-/* Exported macro ------------------------------------------------------------*/
-/* Exported functions ------------------------------------------------------- */
-void uart3_init(void);
 
+/* Exported macro ------------------------------------------------------------*/
+/* Definition for USARTx's NVIC */
+#define USARTx_IRQn                      USART3_IRQn
+#define USARTx_IRQHandler                USART3_IRQHandler
+
+#define UART_TX_QUEUE_SIZE           10
+#define UART_RX_QUEUE_SIZE           4
+
+#define UART_RX_CHAR_QUEUE_SIZE      100
+#define UART_RX_BUF_LEN              80
+
+#define MAXCLISTRING                 100
+
+/* Exported functions ------------------------------------------------------- */
+void uart_init(void);
+
+void uart_send(char const * const str);
+
+char *uart_receive(void);
+
+
+
+
+
+/* Basic logging functions */
+void UART_log_printf(const char * format, ...);
+void UART_log_send(void);
+
+#define debug(...) {UART_log_printf(__VA_ARGS__);  \
+                    UART_log_send();               \
+}
 
 #endif /* __UART3_H */
 

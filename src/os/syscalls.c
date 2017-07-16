@@ -16,12 +16,14 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
+#include "uart3.h"
 
 #define FreeRTOS
-#define MAX_STACK_SIZE 0x200
+#define MAX_STACK_SIZE 0x2000
 
 extern int __io_putchar(int ch) __attribute__((weak));
-extern int __io_getchar(void) __attribute__((weak));
+extern int __io_getchar(void)   __attribute__((weak));
+
 
 #ifndef FreeRTOS
   register char * stack_ptr asm("sp");
@@ -29,10 +31,26 @@ extern int __io_getchar(void) __attribute__((weak));
 
 
 
+int _write(int file, char *data, int len)
+{
+   if ((file != STDOUT_FILENO) && (file != STDERR_FILENO))
+   {
+      errno = EBADF;
+      return -1;
+   }
+
+   // arbitrary timeout 1000
+   HAL_StatusTypeDef status =
+      HAL_UART_Transmit(&hUART, (uint8_t*)data, len, 1000);
+
+   // return # of bytes written - as best we can tell
+   return (status == HAL_OK ? len : 0);
+}
 
 caddr_t _sbrk(int incr)
 {
 	extern char end asm("end");
+	
 	static char *heap_end;
 	char *prev_heap_end,*min_stack_ptr;
 
@@ -63,6 +81,41 @@ caddr_t _sbrk(int incr)
 	return (caddr_t) prev_heap_end;
 }
 
+int _close(int file)
+{
+	return -1;
+}
+
+int _read(int file, char *ptr, int len)
+{
+	int DataIdx;
+
+	for (DataIdx = 0; DataIdx < len; DataIdx++)
+	{
+	  *ptr++ = __io_getchar();
+	}
+
+   return len;
+}
+
+int _fstat(int file, struct stat *st)
+{
+	st->st_mode = S_IFCHR;
+	return 0;
+}
+
+int _isatty(int file)
+{
+	return 1;
+}
+
+int _lseek(int file, int ptr, int dir)
+{
+	return 0;
+}
+
+
+#if 0
 /*
  * _gettimeofday primitive (Stub function)
  * */
@@ -107,39 +160,6 @@ int _write(int file, char *ptr, int len)
 		   __io_putchar( *ptr++ );
 		}
 	return len;
-}
-
-int _close(int file)
-{
-	return -1;
-}
-
-int _fstat(int file, struct stat *st)
-{
-	st->st_mode = S_IFCHR;
-	return 0;
-}
-
-int _isatty(int file)
-{
-	return 1;
-}
-
-int _lseek(int file, int ptr, int dir)
-{
-	return 0;
-}
-
-int _read(int file, char *ptr, int len)
-{
-	int DataIdx;
-
-	for (DataIdx = 0; DataIdx < len; DataIdx++)
-	{
-	  *ptr++ = __io_getchar();
-	}
-
-   return len;
 }
 
 int _open(char *path, int flags, ...)
@@ -188,3 +208,4 @@ int _execve(char *name, char **argv, char **env)
 	errno = ENOMEM;
 	return -1;
 }
+#endif

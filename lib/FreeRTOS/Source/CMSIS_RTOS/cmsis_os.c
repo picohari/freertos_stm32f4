@@ -121,8 +121,8 @@
 
   #include "cmsis_gcc.h"
 
-  #pragma GCC diagnostic ignored "-Wunused-parameter"
-  #pragma message "Disabled some warnings here..."
+  //#pragma GCC diagnostic ignored "-Wunused-parameter"
+  //#pragma message "Disabled some warnings here..."
 /*
  * IAR Compiler
  */

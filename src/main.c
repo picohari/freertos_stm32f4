@@ -42,6 +42,8 @@
 #include "cmsis_os.h"
 #include "XCore407I.h"
 
+#include "uart3.h"
+
 #include "gfx.h"
 #include "gui.h"
 #include "vt100.h"
@@ -86,10 +88,19 @@ static void os_init(void)
   
   /* Configure the system clock to 168 MHz */
   SystemClock_Config();
+  
+  HAL_NVIC_SetPriority(SysTick_IRQn, 0x0, 0x0);
 
   /* Configure LEDs */
   BSP_LED_Init(LED1);
   BSP_LED_Init(LED2);
+  BSP_LED_Init(LED3);
+  BSP_LED_Init(LED4);
+
+  uart_init();
+
+  debug("Firmware %s", VERSION_STRING_LONG);
+  debug("CMSIS - FreeRTOS - LwIP - BSP - uGFX");
 
 }
 
