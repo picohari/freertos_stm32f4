@@ -58,7 +58,7 @@
 static void os_init(void);
 static void os_tasks(void);
 static void SystemClock_Config(void);
-static void Error_Handler(void);
+
 
 
 static void LED1_thread (void const * arg);
@@ -298,7 +298,7 @@ static void SystemClock_Config(void)
   * @param  None
   * @retval None
   */
-static void Error_Handler(void)
+void Error_Handler(void)
 {
   /* User may add here some code to deal with this error */
   while(1)

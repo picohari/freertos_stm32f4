@@ -66,7 +66,7 @@
 
 
  
-
+extern void Error_Handler(void);
 
 #ifdef __cplusplus
 }
