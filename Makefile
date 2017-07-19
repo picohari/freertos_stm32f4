@@ -18,6 +18,7 @@ include ./drv/BSP.mk
 
 # Software libraries and features
 include ./lib/FreeRTOS.mk
+include ./lib/FreeRTOS+CLI.mk
 include ./lib/LwIP.mk
 include ./lib/UGFX.mk
 #include ./lib/UTIL.mk
@@ -28,6 +29,7 @@ include ./src/hw/HW.mk
 
 # Application libraries and external modules
 include ./src/gui/GUI.mk
+# include ./src/gui/WORK.mk
 
 
 CSRC += ./src/main.c \

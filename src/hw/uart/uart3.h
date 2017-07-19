@@ -83,6 +83,9 @@ extern UART_HandleTypeDef   hUART;
 #define MAXCLISTRING                 100
 
 /* Exported functions ------------------------------------------------------- */
+
+void USARTx_IRQHandler(void);
+
 void uart_init(void);
 
 void uart_send(char const * const str);

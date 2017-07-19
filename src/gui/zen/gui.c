@@ -371,8 +371,8 @@ void guiCreate(void) {
 	vt100_init(guiOutput);
 
 	// Prepare fonts
-	dejavu_sans_10 = gdispOpenFont("DejaVuSans10");
-	dejavu_sans_16 = gdispOpenFont("DejaVuSans16");
+	//dejavu_sans_10 = gdispOpenFont("DejaVuSans10");
+	//dejavu_sans_16 = gdispOpenFont("DejaVuSans16");
 	//fixed_7x14     = gdispOpenFont("Fixed7x14");
 
 	// Prepare images

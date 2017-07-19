@@ -152,6 +152,7 @@ void SPI2_IRQHandler(void)
   HAL_SPI_IRQHandler(&SpiHandle);
 }
 
+#if 0
 /**
   * @brief  This function handles UART interrupt request.  
   * @param  None
@@ -163,7 +164,7 @@ void USARTx_IRQHandler(void)
 {
   HAL_UART_IRQHandler(&hUART);
 }
-
+#endif
 
 
 

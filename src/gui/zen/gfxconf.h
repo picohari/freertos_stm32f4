@@ -36,7 +36,6 @@
 /* We the real thing ... */
 #define GFX_USE_OS_FREERTOS                 TRUE
 #define GFX_OS_NO_INIT                      TRUE
-//#define GFX_OS_HEAP_SIZE                    32000
 #define GFX_CPU                             GFX_CPU_CORTEX_M4_FP
 
 #define GFX_OS_INIT_NO_WARNING              TRUE

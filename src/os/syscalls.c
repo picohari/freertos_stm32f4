@@ -114,6 +114,19 @@ int _lseek(int file, int ptr, int dir)
 	return 0;
 }
 
+int _kill(int pid, int sig)
+{
+	errno = EINVAL;
+	return -1;
+}
+
+void _exit (int status)
+{
+	_kill(status, -1);
+	while (1) {}
+}
+
+
 
 #if 0
 /*
@@ -139,17 +152,7 @@ int _getpid(void)
 	return 1;
 }
 
-int _kill(int pid, int sig)
-{
-	errno = EINVAL;
-	return -1;
-}
 
-void _exit (int status)
-{
-	_kill(status, -1);
-	while (1) {}
-}
 
 int _write(int file, char *ptr, int len)
 {

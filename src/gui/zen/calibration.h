@@ -4,6 +4,9 @@
 #include <string.h>
 #include "gfx.h"
 
+
+#if 1
+
 // Calibration data
 float calibrationData[] = {
 	0.06483,		// ax
@@ -27,6 +30,9 @@ bool_t LoadMouseCalibration(unsigned instance, void *data, size_t sz)
 	
 	return TRUE;
 }
+
+#endif
+
 
 #endif /* _CALIBRATION_H */
 

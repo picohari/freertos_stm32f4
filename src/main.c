@@ -54,9 +54,16 @@
 #define LED1_UPDATE_DELAY   125
 #define LED2_UPDATE_DELAY   250
 
+
+
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 osThreadId LEDThread1Handle, LEDThread2Handle;
+
+
+//osMessageQId osQueue;
+
+//uint32_t ProducerValue = 0, ConsumerValue = 0;
 
 
 /* Private function prototypes -----------------------------------------------*/
@@ -71,6 +78,17 @@ static void LED2_thread (void const * arg);
 
 static void GUI_start (void const * arg);
 static void GUI_thread (void const * arg);
+
+
+/* Thread function that creates an incrementing number and posts it on a queue. */
+//static void MessageQueueProducer(const void *argument);
+
+/* Thread function that removes the incrementing number from a queue and checks that
+   it is the expected number. */
+//static void MessageQueueConsumer(const void *argument);
+
+
+
 
 
 
@@ -107,14 +125,31 @@ static void os_init(void)
 static void os_tasks(void)
 {
 
+
   osThreadDef(led1, LED1_thread,   osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
   LEDThread1Handle = osThreadCreate( osThread(led1),  NULL);
 
   osThreadDef(led2, LED2_thread,   osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
   LEDThread2Handle = osThreadCreate( osThread(led2),  NULL);
 
-  osThreadDef(gui, GUI_start,      osPriorityNormal, 0, 256);
+  osThreadDef(gui, GUI_start,      osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
   osThreadCreate( osThread(gui),   NULL);
+
+
+#if 0
+  /* Create the queue used by the two tasks to pass the incrementing number.
+  Pass a pointer to the queue in the parameter structure. */
+  osMessageQDef(osqueue, QUEUE_SIZE, uint16_t);
+  osQueue = osMessageCreate(osMessageQ(osqueue), NULL);
+
+  /* Note the producer has a lower priority than the consumer when the tasks are
+     spawned. */
+  osThreadDef(QCons, MessageQueueConsumer, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
+  osThreadCreate(osThread(QCons), NULL);
+  
+  osThreadDef(QProd, MessageQueueProducer, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
+  osThreadCreate(osThread(QProd), NULL);
+#endif
 
 }
 
@@ -156,6 +191,70 @@ int main(void)
 
 
 
+#if 0
+/**
+  * @brief  Message Queue Producer Thread.
+  * @param  argument: Not used
+  * @retval None
+  */
+static void MessageQueueProducer(const void *argument)
+{
+  for(;;)
+  {   
+    if(osMessagePut(osQueue, ProducerValue, 100) != osOK)  
+    {      
+      /* Toggle LED3 to indicate error */
+      BSP_LED_Toggle(LED2);
+    }
+    else
+    {
+      /* Increment the variable we are going to post next time round.  The
+      consumer will expect the numbers to follow in numerical order. */
+      ++ProducerValue;
+      
+      /* Toggle LED1 to indicate a correct number received */
+      BSP_LED_Toggle(LED3);
+
+      osDelay(250);
+    }
+  }
+}
+
+/**
+  * @brief  Message Queue Consumer Thread.
+  * @param  argument: Not used
+  * @retval None
+  */
+static void MessageQueueConsumer(const void *argument)
+{
+  osEvent event;
+  
+  for(;;)
+  {
+    /* Get the message from the queue */
+    event = osMessageGet(osQueue, 100);
+    
+    if(event.status == osEventMessage)
+    {
+      if(event.value.v != ConsumerValue)
+      {
+        /* Catch-up. */
+        ConsumerValue = event.value.v;
+        
+        /* Toggle LED3 to indicate error */
+        BSP_LED_Toggle(LED4);
+      }
+      else
+      {  
+        /* Increment the value we expect to remove from the queue next time
+        round. */
+        ++ConsumerValue;
+      }     
+    }   
+  }
+}
+
+#endif
 
 
 
@@ -195,7 +294,6 @@ static void GUI_thread (void const * arg)
 #if 0
     if (cmd_buf[0] != 0) {
       vt100_putc(cmd_buf[0]);
-
       cmd_buf[0] = 0;
     }
 #endif

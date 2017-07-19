@@ -72,14 +72,18 @@
 /* UART handler declaration */
 UART_HandleTypeDef      hUART;
 
-static TaskHandle_t tx_task_handle;
 static TaskHandle_t rx_task_handle;
+//static TaskHandle_t tx_task_handle;
 
-static QueueHandle_t tx_queue;
-static QueueHandle_t rx_queue;          
+//static QueueHandle_t tx_queue;
+static QueueHandle_t rx_queue; 
+
 static QueueHandle_t rx_char_queue;     /* queues the received character from ISR */
 
+osMessageQId uartQueue;
 
+//uint32_t ProducerValue = 0, ConsumerValue = 0;
+uint16_t c; 
 
 
 #if 1
@@ -111,24 +115,6 @@ static void os_uart_rx_task (void const * arg);
 
 
 /* Private functions ---------------------------------------------------------*/
-
-//FILE uart_str = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
-
-#if 0
-/**
-  * @brief  Retargets the C library printf function to the USART.
-  * @param  None
-  * @retval None
-  */
-int __io_putchar(int ch)
-{
-
-  HAL_UART_Transmit(&hUART, (uint8_t *)&ch, 1, 0xFFFF);
-
-  return (ch);
-}
-#endif
-
 
 
 /**
@@ -172,7 +158,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
 
   /*##-3- Configure the NVIC for UART ########################################*/   
   /* NVIC for USARTx */
-  HAL_NVIC_SetPriority(USARTx_IRQn, 0, 1);
+  HAL_NVIC_SetPriority(USARTx_IRQn, configLIBRARY_LOWEST_INTERRUPT_PRIORITY, 1); /* Must be same prio as tasks... */
   HAL_NVIC_EnableIRQ(USARTx_IRQn);
 
 }
@@ -233,23 +219,33 @@ void uart_init(void)
   }
 
 
+#if 1
   /* Create queues */
   rx_queue = xQueueCreate( UART_RX_QUEUE_SIZE , sizeof(char*));
-  tx_queue = xQueueCreate( UART_TX_QUEUE_SIZE , sizeof(char*));
+  //tx_queue = xQueueCreate( UART_TX_QUEUE_SIZE , sizeof(char*));
+  rx_char_queue = xQueueCreate(UART_RX_CHAR_QUEUE_SIZE, 1);
 
-#if 0
+
+  osMessageQDef(osqueue, 2, uint16_t);
+  uartQueue = osMessageCreate(osMessageQ(osqueue), NULL);
+
   /* Create tasks */
-  osThreadDef(uart_rx, os_uart_rx_task,   osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
+  osThreadDef(uart_rx, os_uart_rx_task,   osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 2);
   rx_task_handle = osThreadCreate( osThread(uart_rx),  NULL);
 
-  osThreadDef(uart_tx, os_uart_tx_task,   osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
-  tx_task_handle = osThreadCreate( osThread(uart_tx),  NULL);
+  //osThreadDef(uart_tx, os_uart_tx_task,   osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
+  //tx_task_handle = osThreadCreate( osThread(uart_tx),  NULL);
 #endif
 
   /* Switch to queue-less mode (direct feed into rx_buffer */
   HAL_UART_Receive_IT(&hUART, rx_buffer, 1);    //activate uart rx interrupt every time receiving 1 byte
 
-  setbuf(stdout, NULL);
+  /* Set stdout buffer to 0 for immediate output of printf via _write() */
+  setvbuf(stdin, NULL, _IONBF, 0);
+  setvbuf(stdout, NULL, _IONBF, 0);
+  setvbuf(stderr, NULL, _IONBF, 0);
+
+  printf("\r\n>");
 }
 
 
@@ -259,7 +255,7 @@ void uart_init(void)
 
 
 
-
+#if 1
 
 static void *os_malloc(size_t const size) {
     void * const rc = pvPortMalloc(size);
@@ -283,13 +279,14 @@ static char *os_strndup(char const * const s, size_t const size) {
 }
 
 
-
+/*
 void uart_send(char const * const str) {
     char const * const dupped = os_strdup(str);
     if (xQueueSendToBack(tx_queue, &dupped, 0) == errQUEUE_FULL) {
         vPortFree((void*)dupped);
     }
 }
+*/
 
 void queue_rx(char const * const str, size_t const len) {
     char const * const dupped = os_strndup(str, len);
@@ -309,7 +306,7 @@ char *uart_receive(void) {
     }
 }
 
-
+#endif
 
 
 
@@ -326,6 +323,7 @@ static void os_uart_tx_task(void const * arg) {
 
     for(;;) {
 
+#if 0
         char *str;
 
         // Wait for a sting to be queued. Returns false if timeout... (nothing to send)
@@ -343,6 +341,8 @@ static void os_uart_tx_task(void const * arg) {
 
         // Free memory
         vPortFree((void*)str);
+#endif
+
     }
 }
 
@@ -353,76 +353,106 @@ static void os_uart_rx_task(void const * arg)
 {
     (void) arg;
 
-    static char rx_buf[UART_RX_BUF_LEN];
-    static int  rx_buf_count;
+#if 0
 
     // Enable interrupt RX Not Empty Interrupt
-    __HAL_UART_ENABLE_IT(&hUART, UART_IT_RXNE);
+    //__HAL_UART_ENABLE_IT(&hUART, UART_IT_RXNE);
+    //HAL_UART_Receive_IT(&hUART, rx_buffer, 1);    //activate uart rx interrupt every time receiving 1 byte
+    
+    uint16_t c = 0;
 
-    rx_buf_count = 0;
+    osEvent event;
 
     for(;;) {
-        // If there is something received, then we clear it in 60 seconds anyway, otherwise no need to wake up
-        int const timeout = rx_buf_count ? pdMS_TO_TICKS(60000) : TICKS_IN_DAY;
 
-        // Wait for a char to be queued. Returns false if timeout... (nothing received)
-        char * const buf_empty_pos = rx_buf + rx_buf_count;
+      event = osMessageGet(uartQueue, 100);
 
-        int const queue_rc = xQueueReceive(rx_char_queue, buf_empty_pos, timeout);
-        if (queue_rc == pdFALSE) {
-            rx_buf_count = 0;
-            continue; // Try again
-        }
+      c = event.value.v;
 
-        // Process
-        char const c = *buf_empty_pos;
+      if (c != NULL) {
+        printf("%c", c);
+        c = 0;
+      }
 
-        if (c == '\r') {
-            if (rx_buf_count) {
-                // There is some cmd in buffer
-                // ECHO newline
-                uart_send("!!!\r\n");
-
-                // Queue newline into rx_queue
-                //queue_rx(rx_buf, rx_buf_count);
-
-                // Reset our buffer position
-                rx_buf_count = 0;
-            } else {
-                // No data in buffer, just echo..
-                // ECHO newline
-                uart_send("\r\n");
-            }
-        } else if (rx_buf_count < UART_RX_BUF_LEN - 1) {
-            // Not overflow
-            rx_buf_count++;
-
-            // ECHO
-            if (*rx_buf == 0x1b) {
-                // Seems like an escape sequence
-                if (rx_buf_count == sizeof(seq_up) && !strncmp(rx_buf, seq_up, sizeof(seq_up))) {
-                    //queue_rx(AK_UART_UP_KEY, sizeof(AK_UART_UP_KEY));
-                    rx_buf_count = 0;
-                } else if (rx_buf_count == sizeof(seq_down) && !strncmp(rx_buf, seq_down, sizeof(seq_down))) {
-                    //queue_rx(AK_UART_DOWN_KEY, sizeof(AK_UART_DOWN_KEY));
-                    rx_buf_count = 0;
-                } else if (rx_buf_count == sizeof(seq_left) && !strncmp(rx_buf, seq_left, sizeof(seq_left))) {
-                    //queue_rx(AK_UART_LEFT_KEY, sizeof(AK_UART_LEFT_KEY));
-                    rx_buf_count = 0;
-                } else if (rx_buf_count == sizeof(seq_right) && !strncmp(rx_buf, seq_right, sizeof(seq_right))) {
-                    //queue_rx(AK_UART_RIGHT_KEY, sizeof(AK_UART_RIGHT_KEY));
-                    rx_buf_count = 0;
-                }
-            } else {
-                // It's not an escape sequence, just echo it...
-                char echo_buf[2];
-                echo_buf[0] = c;
-                echo_buf[1] = '\0';
-
-                uart_send(echo_buf);
-            }
-        }
     }
+
+#endif
+
+  static char rx_buf[UART_RX_BUF_LEN];
+  static int rx_buf_count;
+
+  // Enable interrupt RX Not Empty Interrupt
+  //__HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);
+
+  rx_buf_count = 0;
+
+  for(;;) {
+      // If there is something received, then we clear it in 60 seconds anyway, otherwise no need to wake up
+      int const timeout = rx_buf_count ? pdMS_TO_TICKS(60000) : TICKS_IN_DAY;
+
+      // Wait for a char to be queued. Returns false if timeout... (nothing received)
+      char * const buf_empty_pos = rx_buf + rx_buf_count;
+
+      int const queue_rc = xQueueReceive(rx_char_queue, buf_empty_pos, timeout);
+      if (queue_rc == pdFALSE) {
+          rx_buf_count = 0;
+          continue; // Try again
+      }
+
+      // Process
+      char const c = *buf_empty_pos;
+
+
+
+      if (c == '\r') {
+          if (rx_buf_count) {
+              // There is some cmd in buffer
+              // ECHO newline
+              //ak_uart_send("!!!\r\n");
+              printf("\r\n>");
+
+              // Queue newline into rx_queue
+              queue_rx(rx_buf, rx_buf_count);
+
+              // Reset our buffer position
+              rx_buf_count = 0;
+          } else {
+              // No data in buffer, just echo..
+              // ECHO newline
+              //ak_uart_send("\r\n");
+              printf("\r\n");
+          }
+      } else if (rx_buf_count < UART_RX_BUF_LEN - 1) {
+          // Not overflow
+          rx_buf_count++;
+
+          // ECHO
+          if (*rx_buf == 0x1b) {
+              // Seems like an escape sequence
+              if (rx_buf_count == sizeof(seq_up) && !strncmp(rx_buf, seq_up, sizeof(seq_up))) {
+                  //queue_rx(AK_UART_UP_KEY, sizeof(AK_UART_UP_KEY));
+                  rx_buf_count = 0;
+              } else if (rx_buf_count == sizeof(seq_down) && !strncmp(rx_buf, seq_down, sizeof(seq_down))) {
+                  //queue_rx(AK_UART_DOWN_KEY, sizeof(AK_UART_DOWN_KEY));
+                  rx_buf_count = 0;
+              } else if (rx_buf_count == sizeof(seq_left) && !strncmp(rx_buf, seq_left, sizeof(seq_left))) {
+                  //queue_rx(AK_UART_LEFT_KEY, sizeof(AK_UART_LEFT_KEY));
+                  rx_buf_count = 0;
+              } else if (rx_buf_count == sizeof(seq_right) && !strncmp(rx_buf, seq_right, sizeof(seq_right))) {
+                  //queue_rx(AK_UART_RIGHT_KEY, sizeof(AK_UART_RIGHT_KEY));
+                  rx_buf_count = 0;
+              }
+          } else {
+              // It's not an escape sequence, just echo it...
+              char echo_buf[2];
+              echo_buf[0] = c;
+              echo_buf[1] = '\0';
+              //ak_uart_send(echo_buf);
+              printf(echo_buf);
+          }
+      }
+  }
+
 }
 
 
@@ -441,9 +471,9 @@ static void os_uart_rx_task(void const * arg)
 
 
 
-#if 0
 void USARTx_IRQHandler(void) {
 
+#if 1
     // We handle RX here, but TX is handled by HAL_UART implementation...
     int32_t const flag = __HAL_UART_GET_FLAG(&hUART, UART_FLAG_RXNE);
     int32_t const it_source = __HAL_UART_GET_IT_SOURCE(&hUART, UART_IT_RXNE);
@@ -457,6 +487,9 @@ void USARTx_IRQHandler(void) {
 
         /* Put the character in queue*/
         xQueueSendToBackFromISR(rx_char_queue, &c, &xHigherPriorityTaskWoken);
+        //xQueueSendFromISR(rx_char_queue, &c, &xHigherPriorityTaskWoken);
+        //xQueueSend(rx_char_queue, &c, 0);
+        //osMessagePut(uartQueue, &c, 100);
 
         portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
     } else {
@@ -464,8 +497,13 @@ void USARTx_IRQHandler(void) {
         HAL_UART_IRQHandler(&hUART);
 
     }
-}
+
+#else
+
+    HAL_UART_IRQHandler(&hUART);
+
 #endif
+}
 
 
 /**
@@ -479,7 +517,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
 
   (void) huart;
-  
+
 #if 0
   /* Turn LED1 on: Transfer in transmission process is correct */
   //BSP_LED_On(LED4);
@@ -502,6 +540,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
   *         you can add your own implementation.
   * @retval None
   */
+
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
   /* Turn LED2 on: Transfer in reception process is correct */
@@ -509,6 +548,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
   if (huart->Instance == USART3) {
     
+#if 1
     static portBASE_TYPE xHigherPriorityTaskWoken;
 
     // Set to false on interrupt entry
@@ -516,7 +556,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
     __HAL_UART_FLUSH_DRREGISTER(huart);   // Clear the buffer to prevent overrun
 
-    printf((char*)&rx_buffer);   // Echo the character that caused this callback so the user can see what they are typing
+    //printf((char*)&rx_buffer);   // Echo the character that caused this callback so the user can see what they are typing
     //fflush(stdout);
     //printf("\n");
 
@@ -546,7 +586,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     {
         cmd_string[rx_index] = rx_buffer[0];  // Add that character to the string
 
-        //xQueueSendToBackFromISR(rx_queue, &rx_byte, &xHigherPriorityTaskWoken);
+        xQueueSendToBackFromISR(rx_queue, &rx_byte, &xHigherPriorityTaskWoken);
+        //xQueueOverwriteFromISR(rx_queue, &rx_byte, &xHigherPriorityTaskWoken);
+        osMessagePut(uartQueue, rx_byte, 100);
 
         rx_index++;
         if (rx_index > MAXCLISTRING)     // User typing too much, we can't have commands that big
@@ -562,6 +604,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     // to the currently running task
     portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
     
+#endif
+
+
     HAL_UART_Receive_IT(&hUART, rx_buffer, 1);
 
   }
