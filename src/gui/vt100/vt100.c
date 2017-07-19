@@ -26,7 +26,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
+
 #include <ctype.h>
 
 //#include "config.h"
@@ -947,6 +947,13 @@ STATE(_st_idle, term, ev, arg){
 					_vt100_drawCursor(term);
 					break;
 				}
+				case '\t': { // tab
+					// tab fills characters on the line until we reach a multiple of tab_stop
+					int tab_stop = 4;
+					int to_put = tab_stop - (term->cursor_x % tab_stop); 
+					while(to_put--) _vt100_putc(term, ' ');
+					break;
+				}
 				case KEY_DEL: { // del 0x7f = 127 - delete character under cursor
 					// Problem: with current implementation, we can't move the rest of line
 					// to the left as is the proper behavior of the delete character
@@ -954,13 +961,6 @@ STATE(_st_idle, term, ev, arg){
 					_vt100_putc(term, ' ');
 					_vt100_move(term, -1, 0);
 					//_vt100_clearChar(term, term->cursor_x, term->cursor_y); 
-					break;
-				}
-				case '\t': { // tab
-					// tab fills characters on the line until we reach a multiple of tab_stop
-					int tab_stop = 4;
-					int to_put = tab_stop - (term->cursor_x % tab_stop); 
-					while(to_put--) _vt100_putc(term, ' ');
 					break;
 				}
 				case KEY_BELL: { // bell is sent by bash for ex. when doing tab completion

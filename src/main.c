@@ -107,16 +107,15 @@ static void os_init(void)
   BSP_LED_Init(LED3);
   BSP_LED_Init(LED4);
 
-#if 1
   uart_init();
 
-  printf("\033[2J"); // Clear screen
-  printf("\r\n");
-  printf("Firmware %s", VERSION_STRING_LONG);
-  printf("\r\n");
-  printf("CMSIS - FreeRTOS - LwIP - BSP - uGFX");
-  printf("\r\n");
-#endif
+  writef("\033[2J"); // Clear screen
+  writef("\r\n");
+  writef("Firmware %s", VERSION_STRING_LONG);
+  writef("\r\n");
+  writef("CMSIS - FreeRTOS - LwIP - BSP - uGFX");
+  writef("\r\n");
+
 
 }
 
@@ -235,32 +234,25 @@ static void GUI_thread (void const * arg)
 
   (void) arg;
 
-#if 1
   unsigned int i;
   static unsigned int count = 0;
   static unsigned int saved = 0;
   static char *buf;
-#endif
 
   static uint32_t printPrompt = 1;
 
   while (1) {
 
-    
     // Enable interrupt RX Not Empty Interrupt
     //__HAL_UART_ENABLE_IT(&hUART, UART_IT_RXNE);
 
     /* Do we have to print the prompt? */
     if(printPrompt) {
-      writef("> ");
+      writef("> "); /* printf("\n"); */
       vt100_puts("> ");
       printPrompt = 0;
     }
 
-
-#if 1
-#if 1
-    
     // If there is something received, then we clear it in 60 seconds anyway, otherwise no need to wake up
     int const timeout = count ? pdMS_TO_TICKS(60000) : TICKS_IN_DAY;
 
@@ -272,33 +264,35 @@ static void GUI_thread (void const * arg)
         count = 0;
         continue; // Try again
     }
-#endif
 
     // Process
     char const c = *buf_empty_pos;
 
     /* We have a character to process */
-    /* printf("Got:'%c' %d\n",c,c); */
+    //debug("got:'%c' %d",c,c);
     /* Check for simple line control characters */
     if(((c == 010) || (c == 0x7f)) && count) {
       /* User pressed backspace */
-      writef("\010 \010"); /* Obliterate character */
-      buf--;     /* Then remove it from the buffer */
-      count--;   /* Then keep track of how many are left */
-    } else if(c == '!') { /* '!' repeats the last command */
-      if(saved) {  /* But only if we have something saved */
-        strcpy(input,input_b);  /* Restore the command */
-        writef("HIS: %s",input);
+      writef("\010 \010");        /* Obliterate character */
+      vt100_putc('\b');
+      buf--;                      /* Then remove it from the buffer */
+      count--;                    /* Then keep track of how many are left */
+    } else if(c == '!') {         /* '!' repeats the last command */
+      if(saved) {                 /* But only if we have something saved */
+        strcpy(input,input_b);    /* Restore the command */
+        //writef("HIS: %s",input);
         count = strlen(input);
-        buf = input+count;
+        buf = input + count;
         goto parseme;
       }
     } else if(isprint((unsigned int)c)) {
       /* We are only going to save printable characters */
       if(count >= sizeof(input)) {
+
         /* We are out of space */
-        writef("\x07"); /* Beep */
-        return;
+        writef("\x07");   /* Beep */
+        continue;         /* TODO: Check this!*/
+
       } else {
         *buf++ = c;
         count++;
@@ -306,11 +300,14 @@ static void GUI_thread (void const * arg)
         writef("%c",c);
         vt100_putc(c);
       }
+    } else if(c == 0x1b) { /* ESC Key - forward to terminal only */
+        vt100_putc(c);
+
     } else if(c == '\r') {
       /* NULL Terminate anything we have received */
       *buf = '\0';
-      /* save current buffer in case we want to re do the command */
-      strcpy(input_b,input);
+      /* save current buffer in case we want to re-do the command */
+      strcpy(input_b, input);
       saved = 1;
 
       
@@ -319,21 +316,22 @@ static void GUI_thread (void const * arg)
     parseme:
       /* Send CR to console */
       writef("\r\n");
-      vt100_putc('\r');
 
-      writef("CMD: %s", input); writef("\r\n");
+      //writef("CMD: %s", input); writef("\r\n");
       
-      /* Fill the rest of the buffer wil NUL */
+      /* Fill the rest of the buffer with NUL */
       for(i=count; i<BUFFER_LEN; i++) *buf++ = '\0';
       count = 0;
 
+      vt100_putc('\r');
+      vt100_putc(':');
       //parse(input, sizeof(input), Commands);
+      vt100_putc('\r');
 
       buf = input;
       printPrompt = 1;
     }
 
-#endif
 
     guiEventLoop();
     //osThreadTerminate( NULL );

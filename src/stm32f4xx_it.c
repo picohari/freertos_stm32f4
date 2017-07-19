@@ -32,7 +32,7 @@
 #include "stm32f4xx_it.h"
 #include "cmsis_os.h"
 
-#include "uart3.h"
+#include "uart.h"
 
 extern SPI_HandleTypeDef    SpiHandle;
 

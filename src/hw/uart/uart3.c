@@ -45,7 +45,7 @@
 
 #include "uart3.h"
 
-#include <stdio.h>
+//#include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
@@ -95,7 +95,7 @@ int rx_index = 0; // index for going though cmd_string
 uint8_t rx_buffer[2];
 
 
-#include "syscalls.c"
+//#include "syscalls.c"
 
 
 /* Arrow keys */

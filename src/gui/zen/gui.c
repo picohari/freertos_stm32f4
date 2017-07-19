@@ -275,15 +275,12 @@ static void createShell(void) {
 
 #if 1
 
-	vt100_puts("\e[1;1H"); vt100_puts("STM32-HAL FreeRTOS(TM) Terminal CMSIS v8.2.3");
-
 									/*|123456789012345678901234567890123456789012345|*/
 									/*|....'....1....'....2....|....3....'....4....'|*/
-	vt100_puts("\e[1;1H"); vt100_puts("STM32-HAL FreeRTOS(TM) Terminal CMSIS v8.2.3");
-	vt100_puts("\e[2;1H"); vt100_puts("ARM Cortex M4 eabi-thumb-fpv4-sp-d16");
-	vt100_puts("\e[3;1H"); vt100_puts("MEM: 64 kB");
+	vt100_puts("\e[1;1H"); vt100_puts("STM32-HAL FreeRTOS(TM) Terminal CMSIS v0.1.1");
+	vt100_puts("\e[2;1H"); vt100_puts("ARM Cortex M4 64kB");
 
-	vt100_puts("\e[5;1H"); /* vt100_puts(">"); */
+	vt100_puts("\e[4;1H"); /* vt100_puts(">"); */
 #endif
 }
 

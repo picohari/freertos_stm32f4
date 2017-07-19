@@ -17,6 +17,7 @@
 #include <sys/wait.h>
 
 
+
 #define FreeRTOS
 #define MAX_STACK_SIZE 0x2000
 
@@ -29,17 +30,16 @@ extern int __io_getchar(void)   __attribute__((weak));
 #endif
 
 
+#if 0
+int __io_putchar(int ch) {
+  /* Place your implementation of fputc here */
+  /* e.g. write a character to the EVAL_COM1 and Loop until the end of transmission */
+  HAL_UART_Transmit(&hUART, (uint8_t *)&ch, 1, 1); 
 
-int _write(int file, char *ptr, int len)
-{
-	int DataIdx;
-
-		for (DataIdx = 0; DataIdx < len; DataIdx++)
-		{
-		   __io_putchar( *ptr++ );
-		}
-	return len;
+  return ch;
 }
+#endif
+
 
 caddr_t _sbrk(int incr)
 {
@@ -75,9 +75,15 @@ caddr_t _sbrk(int incr)
 	return (caddr_t) prev_heap_end;
 }
 
-int _close(int file)
+int _write(int file, char *ptr, int len)
 {
-	return -1;
+	int DataIdx;
+
+		for (DataIdx = 0; DataIdx < len; DataIdx++)
+		{
+		   __io_putchar( *ptr++ );
+		}
+	return len;
 }
 
 int _read(int file, char *ptr, int len)
@@ -90,6 +96,11 @@ int _read(int file, char *ptr, int len)
 	}
 
    return len;
+}
+
+int _close(int file)
+{
+	return -1;
 }
 
 int _fstat(int file, struct stat *st)

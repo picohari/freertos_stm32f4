@@ -45,14 +45,11 @@
 
 #include "uart.h"
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 
 
 /* Recast system printf to uart output */
-#include "os/syscalls.c"
 
 
 /* UART handler declaration */
@@ -60,7 +57,7 @@ UART_HandleTypeDef      hUART;
 
 QueueHandle_t   rx_char_queue;     /* queues the received character from ISR */
 
-uint8_t rx_buffer[2];
+//uint8_t rx_buffer[2];
 
 
 /**
@@ -171,9 +168,9 @@ void uart_init(void)
   __HAL_UART_ENABLE_IT(&hUART, UART_IT_RXNE);
 
   /* Set stdout buffer to 0 for immediate output of printf via _write() */
-  setvbuf(stdin, NULL, _IONBF, 0);
   setvbuf(stdout, NULL, _IONBF, 0);
   setvbuf(stderr, NULL, _IONBF, 0);
+  setbuf(stdout, NULL);
 
   /* Initalize char receive queue */
   rx_char_queue = xQueueCreate(UART_RX_CHAR_QUEUE_SIZE, 1);
@@ -254,13 +251,7 @@ void USARTx_IRQHandler(void)
 
 
 
-int __io_putchar(int ch) {
-  /* Place your implementation of fputc here */
-  /* e.g. write a character to the EVAL_COM1 and Loop until the end of transmission */
-  HAL_UART_Transmit(&hUART, (uint8_t *)&ch, 1, 0xFFFF); 
 
-  return ch;
-}
 
 
 

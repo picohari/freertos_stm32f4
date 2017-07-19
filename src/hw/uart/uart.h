@@ -41,7 +41,6 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
-#include "stdio.h"
 
 /* Exported types ------------------------------------------------------------*/
 extern UART_HandleTypeDef   hUART;
