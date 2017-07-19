@@ -378,6 +378,8 @@ static void os_uart_rx_task(void const * arg)
 
 #endif
 
+  int printPrompt = 1;
+
   static char rx_buf[UART_RX_BUF_LEN];
   static int rx_buf_count;
 
@@ -387,6 +389,13 @@ static void os_uart_rx_task(void const * arg)
   rx_buf_count = 0;
 
   for(;;) {
+
+      /* Do we have to print the prompt? */
+      if(printPrompt) {
+        printf(">");
+        printPrompt = 0;
+      }
+
       // If there is something received, then we clear it in 60 seconds anyway, otherwise no need to wake up
       int const timeout = rx_buf_count ? pdMS_TO_TICKS(60000) : TICKS_IN_DAY;
 
@@ -409,7 +418,7 @@ static void os_uart_rx_task(void const * arg)
               // There is some cmd in buffer
               // ECHO newline
               //ak_uart_send("!!!\r\n");
-              printf("\r\n>");
+              printf("\r\n");
 
               // Queue newline into rx_queue
               queue_rx(rx_buf, rx_buf_count);
@@ -422,6 +431,9 @@ static void os_uart_rx_task(void const * arg)
               //ak_uart_send("\r\n");
               printf("\r\n");
           }
+
+          printPrompt = 1;
+          
       } else if (rx_buf_count < UART_RX_BUF_LEN - 1) {
           // Not overflow
           rx_buf_count++;

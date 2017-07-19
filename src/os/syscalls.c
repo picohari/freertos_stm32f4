@@ -16,7 +16,6 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-#include "uart3.h"
 
 #define FreeRTOS
 #define MAX_STACK_SIZE 0x2000
@@ -31,20 +30,15 @@ extern int __io_getchar(void)   __attribute__((weak));
 
 
 
-int _write(int file, char *data, int len)
+int _write(int file, char *ptr, int len)
 {
-   if ((file != STDOUT_FILENO) && (file != STDERR_FILENO))
-   {
-      errno = EBADF;
-      return -1;
-   }
+	int DataIdx;
 
-   // arbitrary timeout 1000
-   HAL_StatusTypeDef status =
-      HAL_UART_Transmit(&hUART, (uint8_t*)data, len, 1000);
-
-   // return # of bytes written - as best we can tell
-   return (status == HAL_OK ? len : 0);
+		for (DataIdx = 0; DataIdx < len; DataIdx++)
+		{
+		   __io_putchar( *ptr++ );
+		}
+	return len;
 }
 
 caddr_t _sbrk(int incr)

@@ -42,7 +42,7 @@
 #include "cmsis_os.h"
 #include "XCore407I.h"
 
-#include "uart3.h"
+#include "uart.h"
 
 #include "gfx.h"
 #include "gui.h"
@@ -61,9 +61,6 @@
 osThreadId LEDThread1Handle, LEDThread2Handle;
 
 
-//osMessageQId osQueue;
-
-//uint32_t ProducerValue = 0, ConsumerValue = 0;
 
 
 /* Private function prototypes -----------------------------------------------*/
@@ -80,12 +77,7 @@ static void GUI_start (void const * arg);
 static void GUI_thread (void const * arg);
 
 
-/* Thread function that creates an incrementing number and posts it on a queue. */
-//static void MessageQueueProducer(const void *argument);
 
-/* Thread function that removes the incrementing number from a queue and checks that
-   it is the expected number. */
-//static void MessageQueueConsumer(const void *argument);
 
 
 
@@ -115,10 +107,16 @@ static void os_init(void)
   BSP_LED_Init(LED3);
   BSP_LED_Init(LED4);
 
+#if 1
   uart_init();
 
-  debug("Firmware %s", VERSION_STRING_LONG);
-  debug("CMSIS - FreeRTOS - LwIP - BSP - uGFX");
+  printf("\033[2J"); // Clear screen
+  printf("\r\n");
+  printf("Firmware %s", VERSION_STRING_LONG);
+  printf("\r\n");
+  printf("CMSIS - FreeRTOS - LwIP - BSP - uGFX");
+  printf("\r\n");
+#endif
 
 }
 
@@ -191,71 +189,6 @@ int main(void)
 
 
 
-#if 0
-/**
-  * @brief  Message Queue Producer Thread.
-  * @param  argument: Not used
-  * @retval None
-  */
-static void MessageQueueProducer(const void *argument)
-{
-  for(;;)
-  {   
-    if(osMessagePut(osQueue, ProducerValue, 100) != osOK)  
-    {      
-      /* Toggle LED3 to indicate error */
-      BSP_LED_Toggle(LED2);
-    }
-    else
-    {
-      /* Increment the variable we are going to post next time round.  The
-      consumer will expect the numbers to follow in numerical order. */
-      ++ProducerValue;
-      
-      /* Toggle LED1 to indicate a correct number received */
-      BSP_LED_Toggle(LED3);
-
-      osDelay(250);
-    }
-  }
-}
-
-/**
-  * @brief  Message Queue Consumer Thread.
-  * @param  argument: Not used
-  * @retval None
-  */
-static void MessageQueueConsumer(const void *argument)
-{
-  osEvent event;
-  
-  for(;;)
-  {
-    /* Get the message from the queue */
-    event = osMessageGet(osQueue, 100);
-    
-    if(event.status == osEventMessage)
-    {
-      if(event.value.v != ConsumerValue)
-      {
-        /* Catch-up. */
-        ConsumerValue = event.value.v;
-        
-        /* Toggle LED3 to indicate error */
-        BSP_LED_Toggle(LED4);
-      }
-      else
-      {  
-        /* Increment the value we expect to remove from the queue next time
-        round. */
-        ++ConsumerValue;
-      }     
-    }   
-  }
-}
-
-#endif
-
 
 
 
@@ -284,23 +217,128 @@ static void GUI_start (void const * arg)
 
 }
 
+
+
+
+#define TICKS_IN_DAY   (pdMS_TO_TICKS(24 * 60 * 60 * 1000))
+
+#define BUFFER_LEN 80
+
+char input[BUFFER_LEN];
+char input_b[BUFFER_LEN];
+
+#include <string.h>
+#include <ctype.h>
+
 static void GUI_thread (void const * arg)
 {
 
   (void) arg;
 
+#if 1
+  unsigned int i;
+  static unsigned int count = 0;
+  static unsigned int saved = 0;
+  static char *buf;
+#endif
+
+  static uint32_t printPrompt = 1;
+
   while (1) {
 
-#if 0
-    if (cmd_buf[0] != 0) {
-      vt100_putc(cmd_buf[0]);
-      cmd_buf[0] = 0;
+    
+    // Enable interrupt RX Not Empty Interrupt
+    //__HAL_UART_ENABLE_IT(&hUART, UART_IT_RXNE);
+
+    /* Do we have to print the prompt? */
+    if(printPrompt) {
+      writef("> ");
+      vt100_puts("> ");
+      printPrompt = 0;
+    }
+
+
+#if 1
+#if 1
+    
+    // If there is something received, then we clear it in 60 seconds anyway, otherwise no need to wake up
+    int const timeout = count ? pdMS_TO_TICKS(60000) : TICKS_IN_DAY;
+
+    // Wait for a char to be queued. Returns false if timeout... (nothing received)
+    char * const buf_empty_pos = input + count;
+
+    int const queue_rc = xQueueReceive(rx_char_queue, buf_empty_pos, timeout);
+    if (queue_rc == pdFALSE) {
+        count = 0;
+        continue; // Try again
     }
 #endif
+
+    // Process
+    char const c = *buf_empty_pos;
+
+    /* We have a character to process */
+    /* printf("Got:'%c' %d\n",c,c); */
+    /* Check for simple line control characters */
+    if(((c == 010) || (c == 0x7f)) && count) {
+      /* User pressed backspace */
+      writef("\010 \010"); /* Obliterate character */
+      buf--;     /* Then remove it from the buffer */
+      count--;   /* Then keep track of how many are left */
+    } else if(c == '!') { /* '!' repeats the last command */
+      if(saved) {  /* But only if we have something saved */
+        strcpy(input,input_b);  /* Restore the command */
+        writef("HIS: %s",input);
+        count = strlen(input);
+        buf = input+count;
+        goto parseme;
+      }
+    } else if(isprint((unsigned int)c)) {
+      /* We are only going to save printable characters */
+      if(count >= sizeof(input)) {
+        /* We are out of space */
+        writef("\x07"); /* Beep */
+        return;
+      } else {
+        *buf++ = c;
+        count++;
+        /* Echo it back to the user */
+        writef("%c",c);
+        vt100_putc(c);
+      }
+    } else if(c == '\r') {
+      /* NULL Terminate anything we have received */
+      *buf = '\0';
+      /* save current buffer in case we want to re do the command */
+      strcpy(input_b,input);
+      saved = 1;
+
+      
+      /* The user pressed enter, parse the command */
     
+    parseme:
+      /* Send CR to console */
+      writef("\r\n");
+      vt100_putc('\r');
+
+      writef("CMD: %s", input); writef("\r\n");
+      
+      /* Fill the rest of the buffer wil NUL */
+      for(i=count; i<BUFFER_LEN; i++) *buf++ = '\0';
+      count = 0;
+
+      //parse(input, sizeof(input), Commands);
+
+      buf = input;
+      printPrompt = 1;
+    }
+
+#endif
+
     guiEventLoop();
     //osThreadTerminate( NULL );
   }
+
 }
 
 
