@@ -1,10 +1,12 @@
 /**
   ******************************************************************************
-  * @file    LwIP/LwIP_HTTP_Server_Netconn_RTOS/Inc/lwipopts.h
+  * @file    LwIP/LwIP_HTTP_Server_Socket_RTOS/Inc/lwipopts.h
   * @author  MCD Application Team
   * @version V1.4.0
   * @date    17-February-2017
   * @brief   lwIP Options Configuration.
+  *          This file is based on Utilities/lwip_v1.4.1/src/include/lwip/opt.h 
+  *          and contains the lwIP configuration for the STM32F4x7 demonstration.
   ******************************************************************************
   * @attention
   *
@@ -78,7 +80,7 @@ a lot of data that needs to be copied, this should be set high. */
 #define MEMP_NUM_TCP_PCB_LISTEN 5
 /* MEMP_NUM_TCP_SEG: the number of simultaneously queued TCP
    segments. */
-#define MEMP_NUM_TCP_SEG        8
+#define MEMP_NUM_TCP_SEG        12
 /* MEMP_NUM_SYS_TIMEOUT: the number of simulateously active
    timeouts. */
 #define MEMP_NUM_SYS_TIMEOUT    10
@@ -101,7 +103,7 @@ a lot of data that needs to be copied, this should be set high. */
 #define TCP_QUEUE_OOSEQ         0
 
 /* TCP Maximum segment size. */
-#define TCP_MSS                 (1500 - 40)	  /* TCP_MSS = (Ethernet MTU - IP header size - TCP header size) */
+#define TCP_MSS                 (1500 - 40)   /* TCP_MSS = (Ethernet MTU - IP header size - TCP header size) */
 
 /* TCP sender buffer space (bytes). */
 #define TCP_SND_BUF             (4*TCP_MSS)
@@ -202,7 +204,7 @@ The STM32F4xx allows computing and verifying the IP, UDP, TCP and ICMP checksums
 /**
  * LWIP_SOCKET==1: Enable Socket API (require to use sockets.c)
  */
-#define LWIP_SOCKET                     0
+#define LWIP_SOCKET                     1
 
 /*
    ------------------------------------

@@ -32,10 +32,10 @@
 #include "stm32f4xx_it.h"
 #include "cmsis_os.h"
 
-#include "uart.h"
+#include "uart.h"           /* hUART */
+#include "eth_if.h"         /* hETH  */
 
 extern SPI_HandleTypeDef    SpiHandle;
-
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -124,7 +124,8 @@ void DebugMon_Handler(void)
   */
 void SysTick_Handler(void)
 {
-  osSystickHandler();
+  HAL_IncTick();        /* Required for HAL_Delay(), as in hal_eth.c */
+  osSystickHandler();   /* Required for FreeRTOS  */
 }
 
 /******************************************************************************/
@@ -152,14 +153,15 @@ void SPI2_IRQHandler(void)
   HAL_SPI_IRQHandler(&SpiHandle);
 }
 
-#if 0
+
 /**
   * @brief  This function handles UART interrupt request.  
   * @param  None
   * @retval None
-  * @Note   This function is redefined in "main.h" and related to DMA stream 
+  * @Note   This function is redefined in "uart.c" and related to DMA stream 
   *         used for USART data transmission     
   */
+#if 0
 void USARTx_IRQHandler(void)
 {
   HAL_UART_IRQHandler(&hUART);
@@ -167,7 +169,16 @@ void USARTx_IRQHandler(void)
 #endif
 
 
-
+/**
+  * @brief  This function handles ETH interrupt request.  
+  * @param  None
+  * @retval None
+  * @Note   Trampoline for own    
+  */
+void ETH_IRQHandler(void)
+{
+  HAL_ETH_IRQHandler(&hETH);
+}
 
 
 

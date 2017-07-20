@@ -101,6 +101,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 
+//#include "uart.h"
 /** @addtogroup STM32F4xx_HAL_Driver
   * @{
   */
@@ -274,7 +275,8 @@ HAL_StatusTypeDef HAL_ETH_Init(ETH_HandleTypeDef *heth)
   
   /* Write to ETHERNET MAC MIIAR: Configure the ETHERNET CSR Clock Range */
   (heth->Instance)->MACMIIAR = (uint32_t)tmpreg1;
-  
+
+
   /*-------------------- PHY initialization and configuration ----------------*/
   /* Put the PHY in reset mode */
   if((HAL_ETH_WritePHYRegister(heth, PHY_BCR, PHY_RESET)) != HAL_OK)
@@ -291,7 +293,7 @@ HAL_StatusTypeDef HAL_ETH_Init(ETH_HandleTypeDef *heth)
     /* Return HAL_ERROR */
     return HAL_ERROR;
   }
-  
+
   /* Delay to assure PHY reset */
   HAL_Delay(PHY_RESET_DELAY);
   
@@ -1082,8 +1084,8 @@ HAL_StatusTypeDef HAL_ETH_ReadPHYRegister(ETH_HandleTypeDef *heth, uint16_t PHYR
   /* Prepare the MII address register value */
   tmpreg1 |=(((uint32_t)heth->Init.PhyAddress << 11U) & ETH_MACMIIAR_PA); /* Set the PHY device address   */
   tmpreg1 |=(((uint32_t)PHYReg<<6U) & ETH_MACMIIAR_MR);                   /* Set the PHY register address */
-  tmpreg1 &= ~ETH_MACMIIAR_MW;                                            /* Set the read mode            */
-  tmpreg1 |= ETH_MACMIIAR_MB;                                             /* Set the MII Busy bit         */
+  tmpreg1 &= ~ETH_MACMIIAR_MW;                                           /* Set the read mode            */
+  tmpreg1 |= ETH_MACMIIAR_MB;                                            /* Set the MII Busy bit         */
   
   /* Write the result value into the MII Address register */
   heth->Instance->MACMIIAR = tmpreg1;
@@ -1881,6 +1883,8 @@ static void ETH_MACAddressConfig(ETH_HandleTypeDef *heth, uint32_t MacAddr, uint
   
   /* Load the selected MAC address low register */
   (*(__IO uint32_t *)((uint32_t)(ETH_MAC_ADDR_LBASE + MacAddr))) = tmpreg1;
+
+  //debug("MAC: %0x:%0x:%0x:%0x:%0x:%0x", Addr[0], Addr[1], Addr[2], Addr[3], Addr[4], Addr[5]);
 }
 
 /**

@@ -51,8 +51,18 @@ void DebugMon_Handler(void);
 void PendSV_Handler(void);
 void SysTick_Handler(void);
 
+/* Standard IRQ handlers, pointing to original HAL_XXX_IRQHandler  */
 void SPI2_IRQHandler(void);
+void ETH_IRQHandler(void);
+
+/* Own IRQ handler implementations, where special case differentiations are made */
 //void USARTx_IRQHandler(void);
+
+
+
+
+
+
 
 #ifdef __cplusplus
 }

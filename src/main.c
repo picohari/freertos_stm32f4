@@ -48,6 +48,10 @@
 #include "gui.h"
 #include "vt100.h"
 
+#include "eth_if.h"
+#include "lwip/netif.h"
+#include "lwip/tcpip.h"
+#include "proto_dhcp.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -60,7 +64,7 @@
 /* Private variables ---------------------------------------------------------*/
 osThreadId LEDThread1Handle, LEDThread2Handle;
 
-
+struct netif gnetif;
 
 
 /* Private function prototypes -----------------------------------------------*/
@@ -76,7 +80,7 @@ static void LED2_thread (void const * arg);
 static void GUI_start (void const * arg);
 static void GUI_thread (void const * arg);
 
-
+static void NET_start (void const * arg);
 
 
 
@@ -109,7 +113,7 @@ static void os_init(void)
 
   uart_init();
 
-  writef("\033[2J"); // Clear screen
+  //writef("\033[2J"); // Clear screen
   writef("\r\n");
   writef("Firmware %s", VERSION_STRING_LONG);
   writef("\r\n");
@@ -132,6 +136,8 @@ static void os_tasks(void)
   osThreadDef(gui, GUI_start,      osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
   osThreadCreate( osThread(gui),   NULL);
 
+  osThreadDef(net, NET_start,      osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 5);
+  osThreadCreate( osThread(net),   NULL);
 
 #if 0
   /* Create the queue used by the two tasks to pass the incrementing number.
@@ -168,6 +174,81 @@ int main(void)
   /* Should never ever get here ..*/
 	return 0;
 }
+
+
+
+
+
+
+
+
+
+static void NET_start (void const * arg)
+{
+
+  (void) arg;
+
+  ip_addr_t ipaddr;
+  ip_addr_t netmask;
+  ip_addr_t gw;
+
+#ifdef USE_DHCP
+  ipaddr.addr = 0;
+  netmask.addr = 0;
+  gw.addr = 0;
+#else
+  /* IP address default setting */
+  IP4_ADDR(&ipaddr, IP_ADDR0, IP_ADDR1, IP_ADDR2, IP_ADDR3);
+  IP4_ADDR(&netmask, NETMASK_ADDR0, NETMASK_ADDR1 , NETMASK_ADDR2, NETMASK_ADDR3);
+  IP4_ADDR(&gw, GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3);
+#endif
+
+  tcpip_init(NULL,NULL);
+
+  /* add the network interface */
+  netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &tcpip_input);
+  //netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, ethernetif_init, ethernet_input);
+
+  /*  Registers the default network interface */
+  netif_set_default(&gnetif);
+
+  if (netif_is_link_up(&gnetif))
+  {
+    /* When the netif is fully configured this function must be called */
+    netif_set_up(&gnetif);
+  }
+  else
+  {
+    /* When the netif link is down this function must be called */
+    netif_set_down(&gnetif);
+  }
+
+  /* Set the link callback function, this function is called on change of link status*/
+  //netif_set_link_callback(&gnetif, ethernetif_update_config);
+
+  //osThreadDef(eth0, eth0_thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
+  //osThreadCreate( osThread(eth0), NULL);
+
+  while (1) {
+    osThreadTerminate( NULL );  /* important to stop task here !! */
+  }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

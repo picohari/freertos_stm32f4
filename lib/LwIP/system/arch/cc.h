@@ -40,7 +40,7 @@ typedef int sys_prot_t;
 
 #define LWIP_PROVIDE_ERRNO
 
-#define LWIP_PLATFORM_DIAG(message)  printf message
+#define LWIP_PLATFORM_DIAG(message)  debug message
 
 /* define compiler specific symbols */
 #if defined (__ICCARM__)

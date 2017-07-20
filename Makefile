@@ -26,6 +26,8 @@ include ./lib/UGFX.mk
 # BIOS hardware and peripherals
 include ./src/hw/HW.mk
 
+# TCP/IP protocols and sockets
+include ./src/protocols/PROTO.mk
 
 # Application libraries and external modules
 include ./src/gui/GUI.mk
@@ -36,14 +38,10 @@ CSRC += ./src/main.c \
 		./src/stm32f4xx_it.c \
 		./src/stm32f4xx_hal_msp.c \
 		./src/os/syscalls.c \
-#		./src/syscalls.c \
-#		./src/stm32f4xx_hal_msp.c \
-
 
 
 INCDIR += ./src/config \
 		  ./src \
-		  ./src/hw/uart \
 		  ./src/os \
 
 
