@@ -207,7 +207,6 @@ static void NET_start (void const * arg)
 
   /* add the network interface */
   netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &tcpip_input);
-  //netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, ethernetif_init, ethernet_input);
 
   /*  Registers the default network interface */
   netif_set_default(&gnetif);
@@ -222,12 +221,6 @@ static void NET_start (void const * arg)
     /* When the netif link is down this function must be called */
     netif_set_down(&gnetif);
   }
-
-  /* Set the link callback function, this function is called on change of link status*/
-  //netif_set_link_callback(&gnetif, ethernetif_update_config);
-
-  //osThreadDef(eth0, eth0_thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
-  //osThreadCreate( osThread(eth0), NULL);
 
   while (1) {
     osThreadTerminate( NULL );  /* important to stop task here !! */
@@ -415,7 +408,7 @@ static void GUI_thread (void const * arg)
 
 
     guiEventLoop();
-    //osThreadTerminate( NULL );
+
   }
 
 }

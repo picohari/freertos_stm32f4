@@ -53,7 +53,7 @@
   
 #include <string.h>
 
-#include "uart.h"
+//#include "uart.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -208,8 +208,8 @@ static void low_level_init(struct netif *netif)
   
   hETH.Instance = ETH;  
   hETH.Init.MACAddr = macaddress;
-  hETH.Init.AutoNegotiation = ETH_AUTONEGOTIATION_DISABLE;
-  hETH.Init.Speed = ETH_SPEED_10M;
+  hETH.Init.AutoNegotiation = ETH_AUTONEGOTIATION_ENABLE;
+  hETH.Init.Speed = ETH_SPEED_100M;
   hETH.Init.DuplexMode = ETH_MODE_FULLDUPLEX;
   hETH.Init.MediaInterface = ETH_MEDIA_INTERFACE_RMII;
   hETH.Init.RxMode = ETH_RXINTERRUPT_MODE;
