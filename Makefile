@@ -33,6 +33,9 @@ include ./src/protocols/PROTO.mk
 include ./src/gui/GUI.mk
 # include ./src/gui/WORK.mk
 
+# Network applications and services
+include ./src/services/SERVICES.mk
+
 
 CSRC += ./src/main.c \
 		./src/stm32f4xx_it.c \

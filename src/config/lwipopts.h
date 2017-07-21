@@ -49,6 +49,7 @@
 #ifndef __LWIPOPTS_H__
 #define __LWIPOPTS_H__
 
+
 /**
  * NO_SYS==1: Provides VERY minimal functionality. Otherwise,
  * use lwIP facilities.
@@ -118,7 +119,7 @@ a lot of data that needs to be copied, this should be set high. */
 
 
 /* ---------- ICMP options ---------- */
-#define LWIP_ICMP                       1
+#define LWIP_ICMP               1
 
 
 /* ---------- DHCP options ---------- */
@@ -131,7 +132,7 @@ a lot of data that needs to be copied, this should be set high. */
 
 
 /* ---------- Statistics options ---------- */
-#define LWIP_STATS 0
+#define LWIP_STATS              0
 
 /* ---------- link callback options ---------- */
 /* LWIP_NETIF_LINK_CALLBACK==1: Support a callback function from an interface
@@ -194,7 +195,7 @@ The STM32F4xx allows computing and verifying the IP, UDP, TCP and ICMP checksums
 /**
  * LWIP_NETCONN==1: Enable Netconn API (require to use api_lib.c)
  */
-#define LWIP_NETCONN                    1
+#define LWIP_NETCONN                1
 
 /*
    ------------------------------------
@@ -204,16 +205,7 @@ The STM32F4xx allows computing and verifying the IP, UDP, TCP and ICMP checksums
 /**
  * LWIP_SOCKET==1: Enable Socket API (require to use sockets.c)
  */
-#define LWIP_SOCKET                     1
-
-/*
-   ------------------------------------
-   ---------- httpd options ----------
-   ------------------------------------
-*/
-/** Set this to 1 to include "fsdata_custom.c" instead of "fsdata.c" for the
- * file system (to prevent changing the file included in CVS) */
-#define HTTPD_USE_CUSTOM_FSDATA   1
+#define LWIP_SOCKET                 1
 
 /*
    ---------------------------------
@@ -230,7 +222,76 @@ The STM32F4xx allows computing and verifying the IP, UDP, TCP and ICMP checksums
 #define DEFAULT_THREAD_STACKSIZE        500
 #define TCPIP_THREAD_PRIO               osPriorityHigh
 
+/*
+   ------------------------------------
+   ---------- httpd options ----------
+   ------------------------------------
+*/
 
+/** Set this to 1 to support CGI */
+#define LWIP_HTTPD_CGI            1
+
+/** Set this to 1 to support SSI (Server-Side-Includes) */
+#define LWIP_HTTPD_SSI            1
+
+/** Set this to 1 to include "fsdata_custom.c" instead of "fsdata.c" for the
+ * file system (to prevent changing the file included in CVS) */
+#define HTTPD_USE_CUSTOM_FSDATA   1
+
+/** Set this to 1 and provide the functions:
+ * - "int fs_open_custom(struct fs_file *file, const char *name)"
+ *    Called first for every opened file to allow opening files
+ *    that are not included in fsdata(_custom).c
+ * - "void fs_close_custom(struct fs_file *file)"
+ *    Called to free resources allocated by fs_open_custom().
+ */
+#define LWIP_HTTPD_CUSTOM_FILES       1
+
+#define LWIP_HTTPD_DYNAMIC_FILE_READ  1
+#define LWIP_HTTPD_DYNAMIC_HEADERS    1
+
+#define LWIP_HTTPD_FS_ASYNC_READ      0
+
+
+#define LWIP_DEBUG                    1
+
+#define LWIP_DBG_TYPES_ON             LWIP_DBG_ON
+#define ETHARP_DEBUG                  LWIP_DBG_OFF
+#define NETIF_DEBUG                   LWIP_DBG_ON
+#define PBUF_DEBUG                    LWIP_DBG_OFF
+#define API_LIB_DEBUG                 LWIP_DBG_OFF
+#define API_MSG_DEBUG                 LWIP_DBG_OFF
+#define SOCKETS_DEBUG                 LWIP_DBG_OFF
+#define ICMP_DEBUG                    LWIP_DBG_OFF
+#define IGMP_DEBUG                    LWIP_DBG_OFF
+#define INET_DEBUG                    LWIP_DBG_OFF
+#define IP_DEBUG                      LWIP_DBG_OFF
+#define IP_REASS_DEBUG                LWIP_DBG_OFF
+#define RAW_DEBUG                     LWIP_DBG_OFF
+#define MEM_DEBUG                     LWIP_DBG_OFF
+#define MEMP_DEBUG                    LWIP_DBG_OFF
+#define SYS_DEBUG                     LWIP_DBG_OFF
+#define TIMERS_DEBUG                  LWIP_DBG_OFF
+#define TCP_DEBUG                     LWIP_DBG_OFF
+#define TCP_INPUT_DEBUG               LWIP_DBG_OFF
+#define TCP_FR_DEBUG                  LWIP_DBG_OFF
+#define TCP_RTO_DEBUG                 LWIP_DBG_OFF
+#define TCP_CWND_DEBUG                LWIP_DBG_OFF
+#define TCP_WND_DEBUG                 LWIP_DBG_OFF
+#define TCP_OUTPUT_DEBUG              LWIP_DBG_OFF
+#define TCP_RST_DEBUG                 LWIP_DBG_OFF
+#define TCP_QLEN_DEBUG                LWIP_DBG_OFF
+#define UDP_DEBUG                     LWIP_DBG_OFF
+#define TCPIP_DEBUG                   LWIP_DBG_OFF
+#define PPP_DEBUG                     LWIP_DBG_OFF
+#define SLIP_DEBUG                    LWIP_DBG_OFF
+#define DHCP_DEBUG                    LWIP_DBG_OFF
+#define AUTOIP_DEBUG                  LWIP_DBG_OFF
+#define DNS_DEBUG                     LWIP_DBG_OFF
+#define IP6_DEBUG                     LWIP_DBG_OFF
+
+#define HTTPD_DEBUG                   LWIP_DBG_ON
+#define HTTPD_DEBUG_TIMING            LWIP_DBG_ON
 
 #endif /* __LWIPOPTS_H__ */
 

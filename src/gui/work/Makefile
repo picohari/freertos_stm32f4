@@ -12,7 +12,7 @@
 
 # uGFX settings
 	# See $(GFXLIB)/tools/gmake_scripts/library_ugfx.mk for the list of variables
-	GFXLIB					= ../../ugfx_library
+	GFXLIB					= ../ugfx
 	GFXBOARD				= Win32
 	GFXDEMO					= 
 
@@ -28,9 +28,6 @@ endif
 ##############################################################################################
 # Set these for your project
 #
-
-#DEFS    += GDISP_SCREEN_WIDTH=320
-#DEFS    += GDISP_SCREEN_HEIGHT=240
 
 ARCH     = i686-w64-mingw32-
 SRCFLAGS = -ggdb -O0
@@ -50,7 +47,10 @@ LIBPATH  =
 # These should be at the end
 #
 
-include ./menu.mk
+GFXSRC +=	main.c \
+			gui.c \
+			pages/pages.c
+
 include $(GFXLIB)/tools/gmake_scripts/library_ugfx.mk
 include $(GFXLIB)/tools/gmake_scripts/os_$(OPT_OS).mk
 include $(GFXLIB)/tools/gmake_scripts/compiler_gcc.mk

@@ -1,14 +1,14 @@
 /**
   ******************************************************************************
-  * @file    LwIP/LwIP_HTTP_Server_Socket_RTOS/Inc/app_ethernet.h 
+  * @file    LwIP/LwIP_HTTP_Server_Raw/Inc/http_cgi_ssi.h 
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    17-February-2017
-  * @brief   Header for app_ethernet.c module
+  * @version V1.0.0
+  * @date    22-April-2016
+  * @brief   Header for http_cgi_ssi.c module
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics International N.V. 
+  * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics International N.V. 
   * All rights reserved.</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without 
@@ -44,48 +44,27 @@
   *
   ******************************************************************************
   */
+
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __APP_ETHERNET_H
-#define __APP_ETHERNET_H
+#ifndef __HTTP_CGI_SSI_H
+#define __HTTP_CGI_SSI_H
 
 #ifdef __cplusplus
  extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "lwip/netif.h"
-
 /* Exported types ------------------------------------------------------------*/
-/* Exported constants --------------------------------------------------------*/
-/* DHCP process states */
-#define DHCP_OFF                   (uint8_t) 0
-#define DHCP_START                 (uint8_t) 1
-#define DHCP_WAIT_ADDRESS          (uint8_t) 2
-#define DHCP_ADDRESS_ASSIGNED      (uint8_t) 3
-#define DHCP_TIMEOUT               (uint8_t) 4
-#define DHCP_LINK_DOWN             (uint8_t) 5
-
-
-#define DHCP_LOG        /* enable LCD  */  
-//#define USE_DHCP       /* enable DHCP, if disabled static address is used*/
- 
-
-
-
+/* Exported constants --------------------------------------------------------*/   
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
-void dhcp_notification(struct netif *netif);
-
-#ifdef USE_DHCP
-void dhcp_thread(void const * argument);
-#endif 
+void http_server_init(void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __APP_ETHERNET_H */
+#endif /* __HTTP_CGI_SSI_H */
 
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
-

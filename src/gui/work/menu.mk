@@ -1,4 +1,0 @@
-GFXSRC +=	main.c \
-			gui.c
-DEFS   +=	GDISP_SCREEN_WIDTH=320
-DEFS   +=	GDISP_SCREEN_HEIGHT=240

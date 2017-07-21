@@ -62,10 +62,46 @@
 #define VERSION_STRING_LONG VERSION " built on " __DATE__ " " __TIME__
 
 
+/**
+* The IP Adresses of the system 
+*/
+
+#define HOME_NET
+
+#ifdef HOME_NET
+  #define IP_ADDR_HOME_NET    1
+  #define IP_ADDR_HOME_GW     1
+#else /* my office network has different settings... */
+  #define IP_ADDR_HOME_NET    200
+  #define IP_ADDR_HOME_GW     254
+#endif
+
+/* Static IP Address */
+#define IP_ADDR0        (uint8_t) 192
+#define IP_ADDR1        (uint8_t) 168
+#define IP_ADDR2        (uint8_t) IP_ADDR_HOME_NET
+#define IP_ADDR3        (uint8_t) 164
+
+/* Gateway IP Address */
+#define GW_ADDR0        (uint8_t) 192
+#define GW_ADDR1        (uint8_t) 168
+#define GW_ADDR2        (uint8_t) IP_ADDR_HOME_NET
+#define GW_ADDR3        (uint8_t) IP_ADDR_HOME_GW
+   
+/* Netmask */
+#define NETMASK_ADDR0   (uint8_t) 255
+#define NETMASK_ADDR1   (uint8_t) 255
+#define NETMASK_ADDR2   (uint8_t) 255
+#define NETMASK_ADDR3   (uint8_t) 0
 
 
 
- 
+
+
+
+/**
+* The default error handler 
+*/
 extern void Error_Handler(void);
 
 #ifdef __cplusplus

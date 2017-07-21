@@ -53,6 +53,10 @@
 #include "lwip/tcpip.h"
 #include "proto_dhcp.h"
 
+#include "httpd_server.h"
+//#include "test_server.h"
+
+
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 #define LED1_UPDATE_DELAY   125
@@ -81,6 +85,7 @@ static void GUI_start (void const * arg);
 static void GUI_thread (void const * arg);
 
 static void NET_start (void const * arg);
+static void HTTP_start (void const * arg);
 
 
 
@@ -126,7 +131,6 @@ static void os_init(void)
 static void os_tasks(void)
 {
 
-
   osThreadDef(led1, LED1_thread,   osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
   LEDThread1Handle = osThreadCreate( osThread(led1),  NULL);
 
@@ -138,6 +142,8 @@ static void os_tasks(void)
 
   osThreadDef(net, NET_start,      osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 5);
   osThreadCreate( osThread(net),   NULL);
+
+
 
 #if 0
   /* Create the queue used by the two tasks to pass the incrementing number.
@@ -222,6 +228,9 @@ static void NET_start (void const * arg)
     netif_set_down(&gnetif);
   }
 
+  osThreadDef(http, HTTP_start,    osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 10);
+  osThreadCreate( osThread(http),  NULL);
+
   while (1) {
     osThreadTerminate( NULL );  /* important to stop task here !! */
   }
@@ -229,7 +238,20 @@ static void NET_start (void const * arg)
 }
 
 
+static void HTTP_start (void const * arg)
+{
 
+  (void) arg;
+
+  /* Starts the httpd server */
+  http_server_init();
+  //http_server_socket_init();
+
+  while(1) {
+
+  }
+
+}
 
 
 
@@ -281,8 +303,8 @@ static void GUI_start (void const * arg)
 
   guiCreate();
 
-  osThreadDef(gui, GUI_thread, osPriorityNormal, 0, 256);
-  osThreadCreate( osThread(gui), NULL);
+  osThreadDef(tty0, GUI_thread, osPriorityNormal, 0, 256);
+  osThreadCreate( osThread(tty0), NULL);
 
   while (1) {
     osThreadTerminate( NULL );  /* important to stop task here !! */
@@ -308,6 +330,7 @@ static void GUI_thread (void const * arg)
 
   (void) arg;
 
+#if 1
   unsigned int i;
   static unsigned int count = 0;
   static unsigned int saved = 0;
@@ -406,10 +429,13 @@ static void GUI_thread (void const * arg)
       printPrompt = 1;
     }
 
-
     guiEventLoop();
 
   }
+
+#else
+    guiEventLoop();
+#endif
 
 }
 

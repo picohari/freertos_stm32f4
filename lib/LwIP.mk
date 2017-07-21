@@ -159,6 +159,7 @@ CSRC += $(COREFILES) \
 	    $(CORE6FILES) \
 	    $(APIFILES) \
 	    $(NETIFFILES) \
+	    $(HTTPDFILES) \
 	    $(LWIP)/system/OS/sys_arch.c \
 	    #$(LWIP_SRC)/apps/sntp/sntp.c \
 	    #$(LWIP_SRC)/apps/httpd/fs.c \

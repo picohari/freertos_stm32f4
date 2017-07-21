@@ -36,6 +36,7 @@
 #include "fsdata.h"
 #include <string.h>
 
+#include "cmsis_os.h"
 
 #if HTTPD_USE_CUSTOM_FSDATA
 #include "fsdata_custom.c"
@@ -55,6 +56,69 @@ int fs_read_async_custom(struct fs_file *file, char *buffer, int count, fs_wait_
 #else /* LWIP_HTTPD_FS_ASYNC_READ */
 int fs_read_custom(struct fs_file *file, char *buffer, int count);
 #endif /* LWIP_HTTPD_FS_ASYNC_READ */
+#endif /* LWIP_HTTPD_CUSTOM_FILES */
+
+
+#if LWIP_HTTPD_CUSTOM_FILES
+int fs_open_custom(struct fs_file *file, const char *name)
+{
+
+    static char pcBuf[512];       /* Buffer for storing dynamic page content */
+
+    // Request for TASKS list (Important: provide correct extention!!)
+    if(strncmp(name, "/tasks.html",  10) == 0) {
+  
+      memset(pcBuf, 0, sizeof(pcBuf));
+
+      strcat((char *)pcBuf, "<pre><br>Name          State  Priority  Stack   Num");
+      strcat((char *)pcBuf, "<br>--------------------------------------------------<br>");
+        
+      /* The list of tasks and their status */
+      osThreadList((unsigned char *)(pcBuf + strlen(pcBuf)));
+
+      strcat((char *)pcBuf, "<br>--------------------------------------------------");
+      strcat((char *)pcBuf, "<br>B : Blocked, R : Ready, D : Deleted, S : Suspended<br>");
+
+      file->data = pcBuf;         /* Point data to local buffer */
+      file->index = 0;            /* Start reading at beginning of buffer */
+      file->len = strlen(pcBuf);  /* Provide length of content in buffer */
+
+      return 1;
+    }
+    
+    else if (strncmp(name, "/config", 7) == 0) {
+      return 1;
+    }
+    else
+      return 0;
+}
+
+int fs_read_custom(struct fs_file *file, char *buffer, int count)
+{
+
+  int read;
+  if(file->index == file->len) {
+    return FS_READ_EOF;
+  }
+
+  read = file->len - file->index;
+
+  if(read > count) {
+    read = count;
+  }
+
+  MEMCPY(buffer, (file->data + file->index), read);
+  file->index += read;
+
+  return(read);
+}
+
+
+
+void fs_close_custom(struct fs_file *file)
+{
+
+}
 #endif /* LWIP_HTTPD_CUSTOM_FILES */
 
 /*-----------------------------------------------------------------------------------*/

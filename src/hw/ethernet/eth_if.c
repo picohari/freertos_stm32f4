@@ -49,6 +49,7 @@
 #include "lwip/opt.h"
 #include "lwip/timeouts.h"
 #include "netif/etharp.h"
+  
 #include "eth_if.h"
   
 #include <string.h>
@@ -208,8 +209,8 @@ static void low_level_init(struct netif *netif)
   
   hETH.Instance = ETH;  
   hETH.Init.MACAddr = macaddress;
-  hETH.Init.AutoNegotiation = ETH_AUTONEGOTIATION_ENABLE;
-  hETH.Init.Speed = ETH_SPEED_100M;
+  hETH.Init.AutoNegotiation = ETH_AUTONEGOTIATION_DISABLE;
+  hETH.Init.Speed = ETH_SPEED_10M;
   hETH.Init.DuplexMode = ETH_MODE_FULLDUPLEX;
   hETH.Init.MediaInterface = ETH_MEDIA_INTERFACE_RMII;
   hETH.Init.RxMode = ETH_RXINTERRUPT_MODE;

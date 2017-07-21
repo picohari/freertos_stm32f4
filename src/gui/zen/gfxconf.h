@@ -34,6 +34,7 @@
 
 #else
 /* We the real thing ... */
+
 #define GFX_USE_OS_FREERTOS                 TRUE
 #define GFX_OS_NO_INIT                      TRUE
 #define GFX_CPU                             GFX_CPU_CORTEX_M4_FP

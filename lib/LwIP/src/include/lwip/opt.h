@@ -51,6 +51,7 @@
 #include "lwipopts.h"
 #include "lwip/debug.h"
 
+#include "uart.h"
 /**
  * @defgroup lwip_opts Options (lwipopts.h)
  * @ingroup lwip

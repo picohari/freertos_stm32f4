@@ -1,3 +1,4 @@
+#include "rsc/intewa.h"
 #include "rsc/_leer.h"
 #include "rsc/_obenlinks.h"
 #include "rsc/_obenmitte.h"
@@ -6,5 +7,6 @@
 #include "rsc/_untenmitte.h"
 #include "rsc/_untenrechts.h"
 #include "rsc/einstellungen.h"
-#include "rsc/schliessen.h"
 #include "rsc/zurueck.h"
+#include "rsc/weiter.h"
+#include "rsc/bestaetigen.h"
