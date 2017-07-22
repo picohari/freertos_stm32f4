@@ -88,6 +88,12 @@
 /* FreeRTOS+CLI includes. */
 #include "FreeRTOS_CLI.h"
 
+#define configINCLUDE_TRACE_RELATED_CLI_COMMANDS 	0
+	#define configINCLUDE_QUERY_HEAP_COMMAND 		1
+
+
+
+
 #ifndef  configINCLUDE_TRACE_RELATED_CLI_COMMANDS
 	#define configINCLUDE_TRACE_RELATED_CLI_COMMANDS 0
 #endif

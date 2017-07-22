@@ -61,7 +61,6 @@
 #define VERSION_STRING VERSION
 #define VERSION_STRING_LONG VERSION " built on " __DATE__ " " __TIME__
 
-
 /**
 * The IP Adresses of the system 
 */

@@ -921,8 +921,8 @@ STATE(_st_idle, term, ev, arg){
 					term->send_response("X"); // should send SCCS_ID?
 					break;  
 				case '\n': { // new line
-					_vt100_move(term, 0, 1);
-					term->cursor_x = 0; 
+					//_vt100_move(term, 0, 1);
+					//term->cursor_x = 0; 
 					//_vt100_moveCursor(term, 0, term->cursor_y + 1);
 					// do scrolling here! 
 					break;

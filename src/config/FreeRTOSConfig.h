@@ -105,15 +105,19 @@
 #define configUSE_MALLOC_FAILED_HOOK	        0
 #define configUSE_APPLICATION_TASK_TAG	        0
 #define configUSE_COUNTING_SEMAPHORES	        1
-#define configGENERATE_RUN_TIME_STATS	        0
+
 #define configUSE_STATS_FORMATTING_FUNCTIONS    1
+#define configGENERATE_RUN_TIME_STATS	        0
+//#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS()    vMainConfigureTimerForRunTimeStats()
+//#define portGET_RUN_TIME_COUNTER_VALUE()            ulMainGetRunTimeCounterValue()
+
 
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES 		          0
 #define configMAX_CO_ROUTINE_PRIORITIES     ( 2 )
 
 /* Software timer definitions. */
-#define configUSE_TIMERS			    0
+#define configUSE_TIMERS			    1
 #define configTIMER_TASK_PRIORITY		( 2 )
 #define configTIMER_QUEUE_LENGTH		10
 #define configTIMER_TASK_STACK_DEPTH	( configMINIMAL_STACK_SIZE * 2 )
@@ -128,6 +132,12 @@ to exclude the API function. */
 #define INCLUDE_vTaskDelayUntil			0
 #define INCLUDE_vTaskDelay			    1
 #define INCLUDE_xTaskGetSchedulerState  1
+
+#define INCLUDE_uxTaskGetStackHighWaterMark 1
+#define INCLUDE_xTimerGetTimerTaskHandle    0
+#define INCLUDE_xTaskGetIdleTaskHandle      0
+#define INCLUDE_xQueueGetMutexHolder        1
+
 
 /* Cortex-M specific definitions. */
 #ifdef __NVIC_PRIO_BITS
@@ -160,9 +170,8 @@ header file. */
 	
 /* Definitions that map the FreeRTOS port interrupt handlers to their CMSIS
 standard names. */
-#define vPortSVCHandler SVC_Handler
-#define xPortPendSVHandler PendSV_Handler
-
+#define vPortSVCHandler     SVC_Handler
+#define xPortPendSVHandler  PendSV_Handler
 /* IMPORTANT: This define MUST be commented when used with STM32Cube firmware, 
               to prevent overwriting SysTick_Handler defined within STM32Cube HAL */
 /* #define xPortSysTickHandler SysTick_Handler */
@@ -170,17 +179,6 @@ standard names. */
 
 
 
-
-/* Section where parameter definitions can be added (for instance, to override default ones in FreeRTOS.h) */
-/* Priorities to assign to tasks created by this demo. */
-#define configUART_COMMAND_CONSOLE_TASK_PRIORITY    ( 3U )
-#define configSPI_7_SEG_WRITE_TASK_PRIORITY         ( 2U )
-#define configI2C_TASK_PRIORITY                     ( 0U )
-
-/* Stack sizes to assign to tasks created by this demo. */
-#define configUART_COMMAND_CONSOLE_STACK_SIZE       ( configMINIMAL_STACK_SIZE * 2 )
-#define configSPI_7_SEG_WRITE_TASK_STACK_SIZE       ( configMINIMAL_STACK_SIZE * 2 )
-#define configI2C_TASK_STACK_SIZE                   ( configMINIMAL_STACK_SIZE * 3 )
 
 /* Dimensions a buffer that can be used by the FreeRTOS+CLI command
 interpreter.  Set this value to 1 to save RAM if FreeRTOS+CLI does not supply
