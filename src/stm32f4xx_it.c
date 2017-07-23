@@ -34,6 +34,7 @@
 
 #include "uart.h"           /* hUART */
 #include "eth_if.h"         /* hETH  */
+#include "rtc_clock.h"      /* clock_timestamp*/
 
 extern SPI_HandleTypeDef    SpiHandle;
 
@@ -126,6 +127,7 @@ void SysTick_Handler(void)
 {
   HAL_IncTick();        /* Required for HAL_Delay(), as in hal_eth.c */
   osSystickHandler();   /* Required for FreeRTOS  */
+  clock_timestamp++;    /* Count milliseconds for time.h */
 }
 
 /******************************************************************************/

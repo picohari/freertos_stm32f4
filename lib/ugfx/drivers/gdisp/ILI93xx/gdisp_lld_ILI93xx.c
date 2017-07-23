@@ -25,6 +25,8 @@
 
 #include "board_ILI93xx.h"
 
+//#include "uart.h"
+
 /*===========================================================================*/
 /* Driver local definitions.                                                 */
 /*===========================================================================*/
@@ -122,6 +124,175 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
    DeviceCode = read_reg(g, 0x00);
    setwritemode(g);
 
+   //debug("LCD Device: %0x", DeviceCode);
+
+   /* Original code from ?? for ILI9325 controller */
+
+#if 0
+
+   write_reg(g, 0xE5, 0x78F0); /* set SRAM internal timing */
+   write_reg(g, 0x01, 0x0000); /* set Driver Output Control */    // LANDSCAPE
+   write_reg(g, 0x02, 0x0700); /* set 1 line inversion */
+   //#if (DISP_ORIENTATION == 0)   /* set GRAM write direction and BGR=1 */
+   //write_reg(g, 0x03,(1<<12)|(1<<5)|(1<<4)|(0<<3));
+   //#elif (DISP_ORIENTATION == 90)
+   //write_reg(g, 0x03, ( (1<<12) || (1<<5) || (0<<4) || (1<<3) ) );    
+   write_reg(g, 0x03, 0x0030);                                   //  LANDSCAPE 
+   //#elif (DISP_ORIENTATION == 180)
+   //write_reg(g, 0x03,(1<<12)|(0<<5)|(0<<4)|(0<<3));
+   //#elif (DISP_ORIENTATION == 270)
+   //write_reg(g, 0x03,(1<<12)|(1<<5)|(0<<4)|(1<<3));
+   //#endif
+   write_reg(g, 0x04, 0x0000); /* Resize register */
+   //write_reg(g, 0x08, 0x0207); /* set the back porch and front porch */
+   write_reg(g, 0x09, 0x0000); /* set non-display area refresh cycle ISC[3:0] */
+   write_reg(g, 0x0A, 0x0000); /* FMARK function */
+   write_reg(g, 0x0C, 0x0000); /* RGB interface setting */
+   write_reg(g, 0x0D, 0x0000); /* Frame marker Position */
+   write_reg(g, 0x0F, 0x0000); /* RGB interface polarity */
+   /*************Power On sequence ****************/
+   write_reg(g, 0x10, 0x0000); /* SAP, BT[3:0], AP, DSTB, SLP, STB */
+   write_reg(g, 0x11, 0x0007); /* DC1[2:0], DC0[2:0], VC[2:0] */
+   write_reg(g, 0x12, 0x0000); /* VREG1OUT voltage */
+   write_reg(g, 0x13, 0x0000); /* VDV[4:0] for VCOM amplitude */
+   write_reg(g, 0x07, 0x0001);
+
+   gfxSleepMilliseconds(200); 
+
+   /* Dis-charge capacitor power voltage */
+   write_reg(g, 0x10, 0x1090); /* SAP, BT[3:0], AP, DSTB, SLP, STB */
+   write_reg(g, 0x11, 0x0227); /* Set DC1[2:0], DC0[2:0], VC[2:0] */
+
+   gfxSleepMilliseconds(50);               /* Delay 50ms */
+
+   write_reg(g, 0x12, 0x001F); 
+
+   gfxSleepMilliseconds(50);               /* Delay 50ms */
+
+   write_reg(g, 0x13, 0x1500); /* VDV[4:0] for VCOM amplitude */
+   write_reg(g, 0x29, 0x0027); /* 04 VCM[5:0] for VCOMH */
+   write_reg(g, 0x2B, 0x000D); /* Set Frame Rate */
+
+   gfxSleepMilliseconds(50);               /* Delay 50ms */
+
+   write_reg(g, 0x20, 0x0000); /* GRAM horizontal Address */
+   write_reg(g, 0x21, 0x0000); /* GRAM Vertical Address */
+   /* ----------- Adjust the Gamma Curve ---------- */
+   write_reg(g, 0x30, 0x0000);
+   write_reg(g, 0x31, 0x0707);
+   write_reg(g, 0x32, 0x0307);
+   write_reg(g, 0x35, 0x0200);
+   write_reg(g, 0x36, 0x0008);
+   write_reg(g, 0x37, 0x0004);
+   write_reg(g, 0x38, 0x0000);
+   write_reg(g, 0x39, 0x0707);
+   write_reg(g, 0x3C, 0x0002);
+   write_reg(g, 0x3D, 0x1D04);
+   /* ------------------ Set GRAM area --------------- */
+   #if 1
+   write_reg(g, 0x50, 0x0000); /* Horizontal GRAM Start Address */
+   write_reg(g, 0x51, 0x00EF); /* Horizontal GRAM End Address */
+   write_reg(g, 0x52, 0x0000); /* Vertical GRAM Start Address */
+   write_reg(g, 0x53, 0x013F); /* Vertical GRAM Start Address */
+   write_reg(g, 0x60, 0x2700); /* Gate Scan Line */                  // FOR LANDSCAPE 2700 od A700
+   write_reg(g, 0x61, 0x0001); /* NDL,VLE, REV */
+   write_reg(g, 0x6A, 0x0000); /* set scrolling line */
+   #endif
+   /* -------------- Partial Display Control --------- */
+   write_reg(g, 0x80, 0x0000);
+   write_reg(g, 0x81, 0x0000);
+   write_reg(g, 0x82, 0x0000);
+   write_reg(g, 0x83, 0x0000);
+   write_reg(g, 0x84, 0x0000);
+   write_reg(g, 0x85, 0x0000);
+   /* -------------- Panel Control ------------------- */
+   write_reg(g, 0x90, 0x0010);
+   write_reg(g, 0x92, 0x0600);
+   write_reg(g, 0x07, 0x0133); /* 262K color and display ON */
+
+   //write_reg(g, 0x03, 1038 ); 
+
+#endif
+
+   /* Original code from WaveShare for ILI9325 controller */
+
+#if 1
+
+   write_reg(g, 0xE5, 0x78F0); /* set SRAM internal timing */
+   write_reg(g, 0x01, 0x0100); /* set Driver Output Control */
+   write_reg(g, 0x02, 0x0700); /* set 1 line inversion */
+   #if (DISP_ORIENTATION == 0)   /* set GRAM write direction and BGR=1 */
+   	write_reg(g, 0x03,(1<<12)|(1<<5)|(1<<4)|(0<<3));
+   #elif (DISP_ORIENTATION == 90)
+   	write_reg(g, 0x03,(1<<12)|(0<<5)|(1<<4)|(1<<3));		
+   #elif (DISP_ORIENTATION == 180)
+   	write_reg(g, 0x03,(1<<12)|(0<<5)|(0<<4)|(0<<3));
+   #elif (DISP_ORIENTATION == 270)
+   	write_reg(g, 0x03,(1<<12)|(1<<5)|(0<<4)|(1<<3));
+   #endif
+   write_reg(g, 0x04, 0x0000); /* Resize register */
+   write_reg(g, 0x08, 0x0207); /* set the back porch and front porch */
+   write_reg(g, 0x09, 0x0000); /* set non-display area refresh cycle ISC[3:0] */
+   write_reg(g, 0x0A, 0x0000); /* FMARK function */
+   write_reg(g, 0x0C, 0x0000); /* RGB interface setting */
+   write_reg(g, 0x0D, 0x0000); /* Frame marker Position */
+   write_reg(g, 0x0F, 0x0000); /* RGB interface polarity */
+   /*************Power On sequence ****************/
+   write_reg(g, 0x10, 0x0000); /* SAP, BT[3:0], AP, DSTB, SLP, STB */
+   write_reg(g, 0x11, 0x0007); /* DC1[2:0], DC0[2:0], VC[2:0] */
+   write_reg(g, 0x12, 0x0000); /* VREG1OUT voltage */
+   write_reg(g, 0x13, 0x0000); /* VDV[4:0] for VCOM amplitude */
+   write_reg(g, 0x07, 0x0001);
+   gfxSleepMilliseconds(200); 
+   /* Dis-charge capacitor power voltage */
+   write_reg(g, 0x10, 0x1090); /* SAP, BT[3:0], AP, DSTB, SLP, STB */
+   write_reg(g, 0x11, 0x0227); /* Set DC1[2:0], DC0[2:0], VC[2:0] */
+   gfxSleepMilliseconds(50); 							/* Delay 50ms */
+   write_reg(g, 0x12, 0x001F); 
+   gfxSleepMilliseconds(50); 							/* Delay 50ms */
+   write_reg(g, 0x13, 0x1500); /* VDV[4:0] for VCOM amplitude */
+   write_reg(g, 0x29, 0x0027); /* 04 VCM[5:0] for VCOMH */
+   write_reg(g, 0x2B, 0x000D); /* Set Frame Rate */
+   gfxSleepMilliseconds(50); 							/* Delay 50ms */
+   write_reg(g, 0x20, 0x0000); /* GRAM horizontal Address */
+   write_reg(g, 0x21, 0x0000); /* GRAM Vertical Address */
+   /* ----------- Adjust the Gamma Curve ---------- */
+   write_reg(g, 0x30, 0x0000);
+   write_reg(g, 0x31, 0x0707);
+   write_reg(g, 0x32, 0x0307);
+   write_reg(g, 0x35, 0x0200);
+   write_reg(g, 0x36, 0x0008);
+   write_reg(g, 0x37, 0x0004);
+   write_reg(g, 0x38, 0x0000);
+   write_reg(g, 0x39, 0x0707);
+   write_reg(g, 0x3C, 0x0002);
+   write_reg(g, 0x3D, 0x1D04);
+   /* ------------------ Set GRAM area --------------- */
+   write_reg(g, 0x50, 0x0000); /* Horizontal GRAM Start Address */
+   write_reg(g, 0x51, 0x00EF); /* Horizontal GRAM End Address */
+   write_reg(g, 0x52, 0x0000); /* Vertical GRAM Start Address */
+   write_reg(g, 0x53, 0x013F); /* Vertical GRAM Start Address */
+   write_reg(g, 0x60, 0xA700); /* Gate Scan Line */
+   write_reg(g, 0x61, 0x0001); /* NDL,VLE, REV */
+   write_reg(g, 0x6A, 0x0000); /* set scrolling line */
+   /* -------------- Partial Display Control --------- */
+   write_reg(g, 0x80, 0x0000);
+   write_reg(g, 0x81, 0x0000);
+   write_reg(g, 0x82, 0x0000);
+   write_reg(g, 0x83, 0x0000);
+   write_reg(g, 0x84, 0x0000);
+   write_reg(g, 0x85, 0x0000);
+   /* -------------- Panel Control ------------------- */
+   write_reg(g, 0x90, 0x0010);
+   write_reg(g, 0x92, 0x0600);
+   write_reg(g, 0x07, 0x0133); /* 262K color and display ON */
+
+#endif
+
+   /* Original code from µGFX for ILI9325 controller */
+
+#if 0
+
    if( DeviceCode == 0x9320 || DeviceCode == 0x9300 )
    {
       write_reg(g, 0x00, 0x0000);
@@ -197,7 +368,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
       gfxSleepMilliseconds(50);  /* delay 50 ms */
       write_reg(g, 0x0013, 0x1900);
       write_reg(g, 0x0029, 0x0023);
-      write_reg(g, 0x002b, 0x000e);
+      write_reg(g, 0x002b, 0x000d);
       gfxSleepMilliseconds(50);  /* delay 50 ms */
       write_reg(g, 0x0020, 0x0000);
       write_reg(g, 0x0021, 0x0000);
@@ -240,8 +411,9 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
       write_reg(g, 0x0021, 0x0000);
    }
 
-   gfxSleepMilliseconds(100);   /* delay 50 ms */
+#endif
 
+   gfxSleepMilliseconds(100);   /* delay 50 ms */
 
    // Finish Init
    post_init_board(g);

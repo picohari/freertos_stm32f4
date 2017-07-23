@@ -172,7 +172,7 @@ void BSP_LCD_Init(void)
   /* Common GPIO configuration */
   GPIO_Init_Structure.Mode      = GPIO_MODE_AF_PP;
   GPIO_Init_Structure.Pull      = GPIO_NOPULL;
-  GPIO_Init_Structure.Speed     = GPIO_SPEED_HIGH;
+  GPIO_Init_Structure.Speed     = GPIO_SPEED_FREQ_LOW;
   GPIO_Init_Structure.Alternate = GPIO_AF12_FSMC;
   
   /* GPIOD configuration */
@@ -205,9 +205,6 @@ void BSP_LCD_Init(void)
   FSMC_NORSRAM_TimingTypeDef SRAM_Timing;
   
   /* Configure IPs */
-  //fsmcram.Instance  = FMC_NORSRAM_DEVICE;
-  //fsmcram.Extended  = FMC_NORSRAM_EXTENDED_DEVICE;
-
   hsram.Instance  = FMC_NORSRAM_DEVICE;
   hsram.Extended  = FMC_NORSRAM_EXTENDED_DEVICE;
 

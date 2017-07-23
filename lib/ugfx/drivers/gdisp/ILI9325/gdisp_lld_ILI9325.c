@@ -54,6 +54,11 @@
 #define dummy_read(g)				{ volatile uint16_t dummy; dummy = read_data(g); (void) dummy; }
 #define write_reg(g, reg, data)		{ write_index(g, reg); write_data(g, data); }
 
+static GFXINLINE uint16_t read_reg(GDisplay *g, uint32_t reg) {
+  write_index(g, reg);
+  return read_data(g);
+ }
+ 
 static void set_cursor(GDisplay *g) {
 	switch(g->g.Orientation) {
 		default:
@@ -133,7 +138,10 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 
 	write_reg(g, 0x01, 0x0100);
 	write_reg(g, 0x02, 0x0300);
-	write_reg(g, 0x03, 0x1038);//0x1030
+    
+    write_reg(g, 0x0003, (1<<12)|(1<<5)|(1<<4)|(0<<3) );     /* importance */
+	//write_reg(g, 0x03, 0x1038);//0x1030
+	
 	write_reg(g, 0x08, 0x0604);
 	write_reg(g, 0x09, 0x0000);
 	write_reg(g, 0x0A, 0x0008);
@@ -276,7 +284,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 				gfxSleepMilliseconds(200); /* Dis-charge capacitor power voltage */
 				write_reg(g, 0x10, 0x0002); /* SAP, BT[3:0], APE, AP, DSTB, SLP */
 				release_bus(g);
-				gdisp_lld_backlight(g, 0);
+				//gdisp_lld_backlight(g, 0);
 				break;
 
 			case powerDeepSleep:
@@ -289,7 +297,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 				gfxSleepMilliseconds(200); /* Dis-charge capacitor power voltage */
 				write_reg(g, 0x10, 0x0004); /* SAP, BT[3:0], APE, AP, DSTB, SLP */
 				release_bus(g);
-				gdisp_lld_backlight(g, 0);
+				//gdisp_lld_backlight(g, 0);
 				break;
 
 			default:

@@ -9,7 +9,8 @@
 
 #include "gfx.h"
 
-
+extern font_t dejavu_sans_10;
+extern font_t dejavu_sans_16;
 
 // Function Prototypes
 void guiCreate(void);

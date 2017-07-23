@@ -123,7 +123,11 @@ a lot of data that needs to be copied, this should be set high. */
 
 
 /* ---------- DHCP options ---------- */
-#define LWIP_DHCP               1
+#define LWIP_DHCP               0
+
+
+/* ---------- DNS options ---------- */
+#define LWIP_DNS                1
 
 
 /* ---------- UDP options ---------- */
@@ -253,11 +257,12 @@ The STM32F4xx allows computing and verifying the IP, UDP, TCP and ICMP checksums
 #define LWIP_HTTPD_FS_ASYNC_READ      0
 
 
-#define LWIP_DEBUG                    1
+#define LWIP_DEBUG
 
+#ifdef LWIP_DEBUG
 #define LWIP_DBG_TYPES_ON             LWIP_DBG_ON
 #define ETHARP_DEBUG                  LWIP_DBG_OFF
-#define NETIF_DEBUG                   LWIP_DBG_ON
+#define NETIF_DEBUG                   LWIP_DBG_OFF
 #define PBUF_DEBUG                    LWIP_DBG_OFF
 #define API_LIB_DEBUG                 LWIP_DBG_OFF
 #define API_MSG_DEBUG                 LWIP_DBG_OFF
@@ -290,8 +295,13 @@ The STM32F4xx allows computing and verifying the IP, UDP, TCP and ICMP checksums
 #define DNS_DEBUG                     LWIP_DBG_OFF
 #define IP6_DEBUG                     LWIP_DBG_OFF
 
-#define HTTPD_DEBUG                   LWIP_DBG_ON
-#define HTTPD_DEBUG_TIMING            LWIP_DBG_ON
+#define HTTPD_DEBUG                   LWIP_DBG_OFF
+#define HTTPD_DEBUG_TIMING            LWIP_DBG_OFF
+
+#define SNTP_DEBUG                    LWIP_DBG_ON
+#define SNTP_SERVER_DNS               1
+
+#endif
 
 #endif /* __LWIPOPTS_H__ */
 

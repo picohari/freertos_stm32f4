@@ -35,10 +35,6 @@
 #include "vt100.h"
 
 
-#define KEY_ESC 	0x1b
-#define KEY_DEL 	0x7f
-#define KEY_BELL 	0x07
-
 #define STATE(NAME, TERM, EV, ARG) void NAME(struct vt100 *TERM, uint8_t EV, uint16_t ARG)
 
 // states 

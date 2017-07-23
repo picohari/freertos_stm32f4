@@ -168,8 +168,6 @@ void uart_init(void)
   __HAL_UART_ENABLE_IT(&hUART, UART_IT_RXNE);
 
   /* Set stdout buffer to 0 for immediate output of printf via _write() */
-  setvbuf(stdout, NULL, _IONBF, 0);
-  setvbuf(stderr, NULL, _IONBF, 0);
   setbuf(stdout, NULL);
 
   /* Initalize char receive queue */

@@ -88,6 +88,9 @@
 /* FreeRTOS+CLI includes. */
 #include "FreeRTOS_CLI.h"
 
+#include "rtc_clock.h"
+ #include "time.h"
+
 #define configINCLUDE_TRACE_RELATED_CLI_COMMANDS 	0
 	#define configINCLUDE_QUERY_HEAP_COMMAND 		1
 
@@ -111,6 +114,11 @@ void vRegisterSampleCLICommands( void );
  * Implements the task-stats command.
  */
 static BaseType_t prvTaskStatsCommand( char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString );
+
+/*
+ * Implements the clock-set command.
+ */
+static BaseType_t prvClockSetCommand( char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString );
 
 /*
  * Implements the run-time-stats command.
@@ -162,6 +170,16 @@ static const CLI_Command_Definition_t xThreeParameterEcho =
 	"\r\necho-3-parameters <param1> <param2> <param3>:\r\n Expects three parameters, echos each in turn\r\n",
 	prvThreeParameterEchoCommand, /* The function to run. */
 	3 /* Three parameters are expected, which can take any value. */
+};
+/* Structure that defines the "echo_3_parameters" command line command.  This
+takes exactly three parameters that the command simply echos back one at a
+time. */
+static const CLI_Command_Definition_t xClockSet =
+{
+	"set-clock",
+	"\r\nset-clock <year> <month> <day> <dow> <hour> <minutes>\r\n",
+	prvClockSetCommand, /* The function to run. */
+	6 /* Three parameters are expected, which can take any value. */
 };
 
 /* Structure that defines the "echo_parameters" command line command.  This
@@ -216,6 +234,7 @@ void vRegisterSampleCLICommands( void )
 {
 	/* Register all the command line commands defined immediately above. */
 	FreeRTOS_CLIRegisterCommand( &xTaskStats );	
+	FreeRTOS_CLIRegisterCommand( &xClockSet );	
 	FreeRTOS_CLIRegisterCommand( &xThreeParameterEcho );
 	FreeRTOS_CLIRegisterCommand( &xParameterEcho );
 
@@ -287,7 +306,7 @@ BaseType_t xSpacePadding;
 		( void ) xWriteBufferLen;
 		configASSERT( pcWriteBuffer );
 
-		sprintf( pcWriteBuffer, "Current free heap %d bytes, minimum ever free heap %d bytes\r\n", ( int ) xPortGetFreeHeapSize(), ( int ) xPortGetMinimumEverFreeHeapSize() );
+		sprintf( pcWriteBuffer, "Free heap %d bytes, min free %d bytes\r\n", ( int ) xPortGetFreeHeapSize(), ( int ) xPortGetMinimumEverFreeHeapSize() );
 
 		/* There is no more data to return after this single string, so return
 		pdFALSE. */
@@ -392,6 +411,98 @@ static UBaseType_t uxParameterNumber = 0;
 		{
 			/* If this is the last of the three parameters then there are no more
 			strings to return after this one. */
+			xReturn = pdFALSE;
+			uxParameterNumber = 0;
+		}
+		else
+		{
+			/* There are more parameters to return after this one. */
+			xReturn = pdTRUE;
+			uxParameterNumber++;
+		}
+	}
+
+	return xReturn;
+}
+/*-----------------------------------------------------------*/
+
+
+/*-----------------------------------------------------------*/
+
+static BaseType_t prvClockSetCommand( char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString )
+{
+const char *pcParameter;
+BaseType_t xParameterStringLength, xReturn;
+static UBaseType_t uxParameterNumber = 0;
+
+	/* Remove compile time warnings about unused parameters, and check the
+	write buffer is not NULL.  NOTE - for simplicity, this example assumes the
+	write buffer length is adequate, so does not check for buffer overflows. */
+	( void ) pcCommandString;
+	( void ) xWriteBufferLen;
+	configASSERT( pcWriteBuffer );
+
+	static uint8_t year = 0; 
+	static uint8_t month = 0; 
+	static uint8_t day = 0; 
+	static uint8_t dow = 0; 
+	static uint8_t hour = 0; 
+	static uint8_t min = 0; 
+	
+	//const char *hexstring = "0xabcdef0";
+
+	//int number = (int)strtol(hexstring, NULL, 0);
+
+	if( uxParameterNumber == 0 )
+	{
+		/* The first time the function is called after the command has been
+		entered just a header string is returned. */
+		sprintf( pcWriteBuffer, "Set clock to:\r\n" );
+
+		/* Next time the function is called the first parameter will be echoed
+		back. */
+		uxParameterNumber = 1U;
+
+		/* There is more data to be returned as no parameters have been echoed
+		back yet. */
+		xReturn = pdPASS;
+	}
+	else
+	{
+		/* Obtain the parameter string. */
+		pcParameter = FreeRTOS_CLIGetParameter
+						(
+							pcCommandString,		/* The command string itself. */
+							uxParameterNumber,		/* Return the next parameter. */
+							&xParameterStringLength	/* Store the parameter string length. */
+						);
+
+		/* Sanity check something was returned. */
+		configASSERT( pcParameter );
+
+		/* Return the parameter string. */
+		memset( pcWriteBuffer, 0x00, xWriteBufferLen );
+		sprintf( pcWriteBuffer, "%d: ", ( int ) uxParameterNumber );
+		strncat( pcWriteBuffer, pcParameter, ( size_t ) xParameterStringLength );
+		strncat( pcWriteBuffer, "\r\n", strlen( "\r\n" ) );
+
+		/* If this is the last of the three parameters then there are no more
+		strings to return after this one. */
+
+		if( uxParameterNumber == 1U) { year  = (int)strtol(pcParameter, NULL, 10); }
+		if( uxParameterNumber == 2U) { month = (int)strtol(pcParameter, NULL, 10); }
+		if( uxParameterNumber == 3U) { day   = (int)strtol(pcParameter, NULL, 10); }
+		if( uxParameterNumber == 4U) { dow   = (int)strtol(pcParameter, NULL, 10); }
+		if( uxParameterNumber == 5U) { hour  = (int)strtol(pcParameter, NULL, 10); }
+
+		if( uxParameterNumber == 6U )
+		{
+										 min = (int)strtol(pcParameter, NULL, 10);
+
+			/* If this is the last of the three parameters then there are no more
+			strings to return after this one. */
+	 		RTC_CalendarConfig(year, month, day, dow,  hour, min);
+
 			xReturn = pdFALSE;
 			uxParameterNumber = 0;
 		}

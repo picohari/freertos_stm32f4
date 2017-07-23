@@ -61,17 +61,20 @@ GHandle ghContainerPage1;
 
 GHandle ghNavBar;
 GHandle ghContainer;
+GHandle ghTopBar;
+GHandle ghFooter;
+
 GHandle ghButton1;
 GHandle ghButton2;
 GHandle ghButton3;
 GHandle ghButton4;
 GHandle ghButton5;
-GHandle ghTopBar;
-GHandle ghFooter;
+
 GHandle ghConsole;
 
 GHandle ghImagebox1;
 
+GHandle ghlabel1;
 
 // Fonts
 font_t dejavu_sans_10;
@@ -114,7 +117,7 @@ static void createWidgets(void) {
 	wi.customStyle = 0;
 	ghContainerPage1 = gwinContainerCreate(0, &wi, 0);
 
-#if 0
+#if 1
 	// create container widget: ghFooter
 	wi.g.show = TRUE;
 	wi.g.x = 50;
@@ -232,6 +235,7 @@ static void createWidgets(void) {
 	wi.customStyle = 0;
 	ghButton5 = gwinButtonCreate(0, &wi);
 
+	/* Console */
 	wi.g.show = TRUE;
 	wi.g.x = pagewidth;
 	wi.g.y = gdispGetHeight()/2;
@@ -239,8 +243,31 @@ static void createWidgets(void) {
 	wi.g.height = gdispGetHeight()/2;
 	wi.g.parent = 0;
 	ghConsole = gwinConsoleCreate(0, &wi.g);
+
 	gwinSetColor(ghConsole, Black);
 	gwinSetBgColor(ghConsole, HTML2COLOR(0xF0F0F0));
+
+#if 0
+	/* Label for time */
+	wi.g.show = TRUE;
+	wi.g.x = pagewidth;
+	wi.g.y = 0;
+	wi.g.width = gdispGetWidth()/2 - 3;
+	wi.g.height = 20;
+	wi.g.parent = ghTopBar;
+	wi.text = "00:00:00";
+	wi.customDraw = gwinLabelDrawJustifiedRight;
+	wi.customParam = 0;
+	wi.customStyle = 0;
+	ghlabel1 = gwinLabelCreate(0, &wi);
+
+	gwinSetColor(ghlabel1, White);
+	gwinSetBgColor(ghlabel1, Black);
+	gwinLabelSetBorder(ghlabel1, FALSE);
+#endif
+
+
+
 #endif
 
 #if 0
@@ -306,9 +333,11 @@ static void createShell(void) {
 
 
 
+#include "stm32f4xx_hal.h"
+#include "cmsis_os.h"
+#include "XCore407I.h"
 
-
-
+#include "rtc_clock.h"
 
 
 #ifdef UGFXSIMULATOR
@@ -318,27 +347,49 @@ void guiEventLoop(void) {
 #endif
 
 
+    static char showtime[16] = {0};
+    static char showdate[16] = {0};
+
+    RTC_CalendarShow(showtime, showdate);
+
+    //gdispFillStringBox(320/2, 0, 320/2,  20, showtime, dejavu_sans_16, White, Black, justifyLeft);
+    //gdispFillString(5, 0, showtime, dejavu_sans_10, White, Black);
+    
+    //gdispFillString(5, 20, showdate, dejavu_sans_10, White, Black);
+
+    osDelay(1000);
+
 #if 0
-		GEvent *			pe;
+	RTC_TimeTypeDef stimestructureget;
+	//RTC_DateTypeDef sdatestructureget;
 
-		// Get an Event
-		pe = geventEventWait(&glistener, TIME_INFINITE);
-
-		//gwinPutChar(ghConsole, inbyte());
-
-		switch(pe->type) {
-		case GEVENT_GWIN_BUTTON:
-			//gwinPrintf(ghConsole, "Button %s\n", gwinGetText(((GEventGWinButton *)pe)->gwin));
-			break;
-
-
-		default:
-			//gwinPrintf(ghConsole, "Unknown %d\n", pe->type);
-			break;
-		}
+	/* Get the RTC current Time */
+	HAL_RTC_GetTime(&RtcHandle, &stimestructureget, RTC_FORMAT_BIN);
+	/* Get the RTC current Date */
+	//HAL_RTC_GetDate(&RtcHandle, &sdatestructureget, RTC_FORMAT_BIN);
+	/* Display time Format : hh:mm:ss */
+	sprintf(showtime,"%02d:%02d:%02d", stimestructureget.Hours, stimestructureget.Minutes, stimestructureget.Seconds);
+	/* Display date Format : mm-dd-yy */
+	//sprintf((char*)showdate,"%02d-%02d-%02d", sdatestructureget.Month, sdatestructureget.Date, 2000 + sdatestructureget.Year);
 #endif
 
+#if 0
+	GEvent *			pe;
 
+	// WAITS for an Event - is blocking !!!
+	pe = geventEventWait(&glistener, TIME_INFINITE);
+
+	switch(pe->type) {
+		case GEVENT_GWIN_BUTTON:
+			gwinPrintf(ghConsole, "Button %s\n", gwinGetText(((GEventGWinButton *)pe)->gwin));
+			break;
+
+		default:
+			gwinPrintf(ghConsole, "Unknown %d\n", pe->type);
+			break;
+	}
+
+#endif
 
 }
 
@@ -365,51 +416,49 @@ void guiCreate(void) {
 
 #if 1
 
-	vt100_init(guiOutput);
+	//vt100_init(guiOutput);
 
 	// Prepare fonts
-	//dejavu_sans_10 = gdispOpenFont("DejaVuSans10");
-	//dejavu_sans_16 = gdispOpenFont("DejaVuSans16");
+	dejavu_sans_10 = gdispOpenFont("DejaVuSans10");
+	dejavu_sans_16 = gdispOpenFont("DejaVuSans16");
 	//fixed_7x14     = gdispOpenFont("Fixed7x14");
 
+#if 0
 	// Prepare images
-	//gdispImageOpenFile(&ic_home, "rsc/ic_home.gif");
+	gdispImageOpenFile(&ic_home, "rsc/ic_home.gif");
 
 	// Set the widget defaults
-	//gwinSetDefaultFont(dejavu_sans_10);
-	//gwinSetDefaultStyle(&BlackWidgetStyle, FALSE);
-	//gdispClear(White);
-
+	gwinSetDefaultFont(dejavu_sans_16);
+	gwinSetDefaultStyle(&BlackWidgetStyle, FALSE);
+	gdispClear(White);
 
 	// Show SplashScreen
 	//zen_splash();
 	
-
 	// Create the gwin windows/widgets
-	//createWidgets();
+	createWidgets();
 	
 	// Create a shell
-	createShell();
-
-
+	//createShell();
 
 	// Make the console visible
-	//gwinShow(ghConsole);
-	//gwinClear(ghConsole);
+	gwinShow(ghConsole);
+	gwinClear(ghConsole);
 
     // We want to listen for widget events
-	//geventListenerInit(&glistener);
-	//gwinAttachListener(&glistener);
+	geventListenerInit(&glistener);
+	gwinAttachListener(&glistener);
 
     // Assign toggles and dials to specific buttons & sliders etc.
 	#if GINPUT_NEED_TOGGLE
-		//gwinAttachToggle(ghButton1, 0, 0);
-		//gwinAttachToggle(ghButton2, 0, 1);
-		//gwinAttachToggle(ghButton3, 0, 2);
-		//gwinAttachToggle(ghButton4, 0, 3);
+		gwinAttachToggle(ghButton1, 0, 0);
+		gwinAttachToggle(ghButton2, 0, 1);
+		gwinAttachToggle(ghButton3, 0, 2);
+		gwinAttachToggle(ghButton4, 0, 3);
 	#endif
 
-	//gwinShow(ghContainerPage1);
+	gwinShow(ghContainerPage1);
+#endif
 
 #else
 

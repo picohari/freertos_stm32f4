@@ -12,6 +12,8 @@
 /* Global Ethernet handle*/
 extern ETH_HandleTypeDef hETH;
 
+extern struct netif gnetif;
+
 struct link_str {
   struct netif *netif;
   osSemaphoreId semaphore;

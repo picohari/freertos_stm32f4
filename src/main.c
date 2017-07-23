@@ -43,6 +43,8 @@
 #include "XCore407I.h"
 
 #include "uart.h"
+#include "rtc_clock.h"
+#include "eth_if.h"
 
 #include "gfx.h"
 #include "gui.h"
@@ -51,6 +53,10 @@
 #include "eth_if.h"
 #include "lwip/netif.h"
 #include "lwip/tcpip.h"
+#include "lwip/dns.h"
+
+#include "lwip/apps/sntp.h"
+
 #include "proto_dhcp.h"
 
 #include "httpd_server.h"
@@ -68,7 +74,7 @@
 /* Private variables ---------------------------------------------------------*/
 osThreadId LEDThread1Handle, LEDThread2Handle;
 
-struct netif gnetif;
+
 
 
 /* Private function prototypes -----------------------------------------------*/
@@ -87,6 +93,8 @@ static void GUI_thread (void const * arg);
 static void NET_start (void const * arg);
 static void HTTP_start (void const * arg);
 
+static void RTC_thread (void const * arg);
+static void TTY_thread (void const * arg);
 
 
 
@@ -118,6 +126,11 @@ static void os_init(void)
 
   uart_init();
 
+  rtc_init();
+
+  RTC_CalendarConfig(17, 1, 1, 0, 0, 0);
+
+
   //writef("\033[2J"); // Clear screen
   writef("\r\n");
   writef("Firmware %s", VERSION_STRING_LONG);
@@ -131,34 +144,27 @@ static void os_init(void)
 static void os_tasks(void)
 {
 
+  /* LED 1 */
   osThreadDef(led1, LED1_thread,   osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
   LEDThread1Handle = osThreadCreate( osThread(led1),  NULL);
 
+  /* LED 2 */
   osThreadDef(led2, LED2_thread,   osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
   LEDThread2Handle = osThreadCreate( osThread(led2),  NULL);
 
-  osThreadDef(gui, GUI_start,      osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
-  osThreadCreate( osThread(gui),   NULL);
+  /* GUI */
+  osThreadDef(sgui, GUI_start,      osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 4);
+  osThreadCreate( osThread(sgui),   NULL);
 
-  osThreadDef(net, NET_start,      osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 5);
-  osThreadCreate( osThread(net),   NULL);
+  /* NETWORK */
+  osThreadDef(snet, NET_start,      osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 4);
+  osThreadCreate( osThread(snet),   NULL);
 
 
+  /* RTC */
+  osThreadDef(rtc0, RTC_thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 4);
+  osThreadCreate( osThread(rtc0), NULL);
 
-#if 0
-  /* Create the queue used by the two tasks to pass the incrementing number.
-  Pass a pointer to the queue in the parameter structure. */
-  osMessageQDef(osqueue, QUEUE_SIZE, uint16_t);
-  osQueue = osMessageCreate(osMessageQ(osqueue), NULL);
-
-  /* Note the producer has a lower priority than the consumer when the tasks are
-     spawned. */
-  osThreadDef(QCons, MessageQueueConsumer, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
-  osThreadCreate(osThread(QCons), NULL);
-  
-  osThreadDef(QProd, MessageQueueProducer, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
-  osThreadCreate(osThread(QProd), NULL);
-#endif
 
 }
 
@@ -194,9 +200,11 @@ static void NET_start (void const * arg)
 
   (void) arg;
 
-  ip_addr_t ipaddr;
-  ip_addr_t netmask;
-  ip_addr_t gw;
+  static ip_addr_t ipaddr;
+  static ip_addr_t netmask;
+  static ip_addr_t gw;
+
+  static ip_addr_t dns;
 
 #ifdef USE_DHCP
   ipaddr.addr = 0;
@@ -209,6 +217,8 @@ static void NET_start (void const * arg)
   IP4_ADDR(&gw, GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3);
 #endif
 
+
+  //lwip_init(); /* TODO: Check this */ 
   tcpip_init(NULL,NULL);
 
   /* add the network interface */
@@ -228,7 +238,18 @@ static void NET_start (void const * arg)
     netif_set_down(&gnetif);
   }
 
-  osThreadDef(http, HTTP_start,    osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 10);
+  /* Start DNS service */
+  dns_init();
+  IP4_ADDR(&dns, GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3);
+  dns_setserver(0, &dns);
+
+  /* Start NTP service */
+  sntp_setoperatingmode(SNTP_OPMODE_POLL);
+  sntp_setservername(0, "de.pool.ntp.org");
+  sntp_init();
+
+  /* Start HTTP service */
+  osThreadDef(http, HTTP_start,    osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 2);
   osThreadCreate( osThread(http),  NULL);
 
   while (1) {
@@ -294,7 +315,7 @@ static void GUI_start (void const * arg)
 {
 
   (void) arg;
-  
+
   /* Start µGFX */
   gfxInit();
 
@@ -303,13 +324,29 @@ static void GUI_start (void const * arg)
 
   guiCreate();
 
-  osThreadDef(tty0, GUI_thread, osPriorityNormal, 0, 256);
+  osThreadDef(gui, GUI_thread, osPriorityNormal, 0, 256);
+  osThreadCreate( osThread(gui), NULL);
+
+  osDelay(100);
+
+  osThreadDef(tty0, TTY_thread, osPriorityNormal, 0, 256);
   osThreadCreate( osThread(tty0), NULL);
 
   while (1) {
     osThreadTerminate( NULL );  /* important to stop task here !! */
   }
 
+}
+
+static void GUI_thread (void const * arg)
+{
+
+  (void) arg;
+
+
+  while (1) {
+    guiEventLoop();
+  }
 }
 
 
@@ -328,15 +365,14 @@ static void GUI_start (void const * arg)
 /* The CLI commands are defined in CLI-commands.c. */
 void vRegisterSampleCLICommands( void );
 
+static char input[BUFFER_LEN];
+static char input_b[BUFFER_LEN];
 
-static void GUI_thread (void const * arg)
+static void TTY_thread (void const * arg)
 {
 
   (void) arg;
 
-#if 1
-  static char input[BUFFER_LEN];
-  static char input_b[BUFFER_LEN];
 
   static unsigned int saved = 0;
   
@@ -361,7 +397,7 @@ static void GUI_thread (void const * arg)
     /* Do we have to print the prompt? */
     if(printPrompt) {
       writef("> "); /* printf("\n"); */
-      vt100_puts("> ");
+      //vt100_puts("> ");
       
       printPrompt = 0;
       memset(input, 0, sizeof(input));
@@ -379,7 +415,7 @@ static void GUI_thread (void const * arg)
     if(((rx_char == 010) || (rx_char == 0x7f)) && index) {
       /* User pressed backspace */
       writef("\010 \010");        /* Obliterate character */
-      vt100_putc('\b');
+      //vt100_putc('\b');
       index--;                    /* Then keep track of how many are left */
       input[index] = '\0';        /* Then remove it from the buffer */
 
@@ -404,10 +440,10 @@ static void GUI_thread (void const * arg)
         index++;
         /* Echo it back to the user */
         writef("%c", rx_char);
-        vt100_putc(rx_char);
+        //vt100_putc(rx_char);
       }
     } else if(rx_char == 0x1b) { /* ESC Key - forward to terminal only */
-        vt100_putc(rx_char);
+        //vt100_putc(rx_char);
 
     } else if(rx_char == '\r') {
       /* NULL Terminate anything we have received */
@@ -421,18 +457,18 @@ static void GUI_thread (void const * arg)
     parseme:
       /* Send CR to console */
       writef("\r\n");
-      vt100_putc('\r'); 
+      //vt100_putc('\r'); 
       index = 0;
       
       #if 1
       do {
         xReturned = FreeRTOS_CLIProcessCommand( input, pcOutputString, configCOMMAND_INT_MAX_OUTPUT_SIZE );
         writef("%s", pcOutputString);
-        vt100_puts(pcOutputString);
+        //vt100_puts(pcOutputString);
 
       } while( xReturned != pdFALSE );
 
-      vt100_putc('\r');
+      //vt100_putc('\r');
       #endif
 
       printPrompt = 1;
@@ -441,19 +477,123 @@ static void GUI_thread (void const * arg)
     /* We have a character to process */
     //writef("got:'%c' %d %d \r\n", c, c, count);
 
-    guiEventLoop();
-
   }
-
-#else
-    guiEventLoop();
-#endif
 
 }
 
 
+#include <time.h>
+#include <sys/time.h>
+
+#include <locale.h>
 
 
+
+
+#define TIMEBUF   64
+
+
+
+static void RTC_thread (void const * arg)
+{
+
+  (void) arg;
+
+  struct tm tm_set;
+
+  /* Set time to 1.1.2017 00:00 */
+
+  tm_set.tm_sec  = 1;         /* seconds,  range 0 to 59          */
+  tm_set.tm_min  = 0;         /* minutes, range 0 to 59           */
+  tm_set.tm_hour = 0;         /* hours, range 0 to 23             */
+
+  tm_set.tm_mon  = 0;             /* month, range 0 to 11             */
+  tm_set.tm_year = 2017 - 1900;   /* The number of years since 1900   */
+  tm_set.tm_mday = 1;             /* day of the month, range 1 to 31  */
+  tm_set.tm_isdst = -1;           /* daylight saving time             */
+
+#if 0
+  /*
+  The mktime function ignores the specified contents of the tm_wday and tm_yday members of the broken-down
+  time structure. It uses the values of the other components to compute the calendar time; it's permissible
+  for these components to have unnormalized values outside of their normal ranges. The last thing that mktime 
+  does is adjust the components of the brokentime structure (including the tm_wday and tm_yday).
+  */ 
+  tm_set.tm_yday;        /* day in the year, range 0 to 365  */
+  tm_set.tm_wday;        /* day of the week, range 0 to 6    */
+
+  //debug("Size of time_t: %d\n", sizeof(time_t)); /* Returns: 4 = 32bit => we have a year 2038 Problem... */
+#endif
+
+  /* Create time from settings provided in tm_set */
+  time_t set_timer = mktime(&tm_set) ;
+
+  //debug("%lu \n", set_timer );  // Print timestamp
+
+  /* Set system time to milliseconds, reduce by one second */
+  clock_timestamp = (uint64_t) set_timer * 1000U;
+
+  //setlocale(LC_TIME, "de_DE.UTF-8");
+
+
+
+
+
+  while (1) {
+
+    static time_t timer;
+    
+    static char buffer[TIMEBUF];
+
+    static struct tm* tm_info;
+
+/*
+       1  2  3  4  5  6  7
+rtc    mo di mi do fr sa so
+
+    0  1  2  3  4  5  6
+lib so mo di mi do fr sa
+*/
+
+    /* Read time info from clock (UTC) via _gettimeofday() */
+    time(&timer);
+
+    /* Break up time info as local time */
+    tm_info = localtime(&timer);
+
+
+    //taskENTER_CRITICAL();
+    sprintf(buffer, "%s\n", asctime(tm_info));
+    gdispFillStringBox( 5, 40, 200, 20, buffer, dejavu_sans_10, White, Black, justifyLeft );
+    memset(buffer, 0, TIMEBUF);
+    //gfxSleepMilliseconds(50);
+    //taskEXIT_CRITICAL();
+    
+    strftime (buffer, TIMEBUF, "%a, %d. %B %Y\n", tm_info); /* So, 31. Januar 1970 */
+    gdispFillStringBox( 5, 60, 200, 20, buffer, dejavu_sans_10, White, Black, justifyLeft);
+    memset(buffer, 0, TIMEBUF);
+    //gfxSleepMilliseconds(50);
+        
+    strftime (buffer, TIMEBUF, "%H:%M:%S TZ: %Z\n", tm_info);
+    gdispFillStringBox( 5, 80, 200, 20, buffer, dejavu_sans_10, White, Black, justifyLeft);
+    memset(buffer, 0, TIMEBUF);
+    //gfxSleepMilliseconds(50);
+
+    sprintf(buffer, "DST: %d DOW: %d DOY: %d \n", tm_info->tm_isdst, tm_info->tm_wday, tm_info->tm_yday);
+    gdispFillStringBox( 5, 100, 200, 20, buffer, dejavu_sans_10, White, Black, justifyLeft);
+    memset(buffer, 0, TIMEBUF);
+    //gfxSleepMilliseconds(50);
+    
+    /*
+    vt100_puts("\e[H");
+    vt100_puts(aShowTime); vt100_putc('\r');
+    vt100_puts(aShowDate); vt100_putc('\r');
+    */
+
+    //osDelay(1000);
+  }
+
+}
 
 
 static void LED1_thread (void const * arg)

@@ -63,6 +63,8 @@
 #include <string.h>
 #include <time.h>
 
+#include "rtc_clock.h"
+
 #if LWIP_UDP
 
 /* Handle support for more than one server via SNTP_MAX_SERVERS */

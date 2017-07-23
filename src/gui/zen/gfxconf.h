@@ -64,6 +64,8 @@
     #define GDISP_NEED_IMAGE_GIF                   TRUE
     #define GDISP_NEED_IMAGE_ACCOUNTING            TRUE
 
+#define GDISP_NEED_PIXMAP                          TRUE
+ 
 #ifdef UGFXSIMULATOR
 #define GDISP_DEFAULT_ORIENTATION                  GDISP_ROTATE_LANDSCAPE
 #else

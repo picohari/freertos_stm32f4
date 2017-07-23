@@ -96,6 +96,7 @@ osSemaphoreId s_xSemaphore = NULL;
 /* Global Ethernet handle*/
 ETH_HandleTypeDef hETH;
 
+struct netif gnetif;
 //static struct netif *s_pxNetIf = NULL;
 
 /* Private function prototypes -----------------------------------------------*/
