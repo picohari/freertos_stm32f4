@@ -38,6 +38,8 @@
 
 #include "cmsis_os.h"
 
+#include "uart.h"
+
 #if HTTPD_USE_CUSTOM_FSDATA
 #include "fsdata_custom.c"
 #else /* HTTPD_USE_CUSTOM_FSDATA */
@@ -62,7 +64,7 @@ int fs_read_custom(struct fs_file *file, char *buffer, int count);
 #if LWIP_HTTPD_CUSTOM_FILES
 int fs_open_custom(struct fs_file *file, const char *name)
 {
-    static char * pcBuf;
+    static char *pcBuf;
     //static char pcBuf[512];       /* Buffer for storing dynamic page content */
     pcBuf = (char *)pvPortMalloc(512);
 
@@ -89,6 +91,19 @@ int fs_open_custom(struct fs_file *file, const char *name)
     }
 
     else if (strncmp(name, "/config", 7) == 0) {
+
+      memset(pcBuf, 0, 512);
+
+      strcat((char *)pcBuf, "OK");
+      
+      file->data = pcBuf;         /* Point data to local buffer */
+      file->index = 0;            /* Start reading at beginning of buffer */
+      file->len = strlen(pcBuf);  /* Provide length of content in buffer */
+
+      file->custom_ext = 1;
+      
+      debug("config page call\n");
+
       return 1;
     }
     else

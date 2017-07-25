@@ -1,11 +1,14 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+#include "gfx.h"
+#include "gui.h"
+#include "pages/pages.h"
+
 #include "colors.h"
 #include "widgetstyles.h"
-#include "gui.h"
-#include "math.h"
-#include "stdio.h"
-#include "stdlib.h"
 #include "src/gwin/gwin_keyboard_layout.h"
-#include "pages/pages.h"
 
 #ifndef UGFXSIMULATOR
 	#include "calibration.h"
@@ -23,6 +26,7 @@ GHandle ghTextedit;
 GHandle ghLabel;
 
 // Fonts
+font_t dejavu_sans_10;
 font_t dejavu_sans_16;
 
 // Images
@@ -100,12 +104,12 @@ void nothing(void) {
 
 //Define the dimensions used for each button (x coordinate, y coordinate, width, height) (by index)
 double buttonDimensions[6][4] = {
-	{0,						0,					GDISP_SCREEN_WIDTH / 3,	GDISP_SCREEN_HEIGHT / 2},
-	{GDISP_SCREEN_WIDTH / 3,		0,					GDISP_SCREEN_WIDTH / 3,	GDISP_SCREEN_HEIGHT / 2},
-	{GDISP_SCREEN_WIDTH / 3 * 2,	0,					GDISP_SCREEN_WIDTH / 3,	GDISP_SCREEN_HEIGHT / 2},
-	{0,						GDISP_SCREEN_HEIGHT / 2,	GDISP_SCREEN_WIDTH / 3,	GDISP_SCREEN_HEIGHT / 2},
-	{GDISP_SCREEN_WIDTH / 3,		GDISP_SCREEN_HEIGHT / 2,	GDISP_SCREEN_WIDTH / 3,	GDISP_SCREEN_HEIGHT / 2},
-	{GDISP_SCREEN_WIDTH / 3 * 2,	GDISP_SCREEN_HEIGHT / 2,	GDISP_SCREEN_WIDTH / 3,	GDISP_SCREEN_HEIGHT / 2}
+	{0,						    	0,					    	GDISP_SCREEN_WIDTH / 3,		GDISP_SCREEN_HEIGHT / 2},
+	{GDISP_SCREEN_WIDTH / 3,		0,					    	GDISP_SCREEN_WIDTH / 3,		GDISP_SCREEN_HEIGHT / 2},
+	{GDISP_SCREEN_WIDTH / 3 * 2,	0,					    	GDISP_SCREEN_WIDTH / 3,		GDISP_SCREEN_HEIGHT / 2},
+	{0,								GDISP_SCREEN_HEIGHT / 2,	GDISP_SCREEN_WIDTH / 3,		GDISP_SCREEN_HEIGHT / 2},
+	{GDISP_SCREEN_WIDTH / 3,		GDISP_SCREEN_HEIGHT / 2,	GDISP_SCREEN_WIDTH / 3,		GDISP_SCREEN_HEIGHT / 2},
+	{GDISP_SCREEN_WIDTH / 3 * 2,	GDISP_SCREEN_HEIGHT / 2,	GDISP_SCREEN_WIDTH / 3,		GDISP_SCREEN_HEIGHT / 2}
 };
 
 //Define the labels used for each button (by index)
@@ -238,6 +242,43 @@ void createAnswer(void (*yesFunction)(void), void (*noFunction)(void), const GVK
 	gwinSetFocus(ghTextedit);
 }
 
+void writeSetting(int line, const char* text) {
+#if 0
+	if(!gfileExists("./SETTINGS.water")) {
+		GFILE* settingsFile = gfileOpen("./SETTINGS.water", "w");
+		gfileWrite(settingsFile, "FALSE\nFALSE\nFALSE\nFALSE\nFALSE\nFALSE\nFALSE\nFALSE\nFALSE\nFALSE", strlen("FALSE\nFALSE\nFALSE\nFALSE\nFALSE\nFALSE\nFALSE\nFALSE\nFALSE\nFALSE"));
+		gfileClose(settingsFile);
+	}
+	
+	GFILE* settingsFile = gfileOpen("./SETTINGS.water", "r+");
+	char searchString[gfileGetSize(settingsFile)];
+	gfileRead(settingsFile, searchString, gfileGetSize(settingsFile));
+	
+	char* results[11];
+	int i = 0;
+	char* pch = strtok(searchString, "\n");
+	while (pch != NULL) {
+		results[i] = pch;
+		i++;
+		pch = strtok(NULL, "\n");
+	}
+	
+	//this is the important line
+	results[line - 1] = (char*) text;
+	printf("%s\n%s\nl:%i\n", text, results[line - 1], line);
+	
+	char* writetext = results[0];
+	for(i = 1; i < (signed int) (sizeof(results) / sizeof(results[0])); i++) {
+		sprintf(writetext, "\n%s", results[i]);
+	}
+	
+	printf("F:\n%s\n", writetext);
+	
+	gfileWrite(settingsFile, writetext, strlen(writetext));
+	gfileClose(settingsFile);
+#endif
+}
+
 void guiShowPage(unsigned pageIndex) {
 	// Hide all pages
 	gwinHide(ghContainer);
@@ -257,6 +298,7 @@ void guiCreate(void) {
 	GWidgetInit wi;
 
 	// Prepare fonts
+	dejavu_sans_10 = gdispOpenFont("DejaVuSans10");
 	dejavu_sans_16 = gdispOpenFont("DejaVuSans16");
 
 	// Prepare images
@@ -275,10 +317,17 @@ void guiCreate(void) {
 
 	// GWIN settings
 	gwinWidgetClearInit(&wi);
+	gwinSetDefaultFont(dejavu_sans_10);
 	gwinSetDefaultFont(dejavu_sans_16);
 	gwinSetDefaultStyle(&white, FALSE);
 	gwinSetDefaultColor(black_studio);
 	gwinSetDefaultBgColor(white_studio);
+
+	// Attach events to listeners
+	geventListenerInit(&glistener);
+	gwinAttachListener(&glistener);
+	
+	geventAttachSource(&glistener, ginputGetKeyboard(0), 0);
 
 	//Create and show the overview page, including the clock
 	showOverview();
@@ -287,7 +336,7 @@ void guiCreate(void) {
 void guiEventLoop(void) {
 	GEvent* pe;
 
-	while (1) {
+	while(1) {
 		if(clockDrawable == 1) {
 			//refresh the clock
 			drawClock();
@@ -303,9 +352,11 @@ void guiEventLoop(void) {
 		
 		//if the event was a button press, executve the relative command stored in the above array
 		switch (pe->type) {
+
 			case GEVENT_GWIN_BUTTON:
 				(*buttonFunctions[((GEventGWinButton*) pe)->tag])();
 				break;
+
 			default:
 				break;
 		}

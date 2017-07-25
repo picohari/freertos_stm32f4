@@ -26,18 +26,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-//#include "cmsis_os.h"
-
 #include <stdio.h>
 
 #include "gfx.h"
 #include "gui.h"
-
-//#include "tasks.h"
-
-#include "calibration.h"
-
-#include "vt100.h"
 
 #ifdef UGFXSIMULATOR
 #include <stdlib.h>
@@ -45,9 +37,12 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <linux/input.h>
+#else
+#include "calibration.h"
 #endif
 
 
+#include "vt100.h"
 #include "pages/zen_menu.h"
 
 
@@ -79,7 +74,7 @@ GHandle ghlabel1;
 // Fonts
 font_t dejavu_sans_10;
 font_t dejavu_sans_16;
-//font_t fixed_7x14;
+font_t fixed_7x14;
 
 // Icons
 gdispImage ic_add_alert;
@@ -347,10 +342,10 @@ void guiEventLoop(void) {
 #endif
 
 
-    static char showtime[16] = {0};
-    static char showdate[16] = {0};
+    //static char showtime[16] = {0};
+    //static char showdate[16] = {0};
 
-    RTC_CalendarShow(showtime, showdate);
+    //RTC_CalendarShow(showtime, showdate);
 
     //gdispFillStringBox(320/2, 0, 320/2,  20, showtime, dejavu_sans_16, White, Black, justifyLeft);
     //gdispFillString(5, 0, showtime, dejavu_sans_10, White, Black);
@@ -416,12 +411,14 @@ void guiCreate(void) {
 
 #if 1
 
-	//vt100_init(guiOutput);
+	vt100_init(guiOutput);
 
 	// Prepare fonts
 	dejavu_sans_10 = gdispOpenFont("DejaVuSans10");
 	dejavu_sans_16 = gdispOpenFont("DejaVuSans16");
-	//fixed_7x14     = gdispOpenFont("Fixed7x14");
+	fixed_7x14     = gdispOpenFont("Fixed7x14");
+
+	createShell();
 
 #if 0
 	// Prepare images
@@ -438,8 +435,6 @@ void guiCreate(void) {
 	// Create the gwin windows/widgets
 	createWidgets();
 	
-	// Create a shell
-	//createShell();
 
 	// Make the console visible
 	gwinShow(ghConsole);

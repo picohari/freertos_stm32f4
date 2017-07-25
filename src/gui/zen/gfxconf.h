@@ -27,21 +27,25 @@
 
 #ifdef UGFXSIMULATOR
 /* We can use the µGFX API on our development machine in a simulator for X Window */
-#define GFX_USE_OS_LINUX                    TRUE
-    #define GDISP_SCREEN_WIDTH              320
-    #define GDISP_SCREEN_HEIGHT             240
+    #ifdef __linux__
+    #define GFX_USE_OS_LINUX                TRUE
+    #else
+    #define GFX_USE_OS_WIN32                TRUE
+    #endif
     #define GFX_CPU                         GFX_CPU_X64
 
 #else
 /* We the real thing ... */
 
-#define GFX_USE_OS_FREERTOS                 TRUE
-#define GFX_OS_NO_INIT                      TRUE
-#define GFX_CPU                             GFX_CPU_CORTEX_M4_FP
-
-#define GFX_OS_INIT_NO_WARNING              TRUE
+    #define GFX_USE_OS_FREERTOS             TRUE
+    #define GFX_OS_NO_INIT                  TRUE
+    #define GFX_CPU                         GFX_CPU_CORTEX_M4_FP
+    #define GFX_OS_INIT_NO_WARNING          TRUE
 
 #endif
+
+#define GDISP_SCREEN_WIDTH                  320
+#define GDISP_SCREEN_HEIGHT                 240
 
 ///////////////////////////////////////////////////////////////////////////
 // GDISP                                                                 //
@@ -72,7 +76,7 @@
 #define GDISP_DEFAULT_ORIENTATION                  GDISP_ROTATE_270
 #endif
  
-#define GDISP_NEED_MULTITHREAD                     TRUE                       /* needed by GWIN_NEED_WIDGET */
+#define GDISP_NEED_MULTITHREAD                     TRUE       /* needed by GWIN_NEED_WIDGET */
 #define GDISP_NEED_STARTUP_LOGO                    FALSE
 
 ///////////////////////////////////////////////////////////////////////////

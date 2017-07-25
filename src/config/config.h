@@ -55,8 +55,11 @@
 
 #define STM32_UUID         ((uint32_t *)0x1FFF7A10)       // F4
 //#define STM32_UUID 		     ((uint32_t *)0x1FF0F420)     // F7
-#define STM32_UUID_FLASH	 ((uint32_t *)0x1FF0F442)
-#define STM32_UUID_PACK		 ((uint32_t *)0x1FFF7BF0)
+
+#define STM32_UUID_FLASH   ((uint32_t *)0x1FFF7A22)       // F4
+//#define STM32_UUID_FLASH	 ((uint32_t *)0x1FF0F442)     // F7
+
+#define STM32_UUID_PACK		 ((uint32_t *)0x1FFF7BF0)      /* Dunno? */
 
 #define VERSION_STRING VERSION
 #define VERSION_STRING_LONG VERSION " built on " __DATE__ " " __TIME__

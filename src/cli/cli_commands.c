@@ -98,11 +98,11 @@
 
 
 #ifndef  configINCLUDE_TRACE_RELATED_CLI_COMMANDS
-	#define configINCLUDE_TRACE_RELATED_CLI_COMMANDS 0
+	#define configINCLUDE_TRACE_RELATED_CLI_COMMANDS 	0
 #endif
 
 #ifndef configINCLUDE_QUERY_HEAP_COMMAND
-	#define configINCLUDE_QUERY_HEAP_COMMAND 0
+	#define configINCLUDE_QUERY_HEAP_COMMAND 			0
 #endif
 
 /*
@@ -155,8 +155,8 @@ static BaseType_t prvParameterEchoCommand( char *pcWriteBuffer, size_t xWriteBuf
 a table that gives information on each task in the system. */
 static const CLI_Command_Definition_t xTaskStats =
 {
-	"task-stats", /* The command string to type. */
-	"\r\ntask-stats:\r\n Displays a table showing the state of each FreeRTOS task\r\n",
+	"tasks", /* The command string to type. */
+	"\r\ntasks:\r\n Displays a table showing the state of each FreeRTOS task\r\n",
 	prvTaskStatsCommand, /* The function to run. */
 	0 /* No parameters are expected. */
 };
@@ -171,13 +171,14 @@ static const CLI_Command_Definition_t xThreeParameterEcho =
 	prvThreeParameterEchoCommand, /* The function to run. */
 	3 /* Three parameters are expected, which can take any value. */
 };
+
 /* Structure that defines the "echo_3_parameters" command line command.  This
 takes exactly three parameters that the command simply echos back one at a
 time. */
 static const CLI_Command_Definition_t xClockSet =
 {
 	"set-clock",
-	"\r\nset-clock <year> <month> <day> <dow> <hour> <minutes>\r\n",
+	"\r\nset-clock <year> <month> <day> <dow> <hour> <minutes>:\r\n Set hardware RTC to current time\r\n",
 	prvClockSetCommand, /* The function to run. */
 	6 /* Three parameters are expected, which can take any value. */
 };

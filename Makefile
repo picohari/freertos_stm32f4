@@ -32,6 +32,7 @@ include ./src/protocols/PROTO.mk
 # Application libraries and external modules
 include ./src/gui/GUI.mk
 # include ./src/gui/WORK.mk
+# include ./src/gui/TEST.mk
 
 # Network applications and services
 include ./src/services/SERVICES.mk

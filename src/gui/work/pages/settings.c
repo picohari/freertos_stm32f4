@@ -97,9 +97,23 @@ void showLevelSensor(void) {
 
 //If the user requested a level sensor adjustment, do an adjustment
 void doLevelSensor(void) {
-	/* READ TEXTEDIT AND LEVEL SENSOR VALUES HERE */
+	const char* readtext = gwinGetText(ghTextedit);
+	if(strlen(readtext) != 9 || readtext[4] != '/') {
+		return;
+	}
+	int count = 0;
+	int i;
+	for (i = 0; i < (signed int) strlen(readtext); i++) {
+		if(readtext[i] == '/') {
+			count++;
+		}
+	}
+	if(count != 1) {
+		return;
+	}
 	
-	destroyPage();
+	writeSetting(10, readtext);
+	
 	showSettings1();
 }
 
@@ -113,7 +127,6 @@ void showSetDate(void) {
 void doSetDate(void) {
 	/* READ TEXTEDIT AND SET DATE VALUE HERE */
 	
-	destroyPage();
 	showSettings1();
 }
 
@@ -126,7 +139,6 @@ void showSetTime(void) {
 void doSetTime(void) {
 	/* READ TEXTEDIT AND SET TIME VALUE HERE */
 	
-	destroyPage();
 	showSettings1();
 }
 

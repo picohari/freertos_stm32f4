@@ -256,6 +256,8 @@ The STM32F4xx allows computing and verifying the IP, UDP, TCP and ICMP checksums
 
 #define LWIP_HTTPD_FS_ASYNC_READ      0
 
+#define HTTPD_SERVER_AGENT "lwIP/" LWIP_VERSION_STRING " STM32F4 - FreeRTOS"
+
 
 #define LWIP_DEBUG
 
@@ -298,8 +300,20 @@ The STM32F4xx allows computing and verifying the IP, UDP, TCP and ICMP checksums
 #define HTTPD_DEBUG                   LWIP_DBG_OFF
 #define HTTPD_DEBUG_TIMING            LWIP_DBG_OFF
 
+
+
 #define SNTP_DEBUG                    LWIP_DBG_ON
+
+/** Set this to 1 to support DNS names (or IP address strings) to set sntp servers
+ * One server address/name can be defined as default if SNTP_SERVER_DNS == 1:
+ * \#define SNTP_SERVER_ADDRESS "pool.ntp.org"
+ */
 #define SNTP_SERVER_DNS               1
+
+
+
+
+#define HTTPLOG_DEBUG                 LWIP_DBG_ON
 
 #endif
 

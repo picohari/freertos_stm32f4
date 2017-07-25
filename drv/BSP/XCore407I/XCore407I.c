@@ -208,9 +208,9 @@ void BSP_LCD_Init(void)
   hsram.Instance  = FMC_NORSRAM_DEVICE;
   hsram.Extended  = FMC_NORSRAM_EXTENDED_DEVICE;
 
-  SRAM_Timing.AddressSetupTime      = 15;
+  SRAM_Timing.DataSetupTime         = 8;
+  SRAM_Timing.AddressSetupTime      = 8;
   SRAM_Timing.AddressHoldTime       = 0;
-  SRAM_Timing.DataSetupTime         = 15;
   SRAM_Timing.BusTurnAroundDuration = 0;
   SRAM_Timing.CLKDivision           = 0;
   SRAM_Timing.DataLatency           = 0;
@@ -218,7 +218,8 @@ void BSP_LCD_Init(void)
   
   hsram.Init.NSBank             = FSMC_NORSRAM_BANK4;
   hsram.Init.DataAddressMux     = FSMC_DATA_ADDRESS_MUX_DISABLE;
-  hsram.Init.MemoryType         = FSMC_MEMORY_TYPE_NOR;
+  hsram.Init.MemoryType         = FSMC_MEMORY_TYPE_SRAM;
+  //hsram.Init.MemoryType         = FSMC_MEMORY_TYPE_NOR;
   hsram.Init.MemoryDataWidth    = FSMC_NORSRAM_MEM_BUS_WIDTH_16;
   hsram.Init.BurstAccessMode    = FSMC_BURST_ACCESS_MODE_DISABLE;
   hsram.Init.WaitSignalPolarity = FSMC_WAIT_SIGNAL_POLARITY_LOW;

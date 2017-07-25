@@ -23,11 +23,11 @@
 SIMDIR = .
 
 GFXINC +=  $(SIMDIR) \
-           $(SIMDIR)/pages \
+           #$(SIMDIR)/pages \
 
 GFXSRC +=  $(SIMDIR)/main.c \
-           $(SIMDIR)/gui.c \
-           $(SIMDIR)/pages/pages.c \
+           $(SIMDIR)/pixmap.c \
+           #$(SIMDIR)/pages/pages.c \
 
 ##############################################################################################
 # Set these for your project

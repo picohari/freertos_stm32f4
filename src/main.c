@@ -36,6 +36,8 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
+#include <string.h>
+
 #include "config.h"
 
 #include "stm32f4xx_hal.h"
@@ -49,6 +51,7 @@
 #include "gfx.h"
 #include "gui.h"
 #include "vt100.h"
+//#include "test.h"
 
 #include "eth_if.h"
 #include "lwip/netif.h"
@@ -58,6 +61,7 @@
 #include "lwip/apps/sntp.h"
 
 #include "proto_dhcp.h"
+#include "httplog.h"
 
 #include "httpd_server.h"
 //#include "test_server.h"
@@ -131,11 +135,58 @@ static void os_init(void)
   RTC_CalendarConfig(17, 1, 1, 0, 0, 0);
 
 
-  //writef("\033[2J"); // Clear screen
+  /* Put some information on the starting screen */
+  writef("\033[2J"); // Clear screen
   writef("\r\n");
+
+  /* Read some Hardware Registers for information and fun ;) */
+  char rev_id[42];
+  sprintf((char*)rev_id,  "XCore: 0x%04lx, Rev. 0x%04lx", (DBGMCU->IDCODE & 0x00000FFF), ((DBGMCU->IDCODE >> 16) & 0x0000FFFF));
+  writef("%s", rev_id);
+  writef("\r\n");
+
+  /* Read UUID */
+  uint32_t idPart1 = STM32_UUID[0];
+  uint32_t idPart2 = STM32_UUID[1];
+  uint32_t idPart3 = STM32_UUID[2];
+  char  uuid0_tmp[32];
+  sprintf((char*)uuid0_tmp,  "UUID:  %08lx-%08lx-%08lx", idPart1, idPart2, idPart3);
+  writef("%s", uuid0_tmp);
+  writef("\r\n");
+
+  /* Print flash size */
+  uint32_t flashSize = STM32_UUID_FLASH[0];
+  char flash_tmp[32];
+  sprintf((char*)flash_tmp, "%lx", flashSize);
+
+  char flash[6];
+  sprintf ((char*)flash, &(flash_tmp[strlen(flash_tmp) - 4]));
+
+  uint16_t size = strtol((char*)flash, NULL, 16);
+  sprintf((char*)flash_tmp, "Flash: %d kB", size);
+  writef("%s", flash_tmp);
+  writef("\r\n");
+
+
+#if 0  
+  uint32_t flashPack = STM32_UUID_PACK[0];
+  uint8_t pack_tmp[10];
+  sprintf((char*)pack_tmp,  "Pack: %lx", flashPack);
+  writef("%s", pack_tmp);
+  writef("\r\n");
+#endif
+
+  /* System clock runnning at ... */
+  writef("CLK:   %d MHz", SystemCoreClock / 1000000UL);
+  writef("\r\n");
+
+  /* We run our code as ... */
   writef("Firmware %s", VERSION_STRING_LONG);
   writef("\r\n");
+
+  /* Welcome to our guests ;) */
   writef("CMSIS - FreeRTOS - LwIP - BSP - uGFX");
+  writef("\r\n");
   writef("\r\n");
 
 
@@ -238,15 +289,21 @@ static void NET_start (void const * arg)
     netif_set_down(&gnetif);
   }
 
-  /* Start DNS service */
+  /* Start DNS service - set to ip of gateway (most routers do offer dns) */
   dns_init();
   IP4_ADDR(&dns, GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3);
   dns_setserver(0, &dns);
 
+#if 0
   /* Start NTP service */
   sntp_setoperatingmode(SNTP_OPMODE_POLL);
   sntp_setservername(0, "de.pool.ntp.org");
   sntp_init();
+#endif
+
+  int numberone = 123;
+
+  httplog("led1=ON", numberone);
 
   /* Start HTTP service */
   osThreadDef(http, HTTP_start,    osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 2);
@@ -343,7 +400,6 @@ static void GUI_thread (void const * arg)
 
   (void) arg;
 
-
   while (1) {
     guiEventLoop();
   }
@@ -351,8 +407,6 @@ static void GUI_thread (void const * arg)
 
 
 
-
-//#define TICKS_IN_DAY   (pdMS_TO_TICKS(24 * 60 * 60 * 1000))
 
 #define BUFFER_LEN 45
 
@@ -396,7 +450,7 @@ static void TTY_thread (void const * arg)
 
     /* Do we have to print the prompt? */
     if(printPrompt) {
-      writef("> "); /* printf("\n"); */
+      //writef("> "); /* printf("\n"); */
       //vt100_puts("> ");
       
       printPrompt = 0;
@@ -487,12 +541,7 @@ static void TTY_thread (void const * arg)
 
 #include <locale.h>
 
-
-
-
 #define TIMEBUF   64
-
-
 
 static void RTC_thread (void const * arg)
 {
@@ -535,17 +584,15 @@ static void RTC_thread (void const * arg)
 
   //setlocale(LC_TIME, "de_DE.UTF-8");
 
-
-
-
-
   while (1) {
 
-    static time_t timer;
-    
     static char buffer[TIMEBUF];
-
+    
+    static time_t timer;
     static struct tm* tm_info;
+
+    static char buffer_del[TIMEBUF];
+    static struct tm tm_del;
 
 /*
        1  2  3  4  5  6  7
@@ -560,37 +607,57 @@ lib so mo di mi do fr sa
 
     /* Break up time info as local time */
     tm_info = localtime(&timer);
-
-
-    //taskENTER_CRITICAL();
-    sprintf(buffer, "%s\n", asctime(tm_info));
-    gdispFillStringBox( 5, 40, 200, 20, buffer, dejavu_sans_10, White, Black, justifyLeft );
-    memset(buffer, 0, TIMEBUF);
-    //gfxSleepMilliseconds(50);
-    //taskEXIT_CRITICAL();
     
+#if 0
+    //taskENTER_CRITICAL();
+
     strftime (buffer, TIMEBUF, "%a, %d. %B %Y\n", tm_info); /* So, 31. Januar 1970 */
     gdispFillStringBox( 5, 60, 200, 20, buffer, dejavu_sans_10, White, Black, justifyLeft);
     memset(buffer, 0, TIMEBUF);
     //gfxSleepMilliseconds(50);
-        
+
     strftime (buffer, TIMEBUF, "%H:%M:%S TZ: %Z\n", tm_info);
     gdispFillStringBox( 5, 80, 200, 20, buffer, dejavu_sans_10, White, Black, justifyLeft);
     memset(buffer, 0, TIMEBUF);
     //gfxSleepMilliseconds(50);
+#endif
+
+
+#if 0
+    // compare/store old value
+    if (tm_del.tm_sec != tm_info->tm_sec) {
+
+      do {
+        /* Delete old value from screen */
+        sprintf(buffer_del, "%s\n", asctime(&tm_del));
+        gdispDrawString( 5, 40, buffer_del, dejavu_sans_16, Black);
+        
+        /* Draw new value */
+        sprintf(buffer, "%s\n", asctime(tm_info));
+        gdispDrawString( 5, 40, buffer, dejavu_sans_16, White);
+        
+        /* store new value as old one.. */
+        tm_del = *tm_info;
+
+      } while (0);
+
+    }
 
     sprintf(buffer, "DST: %d DOW: %d DOY: %d \n", tm_info->tm_isdst, tm_info->tm_wday, tm_info->tm_yday);
     gdispFillStringBox( 5, 100, 200, 20, buffer, dejavu_sans_10, White, Black, justifyLeft);
     memset(buffer, 0, TIMEBUF);
     //gfxSleepMilliseconds(50);
-    
+
+#endif
+    //taskEXIT_CRITICAL();
+
     /*
     vt100_puts("\e[H");
     vt100_puts(aShowTime); vt100_putc('\r');
     vt100_puts(aShowDate); vt100_putc('\r');
     */
 
-    //osDelay(1000);
+    osDelay(10);
   }
 
 }

@@ -1,0 +1,1275 @@
+desc: --stacks=yes
+cmd: .build/./test
+time_unit: i
+#-----------
+snapshot=0
+#-----------
+time=0
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=1
+#-----------
+time=935115
+mem_heap_B=95769
+mem_heap_extra_B=503
+mem_stacks_B=1840
+heap_tree=peak
+n7: 95769 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 40000 0x804AB15: gdispPixmapCreate (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+  n1: 40000 0x8049220: guiCreate (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n0: 40000 0x80490EB: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 21012 0x4391FC8: xcb_connect_to_fd (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+  n1: 21012 0x439610E: xcb_connect_to_display_with_auth_info (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+   n1: 21012 0x4396209: xcb_connect (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+    n1: 21012 0x40BE44E: _XConnectXCB (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+     n1: 21012 0x40AECE7: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+      n1: 21012 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n1: 21012 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+        n1: 21012 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+         n1: 21012 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+          n1: 21012 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+           n0: 21012 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 16384 0x40AEFA5: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 16384 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 16384 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 16384 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 16384 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 16384 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 16384 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 7296 0x40AF301: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 7296 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 7296 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 7296 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 7296 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 7296 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 7296 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 5684 0x43921A2: xcb_connect_to_fd (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+  n1: 5684 0x439610E: xcb_connect_to_display_with_auth_info (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+   n1: 5684 0x4396209: xcb_connect (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+    n1: 5684 0x40BE44E: _XConnectXCB (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+     n1: 5684 0x40AECE7: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+      n1: 5684 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n1: 5684 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+        n1: 5684 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+         n1: 5684 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+          n1: 5684 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+           n0: 5684 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n0: 3021 in 49 places, all below massif's threshold (01.00%)
+ n1: 2372 0x40AECB3: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 2372 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 2372 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 2372 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 2372 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 2372 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 2372 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+#-----------
+snapshot=2
+#-----------
+time=4394083
+mem_heap_B=95809
+mem_heap_extra_B=519
+mem_stacks_B=1288
+heap_tree=detailed
+n7: 95809 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 40000 0x804AB15: gdispPixmapCreate (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+  n1: 40000 0x8049220: guiCreate (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n0: 40000 0x80490EB: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 21012 0x4391FC8: xcb_connect_to_fd (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+  n1: 21012 0x439610E: xcb_connect_to_display_with_auth_info (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+   n1: 21012 0x4396209: xcb_connect (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+    n1: 21012 0x40BE44E: _XConnectXCB (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+     n1: 21012 0x40AECE7: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+      n1: 21012 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n1: 21012 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+        n1: 21012 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+         n1: 21012 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+          n1: 21012 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+           n0: 21012 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 16384 0x40AEFA5: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 16384 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 16384 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 16384 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 16384 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 16384 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 16384 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 7296 0x40AF301: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 7296 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 7296 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 7296 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 7296 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 7296 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 7296 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 5684 0x43921A2: xcb_connect_to_fd (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+  n1: 5684 0x439610E: xcb_connect_to_display_with_auth_info (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+   n1: 5684 0x4396209: xcb_connect (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+    n1: 5684 0x40BE44E: _XConnectXCB (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+     n1: 5684 0x40AECE7: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+      n1: 5684 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n1: 5684 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+        n1: 5684 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+         n1: 5684 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+          n1: 5684 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+           n0: 5684 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n0: 3061 in 49 places, all below massif's threshold (01.00%)
+ n1: 2372 0x40AECB3: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 2372 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 2372 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 2372 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 2372 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 2372 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 2372 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+#-----------
+snapshot=3
+#-----------
+time=6808331
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1384
+heap_tree=empty
+#-----------
+snapshot=4
+#-----------
+time=10488218
+mem_heap_B=95789
+mem_heap_extra_B=499
+mem_stacks_B=1256
+heap_tree=empty
+#-----------
+snapshot=5
+#-----------
+time=13159989
+mem_heap_B=95769
+mem_heap_extra_B=503
+mem_stacks_B=1292
+heap_tree=empty
+#-----------
+snapshot=6
+#-----------
+time=15818439
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1540
+heap_tree=detailed
+n7: 95757 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 40000 0x804AB15: gdispPixmapCreate (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+  n1: 40000 0x8049220: guiCreate (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n0: 40000 0x80490EB: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 21012 0x4391FC8: xcb_connect_to_fd (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+  n1: 21012 0x439610E: xcb_connect_to_display_with_auth_info (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+   n1: 21012 0x4396209: xcb_connect (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+    n1: 21012 0x40BE44E: _XConnectXCB (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+     n1: 21012 0x40AECE7: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+      n1: 21012 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n1: 21012 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+        n1: 21012 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+         n1: 21012 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+          n1: 21012 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+           n0: 21012 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 16384 0x40AEFA5: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 16384 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 16384 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 16384 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 16384 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 16384 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 16384 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 7296 0x40AF301: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 7296 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 7296 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 7296 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 7296 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 7296 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 7296 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 5684 0x43921A2: xcb_connect_to_fd (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+  n1: 5684 0x439610E: xcb_connect_to_display_with_auth_info (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+   n1: 5684 0x4396209: xcb_connect (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+    n1: 5684 0x40BE44E: _XConnectXCB (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+     n1: 5684 0x40AECE7: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+      n1: 5684 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n1: 5684 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+        n1: 5684 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+         n1: 5684 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+          n1: 5684 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+           n0: 5684 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n0: 3009 in 49 places, all below massif's threshold (01.00%)
+ n1: 2372 0x40AECB3: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 2372 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 2372 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 2372 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 2372 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 2372 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 2372 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+#-----------
+snapshot=7
+#-----------
+time=18173507
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1336
+heap_tree=empty
+#-----------
+snapshot=8
+#-----------
+time=19782281
+mem_heap_B=95809
+mem_heap_extra_B=519
+mem_stacks_B=1256
+heap_tree=empty
+#-----------
+snapshot=9
+#-----------
+time=22195419
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1384
+heap_tree=detailed
+n7: 95757 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 40000 0x804AB15: gdispPixmapCreate (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+  n1: 40000 0x8049220: guiCreate (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n0: 40000 0x80490EB: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 21012 0x4391FC8: xcb_connect_to_fd (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+  n1: 21012 0x439610E: xcb_connect_to_display_with_auth_info (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+   n1: 21012 0x4396209: xcb_connect (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+    n1: 21012 0x40BE44E: _XConnectXCB (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+     n1: 21012 0x40AECE7: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+      n1: 21012 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n1: 21012 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+        n1: 21012 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+         n1: 21012 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+          n1: 21012 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+           n0: 21012 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 16384 0x40AEFA5: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 16384 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 16384 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 16384 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 16384 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 16384 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 16384 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 7296 0x40AF301: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 7296 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 7296 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 7296 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 7296 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 7296 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 7296 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 5684 0x43921A2: xcb_connect_to_fd (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+  n1: 5684 0x439610E: xcb_connect_to_display_with_auth_info (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+   n1: 5684 0x4396209: xcb_connect (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+    n1: 5684 0x40BE44E: _XConnectXCB (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+     n1: 5684 0x40AECE7: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+      n1: 5684 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n1: 5684 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+        n1: 5684 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+         n1: 5684 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+          n1: 5684 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+           n0: 5684 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n0: 3009 in 49 places, all below massif's threshold (01.00%)
+ n1: 2372 0x40AECB3: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 2372 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 2372 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 2372 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 2372 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 2372 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 2372 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+#-----------
+snapshot=10
+#-----------
+time=23804202
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1128
+heap_tree=empty
+#-----------
+snapshot=11
+#-----------
+time=26485476
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1252
+heap_tree=empty
+#-----------
+snapshot=12
+#-----------
+time=29434827
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1304
+heap_tree=empty
+#-----------
+snapshot=13
+#-----------
+time=31886254
+mem_heap_B=95789
+mem_heap_extra_B=499
+mem_stacks_B=1236
+heap_tree=empty
+#-----------
+snapshot=14
+#-----------
+time=34835513
+mem_heap_B=95769
+mem_heap_extra_B=503
+mem_stacks_B=1636
+heap_tree=empty
+#-----------
+snapshot=15
+#-----------
+time=36520804
+mem_heap_B=95789
+mem_heap_extra_B=499
+mem_stacks_B=1532
+heap_tree=empty
+#-----------
+snapshot=16
+#-----------
+time=40312719
+mem_heap_B=95769
+mem_heap_extra_B=503
+mem_stacks_B=1852
+heap_tree=empty
+#-----------
+snapshot=17
+#-----------
+time=42840658
+mem_heap_B=95789
+mem_heap_extra_B=499
+mem_stacks_B=1528
+heap_tree=empty
+#-----------
+snapshot=18
+#-----------
+time=44947274
+mem_heap_B=95769
+mem_heap_extra_B=503
+mem_stacks_B=1848
+heap_tree=empty
+#-----------
+snapshot=19
+#-----------
+time=47896572
+mem_heap_B=95809
+mem_heap_extra_B=519
+mem_stacks_B=1656
+heap_tree=empty
+#-----------
+snapshot=20
+#-----------
+time=49581881
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1160
+heap_tree=empty
+#-----------
+snapshot=21
+#-----------
+time=52109807
+mem_heap_B=95769
+mem_heap_extra_B=503
+mem_stacks_B=1640
+heap_tree=empty
+#-----------
+snapshot=22
+#-----------
+time=53718712
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1548
+heap_tree=empty
+#-----------
+snapshot=23
+#-----------
+time=56400195
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1288
+heap_tree=empty
+#-----------
+snapshot=24
+#-----------
+time=59081676
+mem_heap_B=95769
+mem_heap_extra_B=503
+mem_stacks_B=1640
+heap_tree=empty
+#-----------
+snapshot=25
+#-----------
+time=61226894
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1336
+heap_tree=detailed
+n7: 95757 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 40000 0x804AB15: gdispPixmapCreate (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+  n1: 40000 0x8049220: guiCreate (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n0: 40000 0x80490EB: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 21012 0x4391FC8: xcb_connect_to_fd (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+  n1: 21012 0x439610E: xcb_connect_to_display_with_auth_info (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+   n1: 21012 0x4396209: xcb_connect (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+    n1: 21012 0x40BE44E: _XConnectXCB (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+     n1: 21012 0x40AECE7: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+      n1: 21012 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n1: 21012 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+        n1: 21012 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+         n1: 21012 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+          n1: 21012 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+           n0: 21012 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 16384 0x40AEFA5: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 16384 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 16384 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 16384 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 16384 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 16384 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 16384 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 7296 0x40AF301: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 7296 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 7296 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 7296 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 7296 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 7296 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 7296 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 5684 0x43921A2: xcb_connect_to_fd (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+  n1: 5684 0x439610E: xcb_connect_to_display_with_auth_info (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+   n1: 5684 0x4396209: xcb_connect (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+    n1: 5684 0x40BE44E: _XConnectXCB (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+     n1: 5684 0x40AECE7: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+      n1: 5684 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n1: 5684 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+        n1: 5684 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+         n1: 5684 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+          n1: 5684 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+           n0: 5684 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n0: 3009 in 49 places, all below massif's threshold (01.00%)
+ n1: 2372 0x40AECB3: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 2372 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 2372 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 2372 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 2372 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 2372 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 2372 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+#-----------
+snapshot=26
+#-----------
+time=64444696
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1548
+heap_tree=empty
+#-----------
+snapshot=27
+#-----------
+time=67126202
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1288
+heap_tree=empty
+#-----------
+snapshot=28
+#-----------
+time=69807678
+mem_heap_B=95769
+mem_heap_extra_B=503
+mem_stacks_B=1656
+heap_tree=empty
+#-----------
+snapshot=29
+#-----------
+time=71952874
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1120
+heap_tree=detailed
+n7: 95757 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 40000 0x804AB15: gdispPixmapCreate (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+  n1: 40000 0x8049220: guiCreate (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n0: 40000 0x80490EB: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 21012 0x4391FC8: xcb_connect_to_fd (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+  n1: 21012 0x439610E: xcb_connect_to_display_with_auth_info (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+   n1: 21012 0x4396209: xcb_connect (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+    n1: 21012 0x40BE44E: _XConnectXCB (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+     n1: 21012 0x40AECE7: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+      n1: 21012 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n1: 21012 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+        n1: 21012 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+         n1: 21012 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+          n1: 21012 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+           n0: 21012 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 16384 0x40AEFA5: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 16384 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 16384 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 16384 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 16384 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 16384 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 16384 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 7296 0x40AF301: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 7296 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 7296 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 7296 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 7296 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 7296 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 7296 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 5684 0x43921A2: xcb_connect_to_fd (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+  n1: 5684 0x439610E: xcb_connect_to_display_with_auth_info (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+   n1: 5684 0x4396209: xcb_connect (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+    n1: 5684 0x40BE44E: _XConnectXCB (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+     n1: 5684 0x40AECE7: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+      n1: 5684 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n1: 5684 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+        n1: 5684 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+         n1: 5684 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+          n1: 5684 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+           n0: 5684 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n0: 3009 in 49 places, all below massif's threshold (01.00%)
+ n1: 2372 0x40AECB3: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 2372 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 2372 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 2372 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 2372 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 2372 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 2372 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+#-----------
+snapshot=30
+#-----------
+time=74634413
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1528
+heap_tree=empty
+#-----------
+snapshot=31
+#-----------
+time=76779628
+mem_heap_B=95801
+mem_heap_extra_B=511
+mem_stacks_B=1864
+heap_tree=empty
+#-----------
+snapshot=32
+#-----------
+time=78924824
+mem_heap_B=95769
+mem_heap_extra_B=503
+mem_stacks_B=1872
+heap_tree=empty
+#-----------
+snapshot=33
+#-----------
+time=81452803
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1172
+heap_tree=empty
+#-----------
+snapshot=34
+#-----------
+time=84823477
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1144
+heap_tree=detailed
+n7: 95757 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 40000 0x804AB15: gdispPixmapCreate (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+  n1: 40000 0x8049220: guiCreate (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n0: 40000 0x80490EB: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 21012 0x4391FC8: xcb_connect_to_fd (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+  n1: 21012 0x439610E: xcb_connect_to_display_with_auth_info (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+   n1: 21012 0x4396209: xcb_connect (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+    n1: 21012 0x40BE44E: _XConnectXCB (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+     n1: 21012 0x40AECE7: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+      n1: 21012 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n1: 21012 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+        n1: 21012 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+         n1: 21012 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+          n1: 21012 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+           n0: 21012 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 16384 0x40AEFA5: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 16384 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 16384 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 16384 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 16384 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 16384 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 16384 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 7296 0x40AF301: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 7296 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 7296 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 7296 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 7296 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 7296 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 7296 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 5684 0x43921A2: xcb_connect_to_fd (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+  n1: 5684 0x439610E: xcb_connect_to_display_with_auth_info (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+   n1: 5684 0x4396209: xcb_connect (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+    n1: 5684 0x40BE44E: _XConnectXCB (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+     n1: 5684 0x40AECE7: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+      n1: 5684 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n1: 5684 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+        n1: 5684 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+         n1: 5684 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+          n1: 5684 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+           n0: 5684 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n0: 3009 in 49 places, all below massif's threshold (01.00%)
+ n1: 2372 0x40AECB3: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 2372 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 2372 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 2372 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 2372 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 2372 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 2372 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+#-----------
+snapshot=35
+#-----------
+time=87351463
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1652
+heap_tree=empty
+#-----------
+snapshot=36
+#-----------
+time=89036777
+mem_heap_B=95789
+mem_heap_extra_B=499
+mem_stacks_B=1292
+heap_tree=empty
+#-----------
+snapshot=37
+#-----------
+time=91564749
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1448
+heap_tree=empty
+#-----------
+snapshot=38
+#-----------
+time=94935418
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1128
+heap_tree=empty
+#-----------
+snapshot=39
+#-----------
+time=96620796
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1336
+heap_tree=empty
+#-----------
+snapshot=40
+#-----------
+time=99148819
+mem_heap_B=95789
+mem_heap_extra_B=499
+mem_stacks_B=1224
+heap_tree=empty
+#-----------
+snapshot=41
+#-----------
+time=102519507
+mem_heap_B=95769
+mem_heap_extra_B=503
+mem_stacks_B=1464
+heap_tree=empty
+#-----------
+snapshot=42
+#-----------
+time=105047496
+mem_heap_B=95789
+mem_heap_extra_B=499
+mem_stacks_B=1528
+heap_tree=empty
+#-----------
+snapshot=43
+#-----------
+time=106732820
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1576
+heap_tree=empty
+#-----------
+snapshot=44
+#-----------
+time=109260814
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1384
+heap_tree=empty
+#-----------
+snapshot=45
+#-----------
+time=110946253
+mem_heap_B=95769
+mem_heap_extra_B=503
+mem_stacks_B=1792
+heap_tree=empty
+#-----------
+snapshot=46
+#-----------
+time=113474231
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1144
+heap_tree=empty
+#-----------
+snapshot=47
+#-----------
+time=116844886
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1328
+heap_tree=empty
+#-----------
+snapshot=48
+#-----------
+time=119372880
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1144
+heap_tree=empty
+#-----------
+snapshot=49
+#-----------
+time=121058284
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1140
+heap_tree=empty
+#-----------
+snapshot=50
+#-----------
+time=122667058
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1120
+heap_tree=empty
+#-----------
+snapshot=51
+#-----------
+time=124275836
+mem_heap_B=95769
+mem_heap_extra_B=503
+mem_stacks_B=1228
+heap_tree=empty
+#-----------
+snapshot=52
+#-----------
+time=125884629
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1144
+heap_tree=empty
+#-----------
+snapshot=53
+#-----------
+time=127493405
+mem_heap_B=95809
+mem_heap_extra_B=519
+mem_stacks_B=1288
+heap_tree=empty
+#-----------
+snapshot=54
+#-----------
+time=129102266
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1464
+heap_tree=empty
+#-----------
+snapshot=55
+#-----------
+time=130711069
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1144
+heap_tree=empty
+#-----------
+snapshot=56
+#-----------
+time=132319866
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1320
+heap_tree=detailed
+n7: 95757 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 40000 0x804AB15: gdispPixmapCreate (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+  n1: 40000 0x8049220: guiCreate (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n0: 40000 0x80490EB: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 21012 0x4391FC8: xcb_connect_to_fd (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+  n1: 21012 0x439610E: xcb_connect_to_display_with_auth_info (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+   n1: 21012 0x4396209: xcb_connect (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+    n1: 21012 0x40BE44E: _XConnectXCB (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+     n1: 21012 0x40AECE7: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+      n1: 21012 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n1: 21012 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+        n1: 21012 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+         n1: 21012 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+          n1: 21012 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+           n0: 21012 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 16384 0x40AEFA5: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 16384 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 16384 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 16384 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 16384 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 16384 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 16384 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 7296 0x40AF301: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 7296 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 7296 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 7296 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 7296 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 7296 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 7296 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 5684 0x43921A2: xcb_connect_to_fd (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+  n1: 5684 0x439610E: xcb_connect_to_display_with_auth_info (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+   n1: 5684 0x4396209: xcb_connect (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+    n1: 5684 0x40BE44E: _XConnectXCB (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+     n1: 5684 0x40AECE7: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+      n1: 5684 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n1: 5684 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+        n1: 5684 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+         n1: 5684 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+          n1: 5684 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+           n0: 5684 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n0: 3009 in 49 places, all below massif's threshold (01.00%)
+ n1: 2372 0x40AECB3: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 2372 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 2372 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 2372 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 2372 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 2372 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 2372 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+#-----------
+snapshot=57
+#-----------
+time=133928640
+mem_heap_B=95769
+mem_heap_extra_B=503
+mem_stacks_B=1872
+heap_tree=empty
+#-----------
+snapshot=58
+#-----------
+time=135537421
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1112
+heap_tree=empty
+#-----------
+snapshot=59
+#-----------
+time=137146198
+mem_heap_B=95769
+mem_heap_extra_B=503
+mem_stacks_B=1224
+heap_tree=empty
+#-----------
+snapshot=60
+#-----------
+time=138754978
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1076
+heap_tree=empty
+#-----------
+snapshot=61
+#-----------
+time=140363752
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1100
+heap_tree=empty
+#-----------
+snapshot=62
+#-----------
+time=141972535
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1332
+heap_tree=empty
+#-----------
+snapshot=63
+#-----------
+time=143581339
+mem_heap_B=95797
+mem_heap_extra_B=507
+mem_stacks_B=1512
+heap_tree=empty
+#-----------
+snapshot=64
+#-----------
+time=145190191
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1368
+heap_tree=empty
+#-----------
+snapshot=65
+#-----------
+time=146798967
+mem_heap_B=95809
+mem_heap_extra_B=519
+mem_stacks_B=1304
+heap_tree=empty
+#-----------
+snapshot=66
+#-----------
+time=148407751
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1112
+heap_tree=detailed
+n7: 95757 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 40000 0x804AB15: gdispPixmapCreate (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+  n1: 40000 0x8049220: guiCreate (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n0: 40000 0x80490EB: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 21012 0x4391FC8: xcb_connect_to_fd (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+  n1: 21012 0x439610E: xcb_connect_to_display_with_auth_info (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+   n1: 21012 0x4396209: xcb_connect (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+    n1: 21012 0x40BE44E: _XConnectXCB (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+     n1: 21012 0x40AECE7: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+      n1: 21012 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n1: 21012 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+        n1: 21012 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+         n1: 21012 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+          n1: 21012 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+           n0: 21012 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 16384 0x40AEFA5: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 16384 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 16384 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 16384 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 16384 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 16384 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 16384 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 7296 0x40AF301: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 7296 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 7296 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 7296 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 7296 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 7296 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 7296 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 5684 0x43921A2: xcb_connect_to_fd (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+  n1: 5684 0x439610E: xcb_connect_to_display_with_auth_info (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+   n1: 5684 0x4396209: xcb_connect (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+    n1: 5684 0x40BE44E: _XConnectXCB (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+     n1: 5684 0x40AECE7: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+      n1: 5684 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n1: 5684 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+        n1: 5684 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+         n1: 5684 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+          n1: 5684 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+           n0: 5684 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n0: 3009 in 49 places, all below massif's threshold (01.00%)
+ n1: 2372 0x40AECB3: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 2372 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 2372 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 2372 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 2372 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 2372 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 2372 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+#-----------
+snapshot=67
+#-----------
+time=150016546
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1640
+heap_tree=empty
+#-----------
+snapshot=68
+#-----------
+time=151625339
+mem_heap_B=95789
+mem_heap_extra_B=499
+mem_stacks_B=1320
+heap_tree=empty
+#-----------
+snapshot=69
+#-----------
+time=153234114
+mem_heap_B=95769
+mem_heap_extra_B=503
+mem_stacks_B=1788
+heap_tree=empty
+#-----------
+snapshot=70
+#-----------
+time=154842907
+mem_heap_B=95789
+mem_heap_extra_B=499
+mem_stacks_B=1272
+heap_tree=empty
+#-----------
+snapshot=71
+#-----------
+time=156451692
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1240
+heap_tree=empty
+#-----------
+snapshot=72
+#-----------
+time=158060466
+mem_heap_B=95809
+mem_heap_extra_B=519
+mem_stacks_B=1460
+heap_tree=empty
+#-----------
+snapshot=73
+#-----------
+time=159669263
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1144
+heap_tree=empty
+#-----------
+snapshot=74
+#-----------
+time=161278037
+mem_heap_B=95769
+mem_heap_extra_B=503
+mem_stacks_B=1868
+heap_tree=empty
+#-----------
+snapshot=75
+#-----------
+time=162886833
+mem_heap_B=95789
+mem_heap_extra_B=499
+mem_stacks_B=1528
+heap_tree=empty
+#-----------
+snapshot=76
+#-----------
+time=164495610
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1176
+heap_tree=detailed
+n7: 95757 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 40000 0x804AB15: gdispPixmapCreate (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+  n1: 40000 0x8049220: guiCreate (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n0: 40000 0x80490EB: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 21012 0x4391FC8: xcb_connect_to_fd (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+  n1: 21012 0x439610E: xcb_connect_to_display_with_auth_info (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+   n1: 21012 0x4396209: xcb_connect (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+    n1: 21012 0x40BE44E: _XConnectXCB (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+     n1: 21012 0x40AECE7: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+      n1: 21012 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n1: 21012 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+        n1: 21012 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+         n1: 21012 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+          n1: 21012 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+           n0: 21012 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 16384 0x40AEFA5: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 16384 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 16384 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 16384 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 16384 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 16384 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 16384 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 7296 0x40AF301: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 7296 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 7296 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 7296 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 7296 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 7296 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 7296 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 5684 0x43921A2: xcb_connect_to_fd (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+  n1: 5684 0x439610E: xcb_connect_to_display_with_auth_info (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+   n1: 5684 0x4396209: xcb_connect (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+    n1: 5684 0x40BE44E: _XConnectXCB (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+     n1: 5684 0x40AECE7: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+      n1: 5684 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n1: 5684 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+        n1: 5684 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+         n1: 5684 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+          n1: 5684 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+           n0: 5684 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n0: 3009 in 49 places, all below massif's threshold (01.00%)
+ n1: 2372 0x40AECB3: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 2372 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 2372 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 2372 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 2372 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 2372 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 2372 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+#-----------
+snapshot=77
+#-----------
+time=166104397
+mem_heap_B=95797
+mem_heap_extra_B=507
+mem_stacks_B=1448
+heap_tree=empty
+#-----------
+snapshot=78
+#-----------
+time=167713176
+mem_heap_B=95809
+mem_heap_extra_B=519
+mem_stacks_B=1152
+heap_tree=empty
+#-----------
+snapshot=79
+#-----------
+time=169321980
+mem_heap_B=95789
+mem_heap_extra_B=499
+mem_stacks_B=1224
+heap_tree=empty
+#-----------
+snapshot=80
+#-----------
+time=170930755
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1332
+heap_tree=empty
+#-----------
+snapshot=81
+#-----------
+time=172539533
+mem_heap_B=95809
+mem_heap_extra_B=519
+mem_stacks_B=1260
+heap_tree=empty
+#-----------
+snapshot=82
+#-----------
+time=174148310
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1252
+heap_tree=empty
+#-----------
+snapshot=83
+#-----------
+time=175757092
+mem_heap_B=95769
+mem_heap_extra_B=503
+mem_stacks_B=1868
+heap_tree=empty
+#-----------
+snapshot=84
+#-----------
+time=177365895
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1144
+heap_tree=empty
+#-----------
+snapshot=85
+#-----------
+time=178974682
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1540
+heap_tree=empty
+#-----------
+snapshot=86
+#-----------
+time=180583478
+mem_heap_B=95797
+mem_heap_extra_B=507
+mem_stacks_B=1304
+heap_tree=detailed
+n7: 95797 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 40000 0x804AB15: gdispPixmapCreate (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+  n1: 40000 0x8049220: guiCreate (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n0: 40000 0x80490EB: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 21012 0x4391FC8: xcb_connect_to_fd (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+  n1: 21012 0x439610E: xcb_connect_to_display_with_auth_info (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+   n1: 21012 0x4396209: xcb_connect (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+    n1: 21012 0x40BE44E: _XConnectXCB (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+     n1: 21012 0x40AECE7: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+      n1: 21012 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n1: 21012 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+        n1: 21012 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+         n1: 21012 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+          n1: 21012 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+           n0: 21012 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 16384 0x40AEFA5: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 16384 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 16384 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 16384 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 16384 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 16384 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 16384 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 7296 0x40AF301: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 7296 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 7296 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 7296 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 7296 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 7296 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 7296 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n1: 5684 0x43921A2: xcb_connect_to_fd (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+  n1: 5684 0x439610E: xcb_connect_to_display_with_auth_info (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+   n1: 5684 0x4396209: xcb_connect (in /usr/lib/i386-linux-gnu/libxcb.so.1.1.0)
+    n1: 5684 0x40BE44E: _XConnectXCB (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+     n1: 5684 0x40AECE7: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+      n1: 5684 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n1: 5684 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+        n1: 5684 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+         n1: 5684 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+          n1: 5684 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+           n0: 5684 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+ n0: 3049 in 49 places, all below massif's threshold (01.00%)
+ n1: 2372 0x40AECB3: XOpenDisplay (in /usr/lib/i386-linux-gnu/libX11.so.6.3.0)
+  n1: 2372 0x804E123: gdisp_lld_init (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+   n1: 2372 0x8049DC9: _gdispInitDriver (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+    n1: 2372 0x8049615: gdriverRegister (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+     n1: 2372 0x8049D7D: _gdispInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+      n1: 2372 0x80493A6: gfxInit (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+       n0: 2372 0x80490AC: main (in /home/dk6yf/stm32/work/stm32f4-xcore/src/gui/test/.build/test)
+#-----------
+snapshot=87
+#-----------
+time=182192265
+mem_heap_B=95809
+mem_heap_extra_B=519
+mem_stacks_B=1656
+heap_tree=empty
+#-----------
+snapshot=88
+#-----------
+time=183801058
+mem_heap_B=95797
+mem_heap_extra_B=507
+mem_stacks_B=1304
+heap_tree=empty
+#-----------
+snapshot=89
+#-----------
+time=185409835
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1340
+heap_tree=empty
+#-----------
+snapshot=90
+#-----------
+time=187018639
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1144
+heap_tree=empty
+#-----------
+snapshot=91
+#-----------
+time=188627418
+mem_heap_B=95769
+mem_heap_extra_B=503
+mem_stacks_B=1640
+heap_tree=empty
+#-----------
+snapshot=92
+#-----------
+time=190236197
+mem_heap_B=95757
+mem_heap_extra_B=491
+mem_stacks_B=1148
+heap_tree=empty

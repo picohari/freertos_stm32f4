@@ -38,7 +38,7 @@
 #define GDISP_NEED_MULTITHREAD 				TRUE
 
 #define GDISP_NEED_IMAGE 					TRUE
-	#define GDISP_NEED_IMAGE_BMP 			FALSE
+	#define GDISP_NEED_IMAGE_BMP 			TRUE
 	#define GDISP_NEED_IMAGE_GIF 			TRUE
 
 #ifdef UGFXSIMULATOR
@@ -48,6 +48,7 @@
 #endif
 
 #define GDISP_NEED_PIXMAP					 TRUE
+
 
 #define GDISP_NEED_STARTUP_LOGO 			FALSE
 #define GDISP_STARTUP_COLOR HTML2COLOR		(0xFFFFFF)
@@ -59,10 +60,12 @@
 #define GDISP_NEED_TEXT 					TRUE
 #define GDISP_NEED_TEXT_WORDWRAP 			TRUE
 #define GDISP_INCLUDE_USER_FONTS 			TRUE
+
 #define GDISP_NEED_ANTIALIAS 				FALSE
 #define GDISP_NEED_TEXT_KERNING 			FALSE
 #define GDISP_NEED_UTF8 					FALSE
 
+#define GDISP_INCLUDE_FONT_UI2          	TRUE
 
 /********************************************************/
 /* GWIN stuff                                           */
@@ -87,6 +90,8 @@
     #define GWIN_NEED_FRAME 				FALSE
     #define GWIN_NEED_TABSET 				FALSE
 
+/* Features for the GWIN subsystem. */
+#define GWIN_NEED_GL3D          			FALSE
 
 /********************************************************/
 /* GTIMER stuff                                         */
@@ -137,10 +142,14 @@
 /********************************************************/
 #define GFX_USE_GFILE 						TRUE
 
-//#define GFILE_NEED_NATIVEFS 				TRUE
+#define GFILE_NEED_NATIVEFS 				FALSE
 #define GFILE_NEED_ROMFS 					TRUE
 #define GFILE_MAX_GFILES 					13
 
-
+/********************************************************/
+/* GMISC stuff                                          */
+/********************************************************/
+#define GFX_USE_GMISC				TRUE
+#define GMISC_NEED_INVSQRT			TRUE
 
 #endif /* _GFXCONF_H */

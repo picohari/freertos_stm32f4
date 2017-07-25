@@ -1,0 +1,154 @@
+#include "gui.h"
+
+//boolean to determine if the clock should be drawn or not
+int clockDrawable = 0;
+
+//date values
+int curYear = 2017;
+char* dateMonths[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+int curMonth = 7;
+int curDay = 24;
+
+//pixmap for smooth refresh
+static GDisplay* pixmap;
+static const pixel_t* surface;
+int pixmap_width;
+int pixmap_height;
+
+//position and radius of the clock
+int cx;
+int cy;
+int cr;
+
+//Show Overview page
+void showOverview(void) {
+	if(gfileExists("./SETTINGS.water")) {
+		printf("file found\n");
+		gfileDelete("./SETTINGS.water");
+	} else {
+		printf("file not found\n");
+	}
+	GFILE* settingsFile = gfileOpen("./SETTINGS.water", "w");
+	gfileWrite(settingsFile, "INTEWA GmbH", sizeof("INTEWA GmbH") - 1);
+	gfileClose(settingsFile);
+	
+	GWidgetInit wi;
+	gwinWidgetClearInit(&wi);
+	
+	destroyPage();
+	
+	//draw INTEWA logo for 2 seconds
+	gdispImageDraw(&intewa, 0, 0, GDISP_SCREEN_WIDTH, GDISP_SCREEN_HEIGHT, 0, 0);
+	gfxSleepMilliseconds(2000);
+	
+	//empty the screen
+	gdispClear(white_studio);
+	
+	// create container widget
+	ghContainer = createContainer(wi);
+	
+	// Create label widget: ghLabel
+	wi.g.show = TRUE;
+	wi.g.x = buttonDimensions[0][0];
+	wi.g.y = buttonDimensions[0][1];
+	wi.g.width = buttonDimensions[0][2];
+	wi.g.height = buttonDimensions[0][3];
+	wi.g.parent = ghContainer;
+	
+	char str[80];
+	sprintf(str, "%i %s %i", curDay, dateMonths[curMonth - 1], curYear);
+	wi.text = str;
+	
+	wi.customDraw = gwinLabelDrawJustifiedCenter;
+	ghLabel = gwinLabelCreate(0, &wi);
+	
+	//functions (must be declared above)
+	buttonFunctions[0] = showMainMenu;
+	
+	//create the buttons using the information above
+	wi.g.show = TRUE;
+	wi.g.x = 0;
+	wi.g.y = 0;
+	wi.g.width = GDISP_SCREEN_WIDTH;
+	wi.g.height = GDISP_SCREEN_HEIGHT;
+	wi.g.parent = ghContainer;
+	wi.text = "";
+	wi.customDraw = gwinButtonDraw_Image;
+	wi.customParam = &_leer;
+	wi.customStyle = 0;
+	wi.tag = 0;
+	gwinButtonCreate(0, &wi);
+	
+	//show the page
+	gwinShow(ghContainer);
+	
+	//init pixmap
+	pixmap = gdispPixmapCreate(320, 240);
+	surface = gdispPixmapGetBits(pixmap);
+	
+	cx = 160;
+	cy = 120;
+	cr = cx / 2;
+	
+	//gdispFillArea(buttonDimensions[1][0], buttonDimensions[1][1], buttonDimensions[1][2], buttonDimensions[1][3], blue_studio);
+	//gdispGFillArea(pixmap, 0, 0, buttonDimensions[1][2], buttonDimensions[1][3], red_studio);
+	
+	//clock may be drawn
+	clockDrawable = 1;
+	drawClock();
+}
+
+//time difference indicators for the clock
+double curTime = 60030;
+int oldTime = 0;
+
+//draw a clock hand with custom color and thickness
+void drawClockHand(int cx, int cy, double angle, int length, color_t color, int thickness) {
+    int x = (int) (cos(angle) * length + cx);
+    int y = (int) (sin(angle) * length + cy);
+    gdispGDrawThickLine(pixmap, cx, cy, x, y, color, thickness, 1);
+}
+
+//draw the clock
+void drawClock(void) {
+	if(clockDrawable != 1) {
+		return;
+	}
+	
+	//minimal delay to prevent flickering
+	//gfxSleepMilliseconds(10);
+	curTime += 0.1;
+	
+	//do not redraw if time has not changed
+	if((int) curTime == oldTime) {
+		return;
+	}
+	oldTime = curTime;
+	
+	//draw clock face and outer frame
+	gdispGFillCircle(pixmap, cx, cy, cr * 1.25, black_studio);
+	gdispGFillCircle(pixmap, cx, cy, cr, white_studio);
+	
+	//draw design on clock face
+	int i;
+	for(i = 0; i < 12; i++) {
+		double a = M_PI * 2 * i / 12;
+		int x1 = (int) (cos(a) * cr * 0.75 + cx);
+		int y1 = (int) (sin(a) * cr * 0.75 + cy);
+		int x2 = (int) (cos(a) * cr * 0.85 + cx);
+		int y2 = (int) (sin(a) * cr * 0.85 + cy);
+		gdispGDrawLine(pixmap, x1, y1, x2, y2, black_studio);
+	}
+	
+	//draw hour hand
+	drawClockHand(cx, cy, M_PI * 2 * curTime / 60 / 60 / 12 - M_PI / 2, cr * 0.7, yellow_studio, 3);
+	
+	//draw minute hand
+	drawClockHand(cx, cy, M_PI * 2 * curTime / 60 / 60 - M_PI / 2, cr * 0.85, black_studio, 2);
+	
+	//draw second hand
+	drawClockHand(cx, cy, M_PI * 2 * curTime / 60 - M_PI / 2, cr * 0.95, red_studio, 1);
+	
+	//mirror pixmap to screen
+	gdispBlitAreaEx(0, 0, 320, 240, 0, 0, 320, surface);
+}

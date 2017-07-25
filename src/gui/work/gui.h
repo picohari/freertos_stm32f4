@@ -17,6 +17,7 @@ extern GHandle ghTextedit;
 extern GHandle ghLabel;
 
 // Fonts
+extern font_t dejavu_sans_10;
 extern font_t dejavu_sans_16;
 
 // Button arrays
@@ -55,6 +56,8 @@ GHandle createContainer(GWidgetInit);
 GWidgetInit createYesNo(void (*)(void), void (*)(void));
 void createQuestion(void (*)(void), void (*)(void), char*);
 void createAnswer(void (*)(void), void (*)(void), const GVKeyTable*, char*);
+
+void writeSetting(int, const char*);
 
 void guiCreate(void);
 void guiShowPage(unsigned pageIndex);

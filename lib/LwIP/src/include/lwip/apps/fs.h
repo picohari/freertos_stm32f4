@@ -65,7 +65,7 @@ struct fs_file {
   u8_t flags;
 #if LWIP_HTTPD_CUSTOM_FILES
   u8_t is_custom_file;
-  u16_t own_file_id;
+  u8_t custom_ext;       /* TODO: Own member for ECMD */
 #endif /* LWIP_HTTPD_CUSTOM_FILES */
 #if LWIP_HTTPD_FILE_STATE
   void *state;

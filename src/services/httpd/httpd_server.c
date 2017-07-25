@@ -47,7 +47,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "config.h"
-//#include "lcd_log.h"
+
 #include "lwip/debug.h"
 #include "lwip/tcp.h"
 
@@ -138,7 +138,7 @@ static char * control_GCI_Handler(int iIndex, int iNumParams, char *pcParam[], c
     for (i = 0; i < iNumParams; i++)
     {
 
-      //LOG_UART ((char *)  "%s = %s", pcParam[i], pcValue[i]);
+      debug ((char *)  "%s = %s", pcParam[i], pcValue[i]);
 
 #if 0
       /* check parameter "led" */
@@ -159,7 +159,7 @@ static char * control_GCI_Handler(int iIndex, int iNumParams, char *pcParam[], c
 static char * debug_GCI_Handler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
 {
 
-  //LOG_UART ((char *)  "CGI-debug" );
+  //debug((char *)  "CGI-debug" );
   
   return(DEFAULT_CGI_RESPONSE);
 }

@@ -1,4 +1,4 @@
-#include "gui.h"
+#include "test.h"
 #include "gfx.h"
 
 int main(int argc, char* argv[])
