@@ -40,31 +40,37 @@
 
 #include "config.h"
 
+/* XCore drivers */
 #include "stm32f4xx_hal.h"
 #include "cmsis_os.h"
 #include "XCore407I.h"
 
+/* Hardware peripherals */
 #include "uart.h"
 #include "rtc_clock.h"
 #include "eth_if.h"
 
+/* GUI and interfaces */
 #include "gfx.h"
 #include "gui.h"
 #include "vt100.h"
 //#include "test.h"
 
-#include "eth_if.h"
+/* LWIP stack */
 #include "lwip/netif.h"
 #include "lwip/tcpip.h"
 #include "lwip/dns.h"
 
+/* NTP, DNS and DHCP */
 #include "lwip/apps/sntp.h"
+#include "dhcp_eth.h"
 
-#include "proto_dhcp.h"
-#include "httplog.h"
-
+/* HTTP server */
 #include "httpd_server.h"
 //#include "test_server.h"
+
+/* Clients */
+#include "httplog.h"
 
 
 /* Private typedef -----------------------------------------------------------*/
@@ -87,7 +93,7 @@ static void os_tasks(void);
 static void SystemClock_Config(void);
 
 
-
+/* Threads and startup tasks */
 static void LED1_thread (void const * arg);
 static void LED2_thread (void const * arg);
 
@@ -119,7 +125,6 @@ static void os_init(void)
   
   /* Configure the system clock to 168 MHz */
   SystemClock_Config();
-  
   HAL_NVIC_SetPriority(SysTick_IRQn, 0x0, 0x0);
 
   /* Configure LEDs */
@@ -128,10 +133,11 @@ static void os_init(void)
   BSP_LED_Init(LED3);
   BSP_LED_Init(LED4);
 
+  /* Configure UART */
   uart_init();
 
+  /* Configure RTC */
   rtc_init();
-
   RTC_CalendarConfig(17, 1, 1, 0, 0, 0);
 
 
@@ -167,14 +173,12 @@ static void os_init(void)
   writef("%s", flash_tmp);
   writef("\r\n");
 
-
-#if 0  
-  uint32_t flashPack = STM32_UUID_PACK[0];
+  /* Print package code (hardware chip case form) */
+  uint32_t flashPack = (((*(__IO uint16_t *) (STM32_UUID_PACK)) & 0x0700) >> 8);
   uint8_t pack_tmp[10];
-  sprintf((char*)pack_tmp,  "Pack: %lx", flashPack);
+  sprintf((char*)pack_tmp,  "Pack:  %lx", flashPack);
   writef("%s", pack_tmp);
   writef("\r\n");
-#endif
 
   /* System clock runnning at ... */
   writef("CLK:   %d MHz", SystemCoreClock / 1000000UL);
@@ -189,9 +193,9 @@ static void os_init(void)
   writef("\r\n");
   writef("\r\n");
 
-
 }
 
+/* Task definitions */
 static void os_tasks(void)
 {
 
@@ -204,18 +208,16 @@ static void os_tasks(void)
   LEDThread2Handle = osThreadCreate( osThread(led2),  NULL);
 
   /* GUI */
-  osThreadDef(sgui, GUI_start,      osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 4);
-  osThreadCreate( osThread(sgui),   NULL);
+  osThreadDef(sgui, GUI_start,     osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 4);
+  osThreadCreate( osThread(sgui),  NULL);
 
   /* NETWORK */
-  osThreadDef(snet, NET_start,      osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 4);
-  osThreadCreate( osThread(snet),   NULL);
-
+  osThreadDef(snet, NET_start,     osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 4);
+  osThreadCreate( osThread(snet),  NULL);
 
   /* RTC */
-  osThreadDef(rtc0, RTC_thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 4);
-  osThreadCreate( osThread(rtc0), NULL);
-
+  osThreadDef(rtc0, RTC_thread,    osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 4);
+  osThreadCreate( osThread(rtc0),  NULL);
 
 }
 
@@ -268,14 +270,13 @@ static void NET_start (void const * arg)
   IP4_ADDR(&gw, GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3);
 #endif
 
-
   //lwip_init(); /* TODO: Check this */ 
   tcpip_init(NULL,NULL);
 
-  /* add the network interface */
+  /* Add the network interface */
   netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &tcpip_input);
 
-  /*  Registers the default network interface */
+  /* Registers the default network interface */
   netif_set_default(&gnetif);
 
   if (netif_is_link_up(&gnetif))
@@ -301,8 +302,8 @@ static void NET_start (void const * arg)
   sntp_init();
 #endif
 
+  /* Test httplog */
   int numberone = 123;
-
   httplog("led1=ON", numberone);
 
   /* Start HTTP service */
@@ -663,6 +664,15 @@ lib so mo di mi do fr sa
 }
 
 
+
+
+
+
+
+
+
+
+
 static void LED1_thread (void const * arg)
 {
 
@@ -689,6 +699,18 @@ static void LED2_thread (void const * arg)
     osDelay(LED2_UPDATE_DELAY);
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /**

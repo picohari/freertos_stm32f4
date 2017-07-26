@@ -58,7 +58,6 @@
   
 #include "httplog.h"
 
-
 #include "lwip/debug.h"
 #include "lwip/opt.h"
 #include "lwip/timeouts.h"
@@ -296,7 +295,7 @@ static err_t tcp_httplog_poll(void *arg, struct tcp_pcb *tpcb)
 static err_t httplog_connected_cb(void *arg, struct tcp_pcb *tpcb, err_t err)
 {
 	LWIP_UNUSED_ARG(arg);
-	
+
 	struct htlog_client *es = NULL;
 
 	if (err == ERR_OK) {
@@ -399,7 +398,7 @@ static void httplog_resolve_address(void)
 		httplog_dns_query_cb(CONF_HTTPLOG_SERVICE, &httplog_server_address, 0);
 	}
 #else
-	IP4_ADDR(&httplog_server_address, 192, 168, 1, 74);
+	IP4_ADDR(&httplog_server_address, 192, 168, 200, 155);
 	httplog_dns_query_cb(CONF_HTTPLOG_SERVICE, &httplog_server_address, 0);
 #endif
 

@@ -59,7 +59,8 @@
 #define STM32_UUID_FLASH   ((uint32_t *)0x1FFF7A22)       // F4
 //#define STM32_UUID_FLASH	 ((uint32_t *)0x1FF0F442)     // F7
 
-#define STM32_UUID_PACK		 ((uint32_t *)0x1FFF7BF0)      /* Dunno? */
+#define STM32_UUID_PACK		 ((uint32_t *)0x1FFF7BF0)       // chip case form
+
 
 #define VERSION_STRING VERSION
 #define VERSION_STRING_LONG VERSION " built on " __DATE__ " " __TIME__
@@ -68,7 +69,7 @@
 * The IP Adresses of the system 
 */
 
-#define HOME_NET
+//#define HOME_NET
 
 #ifdef HOME_NET
   #define IP_ADDR_HOME_NET    1

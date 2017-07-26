@@ -52,8 +52,7 @@
 #include "XCore407I.h"
   
 #include "lwip/dhcp.h"
-
-#include "proto_dhcp.h"
+#include "dhcp_eth.h"
 
 #ifdef DHCP_LOG
 #include "uart.h"

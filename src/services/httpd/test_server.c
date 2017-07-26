@@ -55,6 +55,8 @@
 #include <stdio.h>
 
 /* Private typedef -----------------------------------------------------------*/
+static void http_server_socket_thread(void const * arg);
+
 /* Private define ------------------------------------------------------------*/
 #define WEBSERVER_THREAD_PRIO    ( osPriorityAboveNormal )
 
@@ -234,8 +236,10 @@ void http_server_serve(int conn)
   * @param arg: pointer on argument(not used here) 
   * @retval None
   */
-static void http_server_socket_thread(void *arg)
+static void http_server_socket_thread(void const * arg)
 {
+  (void) arg;
+
   int sock, newconn, size;
   struct sockaddr_in address, remotehost;
 
