@@ -69,7 +69,7 @@
 * The IP Adresses of the system 
 */
 
-//#define HOME_NET
+#define HOME_NET
 
 #ifdef HOME_NET
   #define IP_ADDR_HOME_NET    1

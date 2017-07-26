@@ -49,6 +49,7 @@
 #include "uart.h"
 #include "rtc_clock.h"
 #include "eth_if.h"
+#include "flashdrive.h"
 
 /* GUI and interfaces */
 #include "gfx.h"
@@ -141,6 +142,8 @@ static void os_init(void)
   RTC_CalendarConfig(17, 1, 1, 0, 0, 0);
 
 
+
+
   /* Put some information on the starting screen */
   writef("\033[2J"); // Clear screen
   writef("\r\n");
@@ -150,6 +153,28 @@ static void os_init(void)
   sprintf((char*)rev_id,  "XCore: 0x%04lx, Rev. 0x%04lx", (DBGMCU->IDCODE & 0x00000FFF), ((DBGMCU->IDCODE >> 16) & 0x0000FFFF));
   writef("%s", rev_id);
   writef("\r\n");
+  /*
+     * \par Revisions possible:
+     *  - 0x1000: Revision A
+     *  - 0x1001: Revision Z
+     *  - 0x1003: Revision Y
+     *  - 0x1007: Revision 1
+     *  - 0x2001: Revision 3
+     *
+     * \par Device signatures:
+     *  - 0x0413: STM32F405xx/07xx and STM32F415xx/17xx)
+     *  - 0x0419: STM32F42xxx and STM32F43xxx
+     *  - 0x0423: STM32F401xB/C
+     *  - 0x0433: STM32F401xD/E
+     *  - 0x0431: STM32F411xC/E
+     *  - 0x0421: STM32F446xx
+     *  - 0x0449: STM32F7x6xx
+     *  - 0x0444: STM32F03xxx
+     *  - 0x0445: STM32F04xxx
+     *  - 0x0440: STM32F05xxx
+     *  - 0x0448: STM32F07xxx
+     *  - 0x0442: STM32F09xxx
+  */
 
   /* Read UUID */
   uint32_t idPart1 = STM32_UUID[0];
@@ -175,6 +200,12 @@ static void os_init(void)
 
   /* Print package code (hardware chip case form) */
   uint32_t flashPack = (((*(__IO uint16_t *) (STM32_UUID_PACK)) & 0x0700) >> 8);
+  /*
+   *  - 0b01xx: LQFP208 and TFBGA216 package
+   *  - 0b0011: LQFP176 and UFBGA176 package
+   *  - 0b0010: WLCSP143 and LQFP144 package
+   *  - 0b0001: LQFP100 package
+   */
   uint8_t pack_tmp[10];
   sprintf((char*)pack_tmp,  "Pack:  %lx", flashPack);
   writef("%s", pack_tmp);
@@ -193,7 +224,39 @@ static void os_init(void)
   writef("\r\n");
   writef("\r\n");
 
+  /* NAND flash drive */
+  flashdrive_init();
+
+  static NAND_IDTypeDef flash_id;
+
+  HAL_NAND_Read_ID(&hNAND, &flash_id);
+
+  writef("NAND Flash ID = 0x%02x, 0x%02x, 0x%02x, 0x%02x\r\n", flash_id.Maker_Id, flash_id.Device_Id,
+                                                               flash_id.Third_Id, flash_id.Fourth_Id );
+
+  if ((flash_id.Maker_Id == 0xEC) && (flash_id.Device_Id == 0xF1)
+    && (flash_id.Third_Id == 0x80) && (flash_id.Fourth_Id == 0x15))
+  {
+   writef("Type = K9F1G08U0A\r\n");
+  }
+  else if ((flash_id.Maker_Id == 0xEC) && (flash_id.Device_Id == 0xF1)
+    && (flash_id.Third_Id == 0x00) && (flash_id.Fourth_Id == 0x95))
+  {
+   writef("Type = K9F1G08U0B\r\n");   
+  }
+  else if ((flash_id.Maker_Id == 0xAD) && (flash_id.Device_Id == 0xF1)
+    && (flash_id.Third_Id == 0x80) && (flash_id.Fourth_Id == 0x1D))
+  {
+   writef("Type = HY27UF081G2A\r\n");   
+  }
+  else
+  {
+   writef("Type = Unknow\r\n");
+  }
+  writef("\r\n");
+
 }
+
 
 /* Task definitions */
 static void os_tasks(void)

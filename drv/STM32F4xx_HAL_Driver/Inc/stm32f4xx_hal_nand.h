@@ -264,8 +264,8 @@ HAL_NAND_StateTypeDef HAL_NAND_GetState(NAND_HandleTypeDef *hnand);
 #define NAND_DEVICE2               0x80000000U 
 #define NAND_WRITE_TIMEOUT         0x01000000U
 
-#define CMD_AREA                   ((uint32_t)(1U<<16U))  /* A16 = CLE high */
-#define ADDR_AREA                  ((uint32_t)(1U<<17U))  /* A17 = ALE high */
+#define CMD_AREA                   ((uint32_t)(1U<<17U))  /* A16 = CLE high */ //WARNING TODO: !!! CHANGED FOR XCORE !!!
+#define ADDR_AREA                  ((uint32_t)(1U<<16U))  /* A17 = ALE high */ //WARNING TODO: !!! CHANGED FOR XCORE !!!
 
 #define NAND_CMD_AREA_A            ((uint8_t)0x00)
 #define NAND_CMD_AREA_B            ((uint8_t)0x01)

@@ -70,7 +70,8 @@
 
 
 #define DEBUG_HTTPLOG			
-
+#include "uart.h"
+  
 #ifdef DEBUG_HTTPLOG
 #define HTLOG_DEBUG(a...)  debug("httplog: " a)
 #else
@@ -398,7 +399,7 @@ static void httplog_resolve_address(void)
 		httplog_dns_query_cb(CONF_HTTPLOG_SERVICE, &httplog_server_address, 0);
 	}
 #else
-	IP4_ADDR(&httplog_server_address, 192, 168, 200, 155);
+	IP4_ADDR(&httplog_server_address, 192, 168, 1, 74);
 	httplog_dns_query_cb(CONF_HTTPLOG_SERVICE, &httplog_server_address, 0);
 #endif
 
