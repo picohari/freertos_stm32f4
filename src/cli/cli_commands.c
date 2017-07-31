@@ -92,7 +92,8 @@
  #include "time.h"
 
 #define configINCLUDE_TRACE_RELATED_CLI_COMMANDS 	0
-	#define configINCLUDE_QUERY_HEAP_COMMAND 		1
+
+#define configINCLUDE_QUERY_HEAP_COMMAND 			1
 
 
 

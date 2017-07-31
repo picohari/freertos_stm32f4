@@ -73,6 +73,10 @@
 /* Clients */
 #include "httplog.h"
 
+/* FatFs includes component */
+#include "ff_gen_drv.h"
+#include "usbh_diskio.h"
+
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -86,12 +90,27 @@
 osThreadId LEDThread1Handle, LEDThread2Handle;
 
 
+FATFS USBDISKFatFs;           /* File system object for USB disk logical drive */
+FIL MyFile;                   /* File object */
+char USBDISKPath[4];          /* USB Host logical drive path */
+USBH_HandleTypeDef hUSB_Host; /* USB Host handle */
+
+typedef enum {
+  DISCONNECTION_EVENT = 1,  
+  CONNECTION_EVENT,    
+}MSC_ApplicationTypeDef;
+
+osMessageQId AppliEvent;
+
+
 
 
 /* Private function prototypes -----------------------------------------------*/
 static void os_init(void);
 static void os_tasks(void);
 static void SystemClock_Config(void);
+
+static void Register_printout(void);
 
 
 /* Threads and startup tasks */
@@ -104,10 +123,13 @@ static void GUI_thread (void const * arg);
 static void NET_start (void const * arg);
 static void HTTP_start (void const * arg);
 
-static void RTC_thread (void const * arg);
 static void TTY_thread (void const * arg);
+static void RTC_thread (void const * arg);
 
 
+static void USB_thread (void const * arg);
+static void USBH_UserProcess(USBH_HandleTypeDef *phost, uint8_t id);
+static void MSC_Application(void);
 
 
 
@@ -141,119 +163,9 @@ static void os_init(void)
   rtc_init();
   RTC_CalendarConfig(17, 1, 1, 0, 0, 0);
 
+  Register_printout();
 
 
-
-  /* Put some information on the starting screen */
-  writef("\033[2J"); // Clear screen
-  writef("\r\n");
-
-  /* Read some Hardware Registers for information and fun ;) */
-  char rev_id[42];
-  sprintf((char*)rev_id,  "XCore: 0x%04lx, Rev. 0x%04lx", (DBGMCU->IDCODE & 0x00000FFF), ((DBGMCU->IDCODE >> 16) & 0x0000FFFF));
-  writef("%s", rev_id);
-  writef("\r\n");
-  /*
-     * \par Revisions possible:
-     *  - 0x1000: Revision A
-     *  - 0x1001: Revision Z
-     *  - 0x1003: Revision Y
-     *  - 0x1007: Revision 1
-     *  - 0x2001: Revision 3
-     *
-     * \par Device signatures:
-     *  - 0x0413: STM32F405xx/07xx and STM32F415xx/17xx)
-     *  - 0x0419: STM32F42xxx and STM32F43xxx
-     *  - 0x0423: STM32F401xB/C
-     *  - 0x0433: STM32F401xD/E
-     *  - 0x0431: STM32F411xC/E
-     *  - 0x0421: STM32F446xx
-     *  - 0x0449: STM32F7x6xx
-     *  - 0x0444: STM32F03xxx
-     *  - 0x0445: STM32F04xxx
-     *  - 0x0440: STM32F05xxx
-     *  - 0x0448: STM32F07xxx
-     *  - 0x0442: STM32F09xxx
-  */
-
-  /* Read UUID */
-  uint32_t idPart1 = STM32_UUID[0];
-  uint32_t idPart2 = STM32_UUID[1];
-  uint32_t idPart3 = STM32_UUID[2];
-  char  uuid0_tmp[32];
-  sprintf((char*)uuid0_tmp,  "UUID:  %08lx-%08lx-%08lx", idPart1, idPart2, idPart3);
-  writef("%s", uuid0_tmp);
-  writef("\r\n");
-
-  /* Print flash size */
-  uint32_t flashSize = STM32_UUID_FLASH[0];
-  char flash_tmp[32];
-  sprintf((char*)flash_tmp, "%lx", flashSize);
-
-  char flash[6];
-  sprintf ((char*)flash, &(flash_tmp[strlen(flash_tmp) - 4]));
-
-  uint16_t size = strtol((char*)flash, NULL, 16);
-  sprintf((char*)flash_tmp, "Flash: %d kB", size);
-  writef("%s", flash_tmp);
-  writef("\r\n");
-
-  /* Print package code (hardware chip case form) */
-  uint32_t flashPack = (((*(__IO uint16_t *) (STM32_UUID_PACK)) & 0x0700) >> 8);
-  /*
-   *  - 0b01xx: LQFP208 and TFBGA216 package
-   *  - 0b0011: LQFP176 and UFBGA176 package
-   *  - 0b0010: WLCSP143 and LQFP144 package
-   *  - 0b0001: LQFP100 package
-   */
-  uint8_t pack_tmp[10];
-  sprintf((char*)pack_tmp,  "Pack:  %lx", flashPack);
-  writef("%s", pack_tmp);
-  writef("\r\n");
-
-  /* System clock runnning at ... */
-  writef("CLK:   %d MHz", SystemCoreClock / 1000000UL);
-  writef("\r\n");
-
-  /* We run our code as ... */
-  writef("Firmware %s", VERSION_STRING_LONG);
-  writef("\r\n");
-
-  /* Welcome to our guests ;) */
-  writef("CMSIS - FreeRTOS - LwIP - BSP - uGFX");
-  writef("\r\n");
-  writef("\r\n");
-
-  /* NAND flash drive */
-  flashdrive_init();
-
-  static NAND_IDTypeDef flash_id;
-
-  HAL_NAND_Read_ID(&hNAND, &flash_id);
-
-  writef("NAND Flash ID = 0x%02x, 0x%02x, 0x%02x, 0x%02x\r\n", flash_id.Maker_Id, flash_id.Device_Id,
-                                                               flash_id.Third_Id, flash_id.Fourth_Id );
-
-  if ((flash_id.Maker_Id == 0xEC) && (flash_id.Device_Id == 0xF1)
-    && (flash_id.Third_Id == 0x80) && (flash_id.Fourth_Id == 0x15))
-  {
-   writef("Type = K9F1G08U0A\r\n");
-  }
-  else if ((flash_id.Maker_Id == 0xEC) && (flash_id.Device_Id == 0xF1)
-    && (flash_id.Third_Id == 0x00) && (flash_id.Fourth_Id == 0x95))
-  {
-   writef("Type = K9F1G08U0B\r\n");   
-  }
-  else if ((flash_id.Maker_Id == 0xAD) && (flash_id.Device_Id == 0xF1)
-    && (flash_id.Third_Id == 0x80) && (flash_id.Fourth_Id == 0x1D))
-  {
-   writef("Type = HY27UF081G2A\r\n");   
-  }
-  else
-  {
-   writef("Type = Unknow\r\n");
-  }
-  writef("\r\n");
 
 }
 
@@ -270,17 +182,28 @@ static void os_tasks(void)
   osThreadDef(led2, LED2_thread,   osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
   LEDThread2Handle = osThreadCreate( osThread(led2),  NULL);
 
+
   /* GUI */
-  osThreadDef(sgui, GUI_start,     osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 4);
-  osThreadCreate( osThread(sgui),  NULL);
+  osThreadDef(sgui, GUI_start,      osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 2);
+  osThreadCreate( osThread(sgui),   NULL);
 
   /* NETWORK */
-  osThreadDef(snet, NET_start,     osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 4);
-  osThreadCreate( osThread(snet),  NULL);
+  osThreadDef(snet, NET_start,      osPriorityNormal,   0, configMINIMAL_STACK_SIZE * 4);
+  osThreadCreate( osThread(snet),   NULL);
 
   /* RTC */
-  osThreadDef(rtc0, RTC_thread,    osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 4);
-  osThreadCreate( osThread(rtc0),  NULL);
+  //osThreadDef(rtc0, RTC_thread,    osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 4);
+  //osThreadCreate( osThread(rtc0),  NULL);
+
+
+  /*##-1- Start task #########################################################*/
+  osThreadDef(USB_User, USB_thread,   osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 8);
+  osThreadCreate(osThread(USB_User), NULL);
+  
+  /*##-2- Create Application Queue ###########################################*/
+  osMessageQDef(osqueue, 1, uint16_t);
+  AppliEvent = osMessageCreate(osMessageQ(osqueue), NULL);
+
 
 }
 
@@ -302,6 +225,290 @@ int main(void)
   /* Should never ever get here ..*/
 	return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+  * @brief  Start task
+  * @param  pvParameters not used
+  * @retval None
+  */
+static void USB_thread(void const * arg)
+{
+
+  (void) arg;
+
+  osEvent event;
+  
+  /* Link the USB Host disk I/O driver */
+  if(FATFS_LinkDriver(&USBH_Driver, USBDISKPath) == 0)
+  {
+    writef("Driver linked\r\n");
+
+    /* Init Host Library */
+    USBH_Init(&hUSB_Host, USBH_UserProcess, 0);
+    
+    /* Add Supported Class */
+    USBH_RegisterClass(&hUSB_Host, USBH_MSC_CLASS);
+    
+    /* Start Host Process */
+    USBH_Start(&hUSB_Host);
+    
+    for( ;; )
+    {
+      event = osMessageGet(AppliEvent, osWaitForever);
+      
+      if(event.status == osEventMessage)
+      {
+        switch(event.value.v)
+        {
+        case CONNECTION_EVENT:
+          MSC_Application();
+          break;
+          
+        case DISCONNECTION_EVENT:
+          f_mount(NULL, (TCHAR const*)"", 0);
+          break;
+          
+        default:
+          break;
+        }
+      }
+    }
+  }
+}
+
+
+/**
+  * @brief  Main routine for Mass Storage Class
+  * @param  None
+  * @retval None
+  */
+static void MSC_Application(void)
+{
+  
+  //FRESULT res;                                          /* FatFs function common result code */
+  //uint32_t byteswritten, bytesread;                     /* File write/read counts */
+  //uint8_t wtext[] = "This is STM32 working with FatFs"; /* File write buffer */
+  //Suint8_t rtext[100];                                   /* File read buffer */
+  
+  GFILE* imgFile;
+  static gdispImage myImage;
+
+
+  /* Register the file system object to the FatFs module */
+  if(f_mount(&USBDISKFatFs, (TCHAR const*)USBDISKPath, 0) != FR_OK)
+  {
+    /* FatFs Initialization Error */
+    Error_Handler();
+  }
+  else
+  {
+
+    /* Create and Open a new text file object with write access */
+    if(f_open(&MyFile, "STM32.TXT", FA_CREATE_ALWAYS | FA_WRITE) != FR_OK) 
+
+    /* Check for file existence */
+    //if(f_open(&MyFile, "testbild.bmp", FA_OPEN_EXISTING | FA_READ) != FR_OK) 
+    {
+      Error_Handler();
+    }
+
+
+#if 0
+    else
+    {
+      /* Read data from the text file */
+      res = f_read(&MyFile, rtext, sizeof(rtext), (void *)&bytesread);
+      
+      if((bytesread == 0) || (res != FR_OK))
+      {
+        /* 'STM32.TXT' file Read or EOF Error */
+        Error_Handler();
+      }
+      else
+      {
+        /* Close the open text file */
+        f_close(&MyFile);
+        
+        writef("%s\r\n", bytesread);
+      }
+    }
+
+#endif
+
+
+#if 1
+    else {
+
+      f_close(&MyFile);
+      /*End test for file existence*/
+
+      #if _USE_LFN == 3 /* LFN with a working buffer on the heap */
+      writef("Showing image\r\n");
+      #endif
+
+      imgFile = gfileOpen("tenor.gif", "rb");
+
+      gdispImageOpenGFile(&myImage, imgFile);
+
+      //taskENTER_CRITICAL();
+      //gdispImageDraw(&myImage, 0, 0, 320, 240, 0, 0);
+      //taskEXIT_CRITICAL();
+      
+      delaytime_t delay;
+
+      while (1) {
+        gdispImageDraw(&myImage, 0, 0, 320, 240, 0, 0);
+
+        delay = gdispImageNext(&myImage);
+
+        gfxSleepMilliseconds(100);
+      }
+
+
+      gdispImageClose(&myImage);
+
+      gfileClose(imgFile);
+    }
+#endif
+
+
+
+
+
+
+
+
+
+
+#if 0
+    else
+    {
+      /* Write data to the text file */
+      res = f_write(&MyFile, wtext, sizeof(wtext), (void *)&byteswritten);
+      
+      if((byteswritten == 0) || (res != FR_OK))
+      {
+        /* 'STM32.TXT' file Write or EOF Error */
+        Error_Handler();
+      }
+      else
+      {
+        /* Close the open text file */
+        f_close(&MyFile);
+        
+        /* Open the text file object with read access */
+        if(f_open(&MyFile, "STM32.TXT", FA_READ) != FR_OK)
+        {
+          /* 'STM32.TXT' file Open for read Error */
+          Error_Handler();
+        }
+        else
+        {
+          /* Read data from the text file */
+          res = f_read(&MyFile, rtext, sizeof(rtext), (void *)&bytesread);
+          
+          if((bytesread == 0) || (res != FR_OK))
+          {
+            /* 'STM32.TXT' file Read or EOF Error */
+            Error_Handler();
+          }
+          else
+          {
+            /* Close the open text file */
+            f_close(&MyFile);
+            
+            /* Compare read data with the expected data */
+            if((bytesread != byteswritten))
+            {                
+              /* Read data is different from the expected data */
+              Error_Handler();
+            }
+            else
+            {
+              /* Success of the demo: no error occurrence */
+              BSP_LED_On(LED4);
+            }
+          }
+        }
+      }
+    }
+#endif
+
+
+  }
+  
+  /* Unlink the USB disk I/O driver */
+  FATFS_UnLinkDriver(USBDISKPath);
+
+
+}
+
+/**
+  * @brief  User Process
+  * @param  phost: Host handle
+  * @param  id: Host Library user message ID
+  * @retval None
+  */
+static void USBH_UserProcess(USBH_HandleTypeDef *phost, uint8_t id)
+{  
+  switch(id)
+  { 
+  case HOST_USER_SELECT_CONFIGURATION:
+    break;
+    
+  case HOST_USER_DISCONNECTION:
+    BSP_LED_Off(LED4);
+    osMessagePut(AppliEvent, DISCONNECTION_EVENT, 0);
+    break;
+    
+  case HOST_USER_CLASS_ACTIVE:
+    osMessagePut(AppliEvent, CONNECTION_EVENT, 0);
+    break;
+    
+  default:
+    break; 
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -430,7 +637,7 @@ static void HTTP_start (void const * arg)
 
 
 
-
+#if 1
 
 static void GUI_start (void const * arg)
 {
@@ -443,15 +650,17 @@ static void GUI_start (void const * arg)
   gdispSetBacklight(100);
   gdispSetContrast(100);
 
-  guiCreate();
+  //guiCreate();
 
-  osThreadDef(gui, GUI_thread, osPriorityNormal, 0, 256);
+#if 1
+  osThreadDef(gui, GUI_thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 2);
   osThreadCreate( osThread(gui), NULL);
 
   osDelay(100);
 
-  osThreadDef(tty0, TTY_thread, osPriorityNormal, 0, 256);
+  osThreadDef(tty0, TTY_thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 2);
   osThreadCreate( osThread(tty0), NULL);
+#endif
 
   while (1) {
     osThreadTerminate( NULL );  /* important to stop task here !! */
@@ -469,6 +678,26 @@ static void GUI_thread (void const * arg)
   }
 }
 
+
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#if 1
 
 
 
@@ -600,6 +829,46 @@ static void TTY_thread (void const * arg)
 }
 
 
+
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#if 0
+
+
 #include <time.h>
 #include <sys/time.h>
 
@@ -728,6 +997,10 @@ lib so mo di mi do fr sa
 
 
 
+#endif
+
+
+
 
 
 
@@ -774,6 +1047,130 @@ static void LED2_thread (void const * arg)
 
 
 
+
+
+
+
+
+
+
+
+
+static void Register_printout(void)
+{
+
+    /* Put some information on the starting screen */
+  writef("\033[2J"); // Clear screen
+  writef("\r\n");
+
+  /* Read some Hardware Registers for information and fun ;) */
+  char rev_id[42];
+  sprintf((char*)rev_id,  "XCore: 0x%04lx, Rev. 0x%04lx", (DBGMCU->IDCODE & 0x00000FFF), ((DBGMCU->IDCODE >> 16) & 0x0000FFFF));
+  writef("%s", rev_id);
+  writef("\r\n");
+  /*
+     * \par Revisions possible:
+     *  - 0x1000: Revision A
+     *  - 0x1001: Revision Z
+     *  - 0x1003: Revision Y
+     *  - 0x1007: Revision 1
+     *  - 0x2001: Revision 3
+     *
+     * \par Device signatures:
+     *  - 0x0413: STM32F405xx/07xx and STM32F415xx/17xx)
+     *  - 0x0419: STM32F42xxx and STM32F43xxx
+     *  - 0x0423: STM32F401xB/C
+     *  - 0x0433: STM32F401xD/E
+     *  - 0x0431: STM32F411xC/E
+     *  - 0x0421: STM32F446xx
+     *  - 0x0449: STM32F7x6xx
+     *  - 0x0444: STM32F03xxx
+     *  - 0x0445: STM32F04xxx
+     *  - 0x0440: STM32F05xxx
+     *  - 0x0448: STM32F07xxx
+     *  - 0x0442: STM32F09xxx
+  */
+
+  /* Read UUID */
+  uint32_t idPart1 = STM32_UUID[0];
+  uint32_t idPart2 = STM32_UUID[1];
+  uint32_t idPart3 = STM32_UUID[2];
+  char  uuid0_tmp[32];
+  sprintf((char*)uuid0_tmp,  "UUID:  %08lx-%08lx-%08lx", idPart1, idPart2, idPart3);
+  writef("%s", uuid0_tmp);
+  writef("\r\n");
+
+  /* Print flash size */
+  uint32_t flashSize = STM32_UUID_FLASH[0];
+  char flash_tmp[32];
+  sprintf((char*)flash_tmp, "%lx", flashSize);
+
+  char flash[6];
+  sprintf ((char*)flash, &(flash_tmp[strlen(flash_tmp) - 4]));
+
+  uint16_t size = strtol((char*)flash, NULL, 16);
+  sprintf((char*)flash_tmp, "Flash: %d kB", size);
+  writef("%s", flash_tmp);
+  writef("\r\n");
+
+  /* Print package code (hardware chip case form) */
+  uint32_t flashPack = (((*(__IO uint16_t *) (STM32_UUID_PACK)) & 0x0700) >> 8);
+  /*
+   *  - 0b01xx: LQFP208 and TFBGA216 package
+   *  - 0b0011: LQFP176 and UFBGA176 package
+   *  - 0b0010: WLCSP143 and LQFP144 package
+   *  - 0b0001: LQFP100 package
+   */
+  uint8_t pack_tmp[10];
+  sprintf((char*)pack_tmp,  "Pack:  %lx", flashPack);
+  writef("%s", pack_tmp);
+  writef("\r\n");
+
+  /* System clock runnning at ... */
+  writef("CLK:   %d MHz", SystemCoreClock / 1000000UL);
+  writef("\r\n");
+
+  /* We run our code as ... */
+  writef("Firmware %s", VERSION_STRING_LONG);
+  writef("\r\n");
+
+  /* Welcome to our guests ;) */
+  writef("CMSIS - FreeRTOS - LwIP - BSP - uGFX");
+  writef("\r\n");
+  writef("\r\n");
+
+  /* NAND flash drive */
+  flashdrive_init();
+
+  static NAND_IDTypeDef flash_id;
+
+  HAL_NAND_Read_ID(&hNAND, &flash_id);
+
+  writef("NAND Flash ID = 0x%02x, 0x%02x, 0x%02x, 0x%02x\r\n", flash_id.Maker_Id, flash_id.Device_Id,
+                                                               flash_id.Third_Id, flash_id.Fourth_Id );
+
+  if ((flash_id.Maker_Id == 0xEC) && (flash_id.Device_Id == 0xF1)
+    && (flash_id.Third_Id == 0x80) && (flash_id.Fourth_Id == 0x15))
+  {
+   writef("Type = K9F1G08U0A\r\n");
+  }
+  else if ((flash_id.Maker_Id == 0xEC) && (flash_id.Device_Id == 0xF1)
+    && (flash_id.Third_Id == 0x00) && (flash_id.Fourth_Id == 0x95))
+  {
+   writef("Type = K9F1G08U0B\r\n");   
+  }
+  else if ((flash_id.Maker_Id == 0xAD) && (flash_id.Device_Id == 0xF1)
+    && (flash_id.Third_Id == 0x80) && (flash_id.Fourth_Id == 0x1D))
+  {
+   writef("Type = HY27UF081G2A\r\n");   
+  }
+  else
+  {
+   writef("Type = Unknow\r\n");
+  }
+  writef("\r\n");
+
+}
 
 
 /**

@@ -38,6 +38,8 @@
 
 extern SPI_HandleTypeDef    SpiHandle;
 
+extern HCD_HandleTypeDef    hhcd;
+
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
@@ -137,14 +139,6 @@ void SysTick_Handler(void)
 /*  file (startup_stm32f4xx.s).                                               */
 /******************************************************************************/
 
-#if 0
-void ETH_IRQHandler(void)
-{
-  ETHERNET_IRQHandler();
-}
-#endif
-
-
 /**
   * @brief  This function handles SPI interrupt request.  
   * @param  None
@@ -183,6 +177,19 @@ void ETH_IRQHandler(void)
 }
 
 
+/**
+  * @brief  This function handles USB-On-The-Go FS global interrupt requests.
+  * @param  None
+  * @retval None
+  */
+#ifdef USE_USB_FS
+void OTG_FS_IRQHandler(void)
+#else
+void OTG_HS_IRQHandler(void)
+#endif
+{
+  HAL_HCD_IRQHandler(&hhcd);
+}
 
 
 

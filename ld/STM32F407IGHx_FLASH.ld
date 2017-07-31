@@ -1,9 +1,10 @@
 /*
 *****************************************************************************
 **
-**  File        : stm32_flash.ld
+
+**  File        : LinkerScript.ld
 **
-**  Abstract    : Linker script for STM32F417IG Device with
+**  Abstract    : Linker script for STM32F407IGHx Device with
 **                1024KByte FLASH, 128KByte RAM
 **
 **                Set heap size, stack size and stack location according
@@ -13,16 +14,17 @@
 **
 **  Target      : STMicroelectronics STM32
 **
-**  Environment : Atollic TrueSTUDIO(R)
 **
 **  Distribution: The file is distributed as is, without any warranty
 **                of any kind.
 **
-**  (c)Copyright Atollic AB.
+**  (c)Copyright Ac6.
 **  You may use this file as-is or modify it according to the needs of your
-**  project. This file may only be built (assembled or compiled and linked)
-**  using the Atollic TrueSTUDIO(R) product. The use of this file together
-**  with other tools than Atollic TrueSTUDIO(R) is not permitted.
+**  project. Distribution of this file (unmodified or modified) is not
+**  permitted. Ac6 permit registered System Workbench for MCU users the
+**  rights to distribute the assembled, compiled & linked contents of this
+**  file as part of an application binary file, provided that it is built
+**  using the System Workbench for MCU toolchain.
 **
 *****************************************************************************
 */
@@ -30,20 +32,18 @@
 /* Entry Point */
 ENTRY(Reset_Handler)
 
-/* Highest address of the user mode stack                        */
-_estack = 0x2001FFFF;         /* end of RAM = 131071             */
-
-/* Generate a link error if heap and stack don't fit into RAM    */
-_Min_Heap_Size  = 0x400;      /* required amount of heap  =  512 */
-_Min_Stack_Size = 0x800;      /* required amount of stack = 1024 */
-
+/* Highest address of the user mode stack */
+_estack = 0x20020000;         /* end of RAM */
+/* Generate a link error if heap and stack don't fit into RAM */
+_Min_Heap_Size = 0x1400;      /* required amount of heap  = 5120 Bytes */
+_Min_Stack_Size = 0x1400;     /* required amount of stack = 5120 Bytes */
 
 /* Specify the memory areas */
 MEMORY
 {
-FLASH (rx)     : ORIGIN = 0x08000000, LENGTH = 1024K
-RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 128K
-CCMRAM (rw)    : ORIGIN = 0x10000000, LENGTH = 64K
+FLASH (rx)      : ORIGIN = 0x8000000,  LENGTH = 1024K
+RAM (xrw)       : ORIGIN = 0x20000000, LENGTH = 128K
+CCMRAM (rw)     : ORIGIN = 0x10000000, LENGTH = 64K
 }
 
 /* Define output sections */
@@ -131,7 +131,7 @@ SECTIONS
   /* CCM-RAM section 
   * 
   * IMPORTANT NOTE! 
-  * If initialized variables will be placed in this section, 
+  * If initialized variables will be placed in this section,
   * the startup code needs to be modified to copy the init-values.  
   */
   .ccmram :
@@ -165,12 +165,12 @@ SECTIONS
   /* User_heap_stack section, used to check that there is enough RAM left */
   ._user_heap_stack :
   {
-    . = ALIGN(4);
+    . = ALIGN(8);
     PROVIDE ( end = . );
     PROVIDE ( _end = . );
     . = . + _Min_Heap_Size;
     . = . + _Min_Stack_Size;
-    . = ALIGN(4);
+    . = ALIGN(8);
   } >RAM
 
   
@@ -185,3 +185,5 @@ SECTIONS
 
   .ARM.attributes 0 : { *(.ARM.attributes) }
 }
+
+

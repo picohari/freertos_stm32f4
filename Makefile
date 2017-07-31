@@ -1,6 +1,8 @@
 
 PROJECT = stm32f4-firmware
 
+GIT_VERSION := $(shell git describe --abbrev=4 --dirty --always --tags)
+
 ##############################################################################
 # CPU definitions and hardware settings
 #
@@ -10,32 +12,35 @@ MCU_MODEL         = STM32F407IGHx
 MCU_CPU           = cortex-m4
 
 
-
-# Hardware drivers for XCore STM32F407
+# 1. Hardware drivers for XCore STM32F407
 include ./drv/CMSIS.mk
 include ./drv/HAL.mk
 include ./drv/BSP.mk
 
-# Software libraries and features
+# 2. Software libraries and features
 include ./lib/FreeRTOS.mk
 include ./lib/FreeRTOS+CLI.mk
 include ./lib/LwIP.mk
 include ./lib/UGFX.mk
-#include ./lib/UTIL.mk
 
-# BIOS hardware and peripherals
+# 3. BIOS hardware and peripherals
 include ./src/hw/HW.mk
 
-# TCP/IP protocols and sockets
+# 4. TCP/IP protocols and sockets
 include ./src/protocols/PROTO.mk
 
-# Application libraries and external modules
+# 5. Application libraries and external modules
 include ./src/gui/GUI.mk
 # include ./src/gui/WORK.mk
 # include ./src/gui/TEST.mk
 
-# Network applications and services
+# 6. Network applications and services
 include ./src/services/SERVICES.mk
+
+
+# OPT - FATFS Host setup
+include ./drv/USBH.mk
+include ./lib/FatFS.mk
 
 
 CSRC += ./src/main.c \
@@ -49,19 +54,12 @@ INCDIR += ./src/config \
 		  ./src/os \
 
 
-
-
-GIT_VERSION := $(shell git describe --abbrev=4 --dirty --always --tags)
-
-
-
-
 ##############################################################################
 # Compiler settings
 #
 
 # Compiler options
-USE_OPT = -Os -D$(MCU_MODEL_FAMILY) -DUSE_HAL_DRIVER -DUSE_STM324xG_EVAL -DVERSION=\"$(GIT_VERSION)\"
+USE_OPT = -Os -D$(MCU_MODEL_FAMILY) -DUSE_HAL_DRIVER -DUSE_STM324xG_EVAL -DUSE_USB_HS -DVERSION=\"$(GIT_VERSION)\"
 
 # -ggdb -fomit-frame-pointer -falign-functions=16 
 
@@ -105,7 +103,8 @@ CWARN = -Wall -Wextra -Wstrict-prototypes
 CPPWARN = -Wall -Wextra
 
 # Verbose log while compiling
-USE_VERBOSE_COMPILE = yes
+USE_VERBOSE_COMPILE = no
+
 
 ##############################################################################
 # Linker settings
@@ -122,7 +121,8 @@ USE_LTO = no
 
 # Linker script
 LDSCRIPT= ./ld/$(MCU_MODEL)_FLASH.ld
-#LDSCRIPT= ./ld/STM32F407.ld
+# LDSCRIPT= ./ld/stm32_flash.ld
+
 
 ##############################################################################
 # OpenOCD section
@@ -136,10 +136,6 @@ OPENOCD_BOARD_CFG = stm32f7discovery.cfg
 
 
 # ARM Cortex-Mx common makefile scripts and rules.
-
-
-
-
 
 
 ##############################################################################
@@ -279,7 +275,7 @@ VPATH     = $(SRCPATHS)
 
 
 
-#
+##############################################################################
 # Makefile rules
 #
 

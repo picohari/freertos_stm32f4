@@ -411,14 +411,17 @@ void guiCreate(void) {
 
 #if 1
 
-	vt100_init(guiOutput);
+	//vt100_init(guiOutput);
 
 	// Prepare fonts
 	dejavu_sans_10 = gdispOpenFont("DejaVuSans10");
 	dejavu_sans_16 = gdispOpenFont("DejaVuSans16");
 	fixed_7x14     = gdispOpenFont("Fixed7x14");
 
-	createShell();
+	//createShell();
+
+	// Show SplashScreen
+	//zen_splash();
 
 #if 0
 	// Prepare images
@@ -429,8 +432,6 @@ void guiCreate(void) {
 	gwinSetDefaultStyle(&BlackWidgetStyle, FALSE);
 	gdispClear(White);
 
-	// Show SplashScreen
-	//zen_splash();
 	
 	// Create the gwin windows/widgets
 	createWidgets();

@@ -157,6 +157,10 @@
 #define GFILE_NEED_ROMFS                           TRUE
 //#define GFILE_NEED_NATIVEFS                          TRUE
 
+#define GFILE_NEED_FATFS                           TRUE
+#define GFILE_FATFS_EXTERNAL_LIB                   TRUE
+#define GFILE_NEED_NOAUTOMOUNT                     TRUE
+
 #define GFILE_MAX_GFILES                           5
 
 ///////////////////////////////////////////////////////////////////////////

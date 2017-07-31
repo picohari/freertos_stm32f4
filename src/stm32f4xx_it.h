@@ -55,6 +55,12 @@ void SysTick_Handler(void);
 void SPI2_IRQHandler(void);
 void ETH_IRQHandler(void);
 
+#ifdef USE_USB_FS
+void OTG_FS_IRQHandler(void);
+#else
+void OTG_HS_IRQHandler(void);
+#endif
+
 /* Own IRQ handler implementations, where special case differentiations are made */
 //void USARTx_IRQHandler(void);
 
