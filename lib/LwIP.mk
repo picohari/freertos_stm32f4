@@ -142,6 +142,9 @@ NETBIOSNSFILES=$(LWIPDIR)/apps/netbiosns/netbiosns.c \
 # TFTPFILES: TFTP server files
 TFTPFILES=$(LWIPDIR)/apps/tftp/tftp_server.c \
 
+# TFTPFILES: MQTT client files
+MQTTFILES=$(LWIPDIR)/apps/mqtt/mqtt.c \
+
 # LWIPAPPFILES: All LWIP APPs
 LWIPAPPFILES=$(SNMPFILES) \
 	$(HTTPDFILES) \
@@ -150,6 +153,7 @@ LWIPAPPFILES=$(SNMPFILES) \
 	$(MDNSFILES) \
 	$(NETBIOSNSFILES) \
 	$(TFTPFILES) \
+	$(MQTTFILES) \
 
 
 
@@ -161,6 +165,7 @@ CSRC += $(COREFILES) \
 	    $(NETIFFILES) \
 	    $(HTTPDFILES) \
 	    $(SNTPFILES) \
+		$(MQTTFILES) \
 	    $(LIB_LWIP)/system/OS/sys_arch.c \
 	    #$(LWIP_SRC)/apps/sntp/sntp.c \
 	    #$(LWIP_SRC)/apps/httpd/fs.c \
