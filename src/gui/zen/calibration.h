@@ -5,7 +5,7 @@
 #include "gfx.h"
 
 
-#if 1
+#ifndef UGFXSIMULATOR
 
 // Calibration data
 float calibrationData[] = {
@@ -31,7 +31,7 @@ bool_t LoadMouseCalibration(unsigned instance, void *data, size_t sz)
 	return TRUE;
 }
 
-#endif
+#endif /* UGFXSIMULATOR */
 
 
 #endif /* _CALIBRATION_H */

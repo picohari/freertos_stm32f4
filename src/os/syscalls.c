@@ -16,6 +16,9 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
+/* Disable GCC warnings about -Wunused-paramter */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 
 
 #define FreeRTOS
@@ -131,7 +134,11 @@ void _exit (int status)
 	while (1) {}
 }
 
-
+int _stat(char *file, struct stat *st)
+{
+	st->st_mode = S_IFCHR;
+	return 0;
+}
 
 #if 0
 /*
@@ -193,11 +200,6 @@ int _times(struct tms *buf)
 	return -1;
 }
 
-int _stat(char *file, struct stat *st)
-{
-	st->st_mode = S_IFCHR;
-	return 0;
-}
 
 int _link(char *old, char *new)
 {
@@ -217,3 +219,7 @@ int _execve(char *name, char **argv, char **env)
 	return -1;
 }
 #endif
+
+
+/* Restore previous GCC compiler warning settings */
+#pragma GCC diagnostic pop

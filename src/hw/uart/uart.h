@@ -75,7 +75,7 @@ extern UART_HandleTypeDef   hUART;
 #define USARTx_IRQHandler                USART3_IRQHandler
 
 
-#define UART_RX_CHAR_QUEUE_SIZE          100
+#define UART_RX_CHAR_QUEUE_SIZE          32
 
 /* Exported functions ------------------------------------------------------- */
 

@@ -19,10 +19,13 @@
 extern "C" {
 #endif
 
+#ifndef KEY_ESC
 #define KEY_ESC 	0x1b
+#endif
+
 #define KEY_DEL 	0x7f
 #define KEY_BELL 	0x07
-	
+
 /* Physical display dimension */
 #define VT100_SCREEN_WIDTH 		gdispGetWidth()
 #define VT100_SCREEN_HEIGHT 	gdispGetHeight()

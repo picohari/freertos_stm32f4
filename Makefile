@@ -42,6 +42,12 @@ include ./src/services/SERVICES.mk
 include ./drv/USBH.mk
 include ./lib/FatFS.mk
 
+# USB-FS filesystem via USB and FATFS
+include ./src/diskfs/DISKFS.mk
+
+# RabbitMQ - Message Queueing Protocol
+##include ./lib/MQTT.mk
+
 
 CSRC += ./src/main.c \
 		./src/stm32f4xx_it.c \
@@ -64,7 +70,8 @@ USE_OPT = -Os -D$(MCU_MODEL_FAMILY) -DUSE_HAL_DRIVER -DUSE_STM324xG_EVAL -DUSE_U
 # -ggdb -fomit-frame-pointer -falign-functions=16 
 
 # C specific options (added to USE_OPT).
-USE_COPT = -fstack-usage
+USE_COPT = -fstack-usage -ggdb
+# USE_COPT =
 
 # C++ specific options (added to USE_OPT).
 USE_CPPOPT = -fno-rtti

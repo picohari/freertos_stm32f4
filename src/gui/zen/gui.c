@@ -32,13 +32,23 @@
 #include "gui.h"
 
 #ifdef UGFXSIMULATOR
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <linux/input.h>
+
+	#include <stdlib.h>
+	#include <unistd.h>
+	#include <fcntl.h>
+	#include <errno.h>
+	#include <linux/input.h>
+
 #else
-#include "calibration.h"
+
+	#include "calibration.h"
+
+	#include "stm32f4xx_hal.h"
+	#include "cmsis_os.h"
+	#include "XCore407I.h"
+
+	#include "rtc_clock.h"
+
 #endif
 
 
@@ -72,8 +82,8 @@ GHandle ghImagebox1;
 GHandle ghlabel1;
 
 // Fonts
-font_t dejavu_sans_10;
-font_t dejavu_sans_16;
+//font_t dejavu_sans_10;
+//font_t dejavu_sans_16;
 font_t fixed_7x14;
 
 // Icons
@@ -328,11 +338,7 @@ static void createShell(void) {
 
 
 
-#include "stm32f4xx_hal.h"
-#include "cmsis_os.h"
-#include "XCore407I.h"
 
-#include "rtc_clock.h"
 
 
 #ifdef UGFXSIMULATOR
@@ -352,7 +358,7 @@ void guiEventLoop(void) {
     
     //gdispFillString(5, 20, showdate, dejavu_sans_10, White, Black);
 
-    osDelay(1000);
+    //osDelay(1000);
 
 #if 0
 	RTC_TimeTypeDef stimestructureget;
@@ -414,14 +420,19 @@ void guiCreate(void) {
 	//vt100_init(guiOutput);
 
 	// Prepare fonts
-	dejavu_sans_10 = gdispOpenFont("DejaVuSans10");
-	dejavu_sans_16 = gdispOpenFont("DejaVuSans16");
+	//dejavu_sans_10 = gdispOpenFont("DejaVuSans10");
+	//dejavu_sans_16 = gdispOpenFont("DejaVuSans16");
 	fixed_7x14     = gdispOpenFont("Fixed7x14");
+
+	gdispClear(Black);
 
 	//createShell();
 
 	// Show SplashScreen
 	//zen_splash();
+
+
+
 
 #if 0
 	// Prepare images
@@ -430,7 +441,6 @@ void guiCreate(void) {
 	// Set the widget defaults
 	gwinSetDefaultFont(dejavu_sans_16);
 	gwinSetDefaultStyle(&BlackWidgetStyle, FALSE);
-	gdispClear(White);
 
 	
 	// Create the gwin windows/widgets
@@ -458,23 +468,23 @@ void guiCreate(void) {
 
 #else
 
-  static gdispImage myImage;
-  static gdispImage myImage2;
+	static gdispImage myImage;
+	static gdispImage myImage2;
 
-  gdispImageOpenFile(&myImage, "rsc/chibios.gif");
-  gdispImageOpenFile(&myImage2, "rsc/testbild.gif");
+	gdispImageOpenFile(&myImage, "rsc/chibios.gif");
+	gdispImageOpenFile(&myImage2, "rsc/testbild.gif");
 
-  gdispImageDraw(&myImage, 0, 0, 320, 240, 0, 0);
-  gdispImageDraw(&myImage2, 100, 0, 320, 240, 0, 0);
+	gdispImageDraw(&myImage, 0, 0, 320, 240, 0, 0);
+	gdispImageDraw(&myImage2, 100, 0, 320, 240, 0, 0);
 
-  LOG_UART("used: %ld", myImage.memused);
-  LOG_UART("max:  %ld", myImage.maxmemused);
+	LOG_UART("used: %ld", myImage.memused);
+	LOG_UART("max:  %ld", myImage.maxmemused);
 
-  LOG_UART("used: %ld", myImage2.memused);
-  LOG_UART("max:  %ld", myImage2.maxmemused);
+	LOG_UART("used: %ld", myImage2.memused);
+	LOG_UART("max:  %ld", myImage2.maxmemused);
 
-  gdispImageClose(&myImage);
-  gdispImageClose(&myImage2);
+	gdispImageClose(&myImage);
+	gdispImageClose(&myImage2);
 
 #endif
 
@@ -482,19 +492,19 @@ void guiCreate(void) {
 
 #ifdef UGFXSIMULATOR
 
+	#if 0
 	uint8_t c;
-
-  	#if 1
 	while(1) {
 		myguiEventLoop();
 
 		c = getchar();
 		vt100_putc(c);
-	    fflush(stdout);
+	    //fflush(stdout);
 	}
 	#endif
 	   
 	#if 0
+	uint8_t c;
 	while((c=getchar()) != EOF)      
 	{
 	    //putchar(c);

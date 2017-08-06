@@ -64,14 +64,15 @@ int fs_read_custom(struct fs_file *file, char *buffer, int count);
 #if LWIP_HTTPD_CUSTOM_FILES
 int fs_open_custom(struct fs_file *file, const char *name)
 {
-    static char *pcBuf;
-    //static char pcBuf[512];       /* Buffer for storing dynamic page content */
-    pcBuf = (char *)pvPortMalloc(512);
 
+    static char *pcBuf;
 
     // Request for TASKS list (Important: provide correct extention!!)
     if(strncmp(name, "/tasks.html",  10) == 0) {
   
+      //static char pcBuf[512];               /* Buffer for storing dynamic page content   */
+      pcBuf = (char *)pvPortMalloc(1024);     /* TODO: NOT GOOD !! Called at each page request !! */
+
       memset(pcBuf, 0, 512);
 
       strcat((char *)pcBuf, "<pre><br>Name          State  Priority  Stack   Num");
@@ -91,6 +92,8 @@ int fs_open_custom(struct fs_file *file, const char *name)
     }
 
     else if (strncmp(name, "/config", 7) == 0) {
+
+      pcBuf = (char *)pvPortMalloc(64);     /* TODO: NOT GOOD !! Called at each page request !! */
 
       memset(pcBuf, 0, 512);
 

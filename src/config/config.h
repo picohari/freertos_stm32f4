@@ -69,7 +69,7 @@
 * The IP Adresses of the system 
 */
 
-//#define HOME_NET
+#define HOME_NET
 
 #ifdef HOME_NET
   #define IP_ADDR_HOME_NET    1
@@ -99,6 +99,13 @@
 
 
 
+
+#define RABBIT_USE_LWIP
+#define RABBIT_INFO_AVAILABLE
+
+#define CONFIG_RABBITMQ_TINY_EMBEDDED_ENA
+
+//#define AMQP_USE_UNTESTED_SSL_BACKEND
 
 
 

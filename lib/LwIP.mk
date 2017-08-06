@@ -1,6 +1,6 @@
-LWIP = ./lib/LwIP
+LIB_LWIP = ./lib/LwIP
 
-LWIP_SRC = $(LWIP)/src
+LWIP_SRC = $(LIB_LWIP)/src
 
 LWIPDIR = $(LWIP_SRC)
 
@@ -161,11 +161,11 @@ CSRC += $(COREFILES) \
 	    $(NETIFFILES) \
 	    $(HTTPDFILES) \
 	    $(SNTPFILES) \
-	    $(LWIP)/system/OS/sys_arch.c \
+	    $(LIB_LWIP)/system/OS/sys_arch.c \
 	    #$(LWIP_SRC)/apps/sntp/sntp.c \
 	    #$(LWIP_SRC)/apps/httpd/fs.c \
 	    #$(LWIP_SRC)/apps/httpd/httpd.c \
 
 INCDIR += $(LWIP_SRC)/include \
-	      $(LWIP)/system \
+	      $(LIB_LWIP)/system \
 	      #$(LWIP_SRC)/include/lwip/apps \

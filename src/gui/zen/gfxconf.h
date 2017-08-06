@@ -34,6 +34,8 @@
     #endif
     #define GFX_CPU                         GFX_CPU_X64
 
+    #define GDISP_SCREEN_WIDTH              320
+    #define GDISP_SCREEN_HEIGHT             240
 #else
 /* We the real thing ... */
 
@@ -44,8 +46,6 @@
 
 #endif
 
-#define GDISP_SCREEN_WIDTH                  320
-#define GDISP_SCREEN_HEIGHT                 240
 
 ///////////////////////////////////////////////////////////////////////////
 // GDISP                                                                 //
@@ -68,7 +68,7 @@
     #define GDISP_NEED_IMAGE_GIF                   TRUE
     #define GDISP_NEED_IMAGE_ACCOUNTING            TRUE
 
-#define GDISP_NEED_PIXMAP                          TRUE
+#define GDISP_NEED_PIXMAP                          FALSE
  
 #ifdef UGFXSIMULATOR
 #define GDISP_DEFAULT_ORIENTATION                  GDISP_ROTATE_LANDSCAPE
@@ -88,9 +88,9 @@
 	#define GWIN_NEED_FLASHING					   TRUE
 
 #define GWIN_NEED_CONSOLE                          TRUE
-    #define GWIN_CONSOLE_USE_HISTORY               TRUE
-        #define GWIN_CONSOLE_HISTORY_AVERAGING     TRUE
-        #define GWIN_CONSOLE_HISTORY_ATCREATE      TRUE
+    #define GWIN_CONSOLE_USE_HISTORY               FALSE
+        #define GWIN_CONSOLE_HISTORY_AVERAGING     FALSE
+        #define GWIN_CONSOLE_HISTORY_ATCREATE      FALSE
 #define GWIN_NEED_GRAPH                            TRUE
 
 #define GWIN_NEED_WIDGET                           TRUE
@@ -139,12 +139,12 @@
 
 #define GINPUT_NEED_MOUSE                          TRUE
 
-#ifndef UGFXSIMULATOR
-#define GINPUT_NEED_TOGGLE                         TRUE
-//#define GINPUT_NEED_DIAL                           TRUE
+#ifdef UGFXSIMULATOR
+    #define GINPUT_TOUCH_USER_CALIBRATION_LOAD     FALSE
+#else
+    #define GINPUT_TOUCH_USER_CALIBRATION_LOAD     TRUE
+    #define GINPUT_NEED_TOGGLE                     TRUE
 #endif
-
-#define GINPUT_TOUCH_USER_CALIBRATION_LOAD         TRUE
 
 ///////////////////////////////////////////////////////////////////////////
 // GFILE                                                                 //
@@ -155,9 +155,11 @@
 #define GFILE_NEED_STRINGS                         TRUE
 
 #define GFILE_NEED_ROMFS                           TRUE
+
 //#define GFILE_NEED_NATIVEFS                          TRUE
 
 #define GFILE_NEED_FATFS                           TRUE
+
 #define GFILE_FATFS_EXTERNAL_LIB                   TRUE
 #define GFILE_NEED_NOAUTOMOUNT                     TRUE
 

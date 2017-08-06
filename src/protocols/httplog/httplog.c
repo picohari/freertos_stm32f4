@@ -375,7 +375,7 @@ static void httplog_dns_query_cb(const char* hostname, const ip_addr_t *ipaddr, 
 
 		if (htlog_pcb != NULL) {
 			/* connect to destination address/port */
-			tcp_connect(htlog_pcb, ipaddr, 80, httplog_connected_cb);
+			tcp_connect(htlog_pcb, ipaddr, 2345, httplog_connected_cb);
 		}
 
 	} else {
@@ -399,7 +399,11 @@ static void httplog_resolve_address(void)
 		httplog_dns_query_cb(CONF_HTTPLOG_SERVICE, &httplog_server_address, 0);
 	}
 #else
+	#ifdef HOME_NET
+	IP4_ADDR(&httplog_server_address, 192, 168, 1, 74);
+	#else
 	IP4_ADDR(&httplog_server_address, 192, 168, 200, 150);
+	#endif
 	httplog_dns_query_cb(CONF_HTTPLOG_SERVICE, &httplog_server_address, 0);
 #endif
 

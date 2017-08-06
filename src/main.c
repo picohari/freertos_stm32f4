@@ -54,7 +54,7 @@
 /* GUI and interfaces */
 #include "gfx.h"
 #include "gui.h"
-#include "vt100.h"
+//#include "vt100.h"
 //#include "test.h"
 
 /* LWIP stack */
@@ -89,18 +89,27 @@
 /* Private variables ---------------------------------------------------------*/
 osThreadId LEDThread1Handle, LEDThread2Handle;
 
+  
+FATFS   USBDISKFatFs;           /* File system object for USB disk logical drive */
+char    USBDISKPath[4];         /* USB Host logical drive path */
 
-FATFS USBDISKFatFs;           /* File system object for USB disk logical drive */
-FIL MyFile;                   /* File object */
-char USBDISKPath[4];          /* USB Host logical drive path */
-USBH_HandleTypeDef hUSB_Host; /* USB Host handle */
+FIL     MyFile;                 /* File object */
+
+USBH_HandleTypeDef hUSB_Host;   /* USB Host handle */
 
 typedef enum {
   DISCONNECTION_EVENT = 1,  
   CONNECTION_EVENT,    
 }MSC_ApplicationTypeDef;
 
+typedef enum {
+  DISK_READY_EVENT = 1,  
+  DISK_REMOVE_EVENT,    
+}FatFs_DiskTypeDef;
+
+
 osMessageQId AppliEvent;
+osMessageQId DiskEvent;
 
 
 
@@ -117,20 +126,21 @@ static void Register_printout(void);
 static void LED1_thread (void const * arg);
 static void LED2_thread (void const * arg);
 
-static void GUI_start (void const * arg);
-static void GUI_thread (void const * arg);
+static void GUI_start   (void const * arg);
+static void GUI_thread  (void const * arg);
 
-static void NET_start (void const * arg);
-static void HTTP_start (void const * arg);
+static void NET_start   (void const * arg);
+static void HTTP_start  (void const * arg);
 
-static void TTY_thread (void const * arg);
-static void RTC_thread (void const * arg);
+static void TTY_thread  (void const * arg);
+//static void RTC_thread  (void const * arg);
 
 
-static void USB_thread (void const * arg);
+static void USB_thread  (void const * arg);
 static void USBH_UserProcess(USBH_HandleTypeDef *phost, uint8_t id);
 static void MSC_Application(void);
 
+static void DISK_thread (void const * arg);
 
 
 
@@ -188,7 +198,7 @@ static void os_tasks(void)
   osThreadCreate( osThread(sgui),   NULL);
 
   /* NETWORK */
-  osThreadDef(snet, NET_start,      osPriorityNormal,   0, configMINIMAL_STACK_SIZE * 4);
+  osThreadDef(snet, NET_start,      osPriorityNormal,   0, configMINIMAL_STACK_SIZE * 2);
   osThreadCreate( osThread(snet),   NULL);
 
   /* RTC */
@@ -197,13 +207,20 @@ static void os_tasks(void)
 
 
   /*##-1- Start task #########################################################*/
-  osThreadDef(USB_User, USB_thread,   osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 8);
-  osThreadCreate(osThread(USB_User), NULL);
+  osThreadDef(USB_drv, USB_thread,   osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 8);
+  osThreadCreate(osThread(USB_drv), NULL);
   
-  /*##-2- Create Application Queue ###########################################*/
-  osMessageQDef(osqueue, 1, uint16_t);
-  AppliEvent = osMessageCreate(osMessageQ(osqueue), NULL);
+  osThreadDef(USB_fat, DISK_thread,  osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 8);
+  osThreadCreate (osThread(USB_fat), NULL);  
 
+
+  /*##-2- Create Application Queue ###########################################*/
+  osMessageQDef(usb_queue,  1, uint16_t);
+  AppliEvent = osMessageCreate(osMessageQ(usb_queue), NULL);
+
+  /*##-3- Create Disk Queue ##################################################*/
+  osMessageQDef(disk_queue, 1, uint16_t);
+  DiskEvent  = osMessageCreate (osMessageQ(disk_queue), NULL);
 
 }
 
@@ -320,51 +337,34 @@ static void MSC_Application(void)
     /* FatFs Initialization Error */
     Error_Handler();
   }
-  else
-  {
 
+
+#if 1
+  else {
+
+    /* Allow Second task to have access to FatFs */
+    osMessagePut(DiskEvent, DISK_READY_EVENT, 0);
+
+  }
+#endif
+
+
+
+  //else
+  //{
+
+
+#if 0
     /* Create and Open a new text file object with write access */
     if(f_open(&MyFile, "STM32.TXT", FA_CREATE_ALWAYS | FA_WRITE) != FR_OK) 
-
-    /* Check for file existence */
-    //if(f_open(&MyFile, "testbild.bmp", FA_OPEN_EXISTING | FA_READ) != FR_OK) 
     {
       Error_Handler();
     }
 
-
-#if 0
-    else
-    {
-      /* Read data from the text file */
-      res = f_read(&MyFile, rtext, sizeof(rtext), (void *)&bytesread);
-      
-      if((bytesread == 0) || (res != FR_OK))
-      {
-        /* 'STM32.TXT' file Read or EOF Error */
-        Error_Handler();
-      }
-      else
-      {
-        /* Close the open text file */
-        f_close(&MyFile);
-        
-        writef("%s\r\n", bytesread);
-      }
-    }
-
-#endif
-
-
-#if 1
     else {
 
       f_close(&MyFile);
       /*End test for file existence*/
-
-      #if _USE_LFN == 3 /* LFN with a working buffer on the heap */
-      writef("Showing image\r\n");
-      #endif
 
       imgFile = gfileOpen("tenor.gif", "rb");
 
@@ -384,7 +384,6 @@ static void MSC_Application(void)
         gfxSleepMilliseconds(100);
       }
 
-
       gdispImageClose(&myImage);
 
       gfileClose(imgFile);
@@ -395,12 +394,8 @@ static void MSC_Application(void)
 
 
 
-
-
-
-
-
 #if 0
+
     else
     {
       /* Write data to the text file */
@@ -454,14 +449,13 @@ static void MSC_Application(void)
     }
 #endif
 
-
-  }
+  //}
   
   /* Unlink the USB disk I/O driver */
-  FATFS_UnLinkDriver(USBDISKPath);
-
+  //FATFS_UnLinkDriver(USBDISKPath);
 
 }
+
 
 /**
   * @brief  User Process
@@ -492,6 +486,49 @@ static void USBH_UserProcess(USBH_HandleTypeDef *phost, uint8_t id)
 
 
 
+#include "settings.h"
+
+
+static void DISK_thread(void const * arg)
+{
+  
+  (void) arg;
+
+  osEvent event;
+  
+  //FRESULT res;                                          /* FatFs function common result code */
+  //uint16_t byteswritten;                                /* File write count */
+  //uint8_t wtext[] = "This is STM32 working with FatFs"; /* File write buffer */
+  
+  for( ;; )
+  {
+    event = osMessageGet(DiskEvent, osWaitForever);
+    
+    if(event.status == osEventMessage)
+    {
+      switch(event.value.v)
+      {
+      case DISK_READY_EVENT:
+        writef("USBDisk mounted.\r\n");
+        
+        osDelay(500);
+        
+        ini_create_file();
+        ini_parse_file("SETTINGS.water");
+        
+        break;
+        
+      case DISK_REMOVE_EVENT:
+        /* Unlink the USB disk I/O driver */
+        FATFS_UnLinkDriver(USBDISKPath);
+        break;
+        
+      default:
+        break; 
+      }
+    }
+  }
+}
 
 
 
@@ -573,8 +610,8 @@ static void NET_start (void const * arg)
 #endif
 
   /* Test httplog */
-  int numberone = 123;
-  httplog("led1=ON", numberone);
+  //int numberone = 123;
+  //httplog("led1=%d", numberone);
 
   /* Start HTTP service */
   osThreadDef(http, HTTP_start,    osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 2);
@@ -650,7 +687,7 @@ static void GUI_start (void const * arg)
   gdispSetBacklight(100);
   gdispSetContrast(100);
 
-  //guiCreate();
+  guiCreate();
 
 #if 1
   osThreadDef(gui, GUI_thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 2);
@@ -699,9 +736,7 @@ static void GUI_thread (void const * arg)
 
 #if 1
 
-
-
-#define BUFFER_LEN 45
+#define BUFFER_LEN 32
 
 #include <string.h>
 #include <ctype.h>

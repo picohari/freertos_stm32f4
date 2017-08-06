@@ -44,9 +44,6 @@
 extern "C" {
 #endif
 
-#include "rtc_clock.h"
-#define SNTP_SET_SYSTEM_TIME(sec) clock_timestamp = (uint64_t) (sec) * 1000U;
-
 /* SNTP operating modes: default is to poll using unicast.
    The mode has to be set before calling sntp_init(). */
 #define SNTP_OPMODE_POLL            0

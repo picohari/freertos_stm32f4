@@ -1,16 +1,16 @@
 
-GUI = ./src/gui
+GUI_SRC = ./src/gui
 
-CSRC += $(GUI)/vt100/vt100.c \
-        $(GUI)/zen/gui.c \
-        $(GUI)/zen/pages/zen_splash.c \
+CSRC += $(GUI_SRC)/vt100/vt100.c \
+        $(GUI_SRC)/zen/gui.c \
+        $(GUI_SRC)/zen/pages/zen_splash.c \
 
 CSRC += ./src/cli/cli_commands.c \
 
-INCDIR += $(GUI)/vt100 \
-		  $(GUI)/zen \
-		  $(GUI)/zen/pages \
-		  #$(GUI)/cli \
+INCDIR += $(GUI_SRC)/vt100 \
+		  $(GUI_SRC)/zen \
+		  $(GUI_SRC)/zen/pages \
+		  #$(GUI_SRC)/cli \
 
 
 

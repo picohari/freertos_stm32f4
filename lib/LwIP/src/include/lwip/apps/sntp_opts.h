@@ -50,7 +50,9 @@
  * if you need the additional precision.
  */
 #if !defined SNTP_SET_SYSTEM_TIME || defined __DOXYGEN__
-#define SNTP_SET_SYSTEM_TIME(sec)   LWIP_UNUSED_ARG(sec)
+//#define SNTP_SET_SYSTEM_TIME(sec)   LWIP_UNUSED_ARG(sec)
+#include "rtc_clock.h"
+#define SNTP_SET_SYSTEM_TIME(sec) 	clock_timestamp = (uint64_t) (sec) * 1000U;
 #endif
 
 /** The maximum number of SNTP servers that can be set */

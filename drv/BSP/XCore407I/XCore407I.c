@@ -172,7 +172,7 @@ void BSP_LCD_Init(void)
   /* Common GPIO configuration */
   GPIO_Init_Structure.Mode      = GPIO_MODE_AF_PP;
   GPIO_Init_Structure.Pull      = GPIO_NOPULL;
-  GPIO_Init_Structure.Speed     = GPIO_SPEED_FREQ_LOW;
+  GPIO_Init_Structure.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
   GPIO_Init_Structure.Alternate = GPIO_AF12_FSMC;
   
   /* GPIOD configuration */
