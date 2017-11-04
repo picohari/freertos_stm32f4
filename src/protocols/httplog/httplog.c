@@ -375,7 +375,7 @@ static void httplog_dns_query_cb(const char* hostname, const ip_addr_t *ipaddr, 
 
 		if (htlog_pcb != NULL) {
 			/* connect to destination address/port */
-			tcp_connect(htlog_pcb, ipaddr, 2345, httplog_connected_cb);
+			tcp_connect(htlog_pcb, ipaddr, 80, httplog_connected_cb);
 		}
 
 	} else {

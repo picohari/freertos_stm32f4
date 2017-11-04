@@ -51,6 +51,7 @@
 #include "netif/etharp.h"
   
 #include "eth_if.h"
+#include "config.h"
   
 #include <string.h>
 

@@ -72,6 +72,10 @@
 
 /* Clients */
 #include "httplog.h"
+//#include "lwip/apps/mqtt.h"
+#include "MQTTlwip.h"
+#include "MQTTClient.h"
+
 
 /* FatFs includes component */
 #include "ff_gen_drv.h"
@@ -131,6 +135,10 @@ static void GUI_thread  (void const * arg);
 
 static void NET_start   (void const * arg);
 static void HTTP_start  (void const * arg);
+
+static void MQTT_start  (void const * arg);
+//static void MQTT_connect(mqtt_client_t *client);
+
 
 static void TTY_thread  (void const * arg);
 //static void RTC_thread  (void const * arg);
@@ -205,14 +213,12 @@ static void os_tasks(void)
   //osThreadDef(rtc0, RTC_thread,    osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 4);
   //osThreadCreate( osThread(rtc0),  NULL);
 
-
   /*##-1- Start task #########################################################*/
   osThreadDef(USB_drv, USB_thread,   osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 8);
   osThreadCreate(osThread(USB_drv), NULL);
   
   osThreadDef(USB_fat, DISK_thread,  osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 8);
   osThreadCreate (osThread(USB_fat), NULL);  
-
 
   /*##-2- Create Application Queue ###########################################*/
   osMessageQDef(usb_queue,  1, uint16_t);
@@ -617,6 +623,10 @@ static void NET_start (void const * arg)
   osThreadDef(http, HTTP_start,    osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 2);
   osThreadCreate( osThread(http),  NULL);
 
+  /* Start MQTT service */
+  osThreadDef(mqtt, MQTT_start,    osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 8);
+  osThreadCreate( osThread(mqtt),  NULL);
+
   while (1) {
     osThreadTerminate( NULL );  /* important to stop task here !! */
   }
@@ -645,6 +655,79 @@ static void HTTP_start (void const * arg)
 
 
 
+void messageArrived(MessageData* md)
+{
+  MQTTMessage* message = md->message;
+
+  writef("%*.*s\r\n", (int) message->payloadlen, (int) message->payloadlen, (char *) message->payload);
+
+  if (strncmp((char *) message->payload, "on", (int) message->payloadlen) == 0) {
+    writef("ON\r\n");
+
+  } else if (strncmp((char *) message->payload, "off", (int) message->payloadlen) == 0) {
+    writef("OFF\r\n");
+  }
+}
+
+
+
+static void MQTT_start (void const * arg)
+{
+
+  (void) arg;
+
+
+  int rc = 0;
+  Network n;
+  Client c;
+  unsigned char buf[100];
+  unsigned char readbuf[100];
+
+  ip4_addr_t broker_ipaddr;
+  IP4_ADDR( &broker_ipaddr, 192, 168, 1, 101);
+
+  //err_t err;
+
+  mqtt_lwip_init(&n);
+
+
+  rc = mqtt_lwip_connect(&n, &broker_ipaddr, 1883);
+
+  if (rc != 0) {
+    writef("Failed to connect to MQTT server\r\n");
+
+    goto blink_to_death;
+  }
+
+  writef("Initializing MQTT service\r\n");
+
+  MQTTClient(&c, &n, 1000, buf, 100, readbuf, 100);
+
+
+  MQTTPacket_connectData data = MQTTPacket_connectData_initializer;
+  
+  data.clientID.cstring = "xcore";
+  data.username.cstring = "admin";
+  data.password.cstring = "admin";
+  
+  data.MQTTVersion = 3;
+  data.willFlag = 0;
+  data.keepAliveInterval = 5;
+  data.cleansession = 1;
+  
+  rc = MQTTConnect(&c, &data);
+  
+  if (rc == MQTT_FAILURE) {
+    writef("Failed to send connect request\r\n");
+    goto blink_to_death;
+  }
+
+  writef("Subscribing to its topic\r\n");
+
+
+  char topic_buf[256] = {0};
+
+  sprintf(topic_buf, "%02lx:%02x:%02x:%02x:%02x:%02x/do", MAC_ADDR0, MAC_ADDR1, MAC_ADDR2, MAC_ADDR3, MAC_ADDR4, MAC_ADDR5);  
 
 
 
@@ -655,6 +738,32 @@ static void HTTP_start (void const * arg)
 
 
 
+  rc = MQTTSubscribe(&c, topic_buf, QOS0, messageArrived);
+  //rc = MQTTSubscribe(&c, "hello/world", QOS0, messageArrived);
+  
+  if (rc == MQTT_FAILURE) {
+    writef("Failed to subscribe to its topic\r\n");
+    MQTTDisconnect(&c);
+    goto blink_to_death;
+  }
+
+  writef("Connected to MQTT server...\r\n");
+
+  while(1) {
+    MQTTYield(&c, 1000);
+  }
+
+  //return RDY_OK;
+
+  blink_to_death:
+  
+  while(1){
+
+  }
+
+  //return RDY_OK;
+
+}
 
 
 

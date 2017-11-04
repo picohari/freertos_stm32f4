@@ -46,7 +46,7 @@ include ./lib/FatFS.mk
 include ./src/diskfs/DISKFS.mk
 
 # RabbitMQ - Message Queueing Protocol
-##include ./lib/MQTT.mk
+include ./lib/MQTT.mk
 
 
 CSRC += ./src/main.c \

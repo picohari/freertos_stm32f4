@@ -148,8 +148,8 @@ MQTTFILES=$(LWIPDIR)/apps/mqtt/mqtt.c \
 # LWIPAPPFILES: All LWIP APPs
 LWIPAPPFILES=$(SNMPFILES) \
 	$(HTTPDFILES) \
-	$(LWIPERFFILES) \
 	$(SNTPFILES) \
+	$(LWIPERFFILES) \
 	$(MDNSFILES) \
 	$(NETBIOSNSFILES) \
 	$(TFTPFILES) \
@@ -165,8 +165,8 @@ CSRC += $(COREFILES) \
 	    $(NETIFFILES) \
 	    $(HTTPDFILES) \
 	    $(SNTPFILES) \
-		$(MQTTFILES) \
 	    $(LIB_LWIP)/system/OS/sys_arch.c \
+		#$(MQTTFILES) \
 	    #$(LWIP_SRC)/apps/sntp/sntp.c \
 	    #$(LWIP_SRC)/apps/httpd/fs.c \
 	    #$(LWIP_SRC)/apps/httpd/httpd.c \

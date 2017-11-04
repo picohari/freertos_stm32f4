@@ -83,7 +83,7 @@ GHandle ghlabel1;
 
 // Fonts
 //font_t dejavu_sans_10;
-//font_t dejavu_sans_16;
+font_t dejavu_sans_16;
 font_t fixed_7x14;
 
 // Icons
@@ -421,7 +421,7 @@ void guiCreate(void) {
 
 	// Prepare fonts
 	//dejavu_sans_10 = gdispOpenFont("DejaVuSans10");
-	//dejavu_sans_16 = gdispOpenFont("DejaVuSans16");
+	dejavu_sans_16 = gdispOpenFont("DejaVuSans16");
 	fixed_7x14     = gdispOpenFont("Fixed7x14");
 
 	gdispClear(Black);
@@ -434,7 +434,7 @@ void guiCreate(void) {
 
 
 
-#if 0
+#if 1
 	// Prepare images
 	gdispImageOpenFile(&ic_home, "rsc/ic_home.gif");
 

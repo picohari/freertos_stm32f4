@@ -201,6 +201,8 @@ The STM32F4xx allows computing and verifying the IP, UDP, TCP and ICMP checksums
  */
 #define LWIP_NETCONN                1
 
+#define LWIP_SO_SNDTIMEO            1
+#define LWIP_SO_RCVTIMEO            1
 /*
    ------------------------------------
    ---------- Socket options ----------
