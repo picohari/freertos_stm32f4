@@ -9,13 +9,31 @@
 
 #include "gfx.h"
 
+#include "gui_router.h"
+
+
+
 extern font_t dejavu_sans_10;
 extern font_t dejavu_sans_16;
+
+
+
+
+extern GHandle ghContainer_PageTitle;
+extern GHandle ghLabelPageTitle;
+
+
 
 // Function Prototypes
 void guiCreate(void);
 
 //void guiShowPage(unsigned pageIndex);
 void guiEventLoop(void);
+
+
+//void create_PageTitle(void);
+
+void gui_set_title(GUIWindow *win);
+
 
 #endif /* _GUI_H_ */

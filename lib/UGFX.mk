@@ -1,4 +1,4 @@
-GFXLIB = ./lib/ugfx
+GFXLIB = ./lib/ugfx_2.8
 
 include $(GFXLIB)/gfx.mk
 

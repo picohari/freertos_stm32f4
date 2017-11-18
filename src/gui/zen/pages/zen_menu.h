@@ -11,7 +11,6 @@
 
 
 
-
 /* Alle MENU-Pages werden hier inkludiert, sodaß man nur einmal die pages.h angeben muss ... */
 
 extern void zen_splash(void);

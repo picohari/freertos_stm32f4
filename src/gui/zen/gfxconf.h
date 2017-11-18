@@ -61,6 +61,7 @@
 #define GDISP_NEED_TEXT                            TRUE
     #define GDISP_INCLUDE_FONT_UI2                 TRUE
     #define GDISP_INCLUDE_USER_FONTS               TRUE
+    #define GDISP_NEED_TEXT_WORDWRAP               TRUE
 #define GDISP_NEED_STREAMING	                   FALSE
 
 #define GDISP_NEED_IMAGE                           TRUE
@@ -112,6 +113,8 @@
 
 #define GWIN_NEED_TABSET                           TRUE
 
+#define GWIN_FLAT_STYLING                          TRUE
+
 ///////////////////////////////////////////////////////////////////////////
 // GEVENT                                                                //
 ///////////////////////////////////////////////////////////////////////////
@@ -149,6 +152,7 @@
 ///////////////////////////////////////////////////////////////////////////
 // GFILE                                                                 //
 ///////////////////////////////////////////////////////////////////////////
+
 #define GFX_USE_GFILE                              TRUE
 
 #define GFILE_NEED_PRINTG                          TRUE
@@ -158,12 +162,15 @@
 
 //#define GFILE_NEED_NATIVEFS                          TRUE
 
-#define GFILE_NEED_FATFS                           TRUE
+#ifndef UGFXSIMULATOR
+    #define GFILE_NEED_FATFS                           TRUE
 
-#define GFILE_FATFS_EXTERNAL_LIB                   TRUE
-#define GFILE_NEED_NOAUTOMOUNT                     TRUE
+    #define GFILE_FATFS_EXTERNAL_LIB                   TRUE
+    #define GFILE_NEED_NOAUTOMOUNT                     TRUE
+#endif
 
-#define GFILE_MAX_GFILES                           5
+#define GFILE_MAX_GFILES                           20
+
 
 ///////////////////////////////////////////////////////////////////////////
 // GMISC                                                                 //

@@ -13,7 +13,7 @@
 
 # uGFX settings
 	# See $(GFXLIB)/tools/gmake_scripts/library_ugfx.mk for the list of variables
-	GFXLIB				= ../../../lib/ugfx
+	GFXLIB				= ../../../lib/ugfx_2.8
 	GFXBOARD			= Linux-X
 	GFXDEMO				=
 
@@ -26,9 +26,14 @@ GFXINC +=  $(SIMDIR) \
 		   $(SIMDIR)/../vt100/ \
 		   $(SIMDIR)/pages/ \
 
-GFXSRC +=  $(SIMDIR)/gui.c \
+GFXSRC +=  $(SIMDIR)/skin/zenstyle.c \
 	   	   $(SIMDIR)/../vt100/vt100.c \
+		   $(SIMDIR)/gui.c \
+		   $(SIMDIR)/gui_router.c \
 	   	   $(SIMDIR)/pages/zen_splash.c \
+	   	   $(SIMDIR)/pages/zen_main_home.c \
+	   	   $(SIMDIR)/pages/zen_main_one.c \
+	   	   $(SIMDIR)/pages/zen_main_two.c \
 
 ##############################################################################################
 # Set these for your project

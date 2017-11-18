@@ -489,12 +489,13 @@ static const GColorSet *getButtonColors(GWidgetObject *gw) {
 
 		// Draw the box
 		gdispGFillArea(gw->g.display, gw->g.x, gw->g.y, gw->g.width/*-1*/, gw->g.height/*-1*/, pcol->fill);
+		//gdispGFillArea(gw->g.display, gw->g.x, gw->g.y, gw->g.width/*-1*/, gw->g.height/*-1*/, gw->g.bgcolor);
 
 		// Draw the icon
-		gdispGImageDraw(gw->g.display, (gdispImage *)param, gw->g.x+7, gw->g.y+6, gw->g.width, gw->g.height, 0, sy);
+		gdispGImageDraw(gw->g.display, (gdispImage *)param, gw->g.x+16, gw->g.y+6, gw->g.width, gw->g.height, 0, sy);
 
 		// Draw Text below
-		gdispGDrawStringBox(gw->g.display, gw->g.x+1, gw->g.y+1+10, gw->g.width-2, gw->g.height-2, gw->text, gw->g.font, pcol->text, justifyCenter);
+		gdispGDrawStringBox(gw->g.display, gw->g.x+1, gw->g.y+1+18, gw->g.width-2, gw->g.height-2, gw->text, gw->g.font, pcol->text, justifyCenter );
 
 
 		//gdispGDrawLine(gw->g.display, gw->g.x+gw->g.width-1, gw->g.y, gw->g.x+gw->g.width-1, gw->g.y+gw->g.height-1, pcol->edge);

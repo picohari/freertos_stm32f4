@@ -659,7 +659,13 @@ void messageArrived(MessageData* md)
 {
   MQTTMessage* message = md->message;
 
-  writef("%*.*s\r\n", (int) message->payloadlen, (int) message->payloadlen, (char *) message->payload);
+  writef("  Topic: %.*s\r\n", md->topicName->lenstring.len, md->topicName->lenstring.data);
+  writef("Payload: %.*s\r\n", (int)message->payloadlen, (char*)message->payload);
+
+
+
+
+
 
   if (strncmp((char *) message->payload, "on", (int) message->payloadlen) == 0) {
     writef("ON\r\n");
@@ -668,6 +674,9 @@ void messageArrived(MessageData* md)
     writef("OFF\r\n");
   }
 }
+
+
+
 
 
 
@@ -703,10 +712,19 @@ static void MQTT_start (void const * arg)
 
   MQTTClient(&c, &n, 1000, buf, 100, readbuf, 100);
 
-
   MQTTPacket_connectData data = MQTTPacket_connectData_initializer;
   
-  data.clientID.cstring = "xcore";
+  char clientID_buf[256] = {0};
+
+  sprintf(clientID_buf, "AL-MS-CU_%02lx%02lx%02lx%02lx%02lx%02lx", 
+    (uint32_t) MAC_ADDR0, 
+    (uint32_t) MAC_ADDR1, 
+    (uint32_t) MAC_ADDR2, 
+    (uint32_t) MAC_ADDR3, 
+    (uint32_t) MAC_ADDR4, 
+    (uint32_t) MAC_ADDR5);  
+
+  data.clientID.cstring = clientID_buf;
   data.username.cstring = "admin";
   data.password.cstring = "admin";
   
@@ -727,18 +745,24 @@ static void MQTT_start (void const * arg)
 
   char topic_buf[256] = {0};
 
-  sprintf(topic_buf, "%02lx:%02x:%02x:%02x:%02x:%02x/do", MAC_ADDR0, MAC_ADDR1, MAC_ADDR2, MAC_ADDR3, MAC_ADDR4, MAC_ADDR5);  
-
-
-
-
-
-
-
-
-
+  sprintf(topic_buf, "%02lx:%02lx:%02lx:%02lx:%02lx:%02lx/do/#",
+    (uint32_t) MAC_ADDR0, 
+    (uint32_t) MAC_ADDR1, 
+    (uint32_t) MAC_ADDR2, 
+    (uint32_t) MAC_ADDR3, 
+    (uint32_t) MAC_ADDR4, 
+    (uint32_t) MAC_ADDR5); 
 
   rc = MQTTSubscribe(&c, topic_buf, QOS0, messageArrived);
+
+
+
+
+
+
+
+
+
   //rc = MQTTSubscribe(&c, "hello/world", QOS0, messageArrived);
   
   if (rc == MQTT_FAILURE) {

@@ -19,7 +19,7 @@ void ini_write_file(dictionary * iniDict) {
 
 	FIL iniFile;
 
-	if((f_open(&iniFile, "SETTINGS.water", FA_CREATE_ALWAYS | FA_WRITE)) != FR_OK) {
+	if((f_open(&iniFile, "SETTINGS.water", FA_OPEN_ALWAYS | FA_CREATE_ALWAYS | FA_WRITE )) != FR_OK) {
 		writef("Could not create SETTINGS.water\r\n");
 		return;
 	}
