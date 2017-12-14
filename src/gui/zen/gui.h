@@ -15,6 +15,7 @@
 
 extern font_t dejavu_sans_10;
 extern font_t dejavu_sans_16;
+extern font_t fixed_7x14;
 
 
 
@@ -22,6 +23,7 @@ extern font_t dejavu_sans_16;
 extern GHandle ghContainer_PageTitle;
 extern GHandle ghLabelPageTitle;
 
+extern GHandle ghLabelClockTime;
 
 
 // Function Prototypes

@@ -9,9 +9,13 @@
 #include "gfx.h"
 
 
-
-
 /* Alle MENU-Pages werden hier inkludiert, sodaß man nur einmal die pages.h angeben muss ... */
+#include "pages/zen_main_home.h"
+#include "pages/zen_main_one.h"
+#include "pages/zen_main_two.h"
+
+#include "helpers/sevensegment.h"
+
 
 extern void zen_splash(void);
 

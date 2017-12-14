@@ -151,7 +151,7 @@
 #define  VDD_VALUE                    (3300U) /*!< Value of VDD in mv */
 #define  TICK_INT_PRIORITY            (0x0FU) /*!< tick interrupt priority */           
 #define  USE_RTOS                     0     
-#define  PREFETCH_ENABLE              0 /* The prefetch will be enabled in SystemClock_Config(), depending on the used 
+#define  PREFETCH_ENABLE              1 /* The prefetch will be enabled in SystemClock_Config(), depending on the used 
                                            STM32F405/415/07/417 device: RevA (prefetch must be off) or RevZ (prefetch can be on/off) */              
 #define  INSTRUCTION_CACHE_ENABLE     1
 #define  DATA_CACHE_ENABLE            1

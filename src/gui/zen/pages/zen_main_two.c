@@ -22,9 +22,11 @@
 
 #include "skin/zenstyle.h"
 #include "gui_router.h"
+
  
-#include "pages/zen_main_one.h"
-#include "pages/zen_main_two.h"
+#include "pages/zen_menu.h"
+//#include "pages/zen_main_one.h"
+//#include "pages/zen_main_two.h"
 
 
 
@@ -225,7 +227,7 @@ static int guiMainMenuTwo_handleEvent(GUIWindow *win, GEvent *pe) {
                 guiWindow_Show (&winWeather);
 #endif
             else if (peb->gwin == ghBtn_PageOne)
-                guiWindow_Show(&winMainMenuOne);
+                guiWindow_Show(&winMainHome);
 
             else
                 return 0;

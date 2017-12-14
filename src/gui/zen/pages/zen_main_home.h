@@ -38,5 +38,13 @@ extern GHandle ghContainer_PageHome;
 extern GUIWindow winMainHome;
 
 
+extern GHandle ghLabelADCvalue;
+extern GHandle ghLabelADCindicOK;
+extern GHandle ghLabelADCindicFAIL;
+
+extern GHandle ghScaleADCvalue;
+
+/* SLIDERS */
+extern GHandle ghSliderADCvalue;
 
 #endif /* _ZEN_HOME_H_ */

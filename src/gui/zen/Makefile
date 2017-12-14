@@ -25,11 +25,13 @@ SIMDIR = .
 GFXINC +=  $(SIMDIR) \
 		   $(SIMDIR)/../vt100/ \
 		   $(SIMDIR)/pages/ \
+		   $(SIMDIR)/pixmaps/ \
 
 GFXSRC +=  $(SIMDIR)/skin/zenstyle.c \
 	   	   $(SIMDIR)/../vt100/vt100.c \
 		   $(SIMDIR)/gui.c \
 		   $(SIMDIR)/gui_router.c \
+	   	   $(SIMDIR)/helpers/sevensegment.c \
 	   	   $(SIMDIR)/pages/zen_splash.c \
 	   	   $(SIMDIR)/pages/zen_main_home.c \
 	   	   $(SIMDIR)/pages/zen_main_one.c \

@@ -224,6 +224,8 @@ void gwinButtonDraw_Normal(GWidgetObject *gw, void *param);
 #endif
 /** @} */
 
+	void gwinButtonDraw_Clear(GWidgetObject *gw, void *param);
+	
 #ifdef __cplusplus
 }
 #endif

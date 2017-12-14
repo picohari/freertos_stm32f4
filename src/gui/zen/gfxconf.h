@@ -69,7 +69,7 @@
     #define GDISP_NEED_IMAGE_GIF                   TRUE
     #define GDISP_NEED_IMAGE_ACCOUNTING            TRUE
 
-#define GDISP_NEED_PIXMAP                          FALSE
+#define GDISP_NEED_PIXMAP                          TRUE
  
 #ifdef UGFXSIMULATOR
 #define GDISP_DEFAULT_ORIENTATION                  GDISP_ROTATE_LANDSCAPE
@@ -147,6 +147,16 @@
 #else
     #define GINPUT_TOUCH_USER_CALIBRATION_LOAD     TRUE
     #define GINPUT_NEED_TOGGLE                     TRUE
+    #define GINPUT_NEED_DIAL                       TRUE
+
+#endif
+
+///////////////////////////////////////////////////////////////////////////
+// GADC                                                                  //
+///////////////////////////////////////////////////////////////////////////
+#ifndef UGFXSIMULATOR
+#define GFX_USE_GADC                                 FALSE
+    #define GADC_MAX_LOWSPEED_DEVICES                1
 #endif
 
 ///////////////////////////////////////////////////////////////////////////

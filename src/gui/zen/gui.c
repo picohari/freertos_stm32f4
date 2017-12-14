@@ -56,9 +56,8 @@
 #include "pages/zen_menu.h"
 
 
-#include "pages/zen_main_home.h"
-#include "pages/zen_main_one.h"
-#include "pages/zen_main_two.h"
+#include "pages/zen_menu.h"
+
 
 
 
@@ -66,10 +65,11 @@
 GListener glistener;
 
 GHandle ghLabelPageTitle;
+
 GHandle ghLabelClockTime;
 
 // Fonts
-//font_t dejavu_sans_10;
+font_t dejavu_sans_10;
 font_t dejavu_sans_16;
 font_t fixed_7x14;
 
@@ -115,22 +115,21 @@ static void create_ClockTime(void) {
 
 	gwinWidgetClearInit(&wi);
 
+	gwinSetDefaultFont(dejavu_sans_16);
+
 	wi.g.show = TRUE;
-	wi.g.x = 80;
-	wi.g.y = 217;
-	wi.g.width = 240;
+	wi.g.x = 5;
+	wi.g.y = 218;
+	wi.g.width = 310;
 	wi.g.height = 24;
+	//wi.g.parent = ghContainer_Footer;
+	wi.customDraw = gwinLabelDrawJustifiedRight;
+	wi.customStyle = &footerstyle;
 
-	wi.text = "";
+	wi.text = "11.12.1974 16:25:42";
 
-	gwinSetDefaultBgColor(HTML2COLOR(0x262626));
+	ghLabelClockTime = gwinLabelCreate(0, &wi);
 
-	ghLabelClockTime = gwinWindowCreate(0, (const struct GWindowInit *)&wi);
-
-	// Must be called after handler initialization
-	gwinSetBgColor(ghLabelClockTime, HTML2COLOR(0x262626));
-	gwinSetColor(ghLabelClockTime, 	 White);
-	
 }
 
 
@@ -138,10 +137,12 @@ void gui_set_time(GUIWindow *win) {
 
 	(void) win;
 
-	gwinFillStringBox(ghLabelClockTime, 0, 0, 235, 24, "11. Dez 2017 21:36:42", justifyRight);
-	gwinRedraw(ghLabelClockTime);
+	//gwinFillStringBox(ghLabelClockTime, 0, 0, 235, 24, "11. Dez 2017 21:36:42", justifyRight);
+	//gwinRedraw(ghLabelClockTime);
 
 }
+
+
 
 
 
@@ -159,7 +160,8 @@ void guiEventLoop(void) {
 	GEvent *pe;
 
 	/* WAITS for an Event - is blocking !!! */
-	pe = geventEventWait(&glistener, TIME_INFINITE);
+	pe = geventEventWait(&glistener, 100);
+	//pe = geventEventWait(&glistener, TIME_INFINITE);
 
 	/* No event, skip ... */
     if (!pe)
@@ -262,10 +264,12 @@ void guiCreate(void) {
 	create_PageTitle();
 	create_ClockTime();
 
-
-
-
 	gui_set_time(NULL);
+
+
+	//gui_create_lcd(8526);
+
+
 
 	// Init menu items
 	winMainHome.onInit(&winMainHome, 		ghContainer_PageHome);
@@ -276,6 +280,9 @@ void guiCreate(void) {
 	geventListenerInit(&glistener);
 	gwinAttachListener(&glistener);
 
+#ifndef UGFXSIMULATOR
+	gwinAttachDial(ghSliderADCvalue, 0 , 0);
+#endif
 
 	// Display initial window
 	guiWindow_Show(&winMainHome);
@@ -289,7 +296,13 @@ void guiCreate(void) {
 	#if 1
 
 	while(1) {
+
 		myguiEventLoop();
+
+		if (curWindow == &winMainHome) {
+			gui_create_lcd((uint16_t)gwinSliderGetPosition(ghSliderADCvalue));
+		}
+
 	}
 
 	#endif

@@ -35,6 +35,7 @@
 #include "uart.h"           /* hUART */
 #include "eth_if.h"         /* hETH  */
 #include "rtc_clock.h"      /* clock_timestamp*/
+//#include "adc.h"            /* AdcHandle */
 
 extern SPI_HandleTypeDef    SpiHandle;
 
@@ -192,5 +193,17 @@ void OTG_HS_IRQHandler(void)
 }
 
 
+
+#if 0
+/**
+  * @brief  This function handles ADC interrupt request.
+  * @param  None
+  * @retval None
+  */
+void ADC_IRQHandler(void)
+{
+  HAL_ADC_IRQHandler(&AdcHandle);
+}
+#endif
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

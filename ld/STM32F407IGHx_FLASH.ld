@@ -1,7 +1,6 @@
 /*
 *****************************************************************************
 **
-
 **  File        : LinkerScript.ld
 **
 **  Abstract    : Linker script for STM32F407IGHx Device with
@@ -13,6 +12,7 @@
 **                Set memory bank area and size if external memory is used.
 **
 **  Target      : STMicroelectronics STM32
+**
 **
 **
 **  Distribution: The file is distributed as is, without any warranty
@@ -34,6 +34,7 @@ ENTRY(Reset_Handler)
 
 /* Highest address of the user mode stack */
 _estack = 0x2001FFFF;        /* end of RAM */
+
 /* Generate a link error if heap and stack don't fit into RAM */
 _Min_Heap_Size = 0x000;      /* required amount of heap  = 5120 Bytes */
 _Min_Stack_Size = 0x000;     /* required amount of stack = 5120 Bytes */
@@ -41,9 +42,9 @@ _Min_Stack_Size = 0x000;     /* required amount of stack = 5120 Bytes */
 /* Specify the memory areas */
 MEMORY
 {
-FLASH (rx)      : ORIGIN = 0x8000000,  LENGTH = 1024K
-RAM (xrw)       : ORIGIN = 0x20000000, LENGTH = 0x1FFFF
-CCMRAM (rw)     : ORIGIN = 0x10000000, LENGTH = 0xFFFF
+  FLASH (rx)      : ORIGIN = 0x8000000,  LENGTH = 1024K
+  RAM (xrw)       : ORIGIN = 0x20000000, LENGTH = 0x1FFFF
+  CCMRAM (rw)     : ORIGIN = 0x10000000, LENGTH = 0xFFFF
 }
 
 /* Define output sections */

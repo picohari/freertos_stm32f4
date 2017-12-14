@@ -61,6 +61,9 @@ void OTG_FS_IRQHandler(void);
 void OTG_HS_IRQHandler(void);
 #endif
 
+//void ADC_IRQHandler(void);
+
+
 /* Own IRQ handler implementations, where special case differentiations are made */
 //void USARTx_IRQHandler(void);
 

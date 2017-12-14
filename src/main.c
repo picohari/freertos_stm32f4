@@ -50,10 +50,12 @@
 #include "rtc_clock.h"
 #include "eth_if.h"
 #include "flashdrive.h"
+#include "adc.h"
 
 /* GUI and interfaces */
 #include "gfx.h"
 #include "gui.h"
+#include "pages/zen_menu.h"
 //#include "vt100.h"
 //#include "test.h"
 
@@ -141,7 +143,8 @@ static void MQTT_start  (void const * arg);
 
 
 static void TTY_thread  (void const * arg);
-//static void RTC_thread  (void const * arg);
+static void RTC_thread  (void const * arg);
+static void ADC_thread  (void const * arg);
 
 
 static void USB_thread  (void const * arg);
@@ -183,7 +186,8 @@ static void os_init(void)
 
   Register_printout();
 
-
+  /* Configure ADC Temperature Sensor */
+  //adc_temp_init();
 
 }
 
@@ -210,8 +214,14 @@ static void os_tasks(void)
   osThreadCreate( osThread(snet),   NULL);
 
   /* RTC */
-  //osThreadDef(rtc0, RTC_thread,    osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 4);
-  //osThreadCreate( osThread(rtc0),  NULL);
+  osThreadDef(rtc0, RTC_thread,    osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 4);
+  osThreadCreate( osThread(rtc0),  NULL);
+
+  /* ADC */
+  osThreadDef(adc0, ADC_thread,    osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 2);
+  osThreadCreate( osThread(adc0),  NULL);
+
+
 
   /*##-1- Start task #########################################################*/
   osThreadDef(USB_drv, USB_thread,   osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 8);
@@ -845,6 +855,13 @@ static void GUI_thread (void const * arg)
 
   while (1) {
     guiEventLoop();
+
+    if (curWindow == &winMainHome) {
+      gui_create_lcd((uint16_t)gwinSliderGetPosition(ghSliderADCvalue));
+    }
+
+    osDelay(100);
+
   }
 }
 
@@ -1008,33 +1025,222 @@ static void TTY_thread (void const * arg)
 
 
 
+#if 1
+
+static void ADC_thread (void const * arg)
+{
+
+  (void) arg;
+
+  char adc_string[16];
+  char adc_temp[16];
 
 
+#if 0
+  /*##-3- Start the conversion process and enable interrupt ##################*/  
+  if(HAL_ADC_Start_IT(&AdcHandle) != HAL_OK)
+  {
+    /* Start Conversation Error */
+    Error_Handler();
+  }
+#endif
+
+  while (1) {
+
+#if 0
+    // Polling mode
+
+    /*##-3- Start the conversion process #######################################*/  
+    if(HAL_ADC_Start(&AdcHandle) != HAL_OK)
+    {
+      /* Start Conversation Error */
+      Error_Handler();
+    }
+
+    /*##-4- Wait for the end of conversion #####################################*/  
+     /*  Before starting a new conversion, you need to check the current state of 
+          the peripheral; if its busy you need to wait for the end of current
+          conversion before starting a new one.
+          For simplicity reasons, this example is just waiting till the end of the 
+          conversion, but application may perform other tasks while conversion 
+          operation is ongoing. */
+    HAL_ADC_PollForConversion(&AdcHandle, 10);
+
+    /* Check if the continuous conversion of regular channel is finished */
+    if((HAL_ADC_GetState(&AdcHandle) & HAL_ADC_STATE_EOC_REG) == HAL_ADC_STATE_EOC_REG)
+    {
+      /*##-5- Get the converted value of regular channel #######################*/
+      uhADCxConvertedValue = HAL_ADC_GetValue(&AdcHandle);
+
+      float volt;
+
+      volt = (((float)uhADCxConvertedValue * 3300) / 4096) / 1000;
+
+      sprintf(adc_string, "%.3f", volt);
+
+      if(uhADCxConvertedValue < 2048) {
+        gwinHide(ghLabelADCindicOK);
+        gwinShow(ghLabelADCindicFAIL);
+      } else {
+        gwinShow(ghLabelADCindicOK);
+        gwinHide(ghLabelADCindicFAIL);
+      }
+
+      gwinSetText(ghLabelADCvalue, adc_string, 1);
+      //gwinRedraw(ghLabelADCval);
+
+      gwinSetDefaultFont(fixed_7x14);
+      gwinSetDefaultColor(White);
+      gwinFillString(ghLabelADCindicOK, 2, 1, "OK");
+      gwinFillString(ghLabelADCindicFAIL, 2, 1, "ERR");
+
+    }
+
+#endif
+
+#if 0
+    /*##-3- Start the conversion process and enable interrupt ##################*/  
+    if(HAL_ADC_Start_IT(&AdcHandle) != HAL_OK)
+    {
+      /* Start Conversation Error */
+      Error_Handler();
+    }
+#endif
 
 
+#if 0
+  /*##-3- Start the conversion process #######################################*/  
+  if(HAL_ADC_Start(&AdcTempHandle) != HAL_OK)
+  {
+    /* Start Conversation Error */
+    Error_Handler();
+  }
+  
+  /*##-4- Wait for the end of conversion #####################################*/  
+   /*  Before starting a new conversion, you need to check the current state of 
+        the peripheral; if its busy you need to wait for the end of current
+        conversion before starting a new one.
+        For simplicity reasons, this example is just waiting till the end of the 
+        conversion, but application may perform other tasks while conversion 
+        operation is ongoing. */
+  HAL_ADC_PollForConversion(&AdcTempHandle, 10);
+  
+  /* Check if the continuous conversion of regular channel is finished */
+  if((HAL_ADC_GetState(&AdcTempHandle) & HAL_ADC_STATE_EOC_REG) == HAL_ADC_STATE_EOC_REG)
+  {
 
+    HAL_ADC_Stop(&AdcTempHandle);
 
+    /*##-5- Get the converted value of regular channel #######################*/
+    adc_temp_value = (float)HAL_ADC_GetValue(&AdcTempHandle);
+  }
 
+  temperature = 25.0f+(3.3f*(float)adc_temp_value/(float)4096-0.76f)/0.0025f;
 
+  sprintf(adc_temp, "%.3f%cC", temperature, 176);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  gwinSetText(ghScaleADCvalue, adc_temp, 1);
+#endif
 
 
 
 #if 0
+    //float volt;
+    //volt = (((float)uhADCxConvertedValue * 3300) / 4096) / 1000;
+    //sprintf(adc_string, "%.3f", volt);
+    //sprintf(adc_string, "%d", gwinSliderGetPosition(ghSliderADCvalue));
+
+/*
+    if(uhADCxConvertedValue < 2048) {
+      gwinHide(ghLabelADCindicOK);
+      gwinShow(ghLabelADCindicFAIL);
+    } else {
+      gwinShow(ghLabelADCindicOK);
+      gwinHide(ghLabelADCindicFAIL);
+    }
+*/
+    //gwinSetText(ghLabelADCvalue, adc_string, 1);
+    //gwinRedraw(ghLabelADCval);
+
+    gwinSetDefaultFont(fixed_7x14);
+    gwinSetDefaultColor(White);
+    gwinFillString(ghLabelADCindicOK, 2, 1, "OK");
+    gwinFillString(ghLabelADCindicFAIL, 2, 1, "ERR");
+#endif
+
+    osDelay(250);
+  }
+
+}
+
+
+
+/**
+  * @brief  Conversion complete callback in non blocking mode 
+  * @param  AdcHandle : AdcHandle handle
+  * @note   This example shows a simple way to report end of conversion, and 
+  *         you can add your own implementation.    
+  * @retval None
+  */
+#if 0
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* AdcHandle)
+{
+
+  /* Get the converted value of regular channel */
+  uhADCxConvertedValue = HAL_ADC_GetValue(AdcHandle);
+
+  /* Stop the ISR, otherwise a loop would permanently call this !!! */
+  HAL_ADC_Stop_IT(AdcHandle);
+
+#if 0
+  // Does not work here...     
+  char adc_string[16];
+
+  float volt;
+
+  volt = (((float)uhADCxConvertedValue * 3300) / 4096) / 1000;
+
+  sprintf(adc_string, "%.3f", volt);
+
+  if(uhADCxConvertedValue < 2048) {
+    gwinHide(ghLabelADCindicOK);
+    gwinShow(ghLabelADCindicFAIL);
+  } else {
+    gwinShow(ghLabelADCindicOK);
+    gwinHide(ghLabelADCindicFAIL);
+  }
+
+  gwinSetText(ghLabelADCvalue, adc_string, 1);
+  //gwinRedraw(ghLabelADCval);
+
+  gwinSetDefaultFont(fixed_7x14);
+  gwinSetDefaultColor(White);
+  gwinFillString(ghLabelADCindicOK, 2, 1, "OK");
+  gwinFillString(ghLabelADCindicFAIL, 2, 1, "ERR");
+#endif
+
+
+}
+#endif
+
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#if 1
 
 
 #include <time.h>
@@ -1092,8 +1298,8 @@ static void RTC_thread (void const * arg)
     static time_t timer;
     static struct tm* tm_info;
 
-    static char buffer_del[TIMEBUF];
-    static struct tm tm_del;
+    //static char buffer_del[TIMEBUF];
+    //static struct tm tm_del;
 
 /*
        1  2  3  4  5  6  7
@@ -1109,6 +1315,12 @@ lib so mo di mi do fr sa
     /* Break up time info as local time */
     tm_info = localtime(&timer);
     
+    //strftime (buffer, TIMEBUF, "%a, %d. %B %Y %H:%M:%S", tm_info);
+    strftime (buffer, TIMEBUF, "%d.%m.%Y %H:%M:%S", tm_info);
+
+    gwinSetText(ghLabelClockTime, buffer, 1);
+
+
 #if 0
     //taskENTER_CRITICAL();
 
@@ -1117,7 +1329,7 @@ lib so mo di mi do fr sa
     memset(buffer, 0, TIMEBUF);
     //gfxSleepMilliseconds(50);
 
-    strftime (buffer, TIMEBUF, "%H:%M:%S TZ: %Z\n", tm_info);
+    strftime (buffer, TIMEBUF, "%H:%M:%S", tm_info);
     gdispFillStringBox( 5, 80, 200, 20, buffer, dejavu_sans_10, White, Black, justifyLeft);
     memset(buffer, 0, TIMEBUF);
     //gfxSleepMilliseconds(50);
@@ -1158,7 +1370,7 @@ lib so mo di mi do fr sa
     vt100_puts(aShowDate); vt100_putc('\r');
     */
 
-    osDelay(10);
+    osDelay(1000);
   }
 
 }

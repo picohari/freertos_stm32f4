@@ -177,6 +177,8 @@ void gwinSliderSendExtendedEvents(GHandle gh, bool_t enabled);
  */
 void gwinSliderDraw_Std(GWidgetObject *gw, void *param);
 
+void gwinSliderDraw_Bars(GWidgetObject *gw, void *param);
+
 #if GDISP_NEED_IMAGE || defined(__DOXYGEN__)
 	/**
 	 * @brief				The default rendering function
