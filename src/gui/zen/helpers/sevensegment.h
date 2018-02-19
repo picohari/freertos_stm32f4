@@ -15,8 +15,8 @@
 #define LCD_SMALLFONT
 
 /* Bright Orange */
-#define Active			HTML2COLOR(0xFFB300)
-#define Inactive		HTML2COLOR(0x0D0900)
+// #define Active			HTML2COLOR(0xFFB300)
+// #define Inactive			HTML2COLOR(0x0D0900)
 
 /* Bright Blue */
 #define Active			HTML2COLOR(0x0055FF)

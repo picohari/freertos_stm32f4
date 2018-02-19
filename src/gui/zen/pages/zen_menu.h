@@ -14,15 +14,31 @@
 #include "pages/zen_main_one.h"
 #include "pages/zen_main_two.h"
 
+#include "pages/zen_config.h"
+#include "pages/zen_date_config.h"
+#include "pages/zen_time_config.h"
+#include "pages/zen_clean.h"
+#include "pages/zen_timers.h"
+#include "pages/zen_network.h"
+#include "pages/zen_network_ipv4.h"
+#include "pages/zen_network_gateway.h"
+#include "pages/zen_network_subnet_mask.h"
+#include "pages/zen_test_mode.h"
+#include "pages/zen_status.h"
+#include "pages/zen_help.h"
+
+#include "pages/zen_membrane.h"
+#include "pages/zen_t1_t2.h"
+#include "pages/zen_cycle_mode.h"
+#include "pages/zen_cycle_time.h"
+#include "pages/zen_aeration.h"
+#include "pages/zen_overflow.h"
+#include "pages/zen_sludge.h"
+
 #include "helpers/sevensegment.h"
 
 
 extern void zen_splash(void);
-
-
-
-
-
 
 
 #endif /* _ZEN_MENU_H_ */

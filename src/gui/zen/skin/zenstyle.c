@@ -1,10 +1,6 @@
 #include "gfx.h"
 
 
-
-
-
-
 // WidgetStyle: White
 const GWidgetStyle footerstyle = {
 	HTML2COLOR(0x262626),              // background
@@ -34,19 +30,6 @@ const GWidgetStyle footerstyle = {
 		HTML2COLOR(0x00E000),         // progress (active area)
 	}
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 // WidgetStyle: White

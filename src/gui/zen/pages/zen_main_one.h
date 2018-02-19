@@ -12,7 +12,6 @@
 #include "gui_router.h"
 
 
-
 /* LABELS */
 #define MENU_TITLE_CONFIGURATION		"Config"
 #define MENU_TITLE_CLEANING				"Clean"
@@ -26,7 +25,6 @@
 
 /* IMAGES */
 extern gdispImage ic_home;
-
 extern gdispImage ic_settings;
 extern gdispImage ic_local_drink;
 extern gdispImage ic_alarm;

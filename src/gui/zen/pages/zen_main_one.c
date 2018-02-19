@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 
 #include "gfx.h"
@@ -25,6 +24,13 @@
 
 #include "pages/zen_main_one.h"
 #include "pages/zen_main_two.h"
+#include "pages/zen_config.h"
+#include "pages/zen_clean.h"
+#include "pages/zen_timers.h"
+#include "pages/zen_network.h"
+#include "pages/zen_test_mode.h"
+#include "pages/zen_status.h"
+#include "pages/zen_help.h"
 
 
 /* PAGE CONTAINER */
@@ -44,7 +50,6 @@ GHandle ghBtn_PageTwo;
 
 /* IMAGES */
 gdispImage ic_home;
-
 gdispImage ic_settings;
 gdispImage ic_local_drink;
 gdispImage ic_alarm;
@@ -60,7 +65,7 @@ gdispImage ic_forward;
 
 void create_PageOne(void) {
 
-	GWidgetInit		wi;
+	GWidgetInit	wi;
 
 	gwinWidgetClearInit(&wi);
 
@@ -208,11 +213,29 @@ static int guiMainMenuOne_handleEvent(GUIWindow *win, GEvent *pe) {
 
         case GEVENT_GWIN_BUTTON: {
 
-        	GEventGWinButton  *peb = (GEventGWinButton *)pe;
+        	GEventGWinButton *peb = (GEventGWinButton *)pe;
 
-            if (peb->gwin == ghBtn_Config)
-                //guiWindow_Show (&winMainMenuOne);
-                fprintf(stderr, "Config\n");
+            if (peb->gwin == ghBtn_Config) {
+                //fprintf(stderr, "Config\n");
+            	guiWindow_Show(&winConfigMenu);
+
+            } else if(peb->gwin == ghBtn_Clean) {
+            	guiWindow_Show(&winCleanMenu);
+            
+            } else if(peb->gwin == ghBtn_Timers) {
+            	guiWindow_Show(&winTimersMenu);
+
+            } else if(peb->gwin == ghBtn_Network) {
+            	guiWindow_Show(&winNetworkMenu);
+
+            } else if(peb->gwin == ghBtn_Testmode) {	
+            	guiWindow_Show(&winTestModeMenu);
+
+            } else if(peb->gwin == ghBtn_Status) {	
+            	guiWindow_Show(&winStatusMenu);
+
+            } else if(peb->gwin == ghBtn_Help) {	
+            	guiWindow_Show(&winHelpMenu);	
 
 #if 0
             else if (peb->gwin == ghButtonPlayer)
@@ -226,11 +249,13 @@ static int guiMainMenuOne_handleEvent(GUIWindow *win, GEvent *pe) {
 
 #endif
 
-            else if (peb->gwin == ghBtn_PageTwo)
+            } else if (peb->gwin == ghBtn_PageTwo) {
                 guiWindow_Show(&winMainMenuTwo);
+            }
 
-            else
+            else {
                 return 0;
+            }
 
             return 1;
 
@@ -242,8 +267,6 @@ static int guiMainMenuOne_handleEvent(GUIWindow *win, GEvent *pe) {
     return 0;
 
 }
-
-
 
 
 GUIWindow winMainMenuOne = {

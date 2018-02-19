@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 
 #include "gfx.h"
@@ -23,11 +22,10 @@
 #include "skin/zenstyle.h"
 #include "gui_router.h"
 
- 
 #include "pages/zen_menu.h"
 //#include "pages/zen_main_one.h"
-//#include "pages/zen_main_two.h"
-
+#include "pages/zen_main_two.h"
+#include "pages/zen_membrane.h"
 
 
 /* PAGE CONTAINER */
@@ -36,12 +34,12 @@ GHandle ghContainer_PageTwo;
 
 /* BUTTONS */
 GHandle ghBtn_T1T2;
-GHandle ghBtn_Cyclemode;
-GHandle ghBtn_Cycleparam;
+GHandle ghBtn_CycleMode;
+GHandle ghBtn_CycleTime;
 GHandle ghBtn_Memnumber;
 GHandle ghBtn_Aeration;
 GHandle ghBtn_Overflow;
-GHandle ghBtn_Suctionset;
+GHandle ghBtn_Sludge;
 GHandle ghBtn_PageOne;
 
 
@@ -54,17 +52,9 @@ gdispImage ic_timelapse;
 
 
 
-
-
-
-
-
-
-
-
 void create_PageTwo(void) {
 
-	GWidgetInit		wi;
+	GWidgetInit	wi;
 
 	gwinWidgetClearInit(&wi);
 
@@ -105,7 +95,7 @@ void create_PageTwo(void) {
 	wi.customDraw = gwinButtonDraw_Image_Icon;
 	wi.customParam = &ic_local_drink;
 	wi.customStyle = &color_two;
-	ghBtn_Cyclemode = gwinButtonCreate(0, &wi);
+	ghBtn_CycleMode = gwinButtonCreate(0, &wi);
 
 	// create button widget: ghButton1
 	wi.g.show = TRUE;
@@ -118,7 +108,7 @@ void create_PageTwo(void) {
 	wi.customDraw = gwinButtonDraw_Image_Icon;
 	wi.customParam = &ic_alarm;
 	wi.customStyle = &color_five;
-	ghBtn_Cycleparam = gwinButtonCreate(0, &wi);
+	ghBtn_CycleTime = gwinButtonCreate(0, &wi);
 
 	// create button widget: ghButton1
 	wi.g.show = TRUE;
@@ -170,7 +160,7 @@ void create_PageTwo(void) {
 	wi.customDraw = gwinButtonDraw_Image_Icon;
 	wi.customParam = &ic_unfill;
 	wi.customStyle = &color_seven;
-	ghBtn_Suctionset = gwinButtonCreate(0, &wi);
+	ghBtn_Sludge = gwinButtonCreate(0, &wi);
 
 	// create button widget: ghButton1
 	wi.g.show = TRUE;
@@ -213,9 +203,29 @@ static int guiMainMenuTwo_handleEvent(GUIWindow *win, GEvent *pe) {
 
         	GEventGWinButton  *peb = (GEventGWinButton *)pe;
 
-            if (peb->gwin == ghBtn_T1T2)
-                //guiWindow_Show (&winMainMenuOne);
-            	fprintf(stderr, "T1/T2\n");
+            if (peb->gwin == ghBtn_T1T2) {
+                guiWindow_Show (&winT1T2Menu);
+            
+            } else if(peb->gwin == ghBtn_CycleMode) {
+            	guiWindow_Show (&winCycleModeMenu);
+
+            } else if(peb->gwin == ghBtn_CycleTime) {
+            	guiWindow_Show (&winCycleTimeMenu);
+
+            } else if(peb->gwin == ghBtn_Memnumber) {
+            	guiWindow_Show(&winMembraneMenu);
+            
+            } else if(peb->gwin == ghBtn_Aeration) {
+            	guiWindow_Show (&winAerationMenu);
+
+            } else if(peb->gwin == ghBtn_Overflow) {
+            	guiWindow_Show (&winOverflowMenu);
+
+            } else if(peb->gwin == ghBtn_Sludge) {
+            	guiWindow_Show (&winSludgeMenu);
+            }	
+
+
 #if 0
             else if (peb->gwin == ghButtonPlayer)
                 guiWindow_Show (&winBrowseFile);
@@ -226,8 +236,9 @@ static int guiMainMenuTwo_handleEvent(GUIWindow *win, GEvent *pe) {
             else if (peb->gwin == ghButtonWeather)
                 guiWindow_Show (&winWeather);
 #endif
-            else if (peb->gwin == ghBtn_PageOne)
+            else if (peb->gwin == ghBtn_PageOne) {
                 guiWindow_Show(&winMainHome);
+            }
 
             else
                 return 0;
@@ -240,7 +251,6 @@ static int guiMainMenuTwo_handleEvent(GUIWindow *win, GEvent *pe) {
 
     return 0;
 }
-
 
 
 

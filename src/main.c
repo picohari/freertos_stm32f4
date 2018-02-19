@@ -52,6 +52,9 @@
 #include "flashdrive.h"
 #include "adc.h"
 
+#include "onewire.h"
+#include "ds18b20.h"
+
 /* GUI and interfaces */
 #include "gfx.h"
 #include "gui.h"
@@ -129,24 +132,27 @@ static void Register_printout(void);
 
 
 /* Threads and startup tasks */
-static void LED1_thread (void const * arg);
-static void LED2_thread (void const * arg);
+static void LED1_thread (void const * arg);   /* Blink LED 1 */
+static void LED2_thread (void const * arg);   /* Blink LED 2 */
 
-static void GUI_start   (void const * arg);
-static void GUI_thread  (void const * arg);
+static void GUI_start   (void const * arg);   /* Initiate LCD and uGFX */
+static void GUI_thread  (void const * arg);   /* Operate GUI */
 
-static void NET_start   (void const * arg);
-static void HTTP_start  (void const * arg);
+static void NET_start   (void const * arg);   /* ETH Networking */
+static void HTTP_start  (void const * arg);   /* HTTP Server */
 
-static void MQTT_start  (void const * arg);
+static void MQTT_start  (void const * arg);   /* MQTT Server + Client */
 //static void MQTT_connect(mqtt_client_t *client);
 
 
-static void TTY_thread  (void const * arg);
-static void RTC_thread  (void const * arg);
-static void ADC_thread  (void const * arg);
+static void TTY_thread  (void const * arg);   /* TTY Console command interpreter */
+static void RTC_thread  (void const * arg);   /* Real Time Clock */
+static void ADC_thread  (void const * arg);   /* Read ADC input */
+
+//static void OW_thread   (void const * arg);   /* Read ONEWIRE Temperature Sensor */
 
 
+/* USB Tasks */
 static void USB_thread  (void const * arg);
 static void USBH_UserProcess(USBH_HandleTypeDef *phost, uint8_t id);
 static void MSC_Application(void);
@@ -204,14 +210,13 @@ static void os_tasks(void)
   osThreadDef(led2, LED2_thread,   osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
   LEDThread2Handle = osThreadCreate( osThread(led2),  NULL);
 
-
   /* GUI */
-  osThreadDef(sgui, GUI_start,      osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 2);
-  osThreadCreate( osThread(sgui),   NULL);
+  osThreadDef(sgui, GUI_start,     osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 2);
+  osThreadCreate( osThread(sgui),  NULL);
 
   /* NETWORK */
-  osThreadDef(snet, NET_start,      osPriorityNormal,   0, configMINIMAL_STACK_SIZE * 2);
-  osThreadCreate( osThread(snet),   NULL);
+  osThreadDef(snet, NET_start,     osPriorityNormal,   0, configMINIMAL_STACK_SIZE * 2);
+  osThreadCreate( osThread(snet),  NULL);
 
   /* RTC */
   osThreadDef(rtc0, RTC_thread,    osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 4);
@@ -220,6 +225,11 @@ static void os_tasks(void)
   /* ADC */
   osThreadDef(adc0, ADC_thread,    osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 2);
   osThreadCreate( osThread(adc0),  NULL);
+
+  /* ONEWIRE */
+  osThreadDef(ow0, OW_thread,      osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 2);
+  osThreadCreate( osThread(ow0),   NULL);
+
 
 
 
@@ -699,8 +709,8 @@ static void MQTT_start (void const * arg)
   int rc = 0;
   Network n;
   Client c;
-  unsigned char buf[100];
-  unsigned char readbuf[100];
+  unsigned char sendbuf[100];   /* Sending   buffer */
+  unsigned char readbuf[100];   /* Receiving buffer */
 
   ip4_addr_t broker_ipaddr;
   IP4_ADDR( &broker_ipaddr, 192, 168, 1, 101);
@@ -720,7 +730,7 @@ static void MQTT_start (void const * arg)
 
   writef("Initializing MQTT service\r\n");
 
-  MQTTClient(&c, &n, 1000, buf, 100, readbuf, 100);
+  MQTTClient(&c, &n, 1000, sendbuf, 100, readbuf, 100);
 
   MQTTPacket_connectData data = MQTTPacket_connectData_initializer;
   
@@ -735,8 +745,8 @@ static void MQTT_start (void const * arg)
     (uint32_t) MAC_ADDR5);  
 
   data.clientID.cstring = clientID_buf;
-  data.username.cstring = "admin";
-  data.password.cstring = "admin";
+  data.username.cstring = "device";
+  data.password.cstring = "device";
   
   data.MQTTVersion = 3;
   data.willFlag = 0;
@@ -765,14 +775,6 @@ static void MQTT_start (void const * arg)
 
   rc = MQTTSubscribe(&c, topic_buf, QOS0, messageArrived);
 
-
-
-
-
-
-
-
-
   //rc = MQTTSubscribe(&c, "hello/world", QOS0, messageArrived);
   
   if (rc == MQTT_FAILURE) {
@@ -783,8 +785,34 @@ static void MQTT_start (void const * arg)
 
   writef("Connected to MQTT server...\r\n");
 
+  MQTTMessage message;
+
   while(1) {
+
+    message.qos = QOS0;
+    message.retained = 0;
+    message.payload = sendbuf;
+
+    memset(sendbuf, 0, sizeof(sendbuf));
+    sprintf((char*)sendbuf, "%2.2f", ds18b20[0].Temperature);
+
+    message.payloadlen = strlen((char*)sendbuf);
+
+
+    memset(topic_buf, 0, sizeof(topic_buf));
+    sprintf(topic_buf, "%02lx:%02lx:%02lx:%02lx:%02lx:%02lx/basement/temp",
+      (uint32_t) MAC_ADDR0, 
+      (uint32_t) MAC_ADDR1, 
+      (uint32_t) MAC_ADDR2, 
+      (uint32_t) MAC_ADDR3, 
+      (uint32_t) MAC_ADDR4, 
+      (uint32_t) MAC_ADDR5); 
+
+    MQTTPublish(&c, topic_buf, &message);
+
+
     MQTTYield(&c, 1000);
+
   }
 
   //return RDY_OK;
@@ -1448,6 +1476,7 @@ static void Register_printout(void)
   sprintf((char*)rev_id,  "XCore: 0x%04lx, Rev. 0x%04lx", (DBGMCU->IDCODE & 0x00000FFF), ((DBGMCU->IDCODE >> 16) & 0x0000FFFF));
   writef("%s", rev_id);
   writef("\r\n");
+
   /*
      * \par Revisions possible:
      *  - 0x1000: Revision A
@@ -1495,12 +1524,14 @@ static void Register_printout(void)
 
   /* Print package code (hardware chip case form) */
   uint32_t flashPack = (((*(__IO uint16_t *) (STM32_UUID_PACK)) & 0x0700) >> 8);
+
   /*
    *  - 0b01xx: LQFP208 and TFBGA216 package
    *  - 0b0011: LQFP176 and UFBGA176 package
    *  - 0b0010: WLCSP143 and LQFP144 package
    *  - 0b0001: LQFP100 package
    */
+
   uint8_t pack_tmp[10];
   sprintf((char*)pack_tmp,  "Pack:  %lx", flashPack);
   writef("%s", pack_tmp);

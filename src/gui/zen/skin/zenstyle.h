@@ -7,7 +7,6 @@
 // WidgetStyle: White
 extern const GWidgetStyle footerstyle;
 
-
 // WidgetStyle: White
 extern const GWidgetStyle color_one;
 

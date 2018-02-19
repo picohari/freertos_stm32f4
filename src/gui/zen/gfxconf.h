@@ -56,9 +56,10 @@
 #define GDISP_NEED_CLIP                            TRUE
 #define GDISP_NEED_CIRCLE                          TRUE
 #define GDISP_NEED_CONVEX_POLYGON                  TRUE
-//#define GDISP_NEED_SCROLL                            TRUE
+//#define GDISP_NEED_SCROLL                        TRUE
 #define GDISP_NEED_CONTROL                         TRUE
 #define GDISP_NEED_TEXT                            TRUE
+#define GDISP_NEED_TEXT_KERNING                    TRUE
     #define GDISP_INCLUDE_FONT_UI2                 TRUE
     #define GDISP_INCLUDE_USER_FONTS               TRUE
     #define GDISP_NEED_TEXT_WORDWRAP               TRUE
@@ -98,8 +99,9 @@
     #define GWIN_NEED_LABEL                        TRUE
         #define GWIN_LABEL_ATTRIBUTE               TRUE
     #define GWIN_NEED_BUTTON                       TRUE
-//        #define GWIN_BUTTON_LAZY_RELEASE             TRUE
+//  #define GWIN_BUTTON_LAZY_RELEASE               TRUE
     #define GWIN_NEED_SLIDER                       TRUE
+    #define GWIN_NEED_KEYBOARD                     TRUE
     #define GWIN_NEED_CHECKBOX                     TRUE
     #define GWIN_NEED_IMAGE                        TRUE
     #define GWIN_NEED_RADIO                        TRUE
@@ -112,6 +114,8 @@
     #define GWIN_NEED_CONTAINER                    TRUE
 
 #define GWIN_NEED_TABSET                           TRUE
+
+#define GINPUT_NEED_KEYBOARD                       FALSE
 
 #define GWIN_FLAT_STYLING                          TRUE
 
@@ -141,6 +145,8 @@
 #define GFX_USE_GINPUT                             TRUE
 
 #define GINPUT_NEED_MOUSE                          TRUE
+#define GWIN_NEED_TEXTEDIT                         TRUE
+#define GFX_USE_GINPUT                             TRUE
 
 #ifdef UGFXSIMULATOR
     #define GINPUT_TOUCH_USER_CALIBRATION_LOAD     FALSE
@@ -170,16 +176,16 @@
 
 #define GFILE_NEED_ROMFS                           TRUE
 
-//#define GFILE_NEED_NATIVEFS                          TRUE
+//#define GFILE_NEED_NATIVEFS                      TRUE
 
 #ifndef UGFXSIMULATOR
-    #define GFILE_NEED_FATFS                           TRUE
+    #define GFILE_NEED_FATFS                       TRUE
 
-    #define GFILE_FATFS_EXTERNAL_LIB                   TRUE
-    #define GFILE_NEED_NOAUTOMOUNT                     TRUE
+    #define GFILE_FATFS_EXTERNAL_LIB               TRUE
+    #define GFILE_NEED_NOAUTOMOUNT                 TRUE
 #endif
 
-#define GFILE_MAX_GFILES                           20
+#define GFILE_MAX_GFILES                           50
 
 
 ///////////////////////////////////////////////////////////////////////////

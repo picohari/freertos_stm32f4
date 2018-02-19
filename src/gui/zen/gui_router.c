@@ -1,14 +1,8 @@
-
-
 #include "gfx.h"
 
 #include "gui.h"
 
 #include "gui_router.h"
-
-#include "pages/zen_main_one.h"
-#include "pages/zen_main_two.h"
-
 
 GUIWindow *curWindow = 0;
 

@@ -33,3 +33,10 @@
 
 #include "rsc/ic_thumbs_up_down.h"
 
+#include "rsc/ic_date.h"
+#include "rsc/ic_time.h"
+#include "rsc/ic_back.h"
+#include "rsc/ic_done.h"
+#include "rsc/ic_cancel.h"
+#include "rsc/ic_add.h"
+#include "rsc/ic_remove.h"

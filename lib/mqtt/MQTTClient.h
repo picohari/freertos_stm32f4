@@ -54,11 +54,11 @@ typedef void (*messageHandler)(MessageData*);
 
 typedef struct Client Client;
 
-int MQTTConnect (Client*, MQTTPacket_connectData*);
-int MQTTPublish (Client*, const char*, MQTTMessage*);
-int MQTTSubscribe (Client*, const char*, enum QoS, messageHandler);
-int MQTTUnsubscribe (Client*, const char*);
-int MQTTDisconnect (Client*);
+int MQTTConnect (Client* c, MQTTPacket_connectData*);
+int MQTTPublish (Client* c, const char* topicName, MQTTMessage*);
+int MQTTSubscribe (Client* c, const char* topicFilter, enum QoS, messageHandler);
+int MQTTUnsubscribe (Client* c, const char* topicFilter);
+int MQTTDisconnect (Client* c);
 int MQTTYield (Client*, int);
 
 void setDefaultMessageHandler(Client*, messageHandler);

@@ -16,17 +16,7 @@
 /* LABELS */
 
 
-
 /* IMAGES */
-
-
-
-
-
-
-
-
-
 
 
 /* BUTTONS */

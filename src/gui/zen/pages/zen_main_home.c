@@ -35,8 +35,6 @@
 
 
 
-
-
 /* PAGE CONTAINER */
 GHandle ghContainer_PageHome;
 
@@ -53,9 +51,6 @@ GHandle ghScaleADCvalue;
 GHandle ghBtn_MENU;
 
 /* IMAGES */
-
-
-
 
 
 
@@ -206,8 +201,6 @@ void create_PageHome(void) {
 	//ghScaleADCvalue = gwinWindowCreate(0, (const struct GWindowInit *)&wi);
 	ghScaleADCvalue =gwinLabelCreate(0, &wi);
 #endif
-
-
 
 
 
@@ -397,8 +390,6 @@ static int guiMainHome_handleEvent(GUIWindow *win, GEvent *pe) {
 
     return 0;
 }
-
-
 
 
 
