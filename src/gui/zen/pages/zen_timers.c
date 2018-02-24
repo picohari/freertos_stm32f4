@@ -34,7 +34,6 @@ GHandle ghContainer_PageTimers;
 GHandle ghBtn_BackTimers;
 
 /* IMAGES */
-gdispImage ic_back;
 
 
 void create_PageTimers(void) {

@@ -4,7 +4,7 @@
 #include "gfx.h"
 #include "gui.h"
 #include "src/gwin/gwin_keyboard_layout.h"
-#include "stdio.h"
+
 
 #ifdef UGFXSIMULATOR
 
@@ -25,31 +25,29 @@
 #include "skin/zenstyle.h"
 #include "gui_router.h"
 
-#include "zen_time_config.h"
+#include "zen_config_date.h"
 #include "pages/zen_config.h"
 #include "helpers/date_and_time_util.h"
 
 /* PAGE CONTAINER */
-GHandle ghContainer_PageTimeConfig;
+GHandle ghContainer_PageDateConfig;
 
 /* BUTTONS */
-GHandle ghBtn_CancelTimeConfig;
-GHandle ghBtn_SetTime;
+GHandle ghBtn_CancelDateConfig;
+GHandle ghBtn_SetDate;
 
 /* IMAGES */
-gdispImage ic_cancel;
-gdispImage ic_done;
+
 
 /* EVENT LISTENER */
 static GListener gl;
 
 /* INPUT FIELDS AND KEYBOARD */
-static GHandle ghTexteditHours;
-static GHandle ghTexteditMinutes;
-//static GHandle ghTexteditSeconds;
+static GHandle ghTexteditDate;
+static GHandle ghTexteditMonth;
+static GHandle ghTexteditYear;
 static GHandle ghKeyboard;
-static GHandle ghLabel_ErrorTime;
-
+static GHandle ghLabel_ErrorDate;
 
 //Keyboard layouts
 static const GVSpecialKey KeyboardSpecialKeys[] = {
@@ -65,13 +63,14 @@ static const char *numpadKeySetArray[] = { "789", "456", "123", "0\005", 0 };
 static const GVKeySet numpadKeySet[] = { numpadKeySetArray, 0 };
 static const GVKeyTable numpadKeyboard = { KeyboardSpecialKeys, numpadKeySet };
 
-void create_PageTimeConfig(void) {
+
+void create_PageDateConfig(void) {
 
 	GWidgetInit wi;
 
 	gwinWidgetClearInit(&wi);
 
-	// create container widget: ghContainer_PageTimeConfig
+	// create container widget: ghContainer_PageDateConfig
 	wi.g.show = FALSE;
 	wi.g.x = 0;
 	wi.g.y = 24;
@@ -82,85 +81,81 @@ void create_PageTimeConfig(void) {
 	wi.customDraw = 0;
 	wi.customParam = 0;
 	wi.customStyle = 0;
-	ghContainer_PageTimeConfig = gwinContainerCreate(0, &wi, 0);
+	ghContainer_PageDateConfig = gwinContainerCreate(0, &wi, 0);
 
-	// HANDLE THE PRESS OF THE DELETE KEY WHEN NO TextEdit IS SELECTED
 	// Create the keyboard
 	wi.g.show = TRUE;
 	wi.g.x = 0; 
 	wi.g.y = 58;
 	wi.g.width = gdispGetWidth() / 2 + 80; 
 	wi.g.height = gdispGetHeight() / 2 + 22;
-	wi.g.parent = ghContainer_PageTimeConfig;
+	wi.g.parent = ghContainer_PageDateConfig;
 	ghKeyboard = gwinKeyboardCreate(0, &wi);
 
-	// TextEditHours
+	// TextEditDate
 	wi.g.show = TRUE;
-	wi.g.x = 105;
+	wi.g.x = 77;
 	wi.g.y = 5;
 	wi.g.width = 50;
 	wi.g.height = 30;
-	wi.g.parent = ghContainer_PageTimeConfig;
+	wi.g.parent = ghContainer_PageDateConfig;
 	wi.text = "";
-	ghTexteditHours = gwinTexteditCreate(0, &wi, 2);
+	ghTexteditDate = gwinTexteditCreate(0, &wi, 2);
 
-	// TextEditMinutes
+	// TextEditMonth
 	wi.g.show = TRUE;
-	wi.g.x = 165;
+	wi.g.x = 137;
 	wi.g.y = 5;
 	wi.g.width = 50;
 	wi.g.height = 30;
-	wi.g.parent = ghContainer_PageTimeConfig;
-	ghTexteditMinutes = gwinTexteditCreate(0, &wi, 2);
+	wi.g.parent = ghContainer_PageDateConfig;
+	ghTexteditMonth = gwinTexteditCreate(0, &wi, 2);
 
-	// TextEditSeconds
-	/*
+	// TextEditYear
 	wi.g.show = TRUE;
 	wi.g.x = 197;
-	wi.g.y = 10;
+	wi.g.y = 5;
 	wi.g.width = 50;
 	wi.g.height = 30;
-	ghTexteditSeconds = gwinTexteditCreate(0, &wi, 2);
-	*/
+	wi.g.parent = ghContainer_PageDateConfig;
+	ghTexteditYear = gwinTexteditCreate(0, &wi, 4);
 	
-	// create button widget: ghBtn_SetTime
+	// create button widget: ghBtn_SetDate
 	wi.g.show = TRUE;
 	wi.g.x = gdispGetWidth() - 80;
 	wi.g.y = 58;
 	wi.g.width = 80;
 	wi.g.height = 69;
-	wi.g.parent = ghContainer_PageTimeConfig;
-	//wi.text = MENU_TITLE_OK;
+	wi.g.parent = ghContainer_PageDateConfig;
 	wi.customDraw = gwinButtonDraw_Image_Icon;
 	wi.customParam = &ic_done;
 	wi.customStyle = &color_eight;
-	ghBtn_SetTime = gwinButtonCreate(0, &wi);
+	ghBtn_SetDate = gwinButtonCreate(0, &wi);
 
-	// create button widget: ghBtn_CancelTimeConfig
+	// create button widget: ghBtn_CancelDateConfig
 	wi.g.show = TRUE;
 	wi.g.x = gdispGetWidth() - 80;
 	wi.g.y = 127;
 	wi.g.width = 80;
 	wi.g.height = 69;
-	wi.g.parent = ghContainer_PageTimeConfig;
-	//wi.text = MENU_TITLE_CANCEL;
+	wi.g.parent = ghContainer_PageDateConfig;
 	wi.customDraw = gwinButtonDraw_Image_Icon;
 	wi.customParam = &ic_cancel;
 	wi.customStyle = &color_five;
-	ghBtn_CancelTimeConfig = gwinButtonCreate(0, &wi);
+	ghBtn_CancelDateConfig = gwinButtonCreate(0, &wi);
 
-	// create the Label widget: ghLabel_ErrorTime
+	// create the Label widget: ghLabel_ErrorDate
 	wi.customDraw = 0;
 	wi.customParam = 0;
 	wi.customStyle = 0;
 	wi.g.show = TRUE;
-	wi.g.x = 105;
+	wi.g.x = 77;
 	wi.g.y = 35;
 	wi.g.width = 160;
 	wi.g.height = 20;
-	wi.g.parent = ghContainer_PageTimeConfig;
+	wi.g.parent = ghContainer_PageDateConfig;
 	wi.text = "";
-	ghLabel_ErrorTime = gwinLabelCreate(NULL, &wi);
+	ghLabel_ErrorDate = gwinLabelCreate(NULL, &wi);	
 	
 	geventListenerInit(&gl);
 	geventAttachSource(&gl, ginputGetKeyboard(0), 0);
@@ -169,77 +164,83 @@ void create_PageTimeConfig(void) {
 }
 
 
-static void guiTimeConfigMenu_onShow(GUIWindow *win) {
+static void guiDateConfigMenu_onShow(GUIWindow *win) {
 
 	gui_set_title(win);
 
-	char hours[3];
-	char minutes[3];
-	//char seconds[3];
+	char date[3];
+	char month[3];
+	char year[5];
 
-	snprintf(hours, sizeof(hours), "%02d", get_hours());
-	snprintf(minutes, sizeof(minutes), "%02d", get_minutes());
-	//snprintf(seconds, sizeof(seconds), "%02d", get_seconds());
+	snprintf(date, sizeof(date), "%02d", get_date());
+	snprintf(month, sizeof(month), "%02d", get_month());
+	snprintf(year, sizeof(year), "%d", get_year());
 
-	gwinSetText(ghTexteditHours, hours, TRUE);
-	gwinSetText(ghTexteditMinutes, minutes, TRUE);
-	//gwinSetText(ghTexteditSeconds, seconds, TRUE);
+	gwinSetText(ghTexteditDate, date, TRUE);
+	gwinSetText(ghTexteditMonth, month, TRUE);
+	gwinSetText(ghTexteditYear, year, TRUE);
 
 	// This function was manually added to the µGFX library under ugfx/src/gwin/gwin_textedit.h 
-	gwinTextEditSetCursorPosition((GTexteditObject*) ghTexteditHours, strlen(hours));
-
+	gwinTextEditSetCursorPosition((GTexteditObject*) ghTexteditDate, strlen(date));
 }
 
 
-static void guiTimeConfigMenu_onClose(GUIWindow *win) {
+static void guiDateConfigMenu_onClose(GUIWindow *win) {
 
 	(void) win;
 
-	gwinSetText(ghLabel_ErrorTime, "", TRUE);
+	gwinSetText(ghLabel_ErrorDate, "", TRUE);
 }
 
 
-static int guiTimeConfigMenu_handleEvent(GUIWindow *win, GEvent *pe) {
+static int guiDateConfigMenu_handleEvent(GUIWindow *win, GEvent *pe) {
     
     (void) win;
 
-    switch (pe->type) {
+     switch (pe->type) {
 
         case GEVENT_GWIN_BUTTON: {
 
         	GEventGWinButton *peb = (GEventGWinButton *)pe;
 
-        	if(peb->gwin == ghBtn_CancelTimeConfig) {
+        	if(peb->gwin == ghBtn_CancelDateConfig) {
 
             	guiWindow_Show(&winConfigMenu);
 
-            } else if(peb->gwin == ghBtn_SetTime) {
-             	
-            	unsigned int new_hours;
-            	unsigned int new_minutes;
-            	//unsigned int new_seconds;
+            } else if(peb->gwin == ghBtn_SetDate) {
+            	
+            	unsigned int new_date;
+            	unsigned int new_month;
+            	unsigned int new_year;
 
-            	sscanf(gwinGetText(ghTexteditHours), "%u", &new_hours);
+            	// Save the old value for the year. If the user changes the year, 
+            	// set the new value and then the number of days for February will be computed. 
+            	// After that, we can check if the user entered correct values for the month and the date. 
+            	// If not, just set back the year to the old value
+            	uint16_t old_year = get_year();
 
-            	if(new_hours > 23) {
-            		gwinSetText(ghLabel_ErrorTime, "Invalid hour!", TRUE);
+            	sscanf(gwinGetText(ghTexteditYear), "%u", &new_year);
+            	set_year((uint16_t) new_year);
+
+            	sscanf(gwinGetText(ghTexteditMonth), "%u", &new_month);
+
+            	if(new_month > 12) {
+            		set_year(old_year);
+            		gwinSetText(ghLabel_ErrorDate, "Invalid month!", TRUE);
+            		break;
+            	} 
+
+            	set_month((uint8_t) new_month);
+
+            	sscanf(gwinGetText(ghTexteditDate), "%u", &new_date);
+
+            	if(new_date > get_days_in_current_month()) {
+            		set_year(old_year);
+            		gwinSetText(ghLabel_ErrorDate, "Invalid date!", TRUE);
             		break;
             	}
 
-            	sscanf(gwinGetText(ghTexteditMinutes), "%u", &new_minutes);
-
-            	if(new_minutes >= 60) {
-            		gwinSetText(ghLabel_ErrorTime, "Invalid minute!", TRUE);
-            		break;
-            	}
-
-            	//sscanf(gwinGetText(ghTexteditSeconds), "%u", &new_seconds);
-
-            	set_hours((uint8_t) new_hours);
-            	set_minutes((uint8_t) new_minutes);
-            	//set_seconds((uint8_t) new_seconds);
-            	// Reset the seconds every time the hours or the minutes are changed
-            	set_seconds((uint8_t) 0);
+            	set_date((uint8_t) new_date);
 
             	update_date_and_time_label();
 
@@ -259,13 +260,13 @@ static int guiTimeConfigMenu_handleEvent(GUIWindow *win, GEvent *pe) {
 
 
 
-GUIWindow winTimeConfigMenu = {
+GUIWindow winDateConfigMenu = {
 
-/* Title   */	 "Time Configuration Menu",
+/* Title   */	 "Date Configuration Menu",
 /* onInit  */    guiWindow_onInit,
-/* onShow  */    guiTimeConfigMenu_onShow,
-/* onClose */    guiTimeConfigMenu_onClose,
-/* onEvent */    guiTimeConfigMenu_handleEvent,
+/* onShow  */    guiDateConfigMenu_onShow,
+/* onClose */    guiDateConfigMenu_onClose,
+/* onEvent */    guiDateConfigMenu_handleEvent,
 /* handle  */    0
 
 };

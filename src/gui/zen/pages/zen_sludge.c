@@ -34,7 +34,6 @@ GHandle ghContainer_PageSludge;
 GHandle ghBtn_BackSludge;
 
 /* IMAGES */
-gdispImage ic_back;
 
 
 void create_PageSludge(void) {

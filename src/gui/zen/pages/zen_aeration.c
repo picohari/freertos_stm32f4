@@ -29,12 +29,10 @@
 /* PAGE CONTAINER */
 GHandle ghContainer_PageAeration;
 
-
 /* BUTTONS */
 GHandle ghBtn_BackAeration;
 
 /* IMAGES */
-gdispImage ic_back;
 
 
 void create_PageAeration(void) {

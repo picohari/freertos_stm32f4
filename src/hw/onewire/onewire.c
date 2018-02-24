@@ -329,13 +329,6 @@ uint8_t OneWire_ReadByte(OneWire_t* OneWireStruct)
   return byte;
 }
 
-
-
-
-
-
-
-
 uint8_t OneWire_First(OneWire_t* OneWireStruct)
 {
   /* Reset search values */

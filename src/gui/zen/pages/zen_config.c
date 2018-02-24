@@ -23,14 +23,13 @@
 #include "gui_router.h"
 
 #include "zen_config.h"
-#include "zen_date_config.h"
-#include "zen_time_config.h"
+#include "zen_config_date.h"
+#include "zen_config_time.h"
 #include "pages/zen_main_one.h"
 
 
 /* PAGE CONTAINER */
 GHandle ghContainer_PageConfig;
-
 
 /* BUTTONS */
 GHandle ghBtn_Date;
@@ -40,7 +39,6 @@ GHandle ghBtn_BackConfig;
 /* IMAGES */
 gdispImage ic_date;
 gdispImage ic_time;
-gdispImage ic_back;
 
 
 void create_PageConfig(void) {

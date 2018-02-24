@@ -19,8 +19,6 @@ extern GHandle ghBtn_CancelGateway;
 extern GHandle ghBtn_SetGateway;
 
 /* IMAGES */
-extern gdispImage ic_cancel;
-extern gdispImage ic_done;
 
 /* FUNCTIONS */
 void create_PageNetworkGateway(void);

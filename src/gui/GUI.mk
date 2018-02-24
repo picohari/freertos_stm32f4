@@ -14,8 +14,8 @@ CSRC += $(GUI_SRC)/vt100/vt100.c \
         $(GUI_SRC)/zen/pages/zen_main_one.c \
         $(GUI_SRC)/zen/pages/zen_main_two.c \
 	   	$(GUI_SRC)/zen/pages/zen_config.c \
-	   	$(GUI_SRC)/zen/pages/zen_date_config.c \
-	   	$(GUI_SRC)/zen/pages/zen_time_config.c \
+	   	$(GUI_SRC)/zen/pages/zen_config_date.c \
+	   	$(GUI_SRC)/zen/pages/zen_config_time.c \
 	   	$(GUI_SRC)/zen/pages/zen_clean.c \
 	   	$(GUI_SRC)/zen/pages/zen_timers.c \
 	   	$(GUI_SRC)/zen/pages/zen_network.c \

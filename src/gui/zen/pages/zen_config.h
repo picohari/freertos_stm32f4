@@ -18,7 +18,6 @@
 /* IMAGES */
 extern gdispImage ic_date;
 extern gdispImage ic_time;
-extern gdispImage ic_back;
 
 /* BUTTONS */
 extern GHandle ghBtn_Date;

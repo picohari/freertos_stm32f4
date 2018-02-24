@@ -19,8 +19,6 @@ extern GHandle ghBtn_CancelIpv4;
 extern GHandle ghBtn_SetIpv4;
 
 /* IMAGES */
-extern gdispImage ic_cancel;
-extern gdispImage ic_done;
 
 /* FUNCTIONS */
 void create_PageNetworkIpv4(void);

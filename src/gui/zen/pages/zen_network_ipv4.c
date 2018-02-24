@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <string.h>
 
 #include "gfx.h"
 #include "gui.h"
@@ -38,9 +37,6 @@ GHandle ghBtn_CancelIpv4;
 GHandle ghBtn_SetIpv4;
 
 /* IMAGES */
-gdispImage ic_cancel;
-gdispImage ic_done;
-
 
 /* EVENT LISTENER */
 static GListener gl;
@@ -195,25 +191,33 @@ static void guiNetworkIpv4Menu_onShow(GUIWindow *win) {
 	char secondBlock[4];
 	char thirdBlock[4];
 	char fourthBlock[4];
+	unsigned short temp;
 
 	// The IPv4 address will be in the form xxx.xxx.xxx.xxx
 	// so ignore the dots when copying to the blocks
 	strncpy(firstBlock, ipv4_address, 3);
 	firstBlock[3] = '\0';
+	sscanf(firstBlock, "%hu", &temp);
+	snprintf(firstBlock, sizeof(firstBlock), "%hu", temp);
+	gwinSetText(ghTexteditFirstBlock, firstBlock, TRUE);
 
 	strncpy(secondBlock, ipv4_address + 4, 3);
 	secondBlock[3] = '\0';
+	sscanf(secondBlock, "%hu", &temp);
+	snprintf(secondBlock, sizeof(secondBlock), "%hu", temp);
+	gwinSetText(ghTexteditSecondBlock, secondBlock, TRUE);
 
 	strncpy(thirdBlock, ipv4_address + 8, 3);
 	thirdBlock[3] = '\0';
+	sscanf(thirdBlock, "%hu", &temp);
+	snprintf(thirdBlock, sizeof(thirdBlock), "%hu", temp);
+	gwinSetText(ghTexteditThirdBlock, thirdBlock, TRUE);
 
 	strncpy(fourthBlock, ipv4_address + 12, 3);
 	fourthBlock[3] = '\0';
-
-	gwinSetText(ghTexteditFirstBlock, firstBlock, TRUE);
-	gwinSetText(ghTexteditSecondBlock, secondBlock, TRUE);
-	gwinSetText(ghTexteditThirdBlock, thirdBlock, TRUE);
-	gwinSetText(ghTexteditFourthBlock, fourthBlock, TRUE);
+	sscanf(fourthBlock, "%hu", &temp);
+	snprintf(fourthBlock, sizeof(fourthBlock), "%hu", temp);
+	gwinSetText(ghTexteditFourthBlock, fourthBlock, TRUE);	
 
 	// This function was manually added to the µGFX library under ugfx/src/gwin/gwin_textedit.h 
 	gwinTextEditSetCursorPosition((GTexteditObject*) ghTexteditFirstBlock, strlen(firstBlock));

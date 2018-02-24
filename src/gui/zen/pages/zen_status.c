@@ -34,7 +34,6 @@ GHandle ghContainer_PageStatus;
 GHandle ghBtn_BackStatus;
 
 /* IMAGES */
-gdispImage ic_back;
 
 
 void create_PageStatus(void) {

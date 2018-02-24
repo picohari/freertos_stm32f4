@@ -61,8 +61,8 @@ GFXSRC +=  skin/zenstyle.c \
 	   	   pages/zen_main_one.c \
 	   	   pages/zen_main_two.c \
 	   	   pages/zen_config.c \
-	   	   pages/zen_date_config.c \
-	   	   pages/zen_time_config.c \
+	   	   pages/zen_config_date.c \
+	   	   pages/zen_config_time.c \
 	   	   pages/zen_clean.c \
 	   	   pages/zen_timers.c \
 	   	   pages/zen_network.c \

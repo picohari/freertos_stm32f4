@@ -21,6 +21,13 @@ extern GHandle ghLabelPageTitle;
 
 extern GHandle ghLabelClockTime;
 
+
+/* SHARED IMAGES */
+extern gdispImage ic_back;
+extern gdispImage ic_cancel;
+extern gdispImage ic_done;
+
+
 // Function Prototypes
 void guiCreate(void);
 

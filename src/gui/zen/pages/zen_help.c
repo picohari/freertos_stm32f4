@@ -29,12 +29,10 @@
 /* PAGE CONTAINER */
 GHandle ghContainer_PageHelp;
 
-
 /* BUTTONS */
 GHandle ghBtn_BackHelp;
 
 /* IMAGES */
-gdispImage ic_back;
 
 
 void create_PageHelp(void) {

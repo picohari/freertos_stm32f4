@@ -21,18 +21,16 @@
 
 #include "skin/zenstyle.h"
 #include "gui_router.h"
-#include "pages/zen_menu.h"
 
-//#include "pages/zen_network.h"
-//#include "pages/zen_network_ipv4.h"
-//#include "pages/zen_network_gateway.h"
-//#include "pages/zen_network_subnet_mask.h"
-//#include "pages/zen_main_one.h"
+#include "pages/zen_network.h"
+#include "pages/zen_network_ipv4.h"
+#include "pages/zen_network_gateway.h"
+#include "pages/zen_network_subnet_mask.h"
+#include "pages/zen_main_one.h"
 
 
 /* PAGE CONTAINER */
 GHandle ghContainer_PageNetwork;
-
 
 /* BUTTONS */
 GHandle ghBtn_IPv4;
@@ -42,7 +40,6 @@ GHandle ghBtn_DHCP;
 GHandle ghBtn_BackNetwork;
 
 /* IMAGES */
-gdispImage ic_back;
 
 
 void create_PageNetwork(void) {

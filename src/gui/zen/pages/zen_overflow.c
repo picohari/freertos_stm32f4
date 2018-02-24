@@ -29,12 +29,10 @@
 /* PAGE CONTAINER */
 GHandle ghContainer_PageOverflow;
 
-
 /* BUTTONS */
 GHandle ghBtn_BackOverflow;
 
 /* IMAGES */
-gdispImage ic_back;
 
 
 void create_PageOverflow(void) {

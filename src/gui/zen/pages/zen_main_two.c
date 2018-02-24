@@ -23,9 +23,7 @@
 #include "gui_router.h"
 
 #include "pages/zen_menu.h"
-//#include "pages/zen_main_one.h"
-#include "pages/zen_main_two.h"
-#include "pages/zen_membrane.h"
+
 
 
 /* PAGE CONTAINER */
@@ -44,11 +42,11 @@ GHandle ghBtn_PageOne;
 
 
 /* IMAGES */
+gdispImage ic_timelapse;
 gdispImage ic_fan;
 gdispImage ic_membrane;
 gdispImage ic_unfill;
 gdispImage ic_aligntop;
-gdispImage ic_timelapse;
 
 
 
@@ -237,7 +235,8 @@ static int guiMainMenuTwo_handleEvent(GUIWindow *win, GEvent *pe) {
                 guiWindow_Show (&winWeather);
 #endif
             else if (peb->gwin == ghBtn_PageOne) {
-                guiWindow_Show(&winMainHome);
+                //guiWindow_Show(&winMainHome);
+                guiWindow_Show(&winMainMenuOne);
             }
 
             else

@@ -29,9 +29,6 @@
 #include "gui_router.h"
 
 #include "pages/zen_menu.h"
-//#include "pages/zen_main_home.h"
-//#include "pages/zen_main_one.h"
-//#include "pages/zen_main_two.h"
 
 
 
@@ -51,7 +48,6 @@ GHandle ghScaleADCvalue;
 GHandle ghBtn_MENU;
 
 /* IMAGES */
-
 
 
 void create_PageHome(void) {
@@ -375,12 +371,12 @@ static int guiMainHome_handleEvent(GUIWindow *win, GEvent *pe) {
 
             else if (peb->gwin == ghButtonWeather)
                 guiWindow_Show (&winWeather);
+#endif
             else if (peb->gwin == ghBtn_PageOne)
                 guiWindow_Show(&winMainMenuOne);
 
             else
                 return 0;
-#endif
 
             return 1;
         }

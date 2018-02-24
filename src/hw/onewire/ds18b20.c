@@ -63,7 +63,7 @@ OneWire_t OneWire;
 uint8_t	  OneWireDevices;
 uint8_t   TempSensorCount = 0; 
 uint8_t	  Ds18b20StartConvert = 0;
-uint16_t  Ds18b20Timeout=0;
+uint16_t  Ds18b20Timeout = 0;
 
 osThreadId 	Ds18b20Handle;
 
@@ -168,6 +168,7 @@ void OW_thread(void const * argument)
 		osDelay(10);
 
     	DS18B20_SetResolution(&OneWire, ds18b20[i].Address, DS18B20_Resolution_12bits);
+
 		osDelay(10);
     	
     	DS18B20_DisableAlarmTemperature(&OneWire,  ds18b20[i].Address);
@@ -186,10 +187,13 @@ void OW_thread(void const * argument)
 		Ds18b20Timeout = DS18B20_CONVERT_TIMEOUT_MS / 10;
 		
 		DS18B20_StartAll(&OneWire);
+
 		osDelay(10);
     
     	while (!DS18B20_AllDone(&OneWire)) {
-			osDelay(10);  
+
+			osDelay(10);
+
 			Ds18b20Timeout -= 1;
 
 			if (Ds18b20Timeout == 0)
@@ -201,7 +205,9 @@ void OW_thread(void const * argument)
 			uint8_t i = 0;
 
 			for (i = 0; i < TempSensorCount; i++) {
+
 				osDelay(10);
+				
 				ds18b20[i].DataIsValid = DS18B20_Read(&OneWire, ds18b20[i].Address, &ds18b20[i].Temperature);
 
 				if (ds18b20[i].DataIsValid) {

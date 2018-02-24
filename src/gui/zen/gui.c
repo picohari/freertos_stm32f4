@@ -65,10 +65,17 @@ GHandle ghLabelPageTitle;
 
 GHandle ghLabelClockTime;
 
-// Fonts
+
+// SHARED Fonts
 font_t dejavu_sans_10;
 font_t dejavu_sans_16;
 font_t fixed_7x14;
+
+/* SHARED IMAGES */
+gdispImage ic_back;
+gdispImage ic_cancel;
+gdispImage ic_done;
+
 
 
 static void create_PageTitle(void) {
@@ -124,7 +131,7 @@ static void create_ClockTime(void) {
 	//wi.text = "31.01.2018 12:00:00";
 	wi.text = "31.01.2018 12:00";
 
-	compute_days_in_month();
+	//compute_days_in_month();
 
 	ghLabelClockTime = gwinLabelCreate(0, &wi);
 
@@ -153,7 +160,7 @@ void guiEventLoop(void) {
 	pe = geventEventWait(&glistener, 100);
 	//pe = geventEventWait(&glistener, TIME_INFINITE);
 
-	update_time();
+	//update_time();
 
 	/* No event, skip ... */
     if (!pe)
@@ -164,7 +171,7 @@ void guiEventLoop(void) {
 		if (curWindow->onEvent(curWindow, pe))
 			return;
 
-		/* If no Event-Function has been found for any page, perform the "default" button configuration */
+	/* If no Event-Function has been found for any page, perform the "default" button configuration */
 	// GEventGWinButton  *peb = (GEventGWinButton *)pe;
 
 	switch(pe->type) {
@@ -228,31 +235,37 @@ void guiCreate(void) {
 	gdispFillArea(0, 216, 320, 240, HTML2COLOR(0x262626) );
 
 #if 1
-	gdispImageOpenFile(&ic_forward,        "rsc/ic_forward.gif");
 	
 	// Create images
-	gdispImageOpenFile(&ic_settings,       "rsc/ic_settings.gif");
-	gdispImageOpenFile(&ic_local_drink,    "rsc/ic_local_drink.gif");
-	gdispImageOpenFile(&ic_alarm,          "rsc/ic_alarm.gif");
-	gdispImageOpenFile(&ic_public,         "rsc/ic_public.gif");
+	gdispImageOpenFile(&ic_settings,    "rsc/ic_settings.gif");
+	gdispImageOpenFile(&ic_local_drink, "rsc/ic_local_drink.gif");
+	gdispImageOpenFile(&ic_alarm,       "rsc/ic_alarm.gif");
+	gdispImageOpenFile(&ic_public,      "rsc/ic_public.gif");
 	
-	gdispImageOpenFile(&ic_heart_pulse,	   "rsc/ic_heart_pulse.gif");
-	gdispImageOpenFile(&ic_search,         "rsc/ic_search.gif");
-	gdispImageOpenFile(&ic_live_help,      "rsc/ic_live_help.gif");
+	gdispImageOpenFile(&ic_heart_pulse,	"rsc/ic_heart_pulse.gif");
+	gdispImageOpenFile(&ic_search,      "rsc/ic_search.gif");
+	gdispImageOpenFile(&ic_live_help,   "rsc/ic_live_help.gif");
 
-	gdispImageOpenFile(&ic_fan,      	   "rsc/ic_fan.gif");
-	gdispImageOpenFile(&ic_membrane,       "rsc/ic_membrane.gif");
-	gdispImageOpenFile(&ic_unfill,         "rsc/ic_unfill.gif");
-	gdispImageOpenFile(&ic_aligntop,       "rsc/ic_aligntop.gif");
-	gdispImageOpenFile(&ic_timelapse,      "rsc/ic_timelapse.gif");
+	gdispImageOpenFile(&ic_fan,      	"rsc/ic_fan.gif");
+	gdispImageOpenFile(&ic_membrane,    "rsc/ic_membrane.gif");
+	gdispImageOpenFile(&ic_unfill,      "rsc/ic_unfill.gif");
+	gdispImageOpenFile(&ic_aligntop,    "rsc/ic_aligntop.gif");
+	gdispImageOpenFile(&ic_timelapse,   "rsc/ic_timelapse.gif");
 
-	gdispImageOpenFile(&ic_date,      		"rsc/ic_date.gif");
-	gdispImageOpenFile(&ic_time,      		"rsc/ic_time.gif");
-	gdispImageOpenFile(&ic_back,      		"rsc/ic_back.gif");
-	gdispImageOpenFile(&ic_done,      		"rsc/ic_done.gif");
-	gdispImageOpenFile(&ic_cancel,      	"rsc/ic_cancel.gif");
-	gdispImageOpenFile(&ic_add,      		"rsc/ic_add.gif");
-	gdispImageOpenFile(&ic_remove,      	"rsc/ic_remove.gif");
+	gdispImageOpenFile(&ic_date,      	"rsc/ic_date.gif");
+	gdispImageOpenFile(&ic_time,      	"rsc/ic_time.gif");
+	
+	gdispImageOpenFile(&ic_back,      	"rsc/ic_back.gif");
+	gdispImageOpenFile(&ic_done,      	"rsc/ic_done.gif");
+	gdispImageOpenFile(&ic_cancel,      "rsc/ic_cancel.gif");
+	gdispImageOpenFile(&ic_forward,     "rsc/ic_forward.gif");
+
+
+
+
+
+	// gdispImageOpenFile(&ic_add,      		"rsc/ic_add.gif");
+	// gdispImageOpenFile(&ic_remove,      	"rsc/ic_remove.gif");
 
 #endif
 
@@ -280,7 +293,6 @@ void guiCreate(void) {
 
 	create_PageHelp();
 
-
 	create_PageMembrane();
 	create_PageT1T2();
 	create_PageCycleMode();
@@ -288,7 +300,9 @@ void guiCreate(void) {
 	create_PageAeration();
 	create_PageOverflow();
 	create_PageSludge();
+
 	
+
 	// Create static block elements
 	create_PageTitle();
 	create_ClockTime();
@@ -299,44 +313,45 @@ void guiCreate(void) {
 	//gui_create_lcd(8526);
 
 	// Init menu items
-	winMainHome.onInit(&winMainHome, ghContainer_PageHome);
-	winMainMenuOne.onInit(&winMainMenuOne, ghContainer_PageOne);
+	winMainHome.onInit(				&winMainHome, 		ghContainer_PageHome);
+	winMainMenuOne.onInit(			&winMainMenuOne, 	ghContainer_PageOne);
+	winMainMenuTwo.onInit(			&winMainMenuTwo, 	ghContainer_PageTwo);
 	
-	winConfigMenu.onInit(&winConfigMenu, ghContainer_PageConfig);
-	winDateConfigMenu.onInit(&winDateConfigMenu, ghContainer_PageDateConfig);
-	winTimeConfigMenu.onInit(&winTimeConfigMenu, ghContainer_PageTimeConfig);
+	winConfigMenu.onInit(			&winConfigMenu, 	ghContainer_PageConfig);
+	winDateConfigMenu.onInit(		&winDateConfigMenu, ghContainer_PageDateConfig);
+	winTimeConfigMenu.onInit(		&winTimeConfigMenu, ghContainer_PageTimeConfig);
 
-	winCleanMenu.onInit(&winCleanMenu, ghContainer_PageClean);
+	winCleanMenu.onInit(			&winCleanMenu, 		ghContainer_PageClean);
 
-	winTimersMenu.onInit(&winTimersMenu, ghContainer_PageTimers);
+	winTimersMenu.onInit(			&winTimersMenu, 	ghContainer_PageTimers);
 
-	winNetworkMenu.onInit(&winNetworkMenu, ghContainer_PageNetwork);
-	winNetworkIpv4Menu.onInit(&winNetworkIpv4Menu, ghContainer_PageNetworkIpv4);
-	winNetworkGatewayMenu.onInit(&winNetworkGatewayMenu, ghContainer_PageNetworkGateway);
-	winNetworkSubnetMaskMenu.onInit(&winNetworkSubnetMaskMenu, ghContainer_PageNetworkSubnetMask);
+	winNetworkMenu.onInit(			&winNetworkMenu, 			ghContainer_PageNetwork);
+	winNetworkIpv4Menu.onInit(		&winNetworkIpv4Menu, 		ghContainer_PageNetworkIpv4);
+	winNetworkGatewayMenu.onInit(	&winNetworkGatewayMenu, 	ghContainer_PageNetworkGateway);
+	winNetworkSubnetMaskMenu.onInit(&winNetworkSubnetMaskMenu, 	ghContainer_PageNetworkSubnetMask);
 
-	winTestModeMenu.onInit(&winTestModeMenu, ghContainer_PageTestMode);
+	winTestModeMenu.onInit(			&winTestModeMenu, 	ghContainer_PageTestMode);
 
-	winStatusMenu.onInit(&winStatusMenu, ghContainer_PageStatus);
+	winStatusMenu.onInit(			&winStatusMenu, 	ghContainer_PageStatus);
 
-	winHelpMenu.onInit(&winHelpMenu, ghContainer_PageHelp);
+	winHelpMenu.onInit(				&winHelpMenu, 		ghContainer_PageHelp);
 
-	winMainMenuTwo.onInit(&winMainMenuTwo, ghContainer_PageTwo);
 
-	winMembraneMenu.onInit(&winMembraneMenu, ghContainer_PageMembrane);
-	winT1T2Menu.onInit(&winT1T2Menu, ghContainer_PageT1T2);
-	winCycleModeMenu.onInit(&winCycleModeMenu, ghContainer_PageCycleMode);
-	winCycleTimeMenu.onInit(&winCycleTimeMenu, ghContainer_PageCycleTime);
-	winAerationMenu.onInit(&winAerationMenu, ghContainer_PageAeration);
-	winOverflowMenu.onInit(&winOverflowMenu, ghContainer_PageOverflow);
-	winSludgeMenu.onInit(&winSludgeMenu, ghContainer_PageSludge);
+	winMembraneMenu.onInit(			&winMembraneMenu, 	ghContainer_PageMembrane);
+	winT1T2Menu.onInit(				&winT1T2Menu, 		ghContainer_PageT1T2);
+	winCycleModeMenu.onInit(		&winCycleModeMenu, 	ghContainer_PageCycleMode);
+	winCycleTimeMenu.onInit(		&winCycleTimeMenu, 	ghContainer_PageCycleTime);
+	winAerationMenu.onInit(			&winAerationMenu, 	ghContainer_PageAeration);
+	winOverflowMenu.onInit(			&winOverflowMenu, 	ghContainer_PageOverflow);
+	winSludgeMenu.onInit(			&winSludgeMenu, 	ghContainer_PageSludge);
+
 
     // We want to listen for widget events
 	geventListenerInit(&glistener);
 	gwinAttachListener(&glistener);
 
 #ifndef UGFXSIMULATOR
-	gwinAttachDial(ghSliderADCvalue, 0 , 0);
+	//gwinAttachDial(ghSliderADCvalue, 0 , 0);
 #endif
 
 	// Display initial window
@@ -356,7 +371,7 @@ void guiCreate(void) {
 		myguiEventLoop();
 
 		if (curWindow == &winMainHome) {
-			gui_create_lcd((uint16_t)gwinSliderGetPosition(ghSliderADCvalue));
+			//gui_create_lcd((uint16_t)gwinSliderGetPosition(ghSliderADCvalue));
 		}
 
 	}

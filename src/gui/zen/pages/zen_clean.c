@@ -29,12 +29,11 @@
 /* PAGE CONTAINER */
 GHandle ghContainer_PageClean;
 
-
 /* BUTTONS */
 GHandle ghBtn_BackClean;
 
 /* IMAGES */
-gdispImage ic_back;
+
 
 
 void create_PageClean(void) {

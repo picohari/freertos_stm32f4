@@ -2,6 +2,7 @@
 
 #include "gfx.h"
 #include "gui.h"
+#include "src/gwin/gwin_keyboard_layout.h"
 #include "stdio.h"
 
 #ifdef UGFXSIMULATOR
@@ -10,8 +11,8 @@
 	#include <unistd.h>
 	#include <fcntl.h>
 	#include <errno.h>
-	//#include <linux/input.h>
-	
+	#include <linux/input.h>
+
 #else
 
 	#include "stm32f4xx_hal.h"
@@ -27,27 +28,36 @@
 #include "pages/zen_main_two.h"
 #include "helpers/membrane_util.h"
 
-
 /* PAGE CONTAINER */
 GHandle ghContainer_PageMembrane;
 
 /* BUTTONS */
 GHandle ghBtn_CancelMembrane;
 GHandle ghBtn_SetMembrane;
-GHandle ghBtn_IncreaseMembraneNumber;
-GHandle ghBtn_DecreaseMembraneNumber;
 
 /* IMAGES */
-gdispImage ic_cancel;
-gdispImage ic_done;
-gdispImage ic_add;
-gdispImage ic_remove;
+
+/* EVENT LISTENER */
+static GListener gl;
 
 /* INPUT FIELDS AND KEYBOARD */
 static GHandle ghTexteditMembraneNumber;
-static GHandle ghLabel_ErrorMembrane;
+static GHandle ghKeyboard;
 
-static uint8_t membrane_count = 1;
+
+//Keyboard layouts
+static const GVSpecialKey KeyboardSpecialKeys[] = {
+	{ "\001", 0, GVKEY_SINGLESET, 1 },				// \001 (1)	= Shift Lower to Upper
+	{ "\001", 0, GVKEY_INVERT|GVKEY_LOCKSET, 2 },	// \002 (2)	= Shift Upper to Upper Lock
+	{ "\002", 0, GVKEY_INVERT|GVKEY_LOCKSET, 0 },	// \003 (3)	= Shift Upper Lock to Lower
+	{ "123", 0, GVKEY_LOCKSET, 3 },					// \004 (4)	= Change to Numbers
+	{ "\010", "\b", 0, 0 }							// \005 (5)	= Backspace
+};
+
+//NumPad with digits only (with none of the above)
+static const char *numpadKeySetArray[] = { "456", "123", "\005", 0 };
+static const GVKeySet numpadKeySet[] = { numpadKeySetArray, 0 };
+static const GVKeyTable numpadKeyboard = { KeyboardSpecialKeys, numpadKeySet };
 
 void create_PageMembrane(void) {
 
@@ -68,24 +78,34 @@ void create_PageMembrane(void) {
 	wi.customStyle = 0;
 	ghContainer_PageMembrane = gwinContainerCreate(0, &wi, 0);
 
-	// TextEditFirstBlock
+	// HANDLE THE PRESS OF THE DELETE KEY WHEN NO TextEdit IS SELECTED
+	// Create the keyboard
+	wi.g.show = TRUE;
+	wi.g.x = 0; 
+	wi.g.y = 58;
+	wi.g.width = gdispGetWidth() / 2 + 80; 
+	wi.g.height = gdispGetHeight() / 2 + 22;
+	wi.g.parent = ghContainer_PageMembrane;
+	ghKeyboard = gwinKeyboardCreate(0, &wi);
+
+	// TextEditMembraneNumber
 	wi.g.show = TRUE;
 	wi.g.x = 135;
 	wi.g.y = 5;
 	wi.g.width = 50;
-	wi.g.height = 69;
+	wi.g.height = 30;
 	wi.g.parent = ghContainer_PageMembrane;
-	wi.text = "";
+	wi.text = " ";
 	ghTexteditMembraneNumber = gwinTexteditCreate(0, &wi, 1);
 
+	
 	// create button widget: ghBtn_SetMembrane
 	wi.g.show = TRUE;
 	wi.g.x = gdispGetWidth() - 80;
-	wi.g.y = 127;
+	wi.g.y = 58;
 	wi.g.width = 80;
 	wi.g.height = 69;
 	wi.g.parent = ghContainer_PageMembrane;
-	//wi.text = MENU_TITLE_OK;
 	wi.customDraw = gwinButtonDraw_Image_Icon;
 	wi.customParam = &ic_done;
 	wi.customStyle = &color_eight;
@@ -93,83 +113,46 @@ void create_PageMembrane(void) {
 
 	// create button widget: ghBtn_CancelMembrane
 	wi.g.show = TRUE;
-	wi.g.x = 0;
+	wi.g.x = gdispGetWidth() - 80;
 	wi.g.y = 127;
 	wi.g.width = 80;
 	wi.g.height = 69;
 	wi.g.parent = ghContainer_PageMembrane;
-	//wi.text = MENU_TITLE_CANCEL;
 	wi.customDraw = gwinButtonDraw_Image_Icon;
 	wi.customParam = &ic_cancel;
 	wi.customStyle = &color_five;
 	ghBtn_CancelMembrane = gwinButtonCreate(0, &wi);
 
-	// create button widget: ghBtn_DecreaseMembraneNumber
-	wi.g.show = TRUE;
-	wi.g.x = 50;
-	wi.g.y = 5;
-	wi.g.width = 80;
-	wi.g.height = 69;
-	wi.g.parent = ghContainer_PageMembrane;
-	//wi.text = MENU_TITLE_DECREASE;
-	wi.customDraw = gwinButtonDraw_Image_Icon;
-	wi.customParam = &ic_remove;
-	wi.customStyle = &color_one;
-	ghBtn_DecreaseMembraneNumber = gwinButtonCreate(0, &wi);
-
-	// create button widget: ghBtn_IncreaseMembraneNumber
-	wi.g.show = TRUE;
-	wi.g.x = 190;
-	wi.g.y = 5;
-	wi.g.width = 80;
-	wi.g.height = 69;
-	wi.g.parent = ghContainer_PageMembrane;
-	//wi.text = MENU_TITLE_INCREASE;
-	wi.customDraw = gwinButtonDraw_Image_Icon;
-	wi.customParam = &ic_add;
-	wi.customStyle = &color_one;
-	ghBtn_IncreaseMembraneNumber = gwinButtonCreate(0, &wi);
-
-	// create the Label widget: ghLabel_ErrorMembrane
-	wi.customDraw = 0;
-	wi.customParam = 0;
-	wi.customStyle = 0;
-	wi.g.show = TRUE;
-	wi.g.x = 45;
-	wi.g.y = 80;
-	wi.g.width = 160;
-	wi.g.height = 20;
-	wi.g.parent = ghContainer_PageMembrane;
-	wi.text = "";
-	ghLabel_ErrorMembrane = gwinLabelCreate(NULL, &wi);	
 	
+	geventListenerInit(&gl);
+	geventAttachSource(&gl, ginputGetKeyboard(0), 0);
+	gwinKeyboardSetLayout(ghKeyboard, &numpadKeyboard);
+
 }
+
 
 static void guiMembraneMenu_onShow(GUIWindow *win) {
 
 	gui_set_title(win);
-	
-	membrane_count = get_membrane_count();
 
 	char memCountArray[2];
-    snprintf(memCountArray, sizeof(memCountArray), "%u", membrane_count);
+    snprintf(memCountArray, sizeof(memCountArray), "%u", get_membrane_count());
 
-    gwinSetText(ghTexteditMembraneNumber, memCountArray, TRUE);
+   	gwinSetText(ghTexteditMembraneNumber, memCountArray, TRUE);
 
-    // This function was manually added to the µGFX library under ugfx/src/gwin/gwin_textedit.h
-    // Move the cursor away so it is not visible. We don't actually need it here, because we edit the text
-    // of the TextEdit with the help of the buttons and not with the keyboard 
-	gwinTextEditSetCursorPosition((GTexteditObject*) ghTexteditMembraneNumber, 10);
+   	// This function was manually added to the µGFX library under ugfx/src/gwin/gwin_textedit.h
+   	// Move the cursor away so it is not visible. We don't actually need it here, because we edit the text
+   	// of the TextEdit with the help of the buttons and not with the keyboard 
+   	gwinTextEditSetCursorPosition((GTexteditObject*) ghTexteditMembraneNumber, strlen(memCountArray));
 
 }
+
 
 static void guiMembraneMenu_onClose(GUIWindow *win) {
 
 	(void) win;
-
-	gwinSetText(ghLabel_ErrorMembrane, "", TRUE);
-
 }
+
 
 static int guiMembraneMenu_handleEvent(GUIWindow *win, GEvent *pe) {
     
@@ -181,40 +164,24 @@ static int guiMembraneMenu_handleEvent(GUIWindow *win, GEvent *pe) {
 
         	GEventGWinButton *peb = (GEventGWinButton *)pe;
 
-            if(peb->gwin == ghBtn_CancelMembrane) {
+        	if(peb->gwin == ghBtn_CancelMembrane) {
 
             	guiWindow_Show(&winMainMenuTwo);
 
             } else if(peb->gwin == ghBtn_SetMembrane) {
 
+            	if(strlen(gwinGetText(ghTexteditMembraneNumber)) < 1) {
+            		return 1;
+            	}
+
+            	unsigned short memCount;
+
+            	sscanf(gwinGetText(ghTexteditMembraneNumber), "%hu", &memCount);
+
+            	set_membrane_count((uint8_t) memCount);
+
             	guiWindow_Show(&winMainMenuTwo);
-            
-            } else if(peb->gwin == ghBtn_IncreaseMembraneNumber) {
 
-            	if(membrane_count < 6) {
-            		membrane_count++;
-            		set_membrane_count(membrane_count);
-            	}
-            	
-            	char memCountArray[2];
-            	snprintf(memCountArray, sizeof(memCountArray), "%u", membrane_count);
-
-            	gwinSetText(ghTexteditMembraneNumber, memCountArray, TRUE);
-
-            } else if(peb->gwin == ghBtn_DecreaseMembraneNumber) {
-
-            	if(membrane_count > 1) {
-            		membrane_count--;
-            		set_membrane_count(membrane_count);
-            	}
-
-            	char memCountArray[2];
-            	snprintf(memCountArray, sizeof(memCountArray), "%u", membrane_count);
-
-            	gwinSetText(ghTexteditMembraneNumber, memCountArray, TRUE);
-
-            } else {
-            	return 0;
             }
 
             return 1;
@@ -231,7 +198,7 @@ static int guiMembraneMenu_handleEvent(GUIWindow *win, GEvent *pe) {
 
 GUIWindow winMembraneMenu = {
 
-/* Title   */	 "Membrane Number Menu",
+/* Title   */	 "Membrane Configuration Menu",
 /* onInit  */    guiWindow_onInit,
 /* onShow  */    guiMembraneMenu_onShow,
 /* onClose */    guiMembraneMenu_onClose,

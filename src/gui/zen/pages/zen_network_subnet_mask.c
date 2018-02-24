@@ -39,8 +39,6 @@ GHandle ghBtn_CancelSubnetMask;
 GHandle ghBtn_SetSubnetMask;
 
 /* IMAGES */
-gdispImage ic_cancel;
-gdispImage ic_done;
 
 
 /* EVENT LISTENER */
@@ -193,25 +191,35 @@ static void guiNetworkSubnetMaskMenu_onShow(GUIWindow *win) {
 	char secondBlock[4];
 	char thirdBlock[4];
 	char fourthBlock[4];
+	unsigned short temp;
 
 	// The gateway will be in the form xxx.xxx.xxx.xxx
 	// so ignore the dots when copying to the blocks
 	strncpy(firstBlock, subnet_mask, 3);
 	firstBlock[3] = '\0';
+	firstBlock[3] = '\0';
+	sscanf(firstBlock, "%hu", &temp);
+	snprintf(firstBlock, sizeof(firstBlock), "%hu", temp);
+	gwinSetText(ghTexteditFirstBlock, firstBlock, TRUE);
 
 	strncpy(secondBlock, subnet_mask + 4, 3);
 	secondBlock[3] = '\0';
+	secondBlock[3] = '\0';
+	sscanf(secondBlock, "%hu", &temp);
+	snprintf(secondBlock, sizeof(secondBlock), "%hu", temp);
+	gwinSetText(ghTexteditSecondBlock, secondBlock, TRUE);
 
 	strncpy(thirdBlock, subnet_mask + 8, 3);
 	thirdBlock[3] = '\0';
+	sscanf(thirdBlock, "%hu", &temp);
+	snprintf(thirdBlock, sizeof(thirdBlock), "%hu", temp);
+	gwinSetText(ghTexteditThirdBlock, thirdBlock, TRUE);
 
 	strncpy(fourthBlock, subnet_mask + 12, 3);
 	fourthBlock[3] = '\0';
-
-	gwinSetText(ghTexteditFirstBlock, firstBlock, TRUE);
-	gwinSetText(ghTexteditSecondBlock, secondBlock, TRUE);
-	gwinSetText(ghTexteditThirdBlock, thirdBlock, TRUE);
-	gwinSetText(ghTexteditFourthBlock, fourthBlock, TRUE);
+	sscanf(fourthBlock, "%hu", &temp);
+	snprintf(fourthBlock, sizeof(fourthBlock), "%hu", temp);
+	gwinSetText(ghTexteditFourthBlock, fourthBlock, TRUE);	
 
 	// This function was manually added to the µGFX library under ugfx/src/gwin/gwin_textedit.h 
 	gwinTextEditSetCursorPosition((GTexteditObject*) ghTexteditFirstBlock, strlen(firstBlock));

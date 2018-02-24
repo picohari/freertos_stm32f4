@@ -34,7 +34,6 @@ GHandle ghContainer_PageT1T2;
 GHandle ghBtn_BackT1T2;
 
 /* IMAGES */
-gdispImage ic_back;
 
 
 void create_PageT1T2(void) {

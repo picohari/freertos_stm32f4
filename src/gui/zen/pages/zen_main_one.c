@@ -49,7 +49,7 @@ GHandle ghBtn_PageTwo;
 
 
 /* IMAGES */
-gdispImage ic_home;
+//gdispImage ic_home;
 gdispImage ic_settings;
 gdispImage ic_local_drink;
 gdispImage ic_alarm;

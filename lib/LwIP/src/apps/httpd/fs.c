@@ -68,7 +68,7 @@ int fs_open_custom(struct fs_file *file, const char *name)
     static char *pcBuf;
 
     // Request for TASKS list (Important: provide correct extention!!)
-    if(strncmp(name, "/tasks.html",  10) == 0) {
+    if(strncmp(name, "/tasks.html",  11) == 0) {
   
       //static char pcBuf[512];               /* Buffer for storing dynamic page content   */
       pcBuf = (char *)pvPortMalloc(1024);     /* TODO: NOT GOOD !! Called at each page request !! */

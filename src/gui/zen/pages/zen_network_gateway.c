@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <string.h>
 
 #include "gfx.h"
 #include "gui.h"
@@ -25,11 +24,10 @@
 
 #include "skin/zenstyle.h"
 #include "gui_router.h"
-#include "pages/zen_menu.h"
 
-#include "helpers/network_util.h"
 #include "pages/zen_network_gateway.h"
 #include "pages/zen_network.h"
+#include "helpers/network_util.h"
 
 
 /* PAGE CONTAINER */
@@ -40,9 +38,6 @@ GHandle ghBtn_CancelGateway;
 GHandle ghBtn_SetGateway;
 
 /* IMAGES */
-gdispImage ic_cancel;
-gdispImage ic_done;
-
 
 /* EVENT LISTENER */
 static GListener gl;
@@ -194,25 +189,34 @@ static void guiNetworkGatewayMenu_onShow(GUIWindow *win) {
 	char secondBlock[4];
 	char thirdBlock[4];
 	char fourthBlock[4];
+	unsigned short temp;
 
 	// The gateway will be in the form xxx.xxx.xxx.xxx
 	// so ignore the dots when copying to the blocks
 	strncpy(firstBlock, gateway, 3);
 	firstBlock[3] = '\0';
+	sscanf(firstBlock, "%hu", &temp);
+	snprintf(firstBlock, sizeof(firstBlock), "%hu", temp);
+	gwinSetText(ghTexteditFirstBlock, firstBlock, TRUE);
 
 	strncpy(secondBlock, gateway + 4, 3);
 	secondBlock[3] = '\0';
+	sscanf(secondBlock, "%hu", &temp);
+	snprintf(secondBlock, sizeof(secondBlock), "%hu", temp);
+	gwinSetText(ghTexteditSecondBlock, secondBlock, TRUE);
 
 	strncpy(thirdBlock, gateway + 8, 3);
 	thirdBlock[3] = '\0';
+	sscanf(thirdBlock, "%hu", &temp);
+	snprintf(thirdBlock, sizeof(thirdBlock), "%hu", temp);
+	gwinSetText(ghTexteditThirdBlock, thirdBlock, TRUE);
+
 
 	strncpy(fourthBlock, gateway + 12, 3);
 	fourthBlock[3] = '\0';
-
-	gwinSetText(ghTexteditFirstBlock, firstBlock, TRUE);
-	gwinSetText(ghTexteditSecondBlock, secondBlock, TRUE);
-	gwinSetText(ghTexteditThirdBlock, thirdBlock, TRUE);
-	gwinSetText(ghTexteditFourthBlock, fourthBlock, TRUE);
+	sscanf(fourthBlock, "%hu", &temp);
+	snprintf(fourthBlock, sizeof(fourthBlock), "%hu", temp);
+	gwinSetText(ghTexteditFourthBlock, fourthBlock, TRUE);	
 
 	// This function was manually added to the µGFX library under ugfx/src/gwin/gwin_textedit.h 
 	gwinTextEditSetCursorPosition((GTexteditObject*) ghTexteditFirstBlock, strlen(firstBlock));

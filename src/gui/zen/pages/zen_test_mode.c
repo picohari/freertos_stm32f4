@@ -34,7 +34,6 @@ GHandle ghContainer_PageTestMode;
 GHandle ghBtn_BackTestMode;
 
 /* IMAGES */
-gdispImage ic_back;
 
 
 void create_PageTestMode(void) {

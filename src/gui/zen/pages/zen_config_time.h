@@ -14,8 +14,6 @@ extern GHandle ghBtn_CancelTimeConfig;
 extern GHandle ghBtn_SetTime;
 
 /* IMAGES */
-extern gdispImage ic_cancel;
-extern gdispImage ic_done;
 
 void create_PageTimeConfig(void);
 extern GHandle ghContainer_PageTimeConfig;

@@ -14,7 +14,6 @@
 #define MENU_TITLE_BACK					"BACK"
 
 /* IMAGES */
-extern gdispImage ic_back;
 
 /* BUTTONS */
 extern GHandle ghBtn_BackTestMode;

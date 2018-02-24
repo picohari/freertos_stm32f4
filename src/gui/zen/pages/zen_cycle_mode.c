@@ -29,12 +29,11 @@
 /* PAGE CONTAINER */
 GHandle ghContainer_PageCycleMode;
 
-
 /* BUTTONS */
 GHandle ghBtn_BackCycleMode;
 
 /* IMAGES */
-gdispImage ic_back;
+
 
 
 void create_PageCycleMode(void) {

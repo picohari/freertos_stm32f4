@@ -203,11 +203,11 @@ static void os_tasks(void)
 {
 
   /* LED 1 */
-  osThreadDef(led1, LED1_thread,   osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
+  osThreadDef(led1, LED1_thread,   osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 1);
   LEDThread1Handle = osThreadCreate( osThread(led1),  NULL);
 
   /* LED 2 */
-  osThreadDef(led2, LED2_thread,   osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
+  osThreadDef(led2, LED2_thread,   osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 1);
   LEDThread2Handle = osThreadCreate( osThread(led2),  NULL);
 
   /* GUI */
@@ -215,16 +215,16 @@ static void os_tasks(void)
   osThreadCreate( osThread(sgui),  NULL);
 
   /* NETWORK */
-  osThreadDef(snet, NET_start,     osPriorityNormal,   0, configMINIMAL_STACK_SIZE * 2);
+  osThreadDef(snet, NET_start,     osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 2);
   osThreadCreate( osThread(snet),  NULL);
 
   /* RTC */
-  osThreadDef(rtc0, RTC_thread,    osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 4);
-  osThreadCreate( osThread(rtc0),  NULL);
+  //osThreadDef(rtc0, RTC_thread,    osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 1);
+  //osThreadCreate( osThread(rtc0),  NULL);
 
   /* ADC */
-  osThreadDef(adc0, ADC_thread,    osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 2);
-  osThreadCreate( osThread(adc0),  NULL);
+  //osThreadDef(adc0, ADC_thread,    osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 1);
+  //osThreadCreate( osThread(adc0),  NULL);
 
   /* ONEWIRE */
   osThreadDef(ow0, OW_thread,      osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 2);
@@ -232,7 +232,7 @@ static void os_tasks(void)
 
 
 
-
+#if 0
   /*##-1- Start task #########################################################*/
   osThreadDef(USB_drv, USB_thread,   osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 8);
   osThreadCreate(osThread(USB_drv), NULL);
@@ -247,6 +247,7 @@ static void os_tasks(void)
   /*##-3- Create Disk Queue ##################################################*/
   osMessageQDef(disk_queue, 1, uint16_t);
   DiskEvent  = osMessageCreate (osMessageQ(disk_queue), NULL);
+#endif
 
 }
 
@@ -644,7 +645,7 @@ static void NET_start (void const * arg)
   osThreadCreate( osThread(http),  NULL);
 
   /* Start MQTT service */
-  osThreadDef(mqtt, MQTT_start,    osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 8);
+  osThreadDef(mqtt, MQTT_start,    osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 4);
   osThreadCreate( osThread(mqtt),  NULL);
 
   while (1) {
@@ -861,7 +862,7 @@ static void GUI_start (void const * arg)
   guiCreate();
 
 #if 1
-  osThreadDef(gui, GUI_thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 2);
+  osThreadDef(gui, GUI_thread,  osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 2);
   osThreadCreate( osThread(gui), NULL);
 
   osDelay(100);
@@ -871,6 +872,7 @@ static void GUI_start (void const * arg)
 #endif
 
   while (1) {
+    //osDelay(100);
     osThreadTerminate( NULL );  /* important to stop task here !! */
   }
 

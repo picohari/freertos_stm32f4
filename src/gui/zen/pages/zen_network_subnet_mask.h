@@ -19,8 +19,6 @@ extern GHandle ghBtn_CancelSubnetMask;
 extern GHandle ghBtn_SetSubnetMask;
 
 /* IMAGES */
-extern gdispImage ic_cancel;
-extern gdispImage ic_done;
 
 /* FUNCTIONS */
 void create_PageNetworkSubnetMask(void);

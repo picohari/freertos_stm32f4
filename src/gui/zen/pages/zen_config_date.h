@@ -19,8 +19,6 @@ extern GHandle ghBtn_CancelDateConfig;
 extern GHandle ghBtn_SetDate;
 
 /* IMAGES */
-extern gdispImage ic_cancel;
-extern gdispImage ic_done;
 
 void create_PageDateConfig(void);
 extern GHandle ghContainer_PageDateConfig;
