@@ -11,12 +11,12 @@
 #include "gui_router.h"
 
 /* LABELS */
-#define MENU_TITLE_BACK					"BACK"
 
 /* IMAGES */
 
 /* BUTTONS */
-extern GHandle ghBtn_BackSludge;
+extern GHandle ghBtn_CancelSludge;
+extern GHandle ghBtn_SetSludge;
 
 /* FUNCTIONS */
 void create_PageSludge(void);

@@ -11,12 +11,12 @@
 #include "gui_router.h"
 
 /* LABELS */
-#define MENU_TITLE_BACK					"BACK"
 
 /* IMAGES */
 
 /* BUTTONS */
-extern GHandle ghBtn_BackOverflow;
+extern GHandle ghBtn_CancelOverflow;
+extern GHandle ghBtn_SetOverflow;
 
 /* FUNCTIONS */
 void create_PageOverflow(void);

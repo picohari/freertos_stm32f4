@@ -25,18 +25,19 @@
 #include "skin/zenstyle.h"
 #include "gui_router.h"
 
-#include "pages/zen_overflow.h"
-#include "pages/zen_main_two.h"
+#include "pages/zen_aeration_air_off.h"
+#include "pages/zen_aeration.h"
 #include "helpers/zen_util.h"
 
 
 /* PAGE CONTAINER */
-GHandle ghContainer_PageOverflow;
+GHandle ghContainer_PageAerationAirOff;
 
 
 /* BUTTONS */
-GHandle ghBtn_CancelOverflow;
-GHandle ghBtn_SetOverflow;
+GHandle ghBtn_CancelAerationAirOff;
+GHandle ghBtn_SetAerationAirOff;
+
 
 /* IMAGES */
 
@@ -47,8 +48,9 @@ static GListener gl;
 /* LABELS */
 
 /* INPUT FIELDS AND KEYBOARD */
-static GHandle ghTexteditOverflow;
+static GHandle ghTexteditAirOff;
 static GHandle ghKeyboard;
+static GHandle ghLabel_ErrorAirOff;
 
 //Keyboard layouts
 static const GVSpecialKey KeyboardSpecialKeys[] = {
@@ -60,18 +62,17 @@ static const GVSpecialKey KeyboardSpecialKeys[] = {
 };
 
 //NumPad with digits only (with none of the above)
-static const char *numpadKeySetArray[] = { "423", "10\005", 0 };
+static const char *numpadKeySetArray[] = { "789", "456", "123", "0\005", 0 };
 static const GVKeySet numpadKeySet[] = { numpadKeySetArray, 0 };
 static const GVKeyTable numpadKeyboard = { KeyboardSpecialKeys, numpadKeySet };
 
-
-void create_PageOverflow(void) {
+void create_PageAerationAirOff(void) {
 
 	GWidgetInit wi;
 
 	gwinWidgetClearInit(&wi);
 
-	// create container widget: ghContainer_PageOverflow
+	// create container widget: ghContainer_PageAerationAirOff
 	wi.g.show = FALSE;
 	wi.g.x = 0;
 	wi.g.y = 24;
@@ -82,7 +83,7 @@ void create_PageOverflow(void) {
 	wi.customDraw = 0;
 	wi.customParam = 0;
 	wi.customStyle = 0;
-	ghContainer_PageOverflow = gwinContainerCreate(0, &wi, 0);
+	ghContainer_PageAerationAirOff = gwinContainerCreate(0, &wi, 0);
 
 	// HANDLE THE PRESS OF THE DELETE KEY WHEN NO TextEdit IS SELECTED
 	// Create the keyboard
@@ -91,75 +92,90 @@ void create_PageOverflow(void) {
 	wi.g.y = 58;
 	wi.g.width = gdispGetWidth() / 2 + 80; 
 	wi.g.height = gdispGetHeight() / 2 + 22;
-	wi.g.parent = ghContainer_PageOverflow;
+	wi.g.parent = ghContainer_PageAerationAirOff;
 	ghKeyboard = gwinKeyboardCreate(0, &wi);
 
-	// TexteditOverflow
+	// TexteditAerationAirOff
 	wi.g.show = TRUE;
 	wi.g.x = 135;
 	wi.g.y = 5;
 	wi.g.width = 50;
 	wi.g.height = 30;
-	wi.g.parent = ghContainer_PageOverflow;
+	wi.g.parent = ghContainer_PageAerationAirOff;
 	wi.text = "";
-	ghTexteditOverflow = gwinTexteditCreate(0, &wi, 1);
+	ghTexteditAirOff = gwinTexteditCreate(0, &wi, 2);
 
 	
-	// create button widget: ghBtn_SetMembrane
+	// create button widget: ghBtn_SetAerationAirOff
 	wi.g.show = TRUE;
 	wi.g.x = gdispGetWidth() - 80;
 	wi.g.y = 58;
 	wi.g.width = 80;
 	wi.g.height = 69;
-	wi.g.parent = ghContainer_PageOverflow;
+	wi.g.parent = ghContainer_PageAerationAirOff;
 	wi.customDraw = gwinButtonDraw_Image_Icon;
 	wi.customParam = &ic_done;
 	wi.customStyle = &color_eight;
-	ghBtn_SetOverflow = gwinButtonCreate(0, &wi);
+	ghBtn_SetAerationAirOff = gwinButtonCreate(0, &wi);
 
-	// create button widget: ghBtn_CancelMembrane
+	// create button widget: ghBtn_CancelAerationAirOff
 	wi.g.show = TRUE;
 	wi.g.x = gdispGetWidth() - 80;
 	wi.g.y = 127;
 	wi.g.width = 80;
 	wi.g.height = 69;
-	wi.g.parent = ghContainer_PageOverflow;
+	wi.g.parent = ghContainer_PageAerationAirOff;
 	wi.customDraw = gwinButtonDraw_Image_Icon;
 	wi.customParam = &ic_cancel;
 	wi.customStyle = &color_five;
-	ghBtn_CancelOverflow = gwinButtonCreate(0, &wi);
+	ghBtn_CancelAerationAirOff = gwinButtonCreate(0, &wi);
+
+	// create the Label widget: ghLabel_ErrorAirOff
+	wi.customDraw = 0;
+	wi.customParam = 0;
+	wi.customStyle = 0;
+	wi.g.show = TRUE;
+	wi.g.x = 110;
+	wi.g.y = 35;
+	wi.g.width = 100;
+	wi.g.height = 20;
+	wi.g.parent = ghContainer_PageAerationAirOff;
+	wi.text = "";
+	ghLabel_ErrorAirOff = gwinLabelCreate(NULL, &wi);
 
 	geventListenerInit(&gl);
 	geventAttachSource(&gl, ginputGetKeyboard(0), 0);
 	gwinKeyboardSetLayout(ghKeyboard, &numpadKeyboard);
 	
-	
 }
 
 
-static void guiOverflowMenu_onShow(GUIWindow *win) {
+static void guiAerationAirOffMenu_onShow(GUIWindow *win) {
 
 	gui_set_title(win);
 
-	char suctionOverflowAsArray[2];
-    snprintf(suctionOverflowAsArray, sizeof(suctionOverflowAsArray), "%u", get_suction_overflow());
+	gui_set_title(win);
 
-   	gwinSetText(ghTexteditOverflow, suctionOverflowAsArray, TRUE);
+	char aerationAirOffAsArray[3];
+    snprintf(aerationAirOffAsArray, sizeof(aerationAirOffAsArray), "%u", get_aeration_air_off());
+
+   	gwinSetText(ghTexteditAirOff, aerationAirOffAsArray, TRUE);
 
    	// This function was manually added to the µGFX library under ugfx/src/gwin/gwin_textedit.h
    	// Move the cursor away so it is not visible. We don't actually need it here, because we edit the text
    	// of the TextEdit with the help of the buttons and not with the keyboard 
-   	gwinTextEditSetCursorPosition((GTexteditObject*) ghTexteditOverflow, strlen(suctionOverflowAsArray));
+   	gwinTextEditSetCursorPosition((GTexteditObject*) ghTexteditAirOff, strlen(aerationAirOffAsArray));
 
 }
 
-static void guiOverflowMenu_onClose(GUIWindow *win) {
+static void guiAerationAirOffMenu_onClose(GUIWindow *win) {
 
 	(void) win;
 
+	gwinSetText(ghLabel_ErrorAirOff, "", TRUE);
 }
 
-static int guiOverflowMenu_handleEvent(GUIWindow *win, GEvent *pe) {
+static int guiAerationAirOffMenu_handleEvent(GUIWindow *win, GEvent *pe) {
     
     (void) win;
 
@@ -169,24 +185,30 @@ static int guiOverflowMenu_handleEvent(GUIWindow *win, GEvent *pe) {
 
         	GEventGWinButton *peb = (GEventGWinButton *)pe;
 
-            if(peb->gwin == ghBtn_CancelOverflow) {
+             if(peb->gwin == ghBtn_CancelAerationAirOff) {
 
-            	guiWindow_Show(&winMainMenuTwo);
+            	guiWindow_Show(&winAerationMenu);
 
-            } else if(peb->gwin == ghBtn_SetOverflow) {
+            } else if(peb->gwin == ghBtn_SetAerationAirOff) {
 
             	
-            	if(strlen(gwinGetText(ghTexteditOverflow)) < 1) {
+            	if(strlen(gwinGetText(ghTexteditAirOff)) < 1) {
             		return 1;
             	}
 
-            	unsigned short suctionOverflow;
+            	unsigned short aerationAirOff;
 
-            	sscanf(gwinGetText(ghTexteditOverflow), "%hu", &suctionOverflow);
+            	sscanf(gwinGetText(ghTexteditAirOff), "%hu", &aerationAirOff);
 
-            	set_suction_overflow((uint8_t) suctionOverflow);
+            	if(aerationAirOff > 15) {
+            		gwinSetText(ghLabel_ErrorAirOff, "Invalid value!", TRUE);
+            		return 1;
+            	} 
+            		
+            	set_aeration_air_off((uint8_t) aerationAirOff);
+            	
 
-            	guiWindow_Show(&winMainMenuTwo);
+            	guiWindow_Show(&winAerationMenu);
 
             }
 
@@ -202,13 +224,13 @@ static int guiOverflowMenu_handleEvent(GUIWindow *win, GEvent *pe) {
 
 
 
-GUIWindow winOverflowMenu = {
+GUIWindow winAerationAirOffMenu = {
 
-/* Title   */	 "Suction Overflow in weeks (0 - 4)",
+/* Title   */	 "Air Off Configuration (0 - 15)",
 /* onInit  */    guiWindow_onInit,
-/* onShow  */    guiOverflowMenu_onShow,
-/* onClose */    guiOverflowMenu_onClose,
-/* onEvent */    guiOverflowMenu_handleEvent,
+/* onShow  */    guiAerationAirOffMenu_onShow,
+/* onClose */    guiAerationAirOffMenu_onClose,
+/* onEvent */    guiAerationAirOffMenu_handleEvent,
 /* handle  */    0
 
 };

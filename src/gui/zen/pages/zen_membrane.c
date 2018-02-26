@@ -1,9 +1,9 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "gfx.h"
 #include "gui.h"
 #include "src/gwin/gwin_keyboard_layout.h"
-#include "stdio.h"
 
 #ifdef UGFXSIMULATOR
 
@@ -21,12 +21,13 @@
 
 #endif
 
+#include "zen_menu.h"
 #include "skin/zenstyle.h"
 #include "gui_router.h"
 
 #include "pages/zen_membrane.h"
 #include "pages/zen_main_two.h"
-#include "helpers/membrane_util.h"
+#include "helpers/zen_util.h"
 
 /* PAGE CONTAINER */
 GHandle ghContainer_PageMembrane;
@@ -39,6 +40,9 @@ GHandle ghBtn_SetMembrane;
 
 /* EVENT LISTENER */
 static GListener gl;
+
+/* LABELS */
+GHandle ghLabel_MembraneNumberInstructionLabel;
 
 /* INPUT FIELDS AND KEYBOARD */
 static GHandle ghTexteditMembraneNumber;
@@ -95,7 +99,7 @@ void create_PageMembrane(void) {
 	wi.g.width = 50;
 	wi.g.height = 30;
 	wi.g.parent = ghContainer_PageMembrane;
-	wi.text = " ";
+	wi.text = "";
 	ghTexteditMembraneNumber = gwinTexteditCreate(0, &wi, 1);
 
 	
@@ -124,6 +128,19 @@ void create_PageMembrane(void) {
 	ghBtn_CancelMembrane = gwinButtonCreate(0, &wi);
 
 	
+	// create the Label widget: ghLabel_MembraneNumberInstructionLabel
+	wi.customDraw = 0;
+	wi.customParam = 0;
+	wi.customStyle = 0;
+	wi.g.show = TRUE;
+	wi.g.x = 0;
+	wi.g.y = 0;
+	wi.g.width = 130;
+	wi.g.height = 40;
+	wi.g.parent = ghContainer_PageMembrane;
+	wi.text = "Set the number of membranes (1 - 6):";
+	ghLabel_MembraneNumberInstructionLabel = gwinLabelCreate(NULL, &wi);	
+
 	geventListenerInit(&gl);
 	geventAttachSource(&gl, ginputGetKeyboard(0), 0);
 	gwinKeyboardSetLayout(ghKeyboard, &numpadKeyboard);
@@ -198,7 +215,7 @@ static int guiMembraneMenu_handleEvent(GUIWindow *win, GEvent *pe) {
 
 GUIWindow winMembraneMenu = {
 
-/* Title   */	 "Membrane Configuration Menu",
+/* Title   */	 "Membrane Configuration (1 - 6)",
 /* onInit  */    guiWindow_onInit,
 /* onShow  */    guiMembraneMenu_onShow,
 /* onClose */    guiMembraneMenu_onClose,

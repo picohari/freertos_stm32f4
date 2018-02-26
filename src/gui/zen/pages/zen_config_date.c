@@ -22,6 +22,7 @@
 
 #endif
 
+#include "zen_menu.h"
 #include "skin/zenstyle.h"
 #include "gui_router.h"
 
@@ -37,7 +38,6 @@ GHandle ghBtn_CancelDateConfig;
 GHandle ghBtn_SetDate;
 
 /* IMAGES */
-
 
 /* EVENT LISTENER */
 static GListener gl;
@@ -227,7 +227,7 @@ static int guiDateConfigMenu_handleEvent(GUIWindow *win, GEvent *pe) {
             	if(new_month > 12) {
             		set_year(old_year);
             		gwinSetText(ghLabel_ErrorDate, "Invalid month!", TRUE);
-            		break;
+            		return 1;
             	} 
 
             	set_month((uint8_t) new_month);
@@ -237,7 +237,7 @@ static int guiDateConfigMenu_handleEvent(GUIWindow *win, GEvent *pe) {
             	if(new_date > get_days_in_current_month()) {
             		set_year(old_year);
             		gwinSetText(ghLabel_ErrorDate, "Invalid date!", TRUE);
-            		break;
+            		return 1;
             	}
 
             	set_date((uint8_t) new_date);
@@ -262,7 +262,7 @@ static int guiDateConfigMenu_handleEvent(GUIWindow *win, GEvent *pe) {
 
 GUIWindow winDateConfigMenu = {
 
-/* Title   */	 "Date Configuration Menu",
+/* Title   */	 "Date Menu (dd/mm/yyyy)",
 /* onInit  */    guiWindow_onInit,
 /* onShow  */    guiDateConfigMenu_onShow,
 /* onClose */    guiDateConfigMenu_onClose,

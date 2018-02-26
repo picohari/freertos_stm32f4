@@ -19,10 +19,13 @@
 
 #endif
 
+#include "zen_menu.h"
 #include "skin/zenstyle.h"
 #include "gui_router.h"
 
 #include "pages/zen_t1_t2.h"
+#include "pages/zen_t1_t2_config_t1.h"
+#include "pages/zen_t1_t2_config_t2.h"
 #include "pages/zen_main_two.h"
 
 
@@ -31,6 +34,8 @@ GHandle ghContainer_PageT1T2;
 
 
 /* BUTTONS */
+GHandle ghBtn_T1Config;
+GHandle ghBtn_T2Config;
 GHandle ghBtn_BackT1T2;
 
 /* IMAGES */
@@ -55,6 +60,27 @@ void create_PageT1T2(void) {
 	wi.customStyle = 0;
 	ghContainer_PageT1T2 = gwinContainerCreate(0, &wi, 0);
 
+	// create button widget: ghBtn_T1Config
+	wi.g.show = TRUE;
+	wi.g.x = 0;
+	wi.g.y = 0;
+	wi.g.width = 80;
+	wi.g.height = 96;
+	wi.g.parent = ghContainer_PageT1T2;
+	wi.text = MENU_TITLE_T1;
+	wi.customStyle = &color_one;
+	ghBtn_T1Config = gwinButtonCreate(0, &wi);
+
+	// create button widget: ghBtn_T2Config
+	wi.g.show = TRUE;
+	wi.g.x = 80;
+	wi.g.y = 0;
+	wi.g.width = 80;
+	wi.g.height = 96;
+	wi.g.parent = ghContainer_PageT1T2;
+	wi.text = MENU_TITLE_T2;
+	wi.customStyle = &color_two;
+	ghBtn_T2Config = gwinButtonCreate(0, &wi);
 	
 	// create button widget: ghBtn_BackT1T2
 	wi.g.show = TRUE;
@@ -96,6 +122,12 @@ static int guiT1T2Menu_handleEvent(GUIWindow *win, GEvent *pe) {
 
             if(peb->gwin == ghBtn_BackT1T2) {
             	guiWindow_Show(&winMainMenuTwo);
+
+            } else if(peb->gwin == ghBtn_T1Config) {
+            	guiWindow_Show(&winT1T2ConfigT1Menu);
+
+           	} else if(peb->gwin == ghBtn_T2Config) {
+            	guiWindow_Show(&winT1T2ConfigT2Menu);
 
             } else {
             	return 0;

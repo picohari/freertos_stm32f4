@@ -11,11 +11,19 @@
 #include "gui_router.h"
 
 /* LABELS */
-#define MENU_TITLE_BACK					"BACK"
+#define MENU_TITLE_AIR_ON					"AIR ON"
+#define MENU_TITLE_AIR_OFF					"AIR OFF"
+#define MENU_TITLE_A1						"A1"
+#define MENU_TITLE_A2						"A2"
+#define MENU_TITLE_BACK						"BACK"
 
 /* IMAGES */
 
 /* BUTTONS */
+extern GHandle ghBtn_AerationAirOn;
+extern GHandle ghBtn_AerationAirOff;
+extern GHandle ghBtn_AerationA1;
+extern GHandle ghBtn_AerationA2;
 extern GHandle ghBtn_BackAeration;
 
 /* FUNCTIONS */

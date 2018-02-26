@@ -77,7 +77,6 @@ gdispImage ic_cancel;
 gdispImage ic_done;
 
 
-
 static void create_PageTitle(void) {
 
 	GWidgetInit		wi;
@@ -148,11 +147,8 @@ void gui_set_time(GUIWindow *win) {
 }
 
 
-#ifdef UGFXSIMULATOR
-void myguiEventLoop(void) {
-#else
 void guiEventLoop(void) {
-#endif
+
 
 	GEvent *pe;
 
@@ -171,6 +167,7 @@ void guiEventLoop(void) {
 		if (curWindow->onEvent(curWindow, pe))
 			return;
 
+#if 0
 	/* If no Event-Function has been found for any page, perform the "default" button configuration */
 	// GEventGWinButton  *peb = (GEventGWinButton *)pe;
 
@@ -188,7 +185,6 @@ void guiEventLoop(void) {
 			/* CLEAN */
 			//else if (peb->gwin == ghBtn_Clean) {
 
-#if 0
             else if (peb->gwin == ghBtn_PageTwo)
                 guiWindow_Show(&winMainMenuTwo);
 
@@ -197,12 +193,13 @@ void guiEventLoop(void) {
                 guiWindow_Show(&winMainMenuOne);
 				//fprintf(stderr, "Next page..\n");
 			}
-#endif
 			break;
 
 		default:
 			break;
 	}
+
+#endif
 
 }
 
@@ -269,37 +266,53 @@ void guiCreate(void) {
 
 #endif
 
-	// Create the menu pages
+	/* Main page HOME  */
 	create_PageHome();
+
+	/* Menu pages ONE */
 	create_PageOne();
+
+		create_PageConfig();
+			create_PageDateConfig();
+			create_PageTimeConfig();
+
+		create_PageClean();
+
+		create_PageTimers();
+
+		create_PageNetwork();
+			create_PageNetworkIpv4();
+			create_PageNetworkGateway();
+			create_PageNetworkSubnetMask();
+
+		create_PageTestMode();
+
+		create_PageStatus();
+
+		create_PageHelp();
+
+	/* Menu pages TWO */
 	create_PageTwo();
 
-	create_PageConfig();
-	create_PageDateConfig();
-	create_PageTimeConfig();
+		create_PageMembrane();
 
-	create_PageClean();
+		create_PageT1T2();
+			create_PageT1T2ConfigT1();
+			create_PageT1T2ConfigT2();
 
-	create_PageTimers();
+		create_PageCycleMode();
+		
+		create_PageCycleTime();
 
-	create_PageNetwork();
-	create_PageNetworkIpv4();
-	create_PageNetworkGateway();
-	create_PageNetworkSubnetMask();
+		create_PageAeration();
+			create_PageAerationAirOn(); 
+			create_PageAerationAirOff(); 
+			create_PageAerationA1();
+			create_PageAerationA2(); 
 
-	create_PageTestMode();
-
-	create_PageStatus();
-
-	create_PageHelp();
-
-	create_PageMembrane();
-	create_PageT1T2();
-	create_PageCycleMode();
-	create_PageCycleTime();
-	create_PageAeration();
-	create_PageOverflow();
-	create_PageSludge();
+		create_PageOverflow();
+		
+		create_PageSludge();
 
 	
 
@@ -312,43 +325,61 @@ void guiCreate(void) {
 
 	//gui_create_lcd(8526);
 
-	// Init menu items
-	winMainHome.onInit(				&winMainHome, 		ghContainer_PageHome);
-	winMainMenuOne.onInit(			&winMainMenuOne, 	ghContainer_PageOne);
-	winMainMenuTwo.onInit(			&winMainMenuTwo, 	ghContainer_PageTwo);
+	/* HOME ONE */
+	winMainHome.onInit(&winMainHome, ghContainer_PageHome);
+
+	/* PAGE ONE */
+	winMainMenuOne.onInit(&winMainMenuOne, ghContainer_PageOne);
 	
-	winConfigMenu.onInit(			&winConfigMenu, 	ghContainer_PageConfig);
-	winDateConfigMenu.onInit(		&winDateConfigMenu, ghContainer_PageDateConfig);
-	winTimeConfigMenu.onInit(		&winTimeConfigMenu, ghContainer_PageTimeConfig);
+		winConfigMenu.onInit(&winConfigMenu, ghContainer_PageConfig);
+			winDateConfigMenu.onInit(&winDateConfigMenu, ghContainer_PageDateConfig);
+			winTimeConfigMenu.onInit(&winTimeConfigMenu, ghContainer_PageTimeConfig);
 
-	winCleanMenu.onInit(			&winCleanMenu, 		ghContainer_PageClean);
+		winCleanMenu.onInit(&winCleanMenu, ghContainer_PageClean);
 
-	winTimersMenu.onInit(			&winTimersMenu, 	ghContainer_PageTimers);
+		winTimersMenu.onInit(&winTimersMenu, ghContainer_PageTimers);
 
-	winNetworkMenu.onInit(			&winNetworkMenu, 			ghContainer_PageNetwork);
-	winNetworkIpv4Menu.onInit(		&winNetworkIpv4Menu, 		ghContainer_PageNetworkIpv4);
-	winNetworkGatewayMenu.onInit(	&winNetworkGatewayMenu, 	ghContainer_PageNetworkGateway);
-	winNetworkSubnetMaskMenu.onInit(&winNetworkSubnetMaskMenu, 	ghContainer_PageNetworkSubnetMask);
+		winNetworkMenu.onInit(&winNetworkMenu, ghContainer_PageNetwork);
+			winNetworkIpv4Menu.onInit(&winNetworkIpv4Menu, ghContainer_PageNetworkIpv4);
+			winNetworkGatewayMenu.onInit(&winNetworkGatewayMenu, ghContainer_PageNetworkGateway);
+			winNetworkSubnetMaskMenu.onInit(&winNetworkSubnetMaskMenu, ghContainer_PageNetworkSubnetMask);
 
-	winTestModeMenu.onInit(			&winTestModeMenu, 	ghContainer_PageTestMode);
+		winTestModeMenu.onInit(&winTestModeMenu, ghContainer_PageTestMode);
 
-	winStatusMenu.onInit(			&winStatusMenu, 	ghContainer_PageStatus);
+		winStatusMenu.onInit(&winStatusMenu, ghContainer_PageStatus);
 
-	winHelpMenu.onInit(				&winHelpMenu, 		ghContainer_PageHelp);
+		winHelpMenu.onInit(&winHelpMenu, ghContainer_PageHelp);
 
 
-	winMembraneMenu.onInit(			&winMembraneMenu, 	ghContainer_PageMembrane);
-	winT1T2Menu.onInit(				&winT1T2Menu, 		ghContainer_PageT1T2);
-	winCycleModeMenu.onInit(		&winCycleModeMenu, 	ghContainer_PageCycleMode);
-	winCycleTimeMenu.onInit(		&winCycleTimeMenu, 	ghContainer_PageCycleTime);
-	winAerationMenu.onInit(			&winAerationMenu, 	ghContainer_PageAeration);
-	winOverflowMenu.onInit(			&winOverflowMenu, 	ghContainer_PageOverflow);
-	winSludgeMenu.onInit(			&winSludgeMenu, 	ghContainer_PageSludge);
+	/* PAGE TWO */
+	winMainMenuTwo.onInit(&winMainMenuTwo, ghContainer_PageTwo);
+
+		winMembraneMenu.onInit(&winMembraneMenu, ghContainer_PageMembrane);
+
+		winT1T2Menu.onInit(&winT1T2Menu, ghContainer_PageT1T2);
+			winT1T2ConfigT1Menu.onInit(&winT1T2ConfigT1Menu, ghContainer_PageT1T2ConfigT1);
+			winT1T2ConfigT2Menu.onInit(&winT1T2ConfigT2Menu, ghContainer_PageT1T2ConfigT2);
+
+		winCycleModeMenu.onInit(&winCycleModeMenu, ghContainer_PageCycleMode);
+
+		winCycleTimeMenu.onInit(&winCycleTimeMenu, ghContainer_PageCycleTime);
+
+		winAerationMenu.onInit(&winAerationMenu, ghContainer_PageAeration);
+			winAerationAirOnMenu.onInit(&winAerationAirOnMenu, ghContainer_PageAerationAirOn);
+			winAerationAirOffMenu.onInit(&winAerationAirOffMenu, ghContainer_PageAerationAirOff);
+			winAerationA1Menu.onInit(&winAerationA1Menu, ghContainer_PageAerationA1);
+			winAerationA2Menu.onInit(&winAerationA2Menu, ghContainer_PageAerationA2);
+
+		winOverflowMenu.onInit(&winOverflowMenu, ghContainer_PageOverflow);
+
+		winSludgeMenu.onInit(&winSludgeMenu, ghContainer_PageSludge);
+
 
 
     // We want to listen for widget events
 	geventListenerInit(&glistener);
 	gwinAttachListener(&glistener);
+
 
 #ifndef UGFXSIMULATOR
 	//gwinAttachDial(ghSliderADCvalue, 0 , 0);
@@ -361,14 +392,13 @@ void guiCreate(void) {
 
 
 
-
+/* For simulation purpose, we need a never-ending loop checking for the events here.
+   On the embedded application, this is done by a task. */
 #ifdef UGFXSIMULATOR
-
-	#if 1
 
 	while(1) {
 
-		myguiEventLoop();
+		guiEventLoop();
 
 		if (curWindow == &winMainHome) {
 			//gui_create_lcd((uint16_t)gwinSliderGetPosition(ghSliderADCvalue));
@@ -376,8 +406,6 @@ void guiCreate(void) {
 
 	}
 
-	#endif
-	   
 	return 0;
 
 #endif

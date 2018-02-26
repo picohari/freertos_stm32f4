@@ -19,15 +19,25 @@
 
 #endif
 
+#include "zen_menu.h"
 #include "skin/zenstyle.h"
 #include "gui_router.h"
 
 #include "pages/zen_aeration.h"
+#include "pages/zen_aeration_air_on.h"
+#include "pages/zen_aeration_air_off.h"
+#include "pages/zen_aeration_a1.h"
+#include "pages/zen_aeration_a2.h"
 #include "pages/zen_main_two.h"
 
 
 /* PAGE CONTAINER */
+GHandle ghBtn_AerationAirOn;
+GHandle ghBtn_AerationAirOff;
+GHandle ghBtn_AerationA1;
+GHandle ghBtn_AerationA2;
 GHandle ghContainer_PageAeration;
+
 
 /* BUTTONS */
 GHandle ghBtn_BackAeration;
@@ -54,11 +64,55 @@ void create_PageAeration(void) {
 	wi.customStyle = 0;
 	ghContainer_PageAeration = gwinContainerCreate(0, &wi, 0);
 
-	
-	// create button widget: ghBtn_BackAeration
+	// create button widget: ghBtn_AerationAirOn
+	wi.g.show = TRUE;
+	wi.g.x = 0;
+	wi.g.y = 0;
+	wi.g.width = 80;
+	wi.g.height = 96;
+	wi.g.parent = ghContainer_PageAeration;
+	wi.text = MENU_TITLE_AIR_ON;
+	wi.customStyle = &color_one;
+	ghBtn_AerationAirOn = gwinButtonCreate(0, &wi);
+
+	// create button widget: ghBtn_AerationAirOff
+	wi.g.show = TRUE;
+	wi.g.x = 80;
+	wi.g.y = 0;
+	wi.g.width = 80;
+	wi.g.height = 96;
+	wi.g.parent = ghContainer_PageAeration;
+	wi.text = MENU_TITLE_AIR_OFF;
+	wi.customStyle = &color_two;
+	ghBtn_AerationAirOff = gwinButtonCreate(0, &wi);
+
+	// create button widget: ghBtn_AerationA1
 	wi.g.show = TRUE;
 	wi.g.x = 160;
 	wi.g.y = 0;
+	wi.g.width = 80;
+	wi.g.height = 96;
+	wi.g.parent = ghContainer_PageAeration;
+	wi.text = MENU_TITLE_A1;
+	wi.customStyle = &color_five;
+	ghBtn_AerationA1 = gwinButtonCreate(0, &wi);
+
+	// create button widget: ghBtn_AerationA2
+	wi.g.show = TRUE;
+	wi.g.x = 240;
+	wi.g.y = 0;
+	wi.g.width = 80;
+	wi.g.height = 96;
+	wi.g.parent = ghContainer_PageAeration;
+	wi.text = MENU_TITLE_A2;
+	wi.customStyle = &color_four;
+	ghBtn_AerationA2 = gwinButtonCreate(0, &wi);
+
+
+	// create button widget: ghBtn_BackAeration
+	wi.g.show = TRUE;
+	wi.g.x = 0;
+	wi.g.y = 96;
 	wi.g.width = 80;
 	wi.g.height = 96;
 	wi.g.parent = ghContainer_PageAeration;
@@ -95,6 +149,18 @@ static int guiAerationMenu_handleEvent(GUIWindow *win, GEvent *pe) {
 
             if(peb->gwin == ghBtn_BackAeration) {
             	guiWindow_Show(&winMainMenuTwo);
+
+            } else if(peb->gwin == ghBtn_AerationAirOn) {
+            	guiWindow_Show(&winAerationAirOnMenu);
+
+            } else if(peb->gwin == ghBtn_AerationAirOff) {
+            	guiWindow_Show(&winAerationAirOffMenu);
+
+            } else if(peb->gwin == ghBtn_AerationA1) {
+            	guiWindow_Show(&winAerationA1Menu);
+            	
+            } else if(peb->gwin == ghBtn_AerationA2) {
+            	guiWindow_Show(&winAerationA2Menu);		
 
             } else {
             	return 0;

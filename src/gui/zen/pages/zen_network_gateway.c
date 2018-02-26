@@ -1,10 +1,9 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "gfx.h"
 #include "gui.h"
 #include "src/gwin/gwin_keyboard_layout.h"
-#include "stdio.h"
-
 
 #ifdef UGFXSIMULATOR
 
@@ -22,6 +21,7 @@
 
 #endif
 
+#include "zen_menu.h"
 #include "skin/zenstyle.h"
 #include "gui_router.h"
 
@@ -63,8 +63,6 @@ static const GVSpecialKey KeyboardSpecialKeys[] = {
 static const char *numpadKeySetArray[] = { "789", "456", "123", "0\005", 0 };
 static const GVKeySet numpadKeySet[] = { numpadKeySetArray, 0 };
 static const GVKeyTable numpadKeyboard = { KeyboardSpecialKeys, numpadKeySet };
-
-static char new_gateway[16];
 
 void create_PageNetworkGateway(void) {
 
@@ -174,7 +172,8 @@ void create_PageNetworkGateway(void) {
 	geventAttachSource(&gl, ginputGetKeyboard(0), 0);
 	gwinKeyboardSetLayout(ghKeyboard, &numpadKeyboard);
 
-	set_gateway("255.255.255.255");
+	// 4294967295 is 255.255.255.255
+	set_gateway(4294967295);
 	
 }
 
@@ -183,39 +182,21 @@ static void guiNetworkGatewayMenu_onShow(GUIWindow *win) {
 
 	gui_set_title(win);
 
-	char* gateway = get_gateway();
+	uint32_t gateway = get_gateway();
 
 	char firstBlock[4];
 	char secondBlock[4];
 	char thirdBlock[4];
 	char fourthBlock[4];
-	unsigned short temp;
 
-	// The gateway will be in the form xxx.xxx.xxx.xxx
-	// so ignore the dots when copying to the blocks
-	strncpy(firstBlock, gateway, 3);
-	firstBlock[3] = '\0';
-	sscanf(firstBlock, "%hu", &temp);
-	snprintf(firstBlock, sizeof(firstBlock), "%hu", temp);
+	snprintf(firstBlock, sizeof(firstBlock), "%u", ((gateway >> 24) & 0xFF));
+	snprintf(secondBlock, sizeof(secondBlock), "%u", ((gateway >> 16) & 0xFF));
+	snprintf(thirdBlock, sizeof(thirdBlock), "%u", ((gateway >> 8) & 0xFF));
+	snprintf(fourthBlock, sizeof(fourthBlock), "%u", ((gateway >> 0) & 0xFF));
+
 	gwinSetText(ghTexteditFirstBlock, firstBlock, TRUE);
-
-	strncpy(secondBlock, gateway + 4, 3);
-	secondBlock[3] = '\0';
-	sscanf(secondBlock, "%hu", &temp);
-	snprintf(secondBlock, sizeof(secondBlock), "%hu", temp);
 	gwinSetText(ghTexteditSecondBlock, secondBlock, TRUE);
-
-	strncpy(thirdBlock, gateway + 8, 3);
-	thirdBlock[3] = '\0';
-	sscanf(thirdBlock, "%hu", &temp);
-	snprintf(thirdBlock, sizeof(thirdBlock), "%hu", temp);
 	gwinSetText(ghTexteditThirdBlock, thirdBlock, TRUE);
-
-
-	strncpy(fourthBlock, gateway + 12, 3);
-	fourthBlock[3] = '\0';
-	sscanf(fourthBlock, "%hu", &temp);
-	snprintf(fourthBlock, sizeof(fourthBlock), "%hu", temp);
 	gwinSetText(ghTexteditFourthBlock, fourthBlock, TRUE);	
 
 	// This function was manually added to the µGFX library under ugfx/src/gwin/gwin_textedit.h 
@@ -258,10 +239,10 @@ static int guiNetworkGatewayMenu_handleEvent(GUIWindow *win, GEvent *pe) {
 
             	if(firstBlock > 255 || secondBlock > 255 || thirdBlock > 255 || fourthBlock > 255) {
             		gwinSetText(ghLabel_ErrorGateway, "Invalid Gateway Address!", TRUE);
-            		break;
+            		return 1;
             	}
 
-            	snprintf(new_gateway, sizeof(new_gateway), "%03d.%03d.%03d.%03d", firstBlock, secondBlock, thirdBlock, fourthBlock);
+            	uint32_t new_gateway = (firstBlock << 24) + (secondBlock << 16) + (thirdBlock << 8) + (fourthBlock << 0);
 
             	// Set the newly entered Gateway
             	set_gateway(new_gateway);

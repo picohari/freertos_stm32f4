@@ -19,10 +19,10 @@
 
 #endif
 
+#include "pages/zen_menu.h"
 #include "skin/zenstyle.h"
 #include "gui_router.h"
 
-#include "pages/zen_menu.h"
 
 
 

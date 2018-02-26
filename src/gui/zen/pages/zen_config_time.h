@@ -20,4 +20,4 @@ extern GHandle ghContainer_PageTimeConfig;
 extern GUIWindow winTimeConfigMenu;
 
 
-#endif /* _ZEN_Time_CONFIG_H_ */
+#endif /* _ZEN_TIME_CONFIG_H_ */

@@ -1,0 +1,95 @@
+# Possible Targets:	all clean Debug cleanDebug Release cleanRelease
+
+##############################################################################################
+# Settings
+#
+
+# General settings
+	# See $(GFXLIB)/tools/gmake_scripts/readme.txt for the list of variables
+	# For Win32 this variable can be set to "win32" (native win32 api) or "win32.chibios" (ChibiOS simulator). 
+	OPT_OS					= win32
+	OPT_LINK_OPTIMIZE		= no
+
+# uGFX settings
+	# See $(GFXLIB)/tools/gmake_scripts/library_ugfx.mk for the list of variables
+	GFXLIB					= ../ugfx_2.8
+	GFXBOARD				= Win32
+	GFXDEMO					= 
+
+# ChibiOS settings
+ifeq ($(OPT_OS),win32.chibios)
+	# See $(GFXLIB)/tools/gmake_scripts/os_win32.chibios.mk for the list of variables
+	CHIBIOS					= ../ChibiOS
+endif
+
+# Win32 settings
+	# See $(GFXLIB)/tools/gmake_scripts/os_win32.mk for the list of variables
+
+##############################################################################################
+# Set these for your project
+#
+
+ARCH     = i686-w64-mingw32-
+SRCFLAGS = -ggdb -O0
+CFLAGS   =
+CXXFLAGS =
+ASFLAGS  =
+LDFLAGS  =
+
+SRC      =
+OBJS     =
+DEFS     =
+LIBS     =
+INCPATH  =
+LIBPATH  =
+
+##############################################################################################
+# These should be at the end
+#
+
+GFXINC +=  $(SIMDIR) \
+		   pages/ \
+		   pixmaps/ \
+
+GFXSRC +=  skin/zenstyle.c \
+		   gui.c \
+		   gui_router.c \
+	   	   helpers/sevensegment.c \
+	   	   helpers/date_and_time_util.c \
+	   	   helpers/network_util.c \
+	   	   helpers/zen_util.c \
+	   	   pages/zen_splash.c \
+	   	   pages/zen_main_home.c \
+	   	   pages/zen_main_one.c \
+	   	   pages/zen_main_two.c \
+	   	   pages/zen_config.c \
+	   	   pages/zen_config_date.c \
+	   	   pages/zen_config_time.c \
+	   	   pages/zen_clean.c \
+	   	   pages/zen_timers.c \
+	   	   pages/zen_network.c \
+	   	   pages/zen_network_ipv4.c \
+	   	   pages/zen_network_gateway.c \
+	   	   pages/zen_network_subnet_mask.c \
+	   	   pages/zen_test_mode.c \
+	   	   pages/zen_status.c \
+	   	   pages/zen_help.c \
+	   	   pages/zen_membrane.c \
+	   	   pages/zen_t1_t2.c \
+	   	   pages/zen_t1_t2_config_t1.c \
+	   	   pages/zen_t1_t2_config_t2.c \
+	   	   pages/zen_cycle_mode.c \
+	   	   pages/zen_cycle_time.c \
+	   	   pages/zen_aeration.c \
+	   	   pages/zen_aeration_air_on.c \
+	   	   pages/zen_aeration_air_off.c \
+	   	   pages/zen_aeration_a1.c \
+	   	   pages/zen_aeration_a2.c \
+	   	   pages/zen_overflow.c \
+	   	   pages/zen_sludge.c \
+
+include $(GFXLIB)/tools/gmake_scripts/library_ugfx.mk
+include $(GFXLIB)/tools/gmake_scripts/os_$(OPT_OS).mk
+include $(GFXLIB)/tools/gmake_scripts/compiler_gcc.mk
+include $(GFXLIB)/demos/applications/notepad/demo.mk
+# *** EOF ***

@@ -19,6 +19,7 @@
 
 #endif
 
+#include "zen_menu.h"
 #include "skin/zenstyle.h"
 #include "gui_router.h"
 
@@ -28,6 +29,7 @@
 
 /* PAGE CONTAINER */
 GHandle ghContainer_PageClean;
+
 
 /* BUTTONS */
 GHandle ghBtn_BackClean;

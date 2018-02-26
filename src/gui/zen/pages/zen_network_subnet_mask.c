@@ -4,8 +4,6 @@
 #include "gfx.h"
 #include "gui.h"
 #include "src/gwin/gwin_keyboard_layout.h"
-#include "stdio.h"
-
 
 #ifdef UGFXSIMULATOR
 
@@ -23,6 +21,7 @@
 
 #endif
 
+#include "zen_menu.h"
 #include "skin/zenstyle.h"
 #include "gui_router.h"
 
@@ -65,8 +64,6 @@ static const GVSpecialKey KeyboardSpecialKeys[] = {
 static const char *numpadKeySetArray[] = { "789", "456", "123", "0\005", 0 };
 static const GVKeySet numpadKeySet[] = { numpadKeySetArray, 0 };
 static const GVKeyTable numpadKeyboard = { KeyboardSpecialKeys, numpadKeySet };
-
-static char new_subnet_mask[16];
 
 void create_PageNetworkSubnetMask(void) {
 
@@ -176,7 +173,8 @@ void create_PageNetworkSubnetMask(void) {
 	geventAttachSource(&gl, ginputGetKeyboard(0), 0);
 	gwinKeyboardSetLayout(ghKeyboard, &numpadKeyboard);
 
-	set_subnet_mask("225.225.225.225");
+	// 4294967295 is 255.255.255.255
+	set_subnet_mask(4294967295);
 	
 }
 
@@ -185,40 +183,21 @@ static void guiNetworkSubnetMaskMenu_onShow(GUIWindow *win) {
 
 	gui_set_title(win);
 
-	char* subnet_mask = get_subnet_mask();
+	uint32_t subnet_mask = get_subnet_mask();
 
 	char firstBlock[4];
 	char secondBlock[4];
 	char thirdBlock[4];
 	char fourthBlock[4];
-	unsigned short temp;
 
-	// The gateway will be in the form xxx.xxx.xxx.xxx
-	// so ignore the dots when copying to the blocks
-	strncpy(firstBlock, subnet_mask, 3);
-	firstBlock[3] = '\0';
-	firstBlock[3] = '\0';
-	sscanf(firstBlock, "%hu", &temp);
-	snprintf(firstBlock, sizeof(firstBlock), "%hu", temp);
+	snprintf(firstBlock, sizeof(firstBlock), "%u", ((subnet_mask >> 24) & 0xFF));
+	snprintf(secondBlock, sizeof(secondBlock), "%u", ((subnet_mask >> 16) & 0xFF));
+	snprintf(thirdBlock, sizeof(thirdBlock), "%u", ((subnet_mask >> 8) & 0xFF));
+	snprintf(fourthBlock, sizeof(fourthBlock), "%u", ((subnet_mask >> 0) & 0xFF));
+
 	gwinSetText(ghTexteditFirstBlock, firstBlock, TRUE);
-
-	strncpy(secondBlock, subnet_mask + 4, 3);
-	secondBlock[3] = '\0';
-	secondBlock[3] = '\0';
-	sscanf(secondBlock, "%hu", &temp);
-	snprintf(secondBlock, sizeof(secondBlock), "%hu", temp);
 	gwinSetText(ghTexteditSecondBlock, secondBlock, TRUE);
-
-	strncpy(thirdBlock, subnet_mask + 8, 3);
-	thirdBlock[3] = '\0';
-	sscanf(thirdBlock, "%hu", &temp);
-	snprintf(thirdBlock, sizeof(thirdBlock), "%hu", temp);
 	gwinSetText(ghTexteditThirdBlock, thirdBlock, TRUE);
-
-	strncpy(fourthBlock, subnet_mask + 12, 3);
-	fourthBlock[3] = '\0';
-	sscanf(fourthBlock, "%hu", &temp);
-	snprintf(fourthBlock, sizeof(fourthBlock), "%hu", temp);
 	gwinSetText(ghTexteditFourthBlock, fourthBlock, TRUE);	
 
 	// This function was manually added to the µGFX library under ugfx/src/gwin/gwin_textedit.h 
@@ -261,10 +240,10 @@ static int guiNetworkSubnetMaskMenu_handleEvent(GUIWindow *win, GEvent *pe) {
 
             	if(firstBlock > 255 || secondBlock > 255 || thirdBlock > 255 || fourthBlock > 255) {
             		gwinSetText(ghLabel_ErrorSubnetMask, "Invalid Subnet Mask!", TRUE);
-            		break;
+            		return 1;
             	}
 
-            	snprintf(new_subnet_mask, sizeof(new_subnet_mask), "%03d.%03d.%03d.%03d", firstBlock, secondBlock, thirdBlock, fourthBlock);
+            	uint32_t new_subnet_mask = (firstBlock << 24) + (secondBlock << 16) + (thirdBlock << 8) + (fourthBlock << 0);
             	
             	// Set the newly entered Subnet Mask
             	set_subnet_mask(new_subnet_mask);

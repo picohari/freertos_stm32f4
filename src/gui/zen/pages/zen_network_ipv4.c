@@ -1,9 +1,9 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "gfx.h"
 #include "gui.h"
 #include "src/gwin/gwin_keyboard_layout.h"
-#include "stdio.h"
 
 #ifdef UGFXSIMULATOR
 
@@ -21,6 +21,7 @@
 
 #endif
 
+#include "zen_menu.h"
 #include "skin/zenstyle.h"
 #include "gui_router.h"
 
@@ -62,12 +63,6 @@ static const GVSpecialKey KeyboardSpecialKeys[] = {
 static const char *numpadKeySetArray[] = { "789", "456", "123", "0\005", 0 };
 static const GVKeySet numpadKeySet[] = { numpadKeySetArray, 0 };
 static const GVKeyTable numpadKeyboard = { KeyboardSpecialKeys, numpadKeySet };
-
-// Define the new ip address as a static variable, so it remains in memory after the onClose function is called. 
-// If the new_ipv4_address variable is not static, the ipv4_address char pointer in the network_util will point
-// to a wrong address after the onClose function is called, because the new_ipv4_address variable here won't exist anymore
-static char new_ipv4_address[16];
-
 
 void create_PageNetworkIpv4(void) {
 
@@ -177,7 +172,8 @@ void create_PageNetworkIpv4(void) {
 	geventAttachSource(&gl, ginputGetKeyboard(0), 0);
 	gwinKeyboardSetLayout(ghKeyboard, &numpadKeyboard);
 
-	set_ipv4_address("127.000.000.001");
+	// 2130706433 is 127.0.0.1
+	set_ipv4_address(2130706433);
 	
 }
 
@@ -185,38 +181,21 @@ static void guiNetworkIpv4Menu_onShow(GUIWindow *win) {
 
 	gui_set_title(win);
 
-	char* ipv4_address = get_ipv4_address();
+	uint32_t ipv4_address = get_ipv4_address();
 
 	char firstBlock[4];
 	char secondBlock[4];
 	char thirdBlock[4];
 	char fourthBlock[4];
-	unsigned short temp;
 
-	// The IPv4 address will be in the form xxx.xxx.xxx.xxx
-	// so ignore the dots when copying to the blocks
-	strncpy(firstBlock, ipv4_address, 3);
-	firstBlock[3] = '\0';
-	sscanf(firstBlock, "%hu", &temp);
-	snprintf(firstBlock, sizeof(firstBlock), "%hu", temp);
+	snprintf(firstBlock, sizeof(firstBlock), "%u", ((ipv4_address >> 24) & 0xFF));
+	snprintf(secondBlock, sizeof(secondBlock), "%u", ((ipv4_address >> 16) & 0xFF));
+	snprintf(thirdBlock, sizeof(thirdBlock), "%u", ((ipv4_address >> 8) & 0xFF));
+	snprintf(fourthBlock, sizeof(fourthBlock), "%u", ((ipv4_address >> 0) & 0xFF));
+
 	gwinSetText(ghTexteditFirstBlock, firstBlock, TRUE);
-
-	strncpy(secondBlock, ipv4_address + 4, 3);
-	secondBlock[3] = '\0';
-	sscanf(secondBlock, "%hu", &temp);
-	snprintf(secondBlock, sizeof(secondBlock), "%hu", temp);
 	gwinSetText(ghTexteditSecondBlock, secondBlock, TRUE);
-
-	strncpy(thirdBlock, ipv4_address + 8, 3);
-	thirdBlock[3] = '\0';
-	sscanf(thirdBlock, "%hu", &temp);
-	snprintf(thirdBlock, sizeof(thirdBlock), "%hu", temp);
 	gwinSetText(ghTexteditThirdBlock, thirdBlock, TRUE);
-
-	strncpy(fourthBlock, ipv4_address + 12, 3);
-	fourthBlock[3] = '\0';
-	sscanf(fourthBlock, "%hu", &temp);
-	snprintf(fourthBlock, sizeof(fourthBlock), "%hu", temp);
 	gwinSetText(ghTexteditFourthBlock, fourthBlock, TRUE);	
 
 	// This function was manually added to the µGFX library under ugfx/src/gwin/gwin_textedit.h 
@@ -259,10 +238,10 @@ static int guiNetworkIpv4Menu_handleEvent(GUIWindow *win, GEvent *pe) {
 
             	if(firstBlock > 255 || secondBlock > 255 || thirdBlock > 255 || fourthBlock > 255) {
             		gwinSetText(ghLabel_ErrorIpv4, "Invalid IP Address!", TRUE);
-            		break;
+            		return 1;
             	}
 
-            	snprintf(new_ipv4_address, sizeof(new_ipv4_address), "%03d.%03d.%03d.%03d", firstBlock, secondBlock, thirdBlock, fourthBlock);
+            	uint32_t new_ipv4_address = (firstBlock << 24) + (secondBlock << 16) + (thirdBlock << 8) + (fourthBlock << 0);
 
             	// Set the newly entered IP Address
             	set_ipv4_address(new_ipv4_address);

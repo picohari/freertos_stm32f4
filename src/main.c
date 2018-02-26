@@ -215,8 +215,8 @@ static void os_tasks(void)
   osThreadCreate( osThread(sgui),  NULL);
 
   /* NETWORK */
-  osThreadDef(snet, NET_start,     osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 2);
-  osThreadCreate( osThread(snet),  NULL);
+  //osThreadDef(snet, NET_start,     osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 1);
+  //osThreadCreate( osThread(snet),  NULL);
 
   /* RTC */
   //osThreadDef(rtc0, RTC_thread,    osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 1);
@@ -227,8 +227,8 @@ static void os_tasks(void)
   //osThreadCreate( osThread(adc0),  NULL);
 
   /* ONEWIRE */
-  osThreadDef(ow0, OW_thread,      osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 2);
-  osThreadCreate( osThread(ow0),   NULL);
+  //osThreadDef(ow0, OW_thread,      osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 4);
+  //osThreadCreate( osThread(ow0),   NULL);
 
 
 
@@ -251,6 +251,7 @@ static void os_tasks(void)
 
 }
 
+/* Total amount of STACK_SIZE allocated: 34 * 128 = 4352 Bytes */
 
 int main(void)
 {
@@ -867,8 +868,8 @@ static void GUI_start (void const * arg)
 
   osDelay(100);
 
-  osThreadDef(tty0, TTY_thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 2);
-  osThreadCreate( osThread(tty0), NULL);
+  //osThreadDef(tty0, TTY_thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 1);
+  //osThreadCreate( osThread(tty0), NULL);
 #endif
 
   while (1) {

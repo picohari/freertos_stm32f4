@@ -5,7 +5,6 @@
 #include "gui.h"
 #include "src/gwin/gwin_keyboard_layout.h"
 
-
 #ifdef UGFXSIMULATOR
 
 	#include <stdlib.h>
@@ -27,18 +26,18 @@
 #include "gui_router.h"
 
 #include "zen_config_time.h"
-#include "pages/zen_config.h"
-#include "helpers/date_and_time_util.h"
+#include "pages/zen_t1_t2_config_t2.h"
+#include "pages/zen_t1_t2.h"
+#include "helpers/zen_util.h"
 
 /* PAGE CONTAINER */
-GHandle ghContainer_PageTimeConfig;
+GHandle ghContainer_PageT1T2ConfigT2;
 
 /* BUTTONS */
-GHandle ghBtn_CancelTimeConfig;
-GHandle ghBtn_SetTime;
+GHandle ghBtn_CancelT2;
+GHandle ghBtn_SetT2;
 
 /* IMAGES */
-
 
 /* EVENT LISTENER */
 static GListener gl;
@@ -65,13 +64,13 @@ static const char *numpadKeySetArray[] = { "789", "456", "123", "0\005", 0 };
 static const GVKeySet numpadKeySet[] = { numpadKeySetArray, 0 };
 static const GVKeyTable numpadKeyboard = { KeyboardSpecialKeys, numpadKeySet };
 
-void create_PageTimeConfig(void) {
+void create_PageT1T2ConfigT2(void) {
 
 	GWidgetInit wi;
 
 	gwinWidgetClearInit(&wi);
 
-	// create container widget: ghContainer_PageTimeConfig
+	// create container widget: ghContainer_PageT1T2ConfigT2
 	wi.g.show = FALSE;
 	wi.g.x = 0;
 	wi.g.y = 24;
@@ -82,7 +81,7 @@ void create_PageTimeConfig(void) {
 	wi.customDraw = 0;
 	wi.customParam = 0;
 	wi.customStyle = 0;
-	ghContainer_PageTimeConfig = gwinContainerCreate(0, &wi, 0);
+	ghContainer_PageT1T2ConfigT2 = gwinContainerCreate(0, &wi, 0);
 
 	// HANDLE THE PRESS OF THE DELETE KEY WHEN NO TextEdit IS SELECTED
 	// Create the keyboard
@@ -91,7 +90,7 @@ void create_PageTimeConfig(void) {
 	wi.g.y = 58;
 	wi.g.width = gdispGetWidth() / 2 + 80; 
 	wi.g.height = gdispGetHeight() / 2 + 22;
-	wi.g.parent = ghContainer_PageTimeConfig;
+	wi.g.parent = ghContainer_PageT1T2ConfigT2;
 	ghKeyboard = gwinKeyboardCreate(0, &wi);
 
 	// TextEditHours
@@ -100,7 +99,7 @@ void create_PageTimeConfig(void) {
 	wi.g.y = 5;
 	wi.g.width = 50;
 	wi.g.height = 30;
-	wi.g.parent = ghContainer_PageTimeConfig;
+	wi.g.parent = ghContainer_PageT1T2ConfigT2;
 	wi.text = "";
 	ghTexteditHours = gwinTexteditCreate(0, &wi, 2);
 
@@ -110,7 +109,7 @@ void create_PageTimeConfig(void) {
 	wi.g.y = 5;
 	wi.g.width = 50;
 	wi.g.height = 30;
-	wi.g.parent = ghContainer_PageTimeConfig;
+	wi.g.parent = ghContainer_PageT1T2ConfigT2;
 	ghTexteditMinutes = gwinTexteditCreate(0, &wi, 2);
 
 	// TextEditSeconds
@@ -123,31 +122,31 @@ void create_PageTimeConfig(void) {
 	ghTexteditSeconds = gwinTexteditCreate(0, &wi, 2);
 	*/
 	
-	// create button widget: ghBtn_SetTime
+	// create button widget: ghBtn_SetT2
 	wi.g.show = TRUE;
 	wi.g.x = gdispGetWidth() - 80;
 	wi.g.y = 58;
 	wi.g.width = 80;
 	wi.g.height = 69;
-	wi.g.parent = ghContainer_PageTimeConfig;
+	wi.g.parent = ghContainer_PageT1T2ConfigT2;
 	//wi.text = MENU_TITLE_OK;
 	wi.customDraw = gwinButtonDraw_Image_Icon;
 	wi.customParam = &ic_done;
 	wi.customStyle = &color_eight;
-	ghBtn_SetTime = gwinButtonCreate(0, &wi);
+	ghBtn_SetT2 = gwinButtonCreate(0, &wi);
 
-	// create button widget: ghBtn_CancelTimeConfig
+	// create button widget: ghBtn_CancelT2
 	wi.g.show = TRUE;
 	wi.g.x = gdispGetWidth() - 80;
 	wi.g.y = 127;
 	wi.g.width = 80;
 	wi.g.height = 69;
-	wi.g.parent = ghContainer_PageTimeConfig;
+	wi.g.parent = ghContainer_PageT1T2ConfigT2;
 	//wi.text = MENU_TITLE_CANCEL;
 	wi.customDraw = gwinButtonDraw_Image_Icon;
 	wi.customParam = &ic_cancel;
 	wi.customStyle = &color_five;
-	ghBtn_CancelTimeConfig = gwinButtonCreate(0, &wi);
+	ghBtn_CancelT2 = gwinButtonCreate(0, &wi);
 
 	// create the Label widget: ghLabel_ErrorTime
 	wi.customDraw = 0;
@@ -158,7 +157,7 @@ void create_PageTimeConfig(void) {
 	wi.g.y = 35;
 	wi.g.width = 160;
 	wi.g.height = 20;
-	wi.g.parent = ghContainer_PageTimeConfig;
+	wi.g.parent = ghContainer_PageT1T2ConfigT2;
 	wi.text = "";
 	ghLabel_ErrorTime = gwinLabelCreate(NULL, &wi);
 	
@@ -169,7 +168,7 @@ void create_PageTimeConfig(void) {
 }
 
 
-static void guiTimeConfigMenu_onShow(GUIWindow *win) {
+static void guiT2ConfigMenu_onShow(GUIWindow *win) {
 
 	gui_set_title(win);
 
@@ -177,9 +176,9 @@ static void guiTimeConfigMenu_onShow(GUIWindow *win) {
 	char minutes[3];
 	//char seconds[3];
 
-	snprintf(hours, sizeof(hours), "%02d", get_hours());
-	snprintf(minutes, sizeof(minutes), "%02d", get_minutes());
-	//snprintf(seconds, sizeof(seconds), "%02d", get_seconds());
+	snprintf(hours, sizeof(hours), "%02d", get_hours_t2());
+	snprintf(minutes, sizeof(minutes), "%02d", get_minutes_t2());
+	//snprintf(seconds, sizeof(seconds), "%02d", get_seconds_t2());
 
 	gwinSetText(ghTexteditHours, hours, TRUE);
 	gwinSetText(ghTexteditMinutes, minutes, TRUE);
@@ -191,7 +190,7 @@ static void guiTimeConfigMenu_onShow(GUIWindow *win) {
 }
 
 
-static void guiTimeConfigMenu_onClose(GUIWindow *win) {
+static void guiT2ConfigMenu_onClose(GUIWindow *win) {
 
 	(void) win;
 
@@ -199,7 +198,7 @@ static void guiTimeConfigMenu_onClose(GUIWindow *win) {
 }
 
 
-static int guiTimeConfigMenu_handleEvent(GUIWindow *win, GEvent *pe) {
+static int guiT2ConfigMenu_handleEvent(GUIWindow *win, GEvent *pe) {
     
     (void) win;
 
@@ -209,11 +208,11 @@ static int guiTimeConfigMenu_handleEvent(GUIWindow *win, GEvent *pe) {
 
         	GEventGWinButton *peb = (GEventGWinButton *)pe;
 
-        	if(peb->gwin == ghBtn_CancelTimeConfig) {
+        	if(peb->gwin == ghBtn_CancelT2) {
 
-            	guiWindow_Show(&winConfigMenu);
+            	guiWindow_Show(&winT1T2Menu);
 
-            } else if(peb->gwin == ghBtn_SetTime) {
+            } else if(peb->gwin == ghBtn_SetT2) {
              	
             	unsigned int new_hours;
             	unsigned int new_minutes;
@@ -235,15 +234,13 @@ static int guiTimeConfigMenu_handleEvent(GUIWindow *win, GEvent *pe) {
 
             	//sscanf(gwinGetText(ghTexteditSeconds), "%u", &new_seconds);
 
-            	set_hours((uint8_t) new_hours);
-            	set_minutes((uint8_t) new_minutes);
+            	set_hours_t2((uint8_t) new_hours);
+            	set_minutes_t2((uint8_t) new_minutes);
             	//set_seconds((uint8_t) new_seconds);
             	// Reset the seconds every time the hours or the minutes are changed
-            	set_seconds((uint8_t) 0);
+            	set_seconds_t2((uint8_t) 0);
 
-            	update_date_and_time_label();
-
-            	guiWindow_Show(&winConfigMenu);
+            	guiWindow_Show(&winT1T2Menu);
 
             }
 
@@ -259,13 +256,13 @@ static int guiTimeConfigMenu_handleEvent(GUIWindow *win, GEvent *pe) {
 
 
 
-GUIWindow winTimeConfigMenu = {
+GUIWindow winT1T2ConfigT2Menu = {
 
-/* Title   */	 "Time Menu",
+/* Title   */	 "T2 Config Menu",
 /* onInit  */    guiWindow_onInit,
-/* onShow  */    guiTimeConfigMenu_onShow,
-/* onClose */    guiTimeConfigMenu_onClose,
-/* onEvent */    guiTimeConfigMenu_handleEvent,
+/* onShow  */    guiT2ConfigMenu_onShow,
+/* onClose */    guiT2ConfigMenu_onClose,
+/* onEvent */    guiT2ConfigMenu_handleEvent,
 /* handle  */    0
 
 };
