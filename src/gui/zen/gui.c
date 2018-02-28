@@ -31,9 +31,8 @@
 #include "gfx.h"
 
 #include "gui.h"
-#include "gui_router.h"
-
 #include "helpers/date_and_time_util.h"
+
 
 #ifdef UGFXSIMULATOR
 
@@ -53,9 +52,9 @@
 
 #endif
 
-
+#include "zen_menu.h"
 #include "skin/zenstyle.h"
-#include "pages/zen_menu.h"
+#include "gui_router.h"
 
 
 /* The variables we need */
@@ -169,7 +168,7 @@ void guiEventLoop(void) {
 
 #if 0
 	/* If no Event-Function has been found for any page, perform the "default" button configuration */
-	// GEventGWinButton  *peb = (GEventGWinButton *)pe;
+	GEventGWinButton  *peb = (GEventGWinButton *)pe;
 
 	switch(pe->type) {
 
@@ -178,9 +177,9 @@ void guiEventLoop(void) {
 			//gwinPrintf(ghConsole, "Button %s\n", gwinGetText(((GEventGWinButton *)pe)->gwin));
 			
 			/* CONFIG */
-			//if (peb->gwin == ghBtn_Config) {
-			//	fprintf(stderr, "CONFIG:\n");
-			//} 
+			if (peb->gwin == ghBtn_Config) {
+				fprintf(stderr, "CONFIG:\n");
+			} 
 
 			/* CLEAN */
 			//else if (peb->gwin == ghBtn_Clean) {
@@ -227,6 +226,9 @@ void guiCreate(void) {
 	gwinSetDefaultStyle(&BlackWidgetStyle, FALSE);
 	gdispClear(Black);
 
+	// Show SplashScreen
+	//zen_splash();
+
 	// Create static border
 	gdispFillArea(0, 0,   320, 24,  HTML2COLOR(0x262626) );
 	gdispFillArea(0, 216, 320, 240, HTML2COLOR(0x262626) );
@@ -265,6 +267,9 @@ void guiCreate(void) {
 	// gdispImageOpenFile(&ic_remove,      	"rsc/ic_remove.gif");
 
 #endif
+
+
+	// TODO: Try to represent this as a nice tree 
 
 	/* Main page HOME  */
 	create_PageHome();
@@ -316,6 +321,8 @@ void guiCreate(void) {
 
 	
 
+
+
 	// Create static block elements
 	create_PageTitle();
 	create_ClockTime();
@@ -324,6 +331,9 @@ void guiCreate(void) {
 
 
 	//gui_create_lcd(8526);
+
+
+	// TODO: Try to represent this as a nice tree 
 
 	/* HOME ONE */
 	winMainHome.onInit(&winMainHome, ghContainer_PageHome);
@@ -376,18 +386,20 @@ void guiCreate(void) {
 
 
 
+
     // We want to listen for widget events
 	geventListenerInit(&glistener);
 	gwinAttachListener(&glistener);
 
 
 #ifndef UGFXSIMULATOR
-	//gwinAttachDial(ghSliderADCvalue, 0 , 0);
+	gwinAttachDial(ghSliderADCvalue, 0 , 0);
 #endif
 
+
 	// Display initial window
-	//guiWindow_Show(&winMainHome);
-	guiWindow_Show(&winMainMenuOne);
+	guiWindow_Show(&winMainHome);
+	//guiWindow_Show(&winMainMenuOne);
 	
 
 

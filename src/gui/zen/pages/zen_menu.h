@@ -9,7 +9,7 @@
 #include "gfx.h"
 
 
-/* Alle MENU-Pages werden hier inkludiert, sodaß man nur einmal die pages.h angeben muss ... */
+/* Alle MENU-Pages werden hier inkludiert, sodaß man nur einmal die zen_menu.h angeben muss ... */
 #include "pages/zen_main_home.h"
 #include "pages/zen_main_one.h"
 #include "pages/zen_config.h"

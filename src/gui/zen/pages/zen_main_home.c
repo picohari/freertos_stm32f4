@@ -160,6 +160,7 @@ void create_PageHome(void) {
 	wi.customStyle = 0;
 	ghLabelADCindicFAIL = gwinWindowCreate(0, (const struct GWindowInit *)&wi);
 
+	gwinSetDefaultFont(dejavu_sans_16);
 
 	/* Bar gauge */
 	wi.g.show = TRUE;
@@ -185,13 +186,13 @@ void create_PageHome(void) {
 
 
 #if 1
-	wi.g.show = FALSE;
+	wi.g.show = TRUE;
 	wi.g.x = 5;
 	wi.g.y = 48;
 	wi.g.width = 117;
 	wi.g.height = 45;
 	wi.g.parent = ghContainer_PageHome;
-	wi.text = "0";
+	wi.text = "OFF";
 	wi.customDraw = gwinLabelDrawJustifiedLeft;
 	wi.customParam = 0;
 	wi.customStyle = 0;
@@ -372,9 +373,10 @@ static int guiMainHome_handleEvent(GUIWindow *win, GEvent *pe) {
 
             else if (peb->gwin == ghButtonWeather)
                 guiWindow_Show (&winWeather);
-#endif
+
             else if (peb->gwin == ghBtn_PageOne)
                 guiWindow_Show(&winMainMenuOne);
+#endif
 
             else
                 return 0;

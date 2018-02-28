@@ -236,7 +236,7 @@ static int guiMainMenuTwo_handleEvent(GUIWindow *win, GEvent *pe) {
 #endif
             else if (peb->gwin == ghBtn_PageOne) {
                 //guiWindow_Show(&winMainHome);
-                guiWindow_Show(&winMainMenuOne);
+                guiWindow_Show(&winMainHome);
             }
 
             else

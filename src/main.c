@@ -215,8 +215,8 @@ static void os_tasks(void)
   osThreadCreate( osThread(sgui),  NULL);
 
   /* NETWORK */
-  //osThreadDef(snet, NET_start,     osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 1);
-  //osThreadCreate( osThread(snet),  NULL);
+  osThreadDef(snet, NET_start,     osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 2);
+  osThreadCreate( osThread(snet),  NULL);
 
   /* RTC */
   //osThreadDef(rtc0, RTC_thread,    osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 1);
@@ -227,8 +227,8 @@ static void os_tasks(void)
   //osThreadCreate( osThread(adc0),  NULL);
 
   /* ONEWIRE */
-  //osThreadDef(ow0, OW_thread,      osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 4);
-  //osThreadCreate( osThread(ow0),   NULL);
+  osThreadDef(ow0, OW_thread,      osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 2);
+  osThreadCreate( osThread(ow0),   NULL);
 
 
 
@@ -685,15 +685,13 @@ void messageArrived(MessageData* md)
   writef("Payload: %.*s\r\n", (int)message->payloadlen, (char*)message->payload);
 
 
-
-
-
-
   if (strncmp((char *) message->payload, "on", (int) message->payloadlen) == 0) {
     writef("ON\r\n");
+    gwinSetText(ghScaleADCvalue, "ON", 1);
 
   } else if (strncmp((char *) message->payload, "off", (int) message->payloadlen) == 0) {
     writef("OFF\r\n");
+    gwinSetText(ghScaleADCvalue, "OFF", 1);
   }
 }
 
@@ -715,7 +713,9 @@ static void MQTT_start (void const * arg)
   unsigned char readbuf[100];   /* Receiving buffer */
 
   ip4_addr_t broker_ipaddr;
-  IP4_ADDR( &broker_ipaddr, 192, 168, 1, 101);
+  //IP4_ADDR( &broker_ipaddr, 192, 168, 1, 101);
+  IP4_ADDR( &broker_ipaddr, 37, 61, 201, 83);     // cumulus.intewa.net:15672
+
 
   //err_t err;
 
@@ -765,7 +765,7 @@ static void MQTT_start (void const * arg)
   writef("Subscribing to its topic\r\n");
 
 
-  char topic_buf[256] = {0};
+  char topic_buf[128] = {0};
 
   sprintf(topic_buf, "%02lx:%02lx:%02lx:%02lx:%02lx:%02lx/do/#",
     (uint32_t) MAC_ADDR0, 
@@ -787,22 +787,29 @@ static void MQTT_start (void const * arg)
 
   writef("Connected to MQTT server...\r\n");
 
-  MQTTMessage message;
+
 
   while(1) {
 
+    MQTTMessage message;
+    
+    unsigned char sendtemp[] = {'0', '0', '.', '0', '0', 0 };
+
     message.qos = QOS0;
     message.retained = 0;
-    message.payload = sendbuf;
+    message.payload = sendtemp;
 
-    memset(sendbuf, 0, sizeof(sendbuf));
-    sprintf((char*)sendbuf, "%2.2f", ds18b20[0].Temperature);
+#if 1
+    memset(sendtemp, 0, sizeof(sendtemp));
+    sprintf((char*)sendtemp, "%2.2f", ds18b20[0].Temperature);
 
-    message.payloadlen = strlen((char*)sendbuf);
+    //message.payloadlen = strlen((char*)sendbuf);
+    message.payloadlen = 5;
 
+    char topic_buf_2[128] = {0};
 
-    memset(topic_buf, 0, sizeof(topic_buf));
-    sprintf(topic_buf, "%02lx:%02lx:%02lx:%02lx:%02lx:%02lx/basement/temp",
+    memset(topic_buf_2, 0, sizeof(topic_buf_2));
+    sprintf(topic_buf_2, "%02lx:%02lx:%02lx:%02lx:%02lx:%02lx/basement/temp",
       (uint32_t) MAC_ADDR0, 
       (uint32_t) MAC_ADDR1, 
       (uint32_t) MAC_ADDR2, 
@@ -810,10 +817,43 @@ static void MQTT_start (void const * arg)
       (uint32_t) MAC_ADDR4, 
       (uint32_t) MAC_ADDR5); 
 
-    MQTTPublish(&c, topic_buf, &message);
-
+    MQTTPublish(&c, topic_buf_2, &message);
 
     MQTTYield(&c, 1000);
+
+    osDelay(500);
+#endif
+
+#if 1
+
+    MQTTMessage online_status;
+
+    unsigned char sendstr[] = {'o', 'n', 'l', 'i', 'n', 'e'};
+
+    online_status.qos = QOS0;
+    online_status.retained = 0;
+    online_status.payload = sendstr;
+
+    online_status.payloadlen = 6;
+
+    char topic_online_buf[100] = {0};
+    
+
+    memset(topic_online_buf, 0, sizeof(topic_online_buf));
+    sprintf(topic_online_buf, "%02lx:%02lx:%02lx:%02lx:%02lx:%02lx/online_status",
+      (uint32_t) MAC_ADDR0, 
+      (uint32_t) MAC_ADDR1, 
+      (uint32_t) MAC_ADDR2, 
+      (uint32_t) MAC_ADDR3, 
+      (uint32_t) MAC_ADDR4, 
+      (uint32_t) MAC_ADDR5); 
+
+    MQTTPublish(&c, topic_online_buf, &online_status);
+
+    MQTTYield(&c, 1000);
+
+    osDelay(500);
+#endif
 
   }
 
@@ -888,6 +928,7 @@ static void GUI_thread (void const * arg)
     guiEventLoop();
 
     if (curWindow == &winMainHome) {
+      // Draw LCD on page HOME
       gui_create_lcd((uint16_t)gwinSliderGetPosition(ghSliderADCvalue));
     }
 

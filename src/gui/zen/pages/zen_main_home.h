@@ -20,7 +20,7 @@
 
 
 /* BUTTONS */
-
+extern GHandle ghBtn_MENU;
 
 /* FUNCTIONS */
 void create_PageHome(void);
