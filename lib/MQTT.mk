@@ -1,7 +1,6 @@
 
 LIB_MQTT = ./lib/mqtt
 
-
 # FatFS basis files
 CSRC += $(LIB_MQTT)/MQTTClient.c \
 		$(LIB_MQTT)/MQTTConnectClient.c \
@@ -16,7 +15,6 @@ CSRC += $(LIB_MQTT)/MQTTClient.c \
 		$(LIB_MQTT)/MQTTUnsubscribeServer.c \
 		$(LIB_MQTT)/MQTTlwip.c \
 		#$(LIB_MQTT)/mqtt.c \
-
 
 
 # FatFS Includes

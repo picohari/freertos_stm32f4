@@ -170,9 +170,7 @@
 /* MAC ADDRESS: MAC_ADDR0:MAC_ADDR1:MAC_ADDR2:MAC_ADDR3:MAC_ADDR4:MAC_ADDR5 */
 #define MAC_ADDR0   0xACU
 #define MAC_ADDR1   0x03U
-
 #define MAC_ADDR2   0xBEU
-  
 #define MAC_ADDR3   STM32_UUID[0] >> (8 * 0) & 0xFF
 #define MAC_ADDR4   STM32_UUID[1] >> (8 * 1) & 0xFF
 #define MAC_ADDR5   STM32_UUID[2] >> (8 * 2) & 0xFF

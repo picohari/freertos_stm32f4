@@ -5,6 +5,3 @@ CSRC += $(LIB_BSP)/XCore407I.c \
 
 INCDIR += $(LIB_BSP) \
 
-
-
-

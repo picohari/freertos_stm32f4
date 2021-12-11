@@ -1,3 +1,4 @@
+
 GFXLIB = ./lib/ugfx_2.8
 
 include $(GFXLIB)/gfx.mk
@@ -9,5 +10,4 @@ CSRC   += $(GFXSRC) \
 
 INCDIR += $(GFXINC) \
 
-
-OPT_OS				= freertos
+OPT_OS	= freertos

@@ -1,3 +1,4 @@
+
 LIB_LWIP = ./lib/LwIP
 
 LWIP_SRC = $(LIB_LWIP)/src
@@ -156,8 +157,6 @@ LWIPAPPFILES=$(SNMPFILES) \
 	$(MQTTFILES) \
 
 
-
-
 CSRC += $(COREFILES) \
 	    $(CORE4FILES) \
 	    $(CORE6FILES) \
@@ -170,6 +169,7 @@ CSRC += $(COREFILES) \
 	    #$(LWIP_SRC)/apps/sntp/sntp.c \
 	    #$(LWIP_SRC)/apps/httpd/fs.c \
 	    #$(LWIP_SRC)/apps/httpd/httpd.c \
+
 
 INCDIR += $(LWIP_SRC)/include \
 	      $(LIB_LWIP)/system \

@@ -110,7 +110,7 @@ CWARN = -Wall -Wextra -Wstrict-prototypes
 CPPWARN = -Wall -Wextra
 
 # Verbose log while compiling
-USE_VERBOSE_COMPILE = no
+USE_VERBOSE_COMPILE = yes
 
 
 ##############################################################################

@@ -9,7 +9,7 @@
 	OPT_OS				= linux
 	OPT_LINK_OPTIMIZE	= yes
 	# Change this next setting (or add the explicit compiler flags) if you are not compiling for x86 linux
-	OPT_CPU				= x86
+	OPT_CPU				= x64
 
 # uGFX settings
 	# See $(GFXLIB)/tools/gmake_scripts/library_ugfx.mk for the list of variables

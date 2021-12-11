@@ -413,7 +413,7 @@ void guiCreate(void) {
 		guiEventLoop();
 
 		if (curWindow == &winMainHome) {
-			//gui_create_lcd((uint16_t)gwinSliderGetPosition(ghSliderADCvalue));
+			gui_create_lcd((uint16_t)gwinSliderGetPosition(ghSliderADCvalue));
 		}
 
 	}

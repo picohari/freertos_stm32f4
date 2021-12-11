@@ -11,7 +11,6 @@ CSRC += $(LIB_USBH)/Core/Src/usbh_core.c \
 INCDIR += $(LIB_USBH)/Core/Inc \
 
 
-
 # MSC Class library
 CSRC += $(LIB_USBH)/Class/MSC/Src/usbh_msc.c \
         $(LIB_USBH)/Class/MSC/Src/usbh_msc_bot.c \
