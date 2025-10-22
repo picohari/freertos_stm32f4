@@ -37,11 +37,14 @@
 #include <stdio.h>
 #include <sys/time.h>
 
+#include "log.h"
+
 typedef int sys_prot_t;
 
 #define LWIP_PROVIDE_ERRNO
 
-#define LWIP_PLATFORM_DIAG(message)  debug message
+#define LWIP_PLATFORM_DIAG(message)  \
+    do { log_printf message; } while(0)
 
 /* define compiler specific symbols */
 #if defined (__ICCARM__)

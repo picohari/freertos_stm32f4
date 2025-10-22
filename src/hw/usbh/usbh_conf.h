@@ -56,7 +56,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "uart.h"
+#include "log.h"
 
 /* Exported types ------------------------------------------------------------*/
 #define USBH_MAX_NUM_ENDPOINTS                2
@@ -88,8 +88,8 @@
     
 /* DEBUG macros */   
 #if (USBH_DEBUG_LEVEL > 0)
-#define USBH_UsrLog(...)   writef(__VA_ARGS__);\
-                           writef("\r\n");
+#define USBH_UsrLog(...)   LOG_PRINTF(__VA_ARGS__); \
+                           LOG_PRINTF("\r\n");
 #else
 #define USBH_UsrLog(...)   
 #endif 
@@ -97,17 +97,17 @@
                             
 #if (USBH_DEBUG_LEVEL > 1)
 
-#define USBH_ErrLog(...)   writef("ERROR: ") ;\
-                           writef(__VA_ARGS__);\
-                           writef("\r\n");
+#define USBH_ErrLog(...)   LOG_PRINTF("ERROR: ") ; \
+                           LOG_PRINTF(__VA_ARGS__);\
+                           LOG_PRINTF("\r\n");
 #else
 #define USBH_ErrLog(...)   
 #endif 
                                                       
 #if (USBH_DEBUG_LEVEL > 2)                         
-#define  USBH_DbgLog(...)   writef("DEBUG : ") ;\
-                            writef(__VA_ARGS__);\
-                            writef("\r\n");
+#define  USBH_DbgLog(...)   LOG_PRINTF("DEBUG : ") ;\
+                            LOG_PRINTF(__VA_ARGS__);\
+                            LOG_PRINTF("\r\n");
 #else
 #define USBH_DbgLog(...)                         
 #endif

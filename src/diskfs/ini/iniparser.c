@@ -16,7 +16,7 @@
 #include "usbh_diskio.h"
 #include "cmsis_os.h"
 
-#include "uart.h"
+#include "log.h"
    
 /*---------------------------- Defines -------------------------------------*/
 #define ASCIILINESZ         (128)
@@ -122,18 +122,16 @@ static unsigned strstrip(char * s)
  */
 /*--------------------------------------------------------------------------*/
 
-#include "uart.h"
-
 static int default_error_callback(const char *format, ...)
 {
   int ret;
   va_list argptr;
   va_start(argptr, format);
   //ret = viniprintf(stderr, format, argptr);
-  UART_log_printf(format, argptr);
+  log_printf(format, argptr);
   va_end(argptr);
 
-  UART_log_send();
+  log_uart();
   return 0;
 }
 
@@ -268,9 +266,9 @@ void iniparser_dump_uart(const dictionary * d)
         if (d->key[i]==NULL)
             continue ;
         if (d->val[i]!=NULL) {
-            writef("[%s]=[%s]\r\n", d->key[i], d->val[i]);
+            LOG_DEBUG("[%s]=[%s]", d->key[i], d->val[i]);
         } else {
-            writef("[%s]=UNDEF\r\n", d->key[i]);
+            LOG_DEBUG("[%s]=UNDEF", d->key[i]);
         }
     }
     return ;

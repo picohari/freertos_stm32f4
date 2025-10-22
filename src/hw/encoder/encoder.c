@@ -18,10 +18,10 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
-#include "encoder.h"
 #include "config.h"
+#include "log.h"
+#include "encoder.h"
 
-#include "uart.h"
 
 /* USER CODE BEGIN 0 */
 
@@ -181,7 +181,7 @@ void Encoder_Update(void)
     // Optional: debug print only when moved
     if (raw_delta != 0)
     {
-        writef("Δ=%+d  JogPos=%.2f\n\r", raw_delta, jog_position);
+        LOG_DEBUG("Δ=%+d  JogPos=%.2f", raw_delta, jog_position);
     }
     #endif
 }

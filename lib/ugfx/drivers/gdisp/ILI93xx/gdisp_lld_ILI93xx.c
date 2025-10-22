@@ -6,7 +6,7 @@
  */
 
 #include "gfx.h"
-#include "uart.h"
+#include "log.h"
 
 #if GFX_USE_GDISP /*|| defined(__DOXYGEN__)*/
 
@@ -124,8 +124,7 @@ LLDSPEC gBool gdisp_lld_init(GDisplay *g) {
    DeviceCode = read_reg(g, 0x00);
    setwritemode(g);
 
-   writef("TFT Driver: ILI%x\n\r", DeviceCode);
-   //writef("\n\r");
+   LOG_DEBUG("TFT Driver: ILI%x", DeviceCode);
 
    if( DeviceCode == 0x9320 || DeviceCode == 0x9300 )
    {

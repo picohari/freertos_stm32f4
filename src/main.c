@@ -39,6 +39,7 @@
 #include <string.h>
 
 #include "config.h"
+#include "log.h"
 
 /* XCore drivers */
 #include "stm32f4xx_hal.h"
@@ -708,14 +709,13 @@ while(1) {
 
 /*
 
+Firmware fc8f-dirty built on Oct 22 2025 02:52:04
+STM32F407i - CMSIS - FreeRTOS - LwIP - BSP - µGFX
 XCore: 0x0413, Rev. 0x1007
 UUID:  0035003c-32355118-34333432
 Flash: 1024 kB
 Pack:  7
 CLK:   168 MHz
-Firmware fc8f-dirty built on Oct 22 2025 02:52:04
-CMSIS - FreeRTOS - LwIP - BSP - µGFX
-
 NAND Flash: K9F1G08U0B
 TFT Driver: ILI9325
 ETH PHY:    DP83848 (Rev 0)
@@ -732,15 +732,20 @@ Static IP address: 192.168.100.164
 static void Register_printout(void)
 {
 
-  /* Put some information on the starting screen */
-  writef("\033[2J"); // Clear screen
-  writef("\r\n");
+  /* Clear and put some information on the starting screen */
+  LOG_PRINTF("\033[2J");  // Clear screen
+  LOG_PRINTF("\r\n");
 
-  /* Read some Hardware Registers for information and fun ;) */
+  /* We run our code as ... */
+  LOG_DEBUG("Firmware %s", VERSION_STRING_LONG);
+
+  /* Welcome to our guests ;) */
+  LOG_DEBUG("STM32F407i - CMSIS - FreeRTOS - LwIP - BSP - µGFX");
+
+  /* Read STM32F4 hardware registers for information and fun ;) */
   char rev_id[42];
   sprintf((char*)rev_id, "XCore: 0x%04lx, Rev. 0x%04lx", (DBGMCU->IDCODE & 0x00000FFF), ((DBGMCU->IDCODE >> 16) & 0x0000FFFF));
-  writef("%s", rev_id);
-  writef("\r\n");
+  LOG_DEBUG("%s", rev_id);
 
   /*
      * Prettify those outputs one day...
@@ -771,12 +776,10 @@ static void Register_printout(void)
   uint32_t idPart1 = STM32_UUID[0];
   uint32_t idPart2 = STM32_UUID[1];
   uint32_t idPart3 = STM32_UUID[2];
-
+  
   char uuid0_tmp[38];
   sprintf((char*)uuid0_tmp,  "UUID:  %08lx-%08lx-%08lx", idPart1, idPart2, idPart3);
-  
-  writef("%s", uuid0_tmp);
-  writef("\r\n");
+  LOG_DEBUG("%s", uuid0_tmp);
 
   /* Print flash size */
   uint32_t flashSize = STM32_UUID_FLASH[0];
@@ -788,8 +791,7 @@ static void Register_printout(void)
 
   uint16_t size = strtol((char*)flash, NULL, 16);
   sprintf((char*)flash_tmp, "Flash: %d kB", size);
-  writef("%s", flash_tmp);
-  writef("\r\n");
+  LOG_DEBUG("%s", flash_tmp);
 
   /* Print package code (hardware chip case form) */
   uint32_t flashPack = (((*(__IO uint16_t *) (STM32_UUID_PACK)) & 0x0700) >> 8);
@@ -805,20 +807,10 @@ static void Register_printout(void)
 
   char pack_tmp[10];
   sprintf((char*)pack_tmp, "Pack:  %lx", flashPack);
-  writef("%s", pack_tmp);
-  writef("\r\n");
+  LOG_DEBUG("%s", pack_tmp);
 
   /* System clock runnning at ... */
-  writef("CLK:   %d MHz", SystemCoreClock / 1000000UL);
-  writef("\r\n");
-
-  /* We run our code as ... */
-  writef("Firmware %s", VERSION_STRING_LONG);
-  writef("\r\n");
-
-  /* Welcome to our guests ;) */
-  writef("CMSIS - FreeRTOS - LwIP - BSP - µGFX\n\r");
-  writef("\r\n");
+  LOG_DEBUG("CLK:   %d MHz", SystemCoreClock / 1000000UL);
 
   /* NAND flash drive */
   flashdrive_init();
@@ -827,28 +819,28 @@ static void Register_printout(void)
 
   HAL_NAND_Read_ID(&hNAND, &flash_id);
 
-  //writef("NAND Flash ID: 0x%02x, 0x%02x, 0x%02x, 0x%02x\r\n", flash_id.Maker_Id, flash_id.Device_Id,
-  //                                                             flash_id.Third_Id, flash_id.Fourth_Id );
+  //LOG_DEBUG("NAND Flash ID: 0x%02x, 0x%02x, 0x%02x, 0x%02x", flash_id.Maker_Id, flash_id.Device_Id,
+  //                                                           flash_id.Third_Id, flash_id.Fourth_Id );
 
-  writef("NAND Flash: ");
+  LOG_PRINTF("NAND Flash: ");
   if ((flash_id.Maker_Id == 0xEC) && (flash_id.Device_Id == 0xF1)
     && (flash_id.Third_Id == 0x80) && (flash_id.Fourth_Id == 0x15))
   {
-   writef("K9F1G08U0A\r\n");
+    LOG_DEBUG("K9F1G08U0A");
   }
   else if ((flash_id.Maker_Id == 0xEC) && (flash_id.Device_Id == 0xF1)
     && (flash_id.Third_Id == 0x00) && (flash_id.Fourth_Id == 0x95))
   {
-   writef("K9F1G08U0B\r\n");   
+    LOG_DEBUG("K9F1G08U0B");   
   }
   else if ((flash_id.Maker_Id == 0xAD) && (flash_id.Device_Id == 0xF1)
     && (flash_id.Third_Id == 0x80) && (flash_id.Fourth_Id == 0x1D))
   {
-   writef("HY27UF081G2A\r\n");   
+    LOG_DEBUG("HY27UF081G2A");   
   }
   else
   {
-   writef("Unknow\r\n");
+    LOG_DEBUG("Unknow type");
   }
 }
 

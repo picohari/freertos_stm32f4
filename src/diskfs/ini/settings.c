@@ -1,18 +1,11 @@
 
-
-
 #include "iniparser.h"
 #include "dictionary.h"
 
 #include "ff_gen_drv.h"
 #include "usbh_diskio.h"
 
-#include "uart.h"
-
-
-
-
-
+#include "log.h"
 
 
 void ini_write_file(dictionary * iniDict) {
@@ -20,17 +13,15 @@ void ini_write_file(dictionary * iniDict) {
 	FIL iniFile;
 
 	if((f_open(&iniFile, "SETTINGS.water", FA_OPEN_ALWAYS | FA_CREATE_ALWAYS | FA_WRITE )) != FR_OK) {
-		writef("Could not create SETTINGS.water\r\n");
+		LOG_DEBUG("Could not create SETTINGS.water");
 		return;
 	}
 	else {
 		iniparser_dump_ini(iniDict, &iniFile);
 		f_close(&iniFile);
-		writef("Wrote SETTINGS.water\r\n");
+		LOG_DEBUG("Wrote SETTINGS.water");
 	}
 }
-
-
 
 
 //Overwrite the settings file with the defaults, or create a new file from scratch (NULL value = section header)
@@ -88,7 +79,7 @@ int ini_parse_file(const char * ini_name)
     ini = iniparser_load(ini_name);
 
     if (ini == NULL) {
-        writef("Cannot parse file: %s\r\n", ini_name);
+        LOG_DEBUG("Cannot parse file: %s", ini_name);
         return -1 ;
     }
 
@@ -96,7 +87,7 @@ int ini_parse_file(const char * ini_name)
 
     /* Get attribute */
     s = iniparser_getstring(ini, "general:date", NULL);
-    writef("Date:   [%s]\r\n", s ? s : "UNDEF");
+    LOG_DEBUG("Date:   [%s]", s ? s : "UNDEF");
 
     iniparser_freedict(ini);
 

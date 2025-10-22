@@ -70,10 +70,10 @@
 
 
 #define DEBUG_HTTPLOG			
-#include "uart.h"
+#include "log.h"
   
 #ifdef DEBUG_HTTPLOG
-#define HTLOG_DEBUG(a...)  debug("httplog: " a)
+#define HTLOG_DEBUG(a...)  LOG_DEBUG("httplog: " a)
 #else
 #define HTLOG_DEBUG(a...)
 #endif

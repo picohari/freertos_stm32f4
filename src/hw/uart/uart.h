@@ -86,24 +86,6 @@ void USARTx_IRQHandler(void);
 void uart_init(void);
 
 
-
-
-
-
-/* Basic logging functions */
-void UART_log_printf(const char * format, ...);
-void UART_log_send(void);
-void UART_txt_send(void);
-
-#define debug(...) {UART_log_printf(__VA_ARGS__);  \
-                    UART_log_send();               \
-}
-
-#define writef(...) {UART_log_printf(__VA_ARGS__); \
-                    UART_txt_send();               \
-}
-
-
 #endif /* __UART_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -101,7 +101,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 
-//#include "uart.h"
 /** @addtogroup STM32F4xx_HAL_Driver
   * @{
   */
@@ -1883,8 +1882,6 @@ static void ETH_MACAddressConfig(ETH_HandleTypeDef *heth, uint32_t MacAddr, uint
   
   /* Load the selected MAC address low register */
   (*(__IO uint32_t *)((uint32_t)(ETH_MAC_ADDR_LBASE + MacAddr))) = tmpreg1;
-
-  //debug("MAC: %0x:%0x:%0x:%0x:%0x:%0x", Addr[0], Addr[1], Addr[2], Addr[3], Addr[4], Addr[5]);
 }
 
 /**

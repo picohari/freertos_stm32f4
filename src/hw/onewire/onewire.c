@@ -37,6 +37,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "config.h"
+#include "log.h"
 #include "stm32f4xx_hal.h"
 #include "cmsis_os.h"
 #include "XCore407I.h"
@@ -48,7 +49,6 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include "uart.h"
 
 
 TIM_HandleTypeDef       TimHandle;
@@ -380,7 +380,7 @@ uint8_t OneWire_Search(OneWire_t* OneWireStruct, uint8_t command)
     /* issue the search command */
     OneWire_WriteByte(OneWireStruct, command);
 
-    writef("OW: searching...\r\n");  
+    LOG_DEBUG("OW: searching...");  
 
     /* loop to do the search */
     do {
@@ -454,15 +454,15 @@ uint8_t OneWire_Search(OneWire_t* OneWireStruct, uint8_t command)
         OneWireStruct->LastDeviceFlag = 1;
       }
 
-      writef("OW: found %02x %02x %02x %02x %02x %02x %02x %02x\r\n", 
-            OneWireStruct->ROM_NO[0],
-            OneWireStruct->ROM_NO[1],
-            OneWireStruct->ROM_NO[2],
-            OneWireStruct->ROM_NO[3],
-            OneWireStruct->ROM_NO[4],
-            OneWireStruct->ROM_NO[5],
-            OneWireStruct->ROM_NO[6],
-            OneWireStruct->ROM_NO[7]);
+      LOG_DEBUG("OW: found %02x %02x %02x %02x %02x %02x %02x %02x", 
+                 OneWireStruct->ROM_NO[0],
+                 OneWireStruct->ROM_NO[1],
+                 OneWireStruct->ROM_NO[2],
+                 OneWireStruct->ROM_NO[3],
+                 OneWireStruct->ROM_NO[4],
+                 OneWireStruct->ROM_NO[5],
+                 OneWireStruct->ROM_NO[6],
+                 OneWireStruct->ROM_NO[7]);
 
       search_result = 1;
     }

@@ -45,9 +45,6 @@
 
 #include "uart.h"
 
-#include <stdarg.h>
-#include <string.h>
-
 
 /* Recast system printf to uart output */
 
@@ -204,50 +201,4 @@ void USARTx_IRQHandler(void)
       HAL_UART_IRQHandler(&hUART);
 #endif
 
-}
-
-
-
-
-
-
-/*! Groesse des Puffers fuer die Logausgaben ueber UART und ueber TCP/IP. */
-#define LOG_BUFFER_SIZE   1024
-#define LINE_FEED         "\r\n"    /**< Linefeed fuer nicht Windows */
-
-/*! Puffer fuer das Zusammenstellen einer Logausgabe */
-static char log_buffer[LOG_BUFFER_SIZE];
-
-/*!
- * Schreibt die eigentliche Ausgabeinformation in den Puffer.
- * @param format Format
- */
-void UART_log_printf(const char * format, ...) {
-  va_list args;
-  unsigned int len = strlen(log_buffer);
-
-  va_start(args, format);
-  vsnprintf(&log_buffer[len], LOG_BUFFER_SIZE - len, format, args);
-  va_end(args);
-
-  return;
-}
-
-void UART_log_send(void) {
-  /* String ueber UART senden, ohne '\0'-Terminierung */
-  HAL_UART_Transmit(&hUART, (uint8_t *)log_buffer, strlen(log_buffer), 0xFFFF);
-  /* Line feed senden */
-  HAL_UART_Transmit(&hUART, (uint8_t *)LINE_FEED, strlen(LINE_FEED), 0xFFFF);
-
-  memset(log_buffer, 0, sizeof(log_buffer));
-
-  return;
-}
-
-void UART_txt_send(void) {
-
-  /* String ueber UART senden, ohne '\0'-Terminierung */
-  HAL_UART_Transmit(&hUART, (uint8_t *)log_buffer, strlen(log_buffer), 0xFFFF);
-
-  memset(log_buffer, 0, sizeof(log_buffer));
 }

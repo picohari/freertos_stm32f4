@@ -1,17 +1,17 @@
 
 
 /* Includes ------------------------------------------------------------------*/
+#include <stdio.h>
+#include <string.h>
+
 #include "config.h"
+#include "log.h"
+
 #include "lwip/pbuf.h"
 #include "lwip/udp.h"
 #include "lwip/tcp.h"
-#include <string.h>
-#include <stdio.h>
-
 
 #include "udp_connect.h"
-#include "uart.h"
-
 #include "linuxcnc_ctrl.h"
 
 
@@ -59,8 +59,8 @@ void udp_server_receive_callback(void *arg, struct udp_pcb *upcb, struct pbuf *p
     if (p == NULL) return;
 
     /* Print received data */
-    //writef("Got UDP packet: len=%d from %s:%d\n\r", p->len, ipaddr_ntoa(addr), port);
-    //writef("Data: %.*s\n\r", p->len, (char *)p->payload);
+    //LOG_DEBUG("Got UDP packet: len=%d from %s:%d", p->len, ipaddr_ntoa(addr), port);
+    //LOG_DEBUG("Data: %.*s", p->len, (char *)p->payload);
 
     /* Check if packet is for LinuxCNC controller */
     if (p->len >= sizeof(MachineState_t)) {
@@ -74,18 +74,18 @@ void udp_server_receive_callback(void *arg, struct udp_pcb *upcb, struct pbuf *p
             LinuxCNC_SetState(&pkt);
 
             /* Example: print the received values
-            writef("Received axis data: X=%.3f Y=%.3f Z=%.3f Homed=%d\n\r",
-                    pkt.pos_x,
-                    pkt.pos_y,
-                    pkt.pos_z,
-                    pkt.homed);
+            LOG_DEBUG("Received axis data: X=%.3f Y=%.3f Z=%.3f Homed=%d",
+                       pkt.pos_x,
+                       pkt.pos_y,
+                       pkt.pos_z,
+                       pkt.homed);
             */
 
         } else {
-            writef("Invalid packet format (or corrupted)\n\r");
+            LOG_DEBUG("Invalid packet format (or corrupted)");
         }
     } else {
-        writef("Received packet too small: %d bytes\n\r", p->len);
+        LOG_DEBUG("Received packet too small: %d bytes", p->len);
     }
 
 

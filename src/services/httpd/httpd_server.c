@@ -59,7 +59,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-
+#include "log.h"
 
 /* SSI functions */
 #define SSI_INDEX_LEDSTATE  0
@@ -138,7 +138,7 @@ static char * control_GCI_Handler(int iIndex, int iNumParams, char *pcParam[], c
     for (i = 0; i < iNumParams; i++)
     {
 
-      debug ((char *)  "%s = %s", pcParam[i], pcValue[i]);
+      LOG_DEBUG((char *)  "%s = %s", pcParam[i], pcValue[i]);
 
 #if 0
       /* check parameter "led" */
@@ -159,7 +159,7 @@ static char * control_GCI_Handler(int iIndex, int iNumParams, char *pcParam[], c
 static char * debug_GCI_Handler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
 {
 
-  //debug((char *)  "CGI-debug" );
+  //LOG_DEBUG((char *)  "CGI-debug" );
   
   return(DEFAULT_CGI_RESPONSE);
 }

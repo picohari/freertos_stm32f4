@@ -50,12 +50,12 @@
 #include "stm32f4xx_hal.h"
 #include "cmsis_os.h"
 #include "XCore407I.h"
-  
+
 #include "lwip/dhcp.h"
 #include "dhcp_eth.h"
 
 #ifdef DHCP_LOG
-#include "uart.h"
+#include "log.h"
 #endif
 
 
@@ -88,7 +88,7 @@ void dhcp_notification(struct netif *netif)
 #ifdef DHCP_LOG
     uint8_t iptxt[20];
     sprintf((char *)iptxt, "%s", ip4addr_ntoa((const ip4_addr_t *)&netif->ip_addr));
-    debug("Static IP address: %s\n\r", iptxt);
+    LOG_DEBUG("Static IP address: %s", iptxt);
 #else    
 
     /* Turn On LED 1 to indicate ETH and LwIP init success*/
@@ -105,7 +105,7 @@ void dhcp_notification(struct netif *netif)
 #endif  /* USE_DHCP */
 
 #ifdef DHCP_LOG
-    debug("The network cable is not connected \n\r");
+    LOG_DEBUG("The network cable is not connected");
 #else    
     /* Turn On LED 2 to indicate ETH and LwIP init error */
     BSP_LED_On(LED2);
@@ -138,7 +138,7 @@ void ethernetif_notify_conn_changed(struct netif *netif)
   {
 
 #ifdef DHCP_LOG        
-    //writef("The network cable is now connected \n\r");
+    //LOG_DEBUG("The network cable is now connected");
 #else
     BSP_LED_Off(LED2);
     BSP_LED_On(LED1);
@@ -158,7 +158,7 @@ void ethernetif_notify_conn_changed(struct netif *netif)
 #ifdef DHCP_LOG        
     uint8_t iptxt[20];
     sprintf((char *)iptxt, "%s", ip4addr_ntoa((const ip4_addr_t *)&netif->ip_addr));
-    writef("Static IP address: %s\n\r", iptxt);
+    LOG_DEBUG("Static IP address: %s", iptxt);
 #endif /* DHCP_LOG */
 
 #endif /* USE_DHCP */   
@@ -180,7 +180,7 @@ void ethernetif_notify_conn_changed(struct netif *netif)
     netif_set_down(netif);
     
 #ifdef DHCP_LOG
-    writef("Network disconnected\n\r");
+    LOG_DEBUG("Network disconnected");
 #else
     BSP_LED_Off(LED1);
     BSP_LED_On(LED2);
@@ -224,7 +224,7 @@ void dhcp_thread(void const * argument)
         DHCP_state = DHCP_WAIT_ADDRESS;
 
 #ifdef DHCP_LOG
-        debug("State: Looking for DHCP server ...\n");
+        LOG_DEBUG("State: Looking for DHCP server ...");
 #endif
       }
       break;
@@ -237,7 +237,7 @@ void dhcp_thread(void const * argument)
          
 #ifdef DHCP_LOG 
           sprintf((char *)iptxt, "%s", ip4addr_ntoa((const ip4_addr_t *)&netif->ip_addr));   
-          debug("IP address assigned by a DHCP server: %s\n", iptxt);
+          LOG_DEBUG("IP address assigned by a DHCP server: %s", iptxt);
 #else
           BSP_LED_On(LED1);   
 #endif 
@@ -262,8 +262,8 @@ void dhcp_thread(void const * argument)
             
 #ifdef DHCP_LOG  
             sprintf((char *)iptxt, "%s", ip4addr_ntoa((const ip4_addr_t *)&netif->ip_addr));
-            debug("DHCP Timeout !! \n");
-            debug("Static IP address: %s\n", iptxt);  
+            LOG_DEBUG("DHCP Timeout!");
+            LOG_DEBUG("Static IP address: %s", iptxt);  
 #else
             BSP_LED_On(LED1);  
 #endif

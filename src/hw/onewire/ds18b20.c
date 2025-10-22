@@ -37,6 +37,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "config.h"
+#include "log.h"
 #include "stm32f4xx_hal.h"
 #include "cmsis_os.h"
 #include "XCore407I.h"
@@ -46,7 +47,6 @@
 #include "onewire.h"
 #include "ds18b20.h"
 
-#include "uart.h"
 
 #include <stdbool.h>
 #include <stdarg.h>
@@ -129,7 +129,7 @@ void OW_thread(void const * argument)
 	
 	osDelay(100);
 
-	writef("OW: init\r\n");
+	LOG_DEBUG("OW: init");
 
 	osDelay(10);
 
@@ -155,11 +155,11 @@ void OW_thread(void const * argument)
 	} while (Ds18b20TryToFind > 0);
 
 	if (Ds18b20TryToFind == 0) {
-		writef("OW: no devices found!\r\n");
+		LOG_DEBUG("OW: no devices found!");
 		vTaskDelete(Ds18b20Handle);
 	}
 
-	writef("OW: %d device(s) found!\r\n", TempSensorCount);
+	LOG_DEBUG("OW: %d device(s) found!", TempSensorCount);
 
 	uint8_t i = 0;
 
@@ -211,7 +211,7 @@ void OW_thread(void const * argument)
 				ds18b20[i].DataIsValid = DS18B20_Read(&OneWire, ds18b20[i].Address, &ds18b20[i].Temperature);
 
 				if (ds18b20[i].DataIsValid) {
-					writef("OW: Sensor %d = %2.2f\r\n", TempSensorCount, ds18b20[i].Temperature);
+					LOG_DEBUG("OW: Sensor %d = %2.2f", TempSensorCount, ds18b20[i].Temperature);
 				}
 
 			}

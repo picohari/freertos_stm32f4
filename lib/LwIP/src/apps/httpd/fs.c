@@ -38,7 +38,7 @@
 
 #include "cmsis_os.h"
 
-#include "uart.h"
+#include "log.h"
 
 #if HTTPD_USE_CUSTOM_FSDATA
 #include "fsdata_custom.c"
@@ -105,7 +105,7 @@ int fs_open_custom(struct fs_file *file, const char *name)
 
       file->custom_ext = 1;
       
-      debug("config page call\n");
+      //LOG_DEBUG("config page call");
 
       return 1;
     }

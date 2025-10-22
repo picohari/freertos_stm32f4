@@ -19,6 +19,8 @@
 
 #include "lwip/api.h"
 
+#include "log.h"
+
 char expired(Timer* timer)
 {
 	return xTaskCheckForTimeOut(&timer->xTimeOut, &timer->xTicksToWait) == pdTRUE;
@@ -142,7 +144,7 @@ int mqtt_lwip_connect(Network* n, const ip_addr_t *ip_addr, int port)
 		return ERR_MEM;
 	}
 
-	writef("Connecting to: %s:%lu\r\n", ipaddr_ntoa(ip_addr), port);
+	LOG_DEBUG("Connecting to: %s:%lu", ipaddr_ntoa(ip_addr), port);
 
 	rc = netconn_connect(n->netconn, ip_addr, port);
 

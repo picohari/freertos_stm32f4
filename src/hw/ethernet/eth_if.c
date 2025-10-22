@@ -46,18 +46,17 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
+#include <string.h>
+#include "config.h"
+#include "log.h"
+#include "eth_if.h"
+
 #include "stm32f4xx_hal.h"
 #include "lwip/opt.h"
 #include "lwip/timeouts.h"
 #include "netif/etharp.h"
   
-#include "eth_if.h"
-#include "config.h"
   
-#include <string.h>
-
-#include "uart.h"
-
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* The time to block waiting for input. */
@@ -717,8 +716,8 @@ void print_phy_chip(void)
   }
 
   // --- Output result ---
-  //writef("PHY ID read: 0x%04lx%04lx\r\n", phy_id1, phy_id2);
-  writef("ETH PHY:    %s (Rev %u)\r\n", phy_name, revision); // 21 chars + 1 for rev
+  //LOG_DEBUG("PHY ID read: 0x%04lx%04lx", phy_id1, phy_id2);
+  LOG_DEBUG("ETH PHY:    %s (Rev %u)", phy_name, revision); // 21 chars + 1 for rev
 }
 
 

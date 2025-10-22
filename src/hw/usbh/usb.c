@@ -40,7 +40,7 @@ osMessageQId DiskEvent;
     /* Link the USB Host disk I/O driver */
     if(FATFS_LinkDriver(&USBH_Driver, USBDISKPath) == 0)
     {
-      writef("Driver linked\r\n");
+      LOG_DEBUG("Driver linked");   // TODO: Check include log.h
   
       /* Init Host Library */
       USBH_Init(&hUSB_Host, USBH_UserProcess, 0);
