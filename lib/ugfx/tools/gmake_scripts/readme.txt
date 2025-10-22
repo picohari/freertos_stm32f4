@@ -15,7 +15,7 @@ OPT_GENERATE_MAP=no|yes			- Generate a map file - default no
 OPT_COPY_EXE=no|yes				- Copy the final program to the local project directory - default no
 OPT_NONSTANDARD_FLAGS=no		- Turn off adding the standard compiler language flags - default no
 OPT_LINK_OPTIMIZE=no			- Remove unused code/data during link - default no
-OPT_OS=win32|win32.raw32|win32.chibios|linux|osx|chibios|freertos|ecos|raw32|rawrtos	- Mandatory: The operating system
+OPT_OS=win32|win32.raw32|win32.chibios|linux|freebsd|osx|chibios|freertos|ecos|raw32|rawrtos	- Mandatory: The operating system
 OPT_CPU=x86|x64|stm32m1|stm32m4|stm32m7|at91sam7|armv6|raspberrypi	- Add some cpu dependant flags
 
 BUILDDIR						- Build Directory - default is ".build" or "bin/Debug" or "bin/Release" depending on the target

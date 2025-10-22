@@ -14,7 +14,7 @@ Yaffs2 is distributed under the GPLv2 license. Specifically that means the follo
 -	You MUST NOT distribute a binary that you produce in any form (even in the ROM of
         a device) that contains both yaffs2 and uGFX code as that will put you in
         breach of either the GPL license or the uGFX license no matter what you do.
-        See http://ugfx.org/licensing for more details.
+        See http://ugfx.io/licensing for more details.
 -	Regardless of whether the project is commercial or non-commercial, you MUST NOT
         even compile binaries for other people since that is considered "distribution".
         You cannot even compile binaries for a friend, they must build it for themselves.

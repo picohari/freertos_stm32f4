@@ -44,8 +44,8 @@
  extern "C" {
 #endif
 
-#define SDRAM_DEVICE_ADDR  ((uint32_t)0xC0000000)
-#define SDRAM_DEVICE_SIZE  ((uint32_t)0x800000)  /* SDRAM device size in MBytes */
+#define SDRAM_DEVICE_ADDR  ((gU32)0xC0000000)
+#define SDRAM_DEVICE_SIZE  ((gU32)0x800000)  /* SDRAM device size in MBytes */
 
 void BSP_SDRAM_Init(void);
 

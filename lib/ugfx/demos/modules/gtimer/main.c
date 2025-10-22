@@ -51,12 +51,12 @@ int main(void) {
     gtimerInit(&GT2);
  
     /* continious mode - callback1() called without any argument every 250ms */
-    gtimerStart(&GT1, callback1, 0, TRUE, 250);
+    gtimerStart(&GT1, callback1, 0, gTrue, 250);
  
     /* single shot mode - callback2() called without any argument once after 1s */
-    gtimerStart(&GT2, callback2, 0, FALSE, 1000);
+    gtimerStart(&GT2, callback2, 0, gFalse, 1000);
 
-	while(TRUE) {
+	while(1) {
 		gfxSleepMilliseconds(500);
 	}
 

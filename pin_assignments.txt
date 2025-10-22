@@ -27,8 +27,8 @@ PB4																				NJTRST
 PB5																								USB_DATA_7
 PB10 																							USB_DATA_3
 PB11 																							USB_DATA_4
-PB12 																							USB_DATA_5
-PB13 																							USB_DATA_6
+PB12 																							USB_DATA_5		TXD_0
+PB13 																							USB_DATA_6		TXD_1
 
 
 -------------------------------------------------------------------------------------------------------------------------------------------------
@@ -76,7 +76,9 @@ PE15 	FSMC_D12
 
 
 -------------------------------------------------------------------------------------------------------------------------------------------------
+PG2																												RXER
 PG5		LCD_RS
+PG11																											TX_EN
 PG14	LCD_CS
 
 
@@ -93,5 +95,57 @@ PI3		TP_DIN
 PI2 	TP_DOUT
 PI8 																LED_3
 PI10 																LED_4
+
+
+
+LIB VERSIONS
+============
+
+
+FreeRTOS	: 9.0.0
+µGFX		: 2.8
+LwIP		: 2.0.0
+
+
+
++------------------------------------------------------+
+|                 APPLICATION LAYER                    |
+|------------------------------------------------------|
+|  - Handwheel / MPG Logic (position, range, axes)     |
+|  - Display UI (µGFX)                                 |
+|  - Network I/O (LinuxCNC interface over UDP/LwIP)    |
+|------------------------------------------------------|
+|            SYSTEM SERVICE / MIDDLEWARE               |
+|  - FreeRTOS (Tasks, Queues, Mutexes, Timers)         |
+|  - Message Bus / Data Manager                        |
+|------------------------------------------------------|
+|                  HARDWARE ABSTRACTION                |
+|  - STM32 HAL Drivers (GPIO, TIM, SPI, ETH, etc.)     |
+|  - Board Support Package (bsp_*)                     |
+|------------------------------------------------------|
+|                        MCU                           |
++------------------------------------------------------+
+
+
+
+
+ ┌───────────────────┐       ┌──────────────────────┐       ┌──────────────┐
+ │   Handwheel Task  │──────▶│  Message Queue       │──────▶│   Net Task   │
+ │  (encoder input)  │       │  (SystemMessages)    │       │ (UDP sender) │
+ └───────────────────┘       └──────────────────────┘       └──────────────┘
+         │                           ▲                             │
+         │                           │                             │
+         │                           │                             ▼
+         │                   ┌──────────────────────┐     ┌───────────────────┐
+         │                   │ Control App Task     │◀────│  Net RX Callback  │
+         │                   │ updates global state │     │ (UDP parser)      │
+         │                   └──────────────────────┘     └───────────────────┘
+         │                           │
+         ▼                           ▼
+ ┌────────────────────┐      ┌────────────────────┐
+ │ Display/UI Task    │      │ LinuxCNC UDP Out   │
+ │ reads global state │      │ sends status data  │
+ └────────────────────┘      └────────────────────┘
+
 
 

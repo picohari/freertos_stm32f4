@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "../../gfx.h"
@@ -15,20 +15,9 @@
 // Number of milliseconds for the startup logo - 0 means disabled.
 #if GDISP_NEED_STARTUP_LOGO
 	#define GDISP_STARTUP_LOGO_TIMEOUT		1000
-	#define GDISP_STARTUP_LOGO_COLOR		White
+	#define GDISP_STARTUP_LOGO_COLOR		GFX_WHITE
 #else
 	#define GDISP_STARTUP_LOGO_TIMEOUT		0
-#endif
-
-// For internal use only.
-#if GDISP_NEED_TEXT_WORDWRAP
-	typedef struct wrapParameters {
-		GDisplay* g;
-		coord_t x;
-		coord_t y;
-		font_t font;
-		justify_t justify;
-	} wrapParameters_t;
 #endif
 
 /*===========================================================================*/
@@ -53,26 +42,26 @@ GDisplay	*GDISP;
 	#define MUTEX_DEINIT(g)
 #endif
 
-#define NEED_CLIPPING	(GDISP_HARDWARE_CLIP != TRUE && (GDISP_NEED_VALIDATION || GDISP_NEED_CLIP))
+#define NEED_CLIPPING	(GDISP_HARDWARE_CLIP != GFXON && (GDISP_NEED_VALIDATION || GDISP_NEED_CLIP))
 
 #if !NEED_CLIPPING
 	#define TEST_CLIP_AREA(g)
 #elif GDISP_HARDWARE_CLIP == HARDWARE_AUTODETECT
-	#define TEST_CLIP_AREA(g)																					\
-			if (!gvmt(g)->setclip) {																				\
-				if ((g)->p.x < (g)->clipx0) { (g)->p.cx -= (g)->clipx0 - (g)->p.x; (g)->p.x = (g)->clipx0; }	\
-				if ((g)->p.y < (g)->clipy0) { (g)->p.cy -= (g)->clipy0 - (g)->p.y; (g)->p.y = (g)->clipy0; }	\
-				if ((g)->p.x + (g)->p.cx > (g)->clipx1)	(g)->p.cx = (g)->clipx1 - (g)->p.x;						\
-				if ((g)->p.y + (g)->p.cy > (g)->clipy1)	(g)->p.cy = (g)->clipy1 - (g)->p.y;						\
-			}																									\
-			if ((g)->p.cx > 0 && (g)->p.cy > 0)
-#else
 	#define TEST_CLIP_AREA(g)																				\
+		if (!gvmt(g)->setclip) {																			\
 			if ((g)->p.x < (g)->clipx0) { (g)->p.cx -= (g)->clipx0 - (g)->p.x; (g)->p.x = (g)->clipx0; }	\
 			if ((g)->p.y < (g)->clipy0) { (g)->p.cy -= (g)->clipy0 - (g)->p.y; (g)->p.y = (g)->clipy0; }	\
 			if ((g)->p.x + (g)->p.cx > (g)->clipx1)	(g)->p.cx = (g)->clipx1 - (g)->p.x;						\
 			if ((g)->p.y + (g)->p.cy > (g)->clipy1)	(g)->p.cy = (g)->clipy1 - (g)->p.y;						\
-			if ((g)->p.cx > 0 && (g)->p.cy > 0)
+		}																									\
+		if ((g)->p.cx > 0 && (g)->p.cy > 0)
+#else
+	#define TEST_CLIP_AREA(g)																				\
+		if ((g)->p.x < (g)->clipx0) { (g)->p.cx -= (g)->clipx0 - (g)->p.x; (g)->p.x = (g)->clipx0; }		\
+		if ((g)->p.y < (g)->clipy0) { (g)->p.cy -= (g)->clipy0 - (g)->p.y; (g)->p.y = (g)->clipy0; }		\
+		if ((g)->p.x + (g)->p.cx > (g)->clipx1)	(g)->p.cx = (g)->clipx1 - (g)->p.x;							\
+		if ((g)->p.y + (g)->p.cy > (g)->clipy1)	(g)->p.cy = (g)->clipy1 - (g)->p.y;							\
+		if ((g)->p.cx > 0 && (g)->p.cy > 0)
 #endif
 
 /*==========================================================================*/
@@ -81,7 +70,7 @@ GDisplay	*GDISP;
 
 #if GDISP_HARDWARE_STREAM_POS && GDISP_HARDWARE_STREAM_WRITE
 	static GFXINLINE void setglobalwindow(GDisplay *g) {
-		coord_t	x, y;
+		gCoord	x, y;
 		x = g->p.x; y = g->p.y;
 		g->p.x = g->p.y = 0;
 		g->p.cx = g->g.Width; g->p.cy = g->g.Height;
@@ -100,14 +89,14 @@ GDisplay	*GDISP;
 #endif
 
 #if GDISP_HARDWARE_STREAM_POS && GDISP_HARDWARE_STREAM_WRITE
-	#define autoflush(g)									\
-			{												\
-				if ((g->flags & GDISP_FLG_SCRSTREAM)) {		\
-					gdisp_lld_write_stop(g);				\
-					g->flags &= ~GDISP_FLG_SCRSTREAM;		\
-				}											\
-				autoflush_stopdone(g);						\
-			}
+	#define autoflush(g)								\
+		{												\
+			if ((g->flags & GDISP_FLG_SCRSTREAM)) {		\
+				gdisp_lld_write_stop(g);				\
+				g->flags &= ~GDISP_FLG_SCRSTREAM;		\
+			}											\
+			autoflush_stopdone(g);						\
+		}
 #else
 	#define autoflush(g)		autoflush_stopdone(g)
 #endif
@@ -130,7 +119,7 @@ static GFXINLINE void drawpixel(GDisplay *g) {
 	#endif
 
 	// Next best is cursor based streaming
-	#if GDISP_HARDWARE_DRAWPIXEL != TRUE && GDISP_HARDWARE_STREAM_POS && GDISP_HARDWARE_STREAM_WRITE
+	#if GDISP_HARDWARE_DRAWPIXEL != GFXON && GDISP_HARDWARE_STREAM_POS && GDISP_HARDWARE_STREAM_WRITE
 		#if GDISP_HARDWARE_STREAM_POS == HARDWARE_AUTODETECT
 			if (gvmt(g)->writepos)
 		#endif
@@ -144,7 +133,7 @@ static GFXINLINE void drawpixel(GDisplay *g) {
 	#endif
 
 	// Worst is general streaming
-	#if GDISP_HARDWARE_DRAWPIXEL != TRUE && GDISP_HARDWARE_STREAM_POS != TRUE && GDISP_HARDWARE_STREAM_WRITE
+	#if GDISP_HARDWARE_DRAWPIXEL != GFXON && GDISP_HARDWARE_STREAM_POS != GFXON && GDISP_HARDWARE_STREAM_WRITE
 		// The following test is unneeded because we are guaranteed to have streaming if we don't have drawpixel
 		//#if GDISP_HARDWARE_STREAM_WRITE == HARDWARE_AUTODETECT
 		//	if (gvmt(g)->writestart)
@@ -190,18 +179,24 @@ static GFXINLINE void fillarea(GDisplay *g) {
 			if (gvmt(g)->fill)
 		#endif
 		{
+			#if GDISP_HARDWARE_STREAM_POS && GDISP_HARDWARE_STREAM_WRITE
+				if ((g->flags & GDISP_FLG_SCRSTREAM)) {
+					gdisp_lld_write_stop(g);
+					g->flags &= ~GDISP_FLG_SCRSTREAM;
+				}
+			#endif
 			gdisp_lld_fill_area(g);
 			return;
 		}
 	#endif
 
 	// Next best is hardware streaming
-	#if GDISP_HARDWARE_FILLS != TRUE && GDISP_HARDWARE_STREAM_WRITE
+	#if GDISP_HARDWARE_FILLS != GFXON && GDISP_HARDWARE_STREAM_WRITE
 		#if GDISP_HARDWARE_STREAM_WRITE == HARDWARE_AUTODETECT
 			if (gvmt(g)->writestart)
 		#endif
 		{
-			uint32_t	area;
+			gU32	area;
 
 			#if GDISP_HARDWARE_STREAM_POS
 				if ((g->flags & GDISP_FLG_SCRSTREAM)) {
@@ -210,7 +205,7 @@ static GFXINLINE void fillarea(GDisplay *g) {
 				}
 			#endif
 
-			area = (uint32_t)g->p.cx * g->p.cy;
+			area = (gU32)g->p.cx * g->p.cy;
 			gdisp_lld_write_start(g);
 			#if GDISP_HARDWARE_STREAM_POS
 				#if GDISP_HARDWARE_STREAM_POS == HARDWARE_AUTODETECT
@@ -226,13 +221,13 @@ static GFXINLINE void fillarea(GDisplay *g) {
 	#endif
 
 	// Worst is pixel drawing
-	#if GDISP_HARDWARE_FILLS != TRUE && GDISP_HARDWARE_STREAM_WRITE != TRUE && GDISP_HARDWARE_DRAWPIXEL
+	#if GDISP_HARDWARE_FILLS != GFXON && GDISP_HARDWARE_STREAM_WRITE != GFXON && GDISP_HARDWARE_DRAWPIXEL
 		// The following test is unneeded because we are guaranteed to have draw pixel if we don't have streaming
 		//#if GDISP_HARDWARE_DRAWPIXEL == HARDWARE_AUTODETECT
 		//	if (gvmt(g)->pixel)
 		//#endif
 		{
-			coord_t x0, y0, x1, y1;
+			gCoord x0, y0, x1, y1;
 
 			x0 = g->p.x;
 			y0 = g->p.y;
@@ -294,7 +289,7 @@ static void hline_clip(GDisplay *g) {
 	#endif
 
 	// Next best is cursor based streaming
-	#if GDISP_HARDWARE_FILLS != TRUE && GDISP_HARDWARE_STREAM_POS && GDISP_HARDWARE_STREAM_WRITE
+	#if GDISP_HARDWARE_FILLS != GFXON && GDISP_HARDWARE_STREAM_POS && GDISP_HARDWARE_STREAM_WRITE
 		#if GDISP_HARDWARE_STREAM_POS == HARDWARE_AUTODETECT
 			if (gvmt(g)->writepos)
 		#endif
@@ -309,7 +304,7 @@ static void hline_clip(GDisplay *g) {
 	#endif
 
 	// Next best is streaming
-	#if GDISP_HARDWARE_FILLS != TRUE && GDISP_HARDWARE_STREAM_POS != TRUE && GDISP_HARDWARE_STREAM_WRITE
+	#if GDISP_HARDWARE_FILLS != GFXON && GDISP_HARDWARE_STREAM_POS != GFXON && GDISP_HARDWARE_STREAM_WRITE
 		#if GDISP_HARDWARE_STREAM_WRITE == HARDWARE_AUTODETECT
 			if (gvmt(g)->writestart)
 		#endif
@@ -324,7 +319,7 @@ static void hline_clip(GDisplay *g) {
 	#endif
 
 	// Worst is drawing pixels
-	#if GDISP_HARDWARE_FILLS != TRUE && GDISP_HARDWARE_STREAM_WRITE != TRUE && GDISP_HARDWARE_DRAWPIXEL
+	#if GDISP_HARDWARE_FILLS != GFXON && GDISP_HARDWARE_STREAM_WRITE != GFXON && GDISP_HARDWARE_DRAWPIXEL
 		// The following test is unneeded because we are guaranteed to have draw pixel if we don't have streaming
 		//#if GDISP_HARDWARE_DRAWPIXEL == HARDWARE_AUTODETECT
 		//	if (gvmt(g)->pixel)
@@ -374,6 +369,12 @@ static void vline_clip(GDisplay *g) {
 			if (gvmt(g)->fill)
 		#endif
 		{
+			#if GDISP_HARDWARE_STREAM_POS && GDISP_HARDWARE_STREAM_WRITE
+				if ((g->flags & GDISP_FLG_SCRSTREAM)) {
+					gdisp_lld_write_stop(g);
+					g->flags &= ~GDISP_FLG_SCRSTREAM;
+				}
+			#endif
 			g->p.cy = g->p.y1 - g->p.y + 1;
 			g->p.cx = 1;
 			gdisp_lld_fill_area(g);
@@ -382,7 +383,7 @@ static void vline_clip(GDisplay *g) {
 	#endif
 
 	// Next best is streaming
-	#if GDISP_HARDWARE_FILLS != TRUE && GDISP_HARDWARE_STREAM_WRITE
+	#if GDISP_HARDWARE_FILLS != GFXON && GDISP_HARDWARE_STREAM_WRITE
 		#if GDISP_HARDWARE_STREAM_WRITE == HARDWARE_AUTODETECT
 			if (gvmt(g)->writestart)
 		#endif
@@ -409,7 +410,7 @@ static void vline_clip(GDisplay *g) {
 	#endif
 
 	// Worst is drawing pixels
-	#if GDISP_HARDWARE_FILLS != TRUE && GDISP_HARDWARE_STREAM_WRITE != TRUE && GDISP_HARDWARE_DRAWPIXEL
+	#if GDISP_HARDWARE_FILLS != GFXON && GDISP_HARDWARE_STREAM_WRITE != GFXON && GDISP_HARDWARE_DRAWPIXEL
 		// The following test is unneeded because we are guaranteed to have draw pixel if we don't have streaming
 		//#if GDISP_HARDWARE_DRAWPIXEL == HARDWARE_AUTODETECT
 		//	if (gvmt(g)->pixel)
@@ -425,9 +426,9 @@ static void vline_clip(GDisplay *g) {
 // Parameters:	x,y and x1,y1
 // Alters:		x,y x1,y1 cx,cy
 static void line_clip(GDisplay *g) {
-	int16_t dy, dx;
-	int16_t addx, addy;
-	int16_t P, diff, i;
+	gI16 dy, dx;
+	gI16 addx, addy;
+	gI16 P, diff, i;
 
 	// Is this a horizontal line (or a point)
 	if (g->p.y == g->p.y1) {
@@ -500,11 +501,11 @@ static void line_clip(GDisplay *g) {
 }
 
 #if GDISP_STARTUP_LOGO_TIMEOUT > 0
-	static bool_t	gdispInitDone;
+	static gBool	gdispInitDone;
 	static void StartupLogoDisplay(GDisplay *g) {
-		coord_t			x, y, w;
-		const coord_t *	p;
-		static const coord_t blks[] = {
+		gCoord			x, y, w;
+		const gCoord *	p;
+		static const gCoord blks[] = {
 				// u
 				2, 6, 1, 10,
 				3, 11, 4, 1,
@@ -554,16 +555,23 @@ static void line_clip(GDisplay *g) {
 /* Driver exported functions.                                                */
 /*===========================================================================*/
 
+// Gather GDISP VMT(S)
+// These are only needed in _gdispInit(). However, we want to prevent generating nested-externs compiler warnings.
+#if defined(GDISP_DRIVER_LIST)
+	extern GDISPVMTLIST GDISP_DRIVER_LIST;
+#else
+	extern const GDISPVMT GDISPVMT_OnlyOne[1];
+#endif
+
 void _gdispInit(void)
 {
 	// GDISP_DRIVER_LIST is defined - create each driver instance
 	#if defined(GDISP_DRIVER_LIST)
 		{
-			unsigned	i;
-			typedef const GDISPVMT const GDISPVMTLIST[1];
+			unsigned i;
+			typedef const GDISPVMT GDISPVMTLIST[1];
 
-			extern GDISPVMTLIST						  GDISP_DRIVER_LIST;
-			static const GDISPVMT * const dclist[] = {GDISP_DRIVER_LIST};
+			static const GDISPVMT* dclist[] = { GDISP_DRIVER_LIST };
 
 			for(i = 0; i < sizeof(dclist)/sizeof(dclist[0]); i++) {
 				if (!(dclist[i]->d.flags & GDISP_VFLG_DYNAMICONLY))
@@ -572,8 +580,7 @@ void _gdispInit(void)
 		}
 	#elif GDISP_TOTAL_DISPLAYS > 1
 		{
-			unsigned	i;
-			extern const GDISPVMT const		GDISPVMT_OnlyOne[1];
+			unsigned i;
 
 			if (!(GDISPVMT_OnlyOne->d.flags & GDISP_VFLG_DYNAMICONLY)) {
 				for(i = 0; i < GDISP_TOTAL_DISPLAYS; i++)
@@ -582,8 +589,6 @@ void _gdispInit(void)
 		}
 	#else
 		{
-			extern const GDISPVMT const		GDISPVMT_OnlyOne[1];
-
 			if (!(GDISPVMT_OnlyOne->d.flags & GDISP_VFLG_DYNAMICONLY))
 				gdriverRegister(&GDISPVMT_OnlyOne->d, 0);
 		}
@@ -603,14 +608,14 @@ void _gdispInit(void)
 				#endif
 			}
 
-			gdispInitDone = TRUE;
+			gdispInitDone = gTrue;
 		}
 	#endif
 
 	// Start the automatic timer flush (if required)
 	#if GDISP_NEED_TIMERFLUSH
 		gtimerInit(&FlushTimer);
-		gtimerStart(&FlushTimer, FlushTimerFn, 0, TRUE, GDISP_NEED_TIMERFLUSH);
+		gtimerStart(&FlushTimer, FlushTimerFn, 0, gTrue, GDISP_NEED_TIMERFLUSH);
 	#endif
 }
 
@@ -619,9 +624,9 @@ void _gdispDeinit(void)
 	/* ToDo */
 }
 
-bool_t _gdispInitDriver(GDriver *g, void *param, unsigned driverinstance, unsigned systeminstance) {
+gBool _gdispInitDriver(GDriver *g, void *param, unsigned driverinstance, unsigned systeminstance) {
 	#define		gd		((GDisplay *)g)
-	bool_t		ret;
+	gBool		ret;
 
 	// Intialise fields
 	gd->systemdisplay = systeminstance;
@@ -708,12 +713,12 @@ unsigned gdispGetDisplayCount(void) {
 	return gdriverInstanceCount(GDRIVER_TYPE_DISPLAY);
 }
 
-coord_t gdispGGetWidth(GDisplay *g)				{ return g->g.Width; }
-coord_t gdispGGetHeight(GDisplay *g)			{ return g->g.Height; }
-powermode_t gdispGGetPowerMode(GDisplay *g)		{ return g->g.Powermode; }
-orientation_t gdispGGetOrientation(GDisplay *g)	{ return g->g.Orientation; }
-uint8_t gdispGGetBacklight(GDisplay *g)			{ return g->g.Backlight; }
-uint8_t gdispGGetContrast(GDisplay *g)			{ return g->g.Contrast; }
+gCoord gdispGGetWidth(GDisplay *g)				{ return g->g.Width; }
+gCoord gdispGGetHeight(GDisplay *g)			{ return g->g.Height; }
+gPowermode gdispGGetPowerMode(GDisplay *g)		{ return g->g.Powermode; }
+gOrientation gdispGGetOrientation(GDisplay *g)	{ return g->g.Orientation; }
+gU8 gdispGGetBacklight(GDisplay *g)			{ return g->g.Backlight; }
+gU8 gdispGGetContrast(GDisplay *g)			{ return g->g.Contrast; }
 
 void gdispGFlush(GDisplay *g) {
 	#if GDISP_HARDWARE_FLUSH
@@ -731,7 +736,7 @@ void gdispGFlush(GDisplay *g) {
 }
 
 #if GDISP_NEED_STREAMING
-	void gdispGStreamStart(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy) {
+	void gdispGStreamStart(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy) {
 		MUTEX_ENTER(g);
 
 		#if NEED_CLIPPING
@@ -769,7 +774,7 @@ void gdispGFlush(GDisplay *g) {
 		#endif
 
 		// Worst - save the parameters and use pixel drawing and/or area fills
-		#if GDISP_HARDWARE_STREAM_WRITE != TRUE && GDISP_HARDWARE_DRAWPIXEL
+		#if GDISP_HARDWARE_STREAM_WRITE != GFXON && GDISP_HARDWARE_DRAWPIXEL
 			// The following test is unneeded because we are guaranteed to have draw pixel if we don't have streaming
 			//#if GDISP_HARDWARE_DRAWPIXEL == HARDWARE_AUTODETECT
 			//	if (gvmt(g)->pixel)
@@ -791,9 +796,9 @@ void gdispGFlush(GDisplay *g) {
 		// Don't release the mutex as gdispStreamEnd() will do that.
 	}
 
-	void gdispGStreamColor(GDisplay *g, color_t color) {
+	void gdispGStreamColor(GDisplay *g, gColor color) {
 		#if !GDISP_HARDWARE_STREAM_WRITE && GDISP_LINEBUF_SIZE != 0 && GDISP_HARDWARE_BITFILLS
-			coord_t	 sx1, sy1;
+			gCoord	 sx1, sy1;
 		#endif
 
 		// Don't touch the mutex as we should already own it
@@ -815,7 +820,7 @@ void gdispGFlush(GDisplay *g) {
 		#endif
 
 		// Next best is to use bitfills with our line buffer
-		#if GDISP_HARDWARE_STREAM_WRITE != TRUE && GDISP_LINEBUF_SIZE != 0 && GDISP_HARDWARE_BITFILLS
+		#if GDISP_HARDWARE_STREAM_WRITE != GFXON && GDISP_LINEBUF_SIZE != 0 && GDISP_HARDWARE_BITFILLS
 			#if GDISP_HARDWARE_BITFILLS == HARDWARE_AUTODETECT
 				if (gvmt(g)->blit)
 			#endif
@@ -855,7 +860,7 @@ void gdispGFlush(GDisplay *g) {
 		#endif
 
 		// Only slightly better than drawing pixels is to look for runs and use fillarea
-		#if GDISP_HARDWARE_STREAM_WRITE != TRUE && (GDISP_LINEBUF_SIZE == 0 || GDISP_HARDWARE_BITFILLS != TRUE) && GDISP_HARDWARE_FILLS
+		#if GDISP_HARDWARE_STREAM_WRITE != GFXON && (GDISP_LINEBUF_SIZE == 0 || GDISP_HARDWARE_BITFILLS != GFXON) && GDISP_HARDWARE_FILLS
 			// We don't need to test for auto-detect on drawpixel as we know we have it because we don't have streaming.
 			#if GDISP_HARDWARE_FILLS == HARDWARE_AUTODETECT
 				if (gvmt(g)->fill)
@@ -891,7 +896,7 @@ void gdispGFlush(GDisplay *g) {
 		#endif
 
 		// Worst is using pixel drawing
-		#if GDISP_HARDWARE_STREAM_WRITE != TRUE && (GDISP_LINEBUF_SIZE == 0 || GDISP_HARDWARE_BITFILLS != TRUE) && GDISP_HARDWARE_FILLS != TRUE && GDISP_HARDWARE_DRAWPIXEL
+		#if GDISP_HARDWARE_STREAM_WRITE != GFXON && (GDISP_LINEBUF_SIZE == 0 || GDISP_HARDWARE_BITFILLS != GFXON) && GDISP_HARDWARE_FILLS != GFXON && GDISP_HARDWARE_DRAWPIXEL
 			// The following test is unneeded because we are guaranteed to have draw pixel if we don't have streaming
 			//#if GDISP_HARDWARE_DRAWPIXEL == HARDWARE_AUTODETECT
 			//	if (gvmt(g)->pixel)
@@ -933,7 +938,7 @@ void gdispGFlush(GDisplay *g) {
 			}
 		#endif
 
-		#if GDISP_HARDWARE_STREAM_WRITE != TRUE && GDISP_LINEBUF_SIZE != 0 && GDISP_HARDWARE_BITFILLS
+		#if GDISP_HARDWARE_STREAM_WRITE != GFXON && GDISP_LINEBUF_SIZE != 0 && GDISP_HARDWARE_BITFILLS
 			#if GDISP_HARDWARE_BITFILLS == HARDWARE_AUTODETECT
 				if (gvmt(g)->blit)
 			#endif
@@ -950,7 +955,7 @@ void gdispGFlush(GDisplay *g) {
 			}
 		#endif
 
-		#if GDISP_HARDWARE_STREAM_WRITE != TRUE && (GDISP_LINEBUF_SIZE == 0 || GDISP_HARDWARE_BITFILLS != TRUE) && GDISP_HARDWARE_FILLS
+		#if GDISP_HARDWARE_STREAM_WRITE != GFXON && (GDISP_LINEBUF_SIZE == 0 || GDISP_HARDWARE_BITFILLS != GFXON) && GDISP_HARDWARE_FILLS
 			// We don't need to test for auto-detect on drawpixel as we know we have it because we don't have streaming.
 			#if GDISP_HARDWARE_FILLS == HARDWARE_AUTODETECT
 				if (gvmt(g)->fill)
@@ -968,7 +973,7 @@ void gdispGFlush(GDisplay *g) {
 			}
 		#endif
 
-		#if GDISP_HARDWARE_STREAM_WRITE != TRUE && (GDISP_LINEBUF_SIZE == 0 || GDISP_HARDWARE_BITFILLS != TRUE) && GDISP_HARDWARE_FILLS != TRUE
+		#if GDISP_HARDWARE_STREAM_WRITE != GFXON && (GDISP_LINEBUF_SIZE == 0 || GDISP_HARDWARE_BITFILLS != GFXON) && GDISP_HARDWARE_FILLS != GFXON
 			{
 				autoflush_stopdone(g);
 				MUTEX_EXIT(g);
@@ -977,7 +982,7 @@ void gdispGFlush(GDisplay *g) {
 	}
 #endif
 
-void gdispGDrawPixel(GDisplay *g, coord_t x, coord_t y, color_t color) {
+void gdispGDrawPixel(GDisplay *g, gCoord x, gCoord y, gColor color) {
 	MUTEX_ENTER(g);
 	g->p.x		= x;
 	g->p.y		= y;
@@ -987,7 +992,7 @@ void gdispGDrawPixel(GDisplay *g, coord_t x, coord_t y, color_t color) {
 	MUTEX_EXIT(g);
 }
 
-void gdispGDrawLine(GDisplay *g, coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color) {
+void gdispGDrawLine(GDisplay *g, gCoord x0, gCoord y0, gCoord x1, gCoord y1, gColor color) {
 	MUTEX_ENTER(g);
 	g->p.x = x0;
 	g->p.y = y0;
@@ -999,7 +1004,7 @@ void gdispGDrawLine(GDisplay *g, coord_t x0, coord_t y0, coord_t x1, coord_t y1,
 	MUTEX_EXIT(g);
 }
 
-void gdispGClear(GDisplay *g, color_t color) {
+void gdispGClear(GDisplay *g, gColor color) {
 	// Note - clear() ignores the clipping area. It clears the screen.
 	MUTEX_ENTER(g);
 
@@ -1018,7 +1023,7 @@ void gdispGClear(GDisplay *g, color_t color) {
 	#endif
 
 	// Next best is hardware accelerated area fill
-	#if GDISP_HARDWARE_CLEARS != TRUE && GDISP_HARDWARE_FILLS
+	#if GDISP_HARDWARE_CLEARS != GFXON && GDISP_HARDWARE_FILLS
 		#if GDISP_HARDWARE_FILLS == HARDWARE_AUTODETECT
 			if (gvmt(g)->fill)
 		#endif
@@ -1035,18 +1040,18 @@ void gdispGClear(GDisplay *g, color_t color) {
 	#endif
 
 	// Next best is streaming
-	#if GDISP_HARDWARE_CLEARS != TRUE && GDISP_HARDWARE_FILLS != TRUE && GDISP_HARDWARE_STREAM_WRITE
+	#if GDISP_HARDWARE_CLEARS != GFXON && GDISP_HARDWARE_FILLS != GFXON && GDISP_HARDWARE_STREAM_WRITE
 		#if GDISP_HARDWARE_STREAM_WRITE == HARDWARE_AUTODETECT
 			if (gvmt(g)->writestart)
 		#endif
 		{
-			uint32_t	area;
+			gU32	area;
 
 			g->p.x = g->p.y = 0;
 			g->p.cx = g->g.Width;
 			g->p.cy = g->g.Height;
 			g->p.color = color;
-			area = (uint32_t)g->p.cx * g->p.cy;
+			area = (gU32)g->p.cx * g->p.cy;
 
 			gdisp_lld_write_start(g);
 			#if GDISP_HARDWARE_STREAM_POS
@@ -1065,7 +1070,7 @@ void gdispGClear(GDisplay *g, color_t color) {
 	#endif
 
 	// Worst is drawing pixels
-	#if GDISP_HARDWARE_CLEARS != TRUE && GDISP_HARDWARE_FILLS != TRUE && GDISP_HARDWARE_STREAM_WRITE != TRUE && GDISP_HARDWARE_DRAWPIXEL
+	#if GDISP_HARDWARE_CLEARS != GFXON && GDISP_HARDWARE_FILLS != GFXON && GDISP_HARDWARE_STREAM_WRITE != GFXON && GDISP_HARDWARE_DRAWPIXEL
 		// The following test is unneeded because we are guaranteed to have draw pixel if we don't have streaming
 		//#if GDISP_HARDWARE_DRAWPIXEL == HARDWARE_AUTODETECT
 		//	if (gvmt(g)->pixel)
@@ -1082,7 +1087,7 @@ void gdispGClear(GDisplay *g, color_t color) {
 	#endif
 }
 
-void gdispGFillArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
+void gdispGFillArea(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gColor color) {
 	MUTEX_ENTER(g);
 	g->p.x = x;
 	g->p.y = y;
@@ -1096,7 +1101,7 @@ void gdispGFillArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 	MUTEX_EXIT(g);
 }
 
-void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
+void gdispGBlitArea(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoord srcx, gCoord srcy, gCoord srccx, const gPixel *buffer) {
 	MUTEX_ENTER(g);
 
 	#if NEED_CLIPPING
@@ -1136,7 +1141,7 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 	#endif
 
 	// Next best is hardware streaming
-	#if GDISP_HARDWARE_BITFILLS != TRUE && GDISP_HARDWARE_STREAM_WRITE
+	#if GDISP_HARDWARE_BITFILLS != GFXON && GDISP_HARDWARE_STREAM_WRITE
 		#if GDISP_HARDWARE_STREAM_WRITE == HARDWARE_AUTODETECT
 			if (gvmt(g)->writestart)
 		#endif
@@ -1172,7 +1177,7 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 	#endif
 
 	// Only slightly better than drawing pixels is to look for runs and use fill area
-	#if GDISP_HARDWARE_BITFILLS != TRUE && GDISP_HARDWARE_STREAM_WRITE != TRUE && GDISP_HARDWARE_FILLS
+	#if GDISP_HARDWARE_BITFILLS != GFXON && GDISP_HARDWARE_STREAM_WRITE != GFXON && GDISP_HARDWARE_FILLS
 		// We don't need to test for auto-detect on drawpixel as we know we have it because we don't have streaming.
 		#if GDISP_HARDWARE_FILLS == HARDWARE_AUTODETECT
 			if (gvmt(g)->fill)
@@ -1207,7 +1212,7 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 	#endif
 
 	// Worst is drawing pixels
-	#if GDISP_HARDWARE_BITFILLS != TRUE && GDISP_HARDWARE_STREAM_WRITE != TRUE && GDISP_HARDWARE_FILLS != TRUE && GDISP_HARDWARE_DRAWPIXEL
+	#if GDISP_HARDWARE_BITFILLS != GFXON && GDISP_HARDWARE_STREAM_WRITE != GFXON && GDISP_HARDWARE_FILLS != GFXON && GDISP_HARDWARE_DRAWPIXEL
 		// The following test is unneeded because we are guaranteed to have draw pixel if we don't have streaming
 		//#if GDISP_HARDWARE_DRAWPIXEL == HARDWARE_AUTODETECT
 		//	if (gvmt(g)->pixel)
@@ -1233,7 +1238,7 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 }
 
 #if GDISP_NEED_CLIP || GDISP_NEED_VALIDATION
-	void gdispGSetClip(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy) {
+	void gdispGSetClip(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy) {
 		MUTEX_ENTER(g);
 
 		// Best is using hardware clipping
@@ -1254,7 +1259,7 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 		#endif
 
 		// Worst is using software clipping
-		#if GDISP_HARDWARE_CLIP != TRUE
+		#if GDISP_HARDWARE_CLIP != GFXON
 			{
 				if (x < 0) { cx += x; x = 0; }
 				if (y < 0) { cy += y; y = 0; }
@@ -1270,8 +1275,8 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 #endif
 
 #if GDISP_NEED_CIRCLE
-	void gdispGDrawCircle(GDisplay *g, coord_t x, coord_t y, coord_t radius, color_t color) {
-		coord_t a, b, P;
+	void gdispGDrawCircle(GDisplay *g, gCoord x, gCoord y, gCoord radius, gColor color) {
+		gCoord a, b, P;
 
 		MUTEX_ENTER(g);
 
@@ -1312,8 +1317,8 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 #endif
 
 #if GDISP_NEED_CIRCLE
-	void gdispGFillCircle(GDisplay *g, coord_t x, coord_t y, coord_t radius, color_t color) {
-		coord_t a, b, P;
+	void gdispGFillCircle(GDisplay *g, gCoord x, gCoord y, gCoord radius, gColor color) {
+		gCoord a, b, P;
 
 		MUTEX_ENTER(g);
 
@@ -1356,8 +1361,8 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 		g->p.x = x+r2+1; g->p.x1 = x+r1;   g->p.color = color1; hline_clip(g)
 	#define DRAW_SINGLELINE(yval, r)	g->p.y = yval; g->p.x = x-r; g->p.x1 = x+r; hline_clip(g)
 
-	void gdispGFillDualCircle(GDisplay *g, coord_t x, coord_t y, coord_t radius1, color_t color1, coord_t radius2, color_t color2) {
-		coord_t a, b1, b2, p1, p2;
+	void gdispGFillDualCircle(GDisplay *g, gCoord x, gCoord y, gCoord radius1, gColor color1, gCoord radius2, gColor color2) {
+		gCoord a, b1, b2, p1, p2;
 
 		MUTEX_ENTER(g);
 
@@ -1425,10 +1430,10 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 #endif
 
 #if GDISP_NEED_ELLIPSE
-	void gdispGDrawEllipse(GDisplay *g, coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
-		coord_t	dx, dy;
-		int32_t	a2, b2;
-		int32_t	err, e2;
+	void gdispGDrawEllipse(GDisplay *g, gCoord x, gCoord y, gCoord a, gCoord b, gColor color) {
+		gCoord	dx, dy;
+		gI32	a2, b2;
+		gI32	err, e2;
 
 		MUTEX_ENTER(g);
 
@@ -1464,10 +1469,10 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 #endif
 
 #if GDISP_NEED_ELLIPSE
-	void gdispGFillEllipse(GDisplay *g, coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
-		coord_t	dx, dy;
-		int32_t	a2, b2;
-		int32_t	err, e2;
+	void gdispGFillEllipse(GDisplay *g, gCoord x, gCoord y, gCoord a, gCoord b, gColor color) {
+		gCoord	dx, dy;
+		gI32	a2, b2;
+		gI32	err, e2;
 
 		MUTEX_ENTER(g);
 
@@ -1501,8 +1506,8 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 #endif
 
 #if GDISP_NEED_ARCSECTORS
-	void gdispGDrawArcSectors(GDisplay *g, coord_t x, coord_t y, coord_t radius, uint8_t sectors, color_t color) {
-		coord_t a, b, P;
+	void gdispGDrawArcSectors(GDisplay *g, gCoord x, gCoord y, gCoord radius, gU8 sectors, gColor color) {
+		gCoord a, b, P;
 
 		MUTEX_ENTER(g);
 
@@ -1545,8 +1550,8 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 #endif
 
 #if GDISP_NEED_ARCSECTORS
-	void gdispGFillArcSectors(GDisplay *g, coord_t x, coord_t y, coord_t radius, uint8_t sectors, color_t color) {
-		coord_t a, b, P;
+	void gdispGFillArcSectors(GDisplay *g, gCoord x, gCoord y, gCoord radius, gU8 sectors, gColor color) {
+		gCoord a, b, P;
 
 		MUTEX_ENTER(g);
 
@@ -1730,9 +1735,9 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 		#include <math.h>
 	#endif
 
-	void gdispGDrawArc(GDisplay *g, coord_t x, coord_t y, coord_t radius, coord_t start, coord_t end, color_t color) {
-		coord_t a, b, P, sedge, eedge;
-		uint8_t	full, sbit, ebit, tbit;
+	void gdispGDrawArc(GDisplay *g, gCoord x, gCoord y, gCoord radius, gCoord start, gCoord end, gColor color) {
+		gCoord a, b, P, sedge, eedge;
+		gU8	full, sbit, ebit, tbit;
 
 		// Normalize the angles
 		if (start < 0)
@@ -1916,10 +1921,10 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 		#include <math.h>
 	#endif
 
-	void gdispGDrawThickArc(GDisplay *g, coord_t xc, coord_t yc, coord_t radiusStart, coord_t radiusEnd, coord_t start, coord_t end, color_t color) {
-		coord_t x, y, d, r;
-		coord_t startTan, endTan, curangle;
-		coord_t precision = 512;
+	void gdispGDrawThickArc(GDisplay *g, gCoord xc, gCoord yc, gCoord radiusStart, gCoord radiusEnd, gCoord start, gCoord end, gColor color) {
+		gCoord x, y, d, r;
+		gCoord startTan, endTan, curangle;
+		gCoord precision = 512;
 
 		// Normalize the angles
 		if (start < 0)
@@ -2031,17 +2036,17 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 #endif
 
 #if GDISP_NEED_ARC
-	void gdispGFillArc(GDisplay *g, coord_t x, coord_t y, coord_t radius, coord_t start, coord_t end, color_t color) {
-		coord_t a, b, P;
-		coord_t	sy, ey;
+	void gdispGFillArc(GDisplay *g, gCoord x, gCoord y, gCoord radius, gCoord start, gCoord end, gColor color) {
+		gCoord a, b, P;
+		gCoord	sy, ey;
 		fixed	sxa, sxb, sxd, exa, exb, exd;
-		uint8_t	qtr;
+		gU8	qtr;
 
 		MUTEX_ENTER(g);
 
 		// We add a half pixel so that we are drawing from the centre of the pixel
 		//	instead of the left edge of the pixel. This also fixes the implied floor()
-		//	when converting back to a coord_t
+		//	when converting back to a gCoord
 		sxa = exa = FIXED(x) + FIXED0_5;
 
 		// Do the trig to get the formulas for the start and end lines.
@@ -2533,7 +2538,7 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 #endif
 
 #if GDISP_NEED_ARC || GDISP_NEED_ARCSECTORS
-	void gdispGDrawRoundedBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t radius, color_t color) {
+	void gdispGDrawRoundedBox(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoord radius, gColor color) {
 		if (2*radius > cx || 2*radius > cy) {
 			gdispGDrawBox(g, x, y, cx, cy, color);
 			return;
@@ -2558,8 +2563,8 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 #endif
 
 #if GDISP_NEED_ARC || GDISP_NEED_ARCSECTORS
-	void gdispGFillRoundedBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t radius, color_t color) {
-		coord_t radius2;
+	void gdispGFillRoundedBox(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoord radius, gColor color) {
+		gCoord radius2;
 
 		radius2 = radius*2;
 		if (radius2 > cx || radius2 > cy) {
@@ -2584,8 +2589,8 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 #endif
 
 #if GDISP_NEED_PIXELREAD
-	color_t gdispGGetPixelColor(GDisplay *g, coord_t x, coord_t y) {
-		color_t		c;
+	gColor gdispGGetPixelColor(GDisplay *g, gCoord x, gCoord y) {
+		gColor		c;
 
 		/* Always synchronous as it must return a value */
 		MUTEX_ENTER(g);
@@ -2602,7 +2607,7 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 				return c;
 			}
 		#endif
-		#if GDISP_HARDWARE_PIXELREAD != TRUE && GDISP_HARDWARE_STREAM_READ
+		#if GDISP_HARDWARE_PIXELREAD != GFXON && GDISP_HARDWARE_STREAM_READ
 			#if GDISP_HARDWARE_STREAM_READ == HARDWARE_AUTODETECT
 				if (gvmt(g)->readcolor)
 			#endif
@@ -2619,7 +2624,7 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 				return c;
 			}
 		#endif
-		#if GDISP_HARDWARE_PIXELREAD != TRUE && GDISP_HARDWARE_STREAM_READ != TRUE
+		#if GDISP_HARDWARE_PIXELREAD != GFXON && GDISP_HARDWARE_STREAM_READ != GFXON
 			#if !GDISP_HARDWARE_PIXELREAD && !GDISP_HARDWARE_STREAM_READ
 				// Worst is "not possible"
 				#error "GDISP: GDISP_NEED_PIXELREAD has been set but there is no hardware support for reading the display"
@@ -2631,10 +2636,10 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 #endif
 
 #if GDISP_NEED_SCROLL
-	void gdispGVerticalScroll(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
-		coord_t		abslines;
-		#if GDISP_HARDWARE_SCROLL != TRUE
-			coord_t 	fy, dy, ix, fx, i, j;
+	void gdispGVerticalScroll(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, int lines, gColor bgcolor) {
+		gCoord		abslines;
+		#if GDISP_HARDWARE_SCROLL != GFXON
+			gCoord 	fy, dy, ix, fx, i, j;
 		#endif
 
 		if (!lines) return;
@@ -2681,7 +2686,7 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 			#endif
 
 			// Scroll Emulation
-			#if GDISP_HARDWARE_SCROLL != TRUE
+			#if GDISP_HARDWARE_SCROLL != GFXON
 				{
 					cy -= abslines;
 					if (lines < 0) {
@@ -2725,7 +2730,7 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 							#endif
 
 							// Next best line read is single pixel reads
-							#if GDISP_HARDWARE_STREAM_READ != TRUE && GDISP_HARDWARE_PIXELREAD
+							#if GDISP_HARDWARE_STREAM_READ != GFXON && GDISP_HARDWARE_PIXELREAD
 								#if GDISP_HARDWARE_PIXELREAD == HARDWARE_AUTODETECT
 									if (gvmt(g)->get)
 								#endif
@@ -2774,7 +2779,7 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 							#endif
 
 							// Next best line write is hardware streaming
-							#if GDISP_HARDWARE_BITFILLS != TRUE && GDISP_HARDWARE_STREAM_WRITE
+							#if GDISP_HARDWARE_BITFILLS != GFXON && GDISP_HARDWARE_STREAM_WRITE
 								#if GDISP_HARDWARE_STREAM_WRITE == HARDWARE_AUTODETECT
 									if (gvmt(g)->writestart)
 								#endif
@@ -2799,7 +2804,7 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 							#endif
 
 							// Next best line write is drawing pixels in combination with filling
-							#if GDISP_HARDWARE_BITFILLS != TRUE && GDISP_HARDWARE_STREAM_WRITE != TRUE && GDISP_HARDWARE_FILLS && GDISP_HARDWARE_DRAWPIXEL
+							#if GDISP_HARDWARE_BITFILLS != GFXON && GDISP_HARDWARE_STREAM_WRITE != GFXON && GDISP_HARDWARE_FILLS && GDISP_HARDWARE_DRAWPIXEL
 								// We don't need to test for auto-detect on drawpixel as we know we have it because we don't have streaming.
 								#if GDISP_HARDWARE_FILLS == HARDWARE_AUTODETECT
 									if (gvmt(g)->fill)
@@ -2831,7 +2836,7 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 							#endif
 
 							// Worst line write is drawing pixels
-							#if GDISP_HARDWARE_BITFILLS != TRUE && GDISP_HARDWARE_STREAM_WRITE != TRUE && GDISP_HARDWARE_FILLS != TRUE && GDISP_HARDWARE_DRAWPIXEL
+							#if GDISP_HARDWARE_BITFILLS != GFXON && GDISP_HARDWARE_STREAM_WRITE != GFXON && GDISP_HARDWARE_FILLS != GFXON && GDISP_HARDWARE_DRAWPIXEL
 								// The following test is unneeded because we are guaranteed to have draw pixel if we don't have streaming
 								//#if GDISP_HARDWARE_DRAWPIXEL == HARDWARE_AUTODETECT
 								//	if (gvmt(g)->pixel)
@@ -2873,13 +2878,17 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 			g->p.x = what;
 			g->p.ptr = value;
 			if (what == GDISP_CONTROL_ORIENTATION) {
-				switch ((orientation_t) value) {
-				case GDISP_ROTATE_LANDSCAPE:
-					g->p.ptr = g->g.Width >= g->g.Height ? (void *)GDISP_ROTATE_0 : (void *)GDISP_ROTATE_90;
+				switch ((gOrientation) value) {
+				case gOrientationLandscape:
+					g->p.ptr = g->g.Width >= g->g.Height ? (void *)gOrientation0 : (void *)gOrientation90;
 					break;
-				case GDISP_ROTATE_PORTRAIT:
-					g->p.ptr = g->g.Width >= g->g.Height ? (void *)GDISP_ROTATE_90 : (void *)GDISP_ROTATE_0;
+				case gOrientationPortrait:
+					g->p.ptr = g->g.Width >= g->g.Height ? (void *)gOrientation90 : (void *)gOrientation0;
 					break;
+                                case gOrientation0:
+                                case gOrientation90:
+                                case gOrientation180:
+                                case gOrientation270:
 				default:
 					break;
 				}
@@ -2905,7 +2914,7 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 					#endif
 
 					// Worst is software clipping
-					#if GDISP_HARDWARE_CLIP != TRUE
+					#if GDISP_HARDWARE_CLIP != GFXON
 						{
 							g->clipx0 = 0;
 							g->clipy0 = 0;
@@ -2937,7 +2946,7 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 					return -1;
 			#endif
 			MUTEX_ENTER(g);
-			g->p.x = (coord_t)what;
+			g->p.x = (gCoord)what;
 			res = gdisp_lld_query(g);
 			MUTEX_EXIT(g);
 			return res;
@@ -2954,7 +2963,7 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
 /* High Level Driver Routines.                                               */
 /*===========================================================================*/
 
-void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
+void gdispGDrawBox(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gColor color) {
 	if (cx <= 0 || cy <= 0) return;
 	cx = x+cx-1; cy = y+cy-1;			// cx, cy are now the end point.
 
@@ -2962,11 +2971,11 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 
 	g->p.color = color;
 
-	if (cx - x > 2) {
+	if (cx - x >= 2) {
 		g->p.x = x; g->p.y = y; g->p.x1 = cx; hline_clip(g);
 		if (y != cy) {
 			g->p.x = x; g->p.y = cy; g->p.x1 = cx; hline_clip(g);
-			if (cy - y > 2) {
+			if (cy - y >= 2) {
 				y++; cy--;
 				g->p.x = x; g->p.y = y; g->p.y1 = cy; vline_clip(g);
 				g->p.x = cx; g->p.y = y; g->p.y1 = cy; vline_clip(g);
@@ -2984,8 +2993,8 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 }
 
 #if GDISP_NEED_CONVEX_POLYGON
-	void gdispGDrawPoly(GDisplay *g, coord_t tx, coord_t ty, const point *pntarray, unsigned cnt, color_t color) {
-		const point	*epnt, *p;
+	void gdispGDrawPoly(GDisplay *g, gCoord tx, gCoord ty, const gPoint *pntarray, unsigned cnt, gColor color) {
+		const gPoint	*epnt, *p;
 
 		epnt = &pntarray[cnt-1];
 
@@ -3000,10 +3009,10 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 		MUTEX_EXIT(g);
 	}
 
-	void gdispGFillConvexPoly(GDisplay *g, coord_t tx, coord_t ty, const point *pntarray, unsigned cnt, color_t color) {
-		const point	*lpnt, *rpnt, *epnts;
+	void gdispGFillConvexPoly(GDisplay *g, gCoord tx, gCoord ty, const gPoint *pntarray, unsigned cnt, gColor color) {
+		const gPoint	*lpnt, *rpnt, *epnts;
 		fixed		lx, rx, lk, rk;
-		coord_t		y, ymax, lxc, rxc;
+		gCoord		y, ymax, lxc, rxc;
 
 		epnts = &pntarray[cnt-1];
 
@@ -3098,7 +3107,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 		}
 	}
 
-	static int32_t rounding_div(const int32_t n, const int32_t d)
+	static gI32 rounding_div(const gI32 n, const gI32 d)
 	{
 		if ((n < 0) != (d < 0))
 			return (n - d/2) / d;
@@ -3108,10 +3117,10 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 
 	/* Find a vector (nx, ny) that is perpendicular to (dx, dy) and has length
 	 * equal to 'norm'. */
-	static void get_normal_vector(coord_t dx, coord_t dy, coord_t norm, coord_t *nx, coord_t *ny)
+	static void get_normal_vector(gCoord dx, gCoord dy, gCoord norm, gCoord *nx, gCoord *ny)
 	{
-		coord_t absDx, absDy;
-		int32_t len_n, len, len2;
+		gCoord absDx, absDy;
+		gI32 len_n, len, len2;
 		char maxSteps;
 
 		/* Take the absolute value of dx and dy, multiplied by 2 for precision */
@@ -3127,13 +3136,13 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 		/* Give a max number of steps, the calculation usually takes 3 or 4 */
 		for(maxSteps = 8; maxSteps > 0; maxSteps--)
 		{
-			/* Use an adapted version of Newton's algorithm to find the correct length 
+			/* Use an adapted version of Newton's algorithm to find the correct length
 			 * This calculation converge quadratically towards the correct length
-			 * n(x+1) = (n(x) + len^2 / n(x)) / 2 
+			 * n(x+1) = (n(x) + len^2 / n(x)) / 2
 			 */
 			len_n = (len + len2 / len) / 2;
 
-			/* We reach max precision when the last result is equal or greater than the previous one */ 
+			/* We reach max precision when the last result is equal or greater than the previous one */
 			if(len_n >= len){
 				break;
 			}
@@ -3149,8 +3158,8 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 		return;
 	}
 
-	void gdispGDrawThickLine(GDisplay *g, coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color, coord_t width, bool_t round) {
-		coord_t dx, dy, nx = 0, ny = 0;
+	void gdispGDrawThickLine(GDisplay *g, gCoord x0, gCoord y0, gCoord x1, gCoord y1, gColor color, gCoord width, gBool round) {
+		gCoord dx, dy, nx = 0, ny = 0;
 
 		/* Compute the direction vector for the line */
 		dx = x1 - x0;
@@ -3186,7 +3195,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 			 * (0,0) ----------------------------------- (d)
 			 *  pt0                                      pt3
 			 */
-			point pntarray[4];
+			gPoint pntarray[4];
 
 			pntarray[0].x = 0;
 			pntarray[0].y = 0;
@@ -3209,8 +3218,8 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 			 *         \                         /
 			 *          pt0 -------------------pt7
 			 */
-			point pntarray[8];
-			coord_t nx2, ny2;
+			gPoint pntarray[8];
+			gCoord nx2, ny2;
 
 			/* Magic numbers:
 			 * 75/256  = sin(45) / (1 + sqrt(2))		diagonal octagon segments
@@ -3258,7 +3267,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	#include "mcufont/mcufont.h"
 
 	#if GDISP_NEED_ANTIALIAS && GDISP_HARDWARE_PIXELREAD
-		static void drawcharline(int16_t x, int16_t y, uint8_t count, uint8_t alpha, void *state) {
+		static void drawcharline(gI16 x, gI16 y, gU8 count, gU8 alpha, void *state) {
 			#define GD	((GDisplay *)state)
 			if (y < GD->t.clipy0 || y >= GD->t.clipy1 || x+count <= GD->t.clipx0 || x >= GD->t.clipx1)
 				return;
@@ -3281,7 +3290,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 			#undef GD
 		}
 	#else
-		static void drawcharline(int16_t x, int16_t y, uint8_t count, uint8_t alpha, void *state) {
+		static void drawcharline(gI16 x, gI16 y, gU8 count, gU8 alpha, void *state) {
 			#define GD	((GDisplay *)state)
 			if (y < GD->t.clipy0 || y >= GD->t.clipy1 || x+count <= GD->t.clipx0 || x >= GD->t.clipx1)
 				return;
@@ -3300,7 +3309,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	#endif
 
 	#if GDISP_NEED_ANTIALIAS
-		static void fillcharline(int16_t x, int16_t y, uint8_t count, uint8_t alpha, void *state) {
+		static void fillcharline(gI16 x, gI16 y, gU8 count, gU8 alpha, void *state) {
 			#define GD	((GDisplay *)state)
 			if (y < GD->t.clipy0 || y >= GD->t.clipy1 || x+count <= GD->t.clipx0 || x >= GD->t.clipx1)
 				return;
@@ -3324,14 +3333,14 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	#endif
 
 	/* Callback to render characters. */
-	static uint8_t drawcharglyph(int16_t x, int16_t y, mf_char ch, void *state) {
+	static gU8 drawcharglyph(gI16 x, gI16 y, mf_char ch, void *state) {
 		#define GD	((GDisplay *)state)
 			return mf_render_character(GD->t.font, x, y, ch, drawcharline, state);
 		#undef GD
 	}
 
 	/* Callback to render characters. */
-	static uint8_t fillcharglyph(int16_t x, int16_t y, mf_char ch, void *state) {
+	static gU8 fillcharglyph(gI16 x, gI16 y, mf_char ch, void *state) {
 		#define GD	((GDisplay *)state)
 			return mf_render_character(GD->t.font, x, y, ch, fillcharline, state);
 		#undef GD
@@ -3339,35 +3348,30 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 
 	/* Callback to render string boxes with word wrap. */
 	#if GDISP_NEED_TEXT_WORDWRAP
-		static bool mf_countline_callback(mf_str line, uint16_t count, void *state) {
-			uint16_t *linecount;
+		static gBool mf_countline_callback(mf_str line, gU16 count, void *state) {
 			(void) line;
 			(void) count;
 
-			linecount = (uint16_t*)state;
-			(*linecount)++;
-
-			return TRUE;
+			((gCoord*)state)[0]++;
+			return gTrue;
 		}
-		static bool mf_drawline_callback(mf_str line, uint16_t count, void *state) {
-			wrapParameters_t* wrapParameters = (wrapParameters_t*)state;
-
-			mf_render_aligned(wrapParameters->font, wrapParameters->x, wrapParameters->y, wrapParameters->justify, line, count, drawcharglyph, wrapParameters->g);
-
-			wrapParameters->y += wrapParameters->font->line_height;
-			return TRUE;
+		static gBool mf_drawline_callback(mf_str line, gU16 count, void *state) {
+			#define GD	((GDisplay *)state)
+				mf_render_aligned(GD->t.font, GD->t.wrapx, GD->t.wrapy, GD->t.lrj, line, count, drawcharglyph, state);
+				GD->t.wrapy += GD->t.font->line_height;
+			#undef GD
+			return gTrue;
 		}
-		static bool mf_fillline_callback(mf_str line, uint16_t count, void *state) {
-			wrapParameters_t* wrapParameters = (wrapParameters_t*)state;
-
-			mf_render_aligned(wrapParameters->font, wrapParameters->x, wrapParameters->y, wrapParameters->justify, line, count, fillcharglyph, wrapParameters->g);
-
-			wrapParameters->y += wrapParameters->font->line_height;
-			return TRUE;
-		}	
+		static gBool mf_fillline_callback(mf_str line, gU16 count, void *state) {
+			#define GD	((GDisplay *)state)
+				mf_render_aligned(GD->t.font, GD->t.wrapx, GD->t.wrapy, GD->t.lrj, line, count, fillcharglyph, state);
+				GD->t.wrapy += GD->t.font->line_height;
+			#undef GD
+			return gTrue;
+		}
 	#endif
 
-	void gdispGDrawChar(GDisplay *g, coord_t x, coord_t y, uint16_t c, font_t font, color_t color) {
+	void gdispGDrawChar(GDisplay *g, gCoord x, gCoord y, gU16 c, gFont font, gColor color) {
 		if (!font)
 			return;
 		MUTEX_ENTER(g);
@@ -3382,7 +3386,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 		MUTEX_EXIT(g);
 	}
 
-	void gdispGFillChar(GDisplay *g, coord_t x, coord_t y, uint16_t c, font_t font, color_t color, color_t bgcolor) {
+	void gdispGFillChar(GDisplay *g, gCoord x, gCoord y, gU16 c, gFont font, gColor color, gColor bgcolor) {
 		if (!font)
 			return;
 		MUTEX_ENTER(g);
@@ -3404,14 +3408,14 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 		MUTEX_EXIT(g);
 	}
 
-	void gdispGDrawString(GDisplay *g, coord_t x, coord_t y, const char *str, font_t font, color_t color) {
+	void gdispGDrawString(GDisplay *g, gCoord x, gCoord y, const char *str, gFont font, gColor color) {
 		if (!font)
 			return;
 		MUTEX_ENTER(g);
 		g->t.font = font;
 		g->t.clipx0 = x;
 		g->t.clipy0 = y;
-		g->t.clipx1 = x + mf_get_string_width(font, str, 0, 0) + font->baseline_x;
+		g->t.clipx1 = 32767;	//x + mf_get_string_width(font, str, 0, 0) + font->baseline_x;
 		g->t.clipy1 = y + font->height;
 		g->t.color = color;
 
@@ -3420,7 +3424,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 		MUTEX_EXIT(g);
 	}
 
-	void gdispGFillString(GDisplay *g, coord_t x, coord_t y, const char *str, font_t font, color_t color, color_t bgcolor) {
+	void gdispGFillString(GDisplay *g, gCoord x, gCoord y, const char *str, gFont font, gColor color, gColor bgcolor) {
 		if (!font)
 			return;
 		MUTEX_ENTER(g);
@@ -3443,186 +3447,290 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 		MUTEX_EXIT(g);
 	}
 
-	void gdispGDrawStringBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, const char* str, font_t font, color_t color, justify_t justify) {
-		#if GDISP_NEED_TEXT_WORDWRAP
-			wrapParameters_t wrapParameters;
-			uint16_t nbrLines;
-		#endif
+	void gdispGDrawStringBox(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, const char* str, gFont font, gColor color, gJustify justify) {
+		gCoord		totalHeight;
 
 		if (!font)
 			return;
 		MUTEX_ENTER(g);
 
-		g->t.font = font;
+		// Apply padding
+		#if GDISP_NEED_TEXT_BOXPADLR != 0 || GDISP_NEED_TEXT_BOXPADTB != 0
+			if (!(justify & gJustifyNoPad)) {
+				#if GDISP_NEED_TEXT_BOXPADLR != 0
+					x += GDISP_NEED_TEXT_BOXPADLR;
+					cx -= 2*GDISP_NEED_TEXT_BOXPADLR;
+				#endif
+				#if GDISP_NEED_TEXT_BOXPADTB != 0
+					y += GDISP_NEED_TEXT_BOXPADTB;
+					cy -= 2*GDISP_NEED_TEXT_BOXPADTB;
+				#endif
+			}
+		#endif
+
+		// Save the clipping area
 		g->t.clipx0 = x;
 		g->t.clipy0 = y;
 		g->t.clipx1 = x+cx;
 		g->t.clipy1 = y+cy;
-		g->t.color = color;
 
-		/* Select the anchor position */
-		switch(justify) {
-		case justifyCenter:
+		// Calculate the total text height
+		#if GDISP_NEED_TEXT_WORDWRAP
+			if (!(justify & gJustifyNoWordWrap)) {
+				// Count the number of lines
+				totalHeight = 0;
+				mf_wordwrap(font, cx, str, mf_countline_callback, &totalHeight);
+				totalHeight *= font->height;
+			} else
+		#endif
+		totalHeight = font->height;
+
+		// Select the anchor position
+		switch((justify & JUSTIFYMASK_VERTICAL)) {
+		case gJustifyTop:
+			break;
+		case gJustifyBottom:
+			y += cy - totalHeight;
+			break;
+		default:	// gJustifyMiddle
+			y += (cy+1 - totalHeight)/2;
+			break;
+		}
+		switch((justify & JUSTIFYMASK_HORIZONTAL)) {
+		case gJustifyCenter:
 			x += (cx + 1) / 2;
 			break;
-		case justifyRight:
+		case gJustifyRight:
 			x += cx;
 			break;
-		default:	// justifyLeft
-			x += font->baseline_x;
+		default:	// gJustifyLeft
 			break;
 		}
 
 		/* Render */
+		g->t.font = font;
+		g->t.color = color;
 		#if GDISP_NEED_TEXT_WORDWRAP
-			wrapParameters.x = x;
-			wrapParameters.y = y;
-			wrapParameters.font = font;
-			wrapParameters.justify = justify;
-			wrapParameters.g = g;
+			if (!(justify & gJustifyNoWordWrap)) {
+				g->t.lrj = (justify & JUSTIFYMASK_HORIZONTAL);
+				g->t.wrapx = x;
+				g->t.wrapy = y;
 
-			// Count the number of lines
-			nbrLines = 0;
-			mf_wordwrap(font, cx, str, mf_countline_callback, &nbrLines);
-			wrapParameters.y += (cy+1 - nbrLines*font->height)/2;
-			
-			mf_wordwrap(font, cx, str, mf_drawline_callback, &wrapParameters);
-		#else
-			y += (cy+1 - font->height)/2;
-			mf_render_aligned(font, x, y, justify, str, 0, drawcharglyph, g);
+				mf_wordwrap(font, cx, str, mf_drawline_callback, g);
+			} else
 		#endif
+		mf_render_aligned(font, x, y, (justify & JUSTIFYMASK_HORIZONTAL), str, 0, drawcharglyph, g);
 
 		autoflush(g);
 		MUTEX_EXIT(g);
 	}
 
-	void gdispGFillStringBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, const char* str, font_t font, color_t color, color_t bgcolor, justify_t justify) {
-		#if GDISP_NEED_TEXT_WORDWRAP
-			wrapParameters_t wrapParameters;
-			uint16_t nbrLines;
-		#endif
+	void gdispGFillStringBox(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, const char* str, gFont font, gColor color, gColor bgcolor, gJustify justify) {
+		gCoord		totalHeight;
 
 		if (!font)
 			return;
 		MUTEX_ENTER(g);
 
+		g->p.x = x;
+		g->p.y = y;
 		g->p.cx = cx;
 		g->p.cy = cy;
-		g->t.font = font;
-		g->t.clipx0 = g->p.x = x;
-		g->t.clipy0 = g->p.y = y;
-		g->t.clipx1 = x+cx;
-		g->t.clipy1 = y+cy;
-		g->t.color = color;
-		g->t.bgcolor = g->p.color = bgcolor;
 
 		TEST_CLIP_AREA(g) {
 
 			// background fill
+			g->p.color = bgcolor;
 			fillarea(g);
 
-			/* Select the anchor position */
-			switch(justify) {
-			case justifyCenter:
+			// Apply padding
+			#if GDISP_NEED_TEXT_BOXPADLR != 0 || GDISP_NEED_TEXT_BOXPADTB != 0
+				if (!(justify & gJustifyNoPad)) {
+					#if GDISP_NEED_TEXT_BOXPADLR != 0
+						x += GDISP_NEED_TEXT_BOXPADLR;
+						cx -= 2*GDISP_NEED_TEXT_BOXPADLR;
+					#endif
+					#if GDISP_NEED_TEXT_BOXPADTB != 0
+						y += GDISP_NEED_TEXT_BOXPADTB;
+						cy -= 2*GDISP_NEED_TEXT_BOXPADTB;
+					#endif
+				}
+			#endif
+
+			// Save the clipping area
+			g->t.clipx0 = x;
+			g->t.clipy0 = y;
+			g->t.clipx1 = x+cx;
+			g->t.clipy1 = y+cy;
+
+			// Calculate the total text height
+			#if GDISP_NEED_TEXT_WORDWRAP
+				if (!(justify & gJustifyNoWordWrap)) {
+					// Count the number of lines
+					totalHeight = 0;
+					mf_wordwrap(font, cx, str, mf_countline_callback, &totalHeight);
+					totalHeight *= font->height;
+				} else
+			#endif
+			totalHeight = font->height;
+
+			// Select the anchor position
+			switch((justify & JUSTIFYMASK_VERTICAL)) {
+			case gJustifyTop:
+				break;
+			case gJustifyBottom:
+				y += cy - totalHeight;
+				break;
+			default:	// gJustifyMiddle
+				y += (cy+1 - totalHeight)/2;
+				break;
+			}
+			switch((justify & JUSTIFYMASK_HORIZONTAL)) {
+			case gJustifyCenter:
 				x += (cx + 1) / 2;
 				break;
-			case justifyRight:
+			case gJustifyRight:
 				x += cx;
 				break;
-			default:	// justifyLeft
-				x += font->baseline_x;
+			default:	// gJustifyLeft
 				break;
 			}
 
 			/* Render */
+			g->t.font = font;
+			g->t.color = color;
+			g->t.bgcolor = bgcolor;
 			#if GDISP_NEED_TEXT_WORDWRAP
-				wrapParameters.x = x;
-				wrapParameters.y = y;
-				wrapParameters.font = font;
-				wrapParameters.justify = justify;
-				wrapParameters.g = g;
+				if (!(justify & gJustifyNoWordWrap)) {
+					g->t.lrj = (justify & JUSTIFYMASK_HORIZONTAL);
+					g->t.wrapx = x;
+					g->t.wrapy = y;
 
-
-				// Count the number of lines
-				nbrLines = 0;
-				mf_wordwrap(font, cx, str, mf_countline_callback, &nbrLines);
-				wrapParameters.y += (cy+1 - nbrLines*font->height)/2;
-
-				mf_wordwrap(font, cx, str, mf_fillline_callback, &wrapParameters);
-			#else
-				y += (cy+1 - font->height)/2;
-				mf_render_aligned(font, x, y, justify, str, 0, fillcharglyph, g);
+					mf_wordwrap(font, cx, str, mf_fillline_callback, g);
+				} else
 			#endif
+			mf_render_aligned(font, x, y, (justify & JUSTIFYMASK_HORIZONTAL), str, 0, fillcharglyph, g);
 		}
 
 		autoflush(g);
 		MUTEX_EXIT(g);
 	}
 
-	coord_t gdispGetFontMetric(font_t font, fontmetric_t metric) {
+	gCoord gdispGetFontMetric(gFont font, gFontmetric metric) {
 		if (!font)
 			return 0;
 		/* No mutex required as we only read static data */
 		switch(metric) {
-		case fontHeight:			return font->height;
-		case fontDescendersHeight:	return font->height - font->baseline_y;
-		case fontLineSpacing:		return font->line_height;
-		case fontCharPadding:		return 0;
-		case fontMinWidth:			return font->min_x_advance;
-		case fontMaxWidth:			return font->max_x_advance;
-		case fontBaselineX:			return font->baseline_x;
-		case fontBaselineY:			return font->baseline_y;
+		case gFontHeight:			return font->height;
+		case gFontDescendersHeight:	return font->height - font->baseline_y;
+		case gFontLineSpacing:		return font->line_height;
+		case gFontCharPadding:		return 0;
+		case gFontMinWidth:			return font->min_x_advance;
+		case gFontMaxWidth:			return font->max_x_advance;
+		case gFontBaselineX:		return font->baseline_x;
+		case gFontBaselineY:		return font->baseline_y;
 		}
 		return 0;
 	}
 
-	coord_t gdispGetCharWidth(char c, font_t font) {
+	gCoord gdispGetCharWidth(char c, gFont font) {
 		if (!font)
 			return 0;
 		/* No mutex required as we only read static data */
 		return mf_character_width(font, c);
 	}
 
-	coord_t gdispGetStringWidthCount(const char* str, font_t font, uint16_t count) {
+	gCoord gdispGetStringWidthCount(const char* str, gFont font, gU16 count) {
 		if (!str || !font)
 			return 0;
 
 		// No mutex required as we only read static data
 		#if GDISP_NEED_TEXT_KERNING
-			return mf_get_string_width(font, str, count, TRUE);
+			return mf_get_string_width(font, str, count, gTrue);
 		#else
-			return mf_get_string_width(font, str, count, FALSE);
+			return mf_get_string_width(font, str, count, gFalse);
 		#endif
 	}
 
-	coord_t gdispGetStringWidth(const char* str, font_t font) {
+	gCoord gdispGetStringWidth(const char* str, gFont font) {
 		return gdispGetStringWidthCount(str, font, 0);
 	}
 #endif
 
-color_t gdispBlendColor(color_t fg, color_t bg, uint8_t alpha)
-{
-	uint16_t fg_ratio = alpha + 1;
-	uint16_t bg_ratio = 256 - alpha;
-	uint16_t r, g, b;
+#if GDISP_PIXELFORMAT == GDISP_PIXELFORMAT_RGB888
+	// Special alpha hacked version.
+	// Note: this will still work with real RGB888
+	gColor gdispBlendColor(gColor fg, gColor bg, gU8 alpha)
+	{
+		gU32 ratio;
+		gU32 a1, r1, g1, b1;
+		gU32 a2, r2, g2, b2;
 
-	r = RED_OF(fg) * fg_ratio;
-	g = GREEN_OF(fg) * fg_ratio;
-	b = BLUE_OF(fg) * fg_ratio;
+		// Ratio - add one to get 1 to 256
+		ratio = (gU32)alpha + 1;		// 0 to 1 in 0.8 fixed point
 
-	r += RED_OF(bg) * bg_ratio;
-	g += GREEN_OF(bg) * bg_ratio;
-	b += BLUE_OF(bg) * bg_ratio;
+		// Calculate the pre-multiplied values of r, g, b for the fg color
+		a1 = ALPHA_OF(fg);					// 0 to 1 in 0.8 fixed point
+		r1 = RED_OF(fg) * a1;				// 0 to 1 in 0.16 fixed point
+		g1 = GREEN_OF(fg) * a1;				// 0 to 1 in 0.16 fixed point
+		b1 = BLUE_OF(fg) * a1;				// 0 to 1 in 0.16 fixed point
 
-	r >>= 8;
-	g >>= 8;
-	b >>= 8;
+		// Calculate the pre-multiplied values of r, g, b for the bg color
+		a2 = ALPHA_OF(bg);					// 0 to 1 in 0.8 fixed point
+		r2 = RED_OF(bg) * a2;				// 0 to 1 in 0.16 fixed point
+		g2 = GREEN_OF(bg) * a2;				// 0 to 1 in 0.16 fixed point
+		b2 = BLUE_OF(bg) * a2;				// 0 to 1 in 0.16 fixed point
 
-	return RGB2COLOR(r, g, b);
-}
+		// Calculate the mixed color values
+		a1 = ratio * (a1 - a2) + (a2<<8);	// 0 to 1 in 0.16 fixed point
+		if (!a1) return GFXTRANSPARENT;
+		r1 = ((ratio * (r1 - r2))>>8) + r2;	// 0 to 1 in 0.16 fixed point
+		g1 = ((ratio * (g1 - g2))>>8) + g2;	// 0 to 1 in 0.16 fixed point
+		b1 = ((ratio * (b1 - b2))>>8) + b2;	// 0 to 1 in 0.16 fixed point
 
-color_t gdispContrastColor(color_t color) {
-	uint16_t r, g, b;
+		// Fix precision
+		#if 1
+			// Convert back to un-multiplied values
+			ratio = 0x80000000 / a1;		// Divide 1 (0.31 fixed point) by a1 (0.16 fixed point) to get the a1 reciprocal in 0.15 fixed point
+			a1 >>= 8;						// Shift to get back to 0.8 fixed point
+			r1 = (r1 * ratio) >> 23;		// Multiply by ratio to get 0.31 and then shift to get back to 0.8 fixed point
+			g1 = (g1 * ratio) >> 23;		// Multiply by ratio to get 0.31 and then shift to get back to 0.8 fixed point
+			b1 = (b1 * ratio) >> 23;		// Multiply by ratio to get 0.31 and then shift to get back to 0.8 fixed point
+		#else
+			// Leave as pre-multiplied values
+			a1 >>= 8;						// Shift to get back to 0.8 fixed point
+			r1 >>= 8;						// Shift to get back to 0.8 fixed point
+			g1 >>= 8;						// Shift to get back to 0.8 fixed point
+			b1 >>= 8;						// Shift to get back to 0.8 fixed point
+		#endif
+
+		return ARGB2COLOR(a1, r1, g1, b1);
+	}
+#else
+	gColor gdispBlendColor(gColor fg, gColor bg, gU8 alpha)
+	{
+		gU16 fg_ratio = alpha + 1;
+		gU16 bg_ratio = 256 - alpha;
+		gU16 r, g, b;
+
+		r = RED_OF(fg) * fg_ratio;
+		g = GREEN_OF(fg) * fg_ratio;
+		b = BLUE_OF(fg) * fg_ratio;
+
+		r += RED_OF(bg) * bg_ratio;
+		g += GREEN_OF(bg) * bg_ratio;
+		b += BLUE_OF(bg) * bg_ratio;
+
+		r >>= 8;
+		g >>= 8;
+		b >>= 8;
+
+		return RGB2COLOR(r, g, b);
+	}
+#endif
+
+gColor gdispContrastColor(gColor color) {
+	gU16 r, g, b;
 
 	r = RED_OF(color) > 128 ? 0 : 255;
 	g = GREEN_OF(color) > 128 ? 0 : 255;
@@ -3632,7 +3740,7 @@ color_t gdispContrastColor(color_t color) {
 }
 
 #if (!defined(gdispPackPixels) && !defined(GDISP_PIXELFORMAT_CUSTOM))
-	void gdispPackPixels(pixel_t *buf, coord_t cx, coord_t x, coord_t y, color_t color) {
+	void gdispPackPixels(gPixel *buf, gCoord cx, gCoord x, gCoord y, gColor color) {
 		/* No mutex required as we only read static data */
 		#if defined(GDISP_PIXELFORMAT_RGB888)
 			#error "GDISP: Packed pixels not supported yet"

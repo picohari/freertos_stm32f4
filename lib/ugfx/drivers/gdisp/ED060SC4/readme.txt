@@ -42,7 +42,7 @@ command:
 
 The buffers are also flushed whenever you turn the display off using:
 
-    gdispSetPowerMode(powerOff);
+    gdispSetPowerMode(gPowerOff);
 
 
 
@@ -54,7 +54,7 @@ Instead, it uses reverse engineered waveforms that are mostly functional.
 
 The following #defines control the waveforms:
 
-#define EINK_BLINKCLEAR TRUE      // Clear to opposite color first
+#define EINK_BLINKCLEAR GFXON      // Clear to opposite color first
 #define EINK_CLEARCOUNT 10        // Number of sweeps to clear the display
 #define EINK_WRITECOUNT 4         // Number of sweeps when writing to display
 

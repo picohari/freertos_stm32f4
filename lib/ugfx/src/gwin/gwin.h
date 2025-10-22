@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -18,7 +18,7 @@
  *				will have it's own properties such as colors as well as
  *				it's own drawing origin.
  *
- * @pre		GFX_USE_GWIN must be set to TRUE in your gfxconf.h
+ * @pre		GFX_USE_GWIN must be set to GFXON in your gfxconf.h
  * @{
  */
 
@@ -44,15 +44,15 @@ typedef struct GWindowObject {
 	#endif
 	const struct gwinVMT*	vmt;				/**< The VMT for this GWIN */
 	GDisplay *				display;			/**< The display this window is on */
-	coord_t					x;					/**< The position relative to the screen */
-	coord_t					y;					/**< The position relative to the screen */
-	coord_t					width;				/**< The width of this window */
-	coord_t					height;				/**< The height of this window */
-	color_t					color;				/**< The current foreground drawing color */
-	color_t					bgcolor;			/**< The current background drawing color */
-	uint32_t				flags;				/**< Window flags (the meaning is private to the GWIN class) */
+	gCoord					x;					/**< The position relative to the screen */
+	gCoord					y;					/**< The position relative to the screen */
+	gCoord					width;				/**< The width of this window */
+	gCoord					height;				/**< The height of this window */
+	gColor					color;				/**< The current foreground drawing color */
+	gColor					bgcolor;			/**< The current background drawing color */
+	gU32				flags;				/**< Window flags (the meaning is private to the GWIN class) */
 	#if GDISP_NEED_TEXT
-		font_t				font;				/**< The current font */
+		gFont				font;				/**< The current font */
 	#endif
 	#if GWIN_NEED_CONTAINERS
 		GHandle				parent;				/**< The parent window */
@@ -73,11 +73,11 @@ typedef struct GWindowObject {
  * @{
  */
 typedef struct GWindowInit {
-	coord_t			x;								/**< The initial position relative to its parent */
-	coord_t			y;								/**< The initial position relative to its parent */
-	coord_t			width;							/**< The width */
-	coord_t			height;							/**< The height */
-	bool_t			show;							/**< Should the window be visible initially */
+	gCoord			x;								/**< The initial position relative to its parent */
+	gCoord			y;								/**< The initial position relative to its parent */
+	gCoord			width;							/**< The width */
+	gCoord			height;							/**< The height */
+	gBool			show;							/**< Should the window be visible initially */
 	#if GWIN_NEED_CONTAINERS
 		GHandle		parent;							/**< The parent - must be a container or NULL */
 	#endif
@@ -88,10 +88,6 @@ typedef struct GWindowInit {
  * @brief	A window's minimized, maximized or normal size
  */
 typedef enum { GWIN_NORMAL, GWIN_MAXIMIZE, GWIN_MINIMIZE } GWindowMinMax;
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*-------------------------------------------------
  * Window Manager functions
@@ -141,7 +137,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	void gwinSetDefaultColor(color_t clr);
+	void gwinSetDefaultColor(gColor clr);
 
 	/**
 	 * @brief	Get the default foreground color for all new GWIN windows
@@ -150,7 +146,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	color_t gwinGetDefaultColor(void);
+	gColor gwinGetDefaultColor(void);
 
 	/**
 	 * @brief	Set the default background color for all new GWIN windows
@@ -159,7 +155,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	void gwinSetDefaultBgColor(color_t bgclr);
+	void gwinSetDefaultBgColor(gColor bgclr);
 
 	/**
 	 * @brief	Get the default background color for all new GWIN windows
@@ -168,7 +164,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	color_t gwinGetDefaultBgColor(void);
+	gColor gwinGetDefaultBgColor(void);
 
 	#if GDISP_NEED_TEXT || defined(__DOXYGEN__)
 		/**
@@ -178,7 +174,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinSetDefaultFont(font_t font);
+		void gwinSetDefaultFont(gFont font);
 
 		/**
 		 * @brief	Get the current default font
@@ -187,7 +183,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		font_t gwinGetDefaultFont(void);
+		gFont gwinGetDefaultFont(void);
 	#endif
 
 /*-------------------------------------------------
@@ -203,7 +199,7 @@ extern "C" {
 	 * @param[in] pInit		How to initialise the window
 	 *
 	 * @note				The drawing color and the background color get set to the current defaults. If you haven't called
-	 * 						@p gwinSetDefaultColor() or @p gwinSetDefaultBgColor() then these are White and Black respectively.
+	 * 						@p gwinSetDefaultColor() or @p gwinSetDefaultBgColor() then these are GFX_WHITE and GFX_BLACK respectively.
 	 * @note				The font gets set to the current default font. If you haven't called @p gwinSetDefaultFont() then there
 	 * 						is no default font and text drawing operations will no nothing.
 	 * @note				A basic window does not save the drawing state. It is not automatically redrawn if the window is moved or
@@ -346,7 +342,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	void gwinSetVisible(GHandle gh, bool_t visible);
+	void gwinSetVisible(GHandle gh, gBool visible);
 
 	/**
 	 * @brief	Makes a widget become visible
@@ -355,7 +351,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	#define gwinShow(gh)		gwinSetVisible(gh, TRUE)
+	#define gwinShow(gh)		gwinSetVisible(gh, gTrue)
 
 	/**
 	 * @brief	Makes a widget become invisible
@@ -364,20 +360,20 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	#define gwinHide(gh)		gwinSetVisible(gh, FALSE)
+	#define gwinHide(gh)		gwinSetVisible(gh, gFalse)
 
 	/**
 	 * @brief	Gets the visibility of a window
-	 * @return	TRUE if visible
+	 * @return	gTrue if visible
 	 *
 	 * @note	It is possible for a child to be marked as visible by @p gwinSetVisible()
-	 * 			but for this call to return FALSE if one of its parents are not visible.
+	 * 			but for this call to return gFalse if one of its parents are not visible.
 	 *
 	 * @param[in] gh		The window
 	 *
 	 * @api
 	 */
-	bool_t gwinGetVisible(GHandle gh);
+	gBool gwinGetVisible(GHandle gh);
 
 	/**
 	 * @brief	Enable or disable a window
@@ -392,7 +388,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	void gwinSetEnabled(GHandle gh, bool_t enabled);
+	void gwinSetEnabled(GHandle gh, gBool enabled);
 
 	/**
 	 * @brief	Enables a widget
@@ -401,7 +397,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	#define gwinEnable(gh)		gwinSetEnabled(gh, TRUE)
+	#define gwinEnable(gh)		gwinSetEnabled(gh, gTrue)
 
 	/**
 	 * @brief	Disables a widget
@@ -410,20 +406,20 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	#define gwinDisable(gh)		gwinSetEnabled(gh, FALSE)
+	#define gwinDisable(gh)		gwinSetEnabled(gh, gFalse)
 
 	/**
 	 * @brief	Gets the enabled state of a window
-	 * @return	TRUE if enabled
+	 * @return	gTrue if enabled
 	 *
 	 * @note	It is possible for a child to be marked as enabled by @p gwinSetEnabled()
-	 * 			but for this call to return FALSE if one of its parents are not enabled.
+	 * 			but for this call to return gFalse if one of its parents are not enabled.
 	 *
 	 * @param[in] gh		The window
 	 *
 	 * @api
 	 */
-	bool_t gwinGetEnabled(GHandle gh);
+	gBool gwinGetEnabled(GHandle gh);
 
 	/**
 	 * @brief	Move a window
@@ -441,7 +437,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	void gwinMove(GHandle gh, coord_t x, coord_t y);
+	void gwinMove(GHandle gh, gCoord x, gCoord y);
 
 	/**
 	 * @brief	Resize a window
@@ -459,7 +455,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	void gwinResize(GHandle gh, coord_t width, coord_t height);
+	void gwinResize(GHandle gh, gCoord width, gCoord height);
 
 	/**
 	 * @brief	Redraw a window
@@ -489,11 +485,11 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinRedrawDisplay(GDisplay *g, bool_t preserve);
+		void gwinRedrawDisplay(GDisplay *g, gBool preserve);
 
 		/**
 		 * @brief	Minimize, Maximize or Restore a window
-		 * @pre		GWIN_NEED_WINDOWMANAGER must be TRUE
+		 * @pre		GWIN_NEED_WINDOWMANAGER must be GFXON
 		 *
 		 * @param[in] gh				The window
 		 * @param[in] minmax			The new minimized/maximized state
@@ -514,7 +510,7 @@ extern "C" {
 
 		/**
 		 * @brief	Get the Minimized/Maximized state of a window
-		 * @pre		GWIN_NEED_WINDOWMANAGER must be TRUE
+		 * @pre		GWIN_NEED_WINDOWMANAGER must be GFXON
 		 *
 		 * @param[in] gh				The window
 		 *
@@ -526,7 +522,7 @@ extern "C" {
 
 		/**
 		 * @brief	Raise a window to the top of the z-order
-		 * @pre		GWIN_NEED_WINDOWMANAGER must be TRUE
+		 * @pre		GWIN_NEED_WINDOWMANAGER must be GFXON
 		 *
 		 * @param[in] gh				The window
 		 *
@@ -565,11 +561,11 @@ extern "C" {
 		 * 			way every flash period (GWIN_FLASHING_PERIOD). How its appearance
 		 * 			changes depends on the draw for each window/widget.
 		 *
-		 * @pre		Requires GWIN_NEED_FLASHING to be TRUE
+		 * @pre		Requires GWIN_NEED_FLASHING to be GFXON
 		 *
 		 * @api
 		 */
-		void gwinSetFlashing(GHandle gh, bool_t flash);
+		void gwinSetFlashing(GHandle gh, gBool flash);
 
 		/**
 		 * @brief	Enables flashing of a window or widget
@@ -578,7 +574,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		#define gwinFlash(gh)		gwinSetFlashing(gh, TRUE)
+		#define gwinFlash(gh)		gwinSetFlashing(gh, gTrue)
 
 		/**
 		 * @brief	Disables a widget
@@ -587,7 +583,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		#define gwinNoFlash(gh)		gwinSetFlashing(gh, FALSE)
+		#define gwinNoFlash(gh)		gwinSetFlashing(gh, gFalse)
 	#endif
 
 	#if GDISP_NEED_TEXT || defined(__DOXYGEN__)
@@ -599,7 +595,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinSetFont(GHandle gh, font_t font);
+		void gwinSetFont(GHandle gh, gFont font);
 	#endif
 
 /*-------------------------------------------------
@@ -626,7 +622,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	void gwinDrawPixel(GHandle gh, coord_t x, coord_t y);
+	void gwinDrawPixel(GHandle gh, gCoord x, gCoord y);
 
 	/**
 	 * @brief   Draw a line in the window
@@ -639,7 +635,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	void gwinDrawLine(GHandle gh, coord_t x0, coord_t y0, coord_t x1, coord_t y1);
+	void gwinDrawLine(GHandle gh, gCoord x0, gCoord y0, gCoord x1, gCoord y1);
 
 	/**
 	 * @brief   Draw a box in the window
@@ -652,7 +648,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	void gwinDrawBox(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy);
+	void gwinDrawBox(GHandle gh, gCoord x, gCoord y, gCoord cx, gCoord cy);
 
 	/**
 	 * @brief   Fill an rectangular area in the window
@@ -665,14 +661,14 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	void gwinFillArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy);
+	void gwinFillArea(GHandle gh, gCoord x, gCoord y, gCoord cx, gCoord cy);
 
 	/**
 	 * @brief   Fill an area in the window using the supplied bitmap.
 	 * @details The bitmap is in the pixel format specified by the low level driver
 	 * @note	If GDISP_NEED_ASYNC is defined then the buffer must be static
 	 * 			or at least retained until this call has finished the blit. You can
-	 * 			tell when all graphics drawing is finished by @p gdispIsBusy() going FALSE.
+	 * 			tell when all graphics drawing is finished by @p gdispIsBusy() going gFalse.
 	 * @note	May leave GDISP clipping to this window's dimensions
 	 *
 	 * @param[in] gh		The window handle
@@ -684,7 +680,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer);
+	void gwinBlitArea(GHandle gh, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoord srcx, gCoord srcy, gCoord srccx, const gPixel *buffer);
 
 /*-------------------------------------------------
  * Circle, ellipse, arc and arc-sectors functions
@@ -702,7 +698,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinDrawCircle(GHandle gh, coord_t x, coord_t y, coord_t radius);
+		void gwinDrawCircle(GHandle gh, gCoord x, gCoord y, gCoord radius);
 
 		/**
 		 * @brief   Draw a filled circle in the window.
@@ -715,7 +711,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinFillCircle(GHandle gh, coord_t x, coord_t y, coord_t radius);
+		void gwinFillCircle(GHandle gh, gCoord x, gCoord y, gCoord radius);
 	#endif
 
 	#if GDISP_NEED_DUALCIRCLE || defined(__DOXYGEN__)
@@ -724,7 +720,7 @@ extern "C" {
 		 * @note	Uses the current foreground color to draw the inner circle
 		 * @note	Uses the current background color to draw the outer circle
 		 * @note	May leave GDISP clipping to this window's dimensions
-		 * @pre		GDISP_NEED_DUALCIRCLE must be TRUE in your gfxconf.h
+		 * @pre		GDISP_NEED_DUALCIRCLE must be GFXON in your gfxconf.h
 		 *
 		 * @param[in] gh		The window handle
 		 * @param[in] x,y		The center of the circle
@@ -733,7 +729,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinFillDualCircle(GHandle gh, coord_t x, coord_t y, coord_t radius1, coord_t radius2);
+		void gwinFillDualCircle(GHandle gh, gCoord x, gCoord y, gCoord radius1, gCoord radius2);
 	#endif
 
 	#if GDISP_NEED_ELLIPSE || defined(__DOXYGEN__)
@@ -748,7 +744,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinDrawEllipse(GHandle gh, coord_t x, coord_t y, coord_t a, coord_t b);
+		void gwinDrawEllipse(GHandle gh, gCoord x, gCoord y, gCoord a, gCoord b);
 
 		/**
 		 * @brief   Draw an filled ellipse.
@@ -761,7 +757,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinFillEllipse(GHandle gh, coord_t x, coord_t y, coord_t a, coord_t b);
+		void gwinFillEllipse(GHandle gh, gCoord x, gCoord y, gCoord a, gCoord b);
 	#endif
 
 	#if GDISP_NEED_ARC || defined(__DOXYGEN__)
@@ -778,7 +774,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinDrawArc(GHandle gh, coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle);
+		void gwinDrawArc(GHandle gh, gCoord x, gCoord y, gCoord radius, gCoord startangle, gCoord endangle);
 
 		/*
 		 * @brief	Draw a filled arc in the window.
@@ -793,7 +789,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinFillArc(GHandle gh, coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle);
+		void gwinFillArc(GHandle gh, gCoord x, gCoord y, gCoord radius, gCoord startangle, gCoord endangle);
 
 		/*
 		 * @brief	Draw a thick arc in the window.
@@ -809,7 +805,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinDrawThickArc(GHandle gh, coord_t x, coord_t y, coord_t startradius, coord_t endradius, coord_t startangle, coord_t endangle);
+		void gwinDrawThickArc(GHandle gh, gCoord x, gCoord y, gCoord startradius, gCoord endradius, gCoord startangle, gCoord endangle);
 	#endif
 
 	#if GDISP_NEED_ARCSECTORS || defined(__DOXYGEN__)
@@ -834,7 +830,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinDrawArcSectors(GHandle gh, coord_t x, coord_t y, coord_t radius, uint8_t sectors);
+		void gwinDrawArcSectors(GHandle gh, gCoord x, gCoord y, gCoord radius, gU8 sectors);
 
 		/*
 		 * @brief	Draw a filled selection of 45 degree arcs of a circle in the window.
@@ -857,7 +853,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinFillArcSectors(GHandle gh, coord_t x, coord_t y, coord_t radius, uint8_t sectors);
+		void gwinFillArcSectors(GHandle gh, gCoord x, gCoord y, gCoord radius, gU8 sectors);
 	#endif
 
 /*-------------------------------------------------
@@ -875,7 +871,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		color_t gwinGetPixelColor(GHandle gh, coord_t x, coord_t y);
+		gColor gwinGetPixelColor(GHandle gh, gCoord x, gCoord y);
 	#endif
 
 /*-------------------------------------------------
@@ -895,7 +891,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinDrawChar(GHandle gh, coord_t x, coord_t y, char c);
+		void gwinDrawChar(GHandle gh, gCoord x, gCoord y, char c);
 
 		/**
 		 * @brief   Draw a text character with a filled background at the specified position in the window.
@@ -909,7 +905,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinFillChar(GHandle gh, coord_t x, coord_t y, char c);
+		void gwinFillChar(GHandle gh, gCoord x, gCoord y, char c);
 
 		/**
 		 * @brief   Draw a text string in the window
@@ -923,7 +919,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinDrawString(GHandle gh, coord_t x, coord_t y, const char *str);
+		void gwinDrawString(GHandle gh, gCoord x, gCoord y, const char *str);
 
 		/**
 		 * @brief   Draw a text string with a filled background in the window
@@ -937,7 +933,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinFillString(GHandle gh, coord_t x, coord_t y, const char *str);
+		void gwinFillString(GHandle gh, gCoord x, gCoord y, const char *str);
 
 		/**
 		 * @brief   Draw a text string verticly centered within the specified box.
@@ -954,7 +950,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinDrawStringBox(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, const char* str, justify_t justify);
+		void gwinDrawStringBox(GHandle gh, gCoord x, gCoord y, gCoord cx, gCoord cy, const char* str, gJustify justify);
 
 		/**
 		 * @brief   Draw a text string verticly centered within the specified filled box.
@@ -971,7 +967,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinFillStringBox(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, const char* str, justify_t justify);
+		void gwinFillStringBox(GHandle gh, gCoord x, gCoord y, gCoord cx, gCoord cy, const char* str, gJustify justify);
 	#endif
 
 /*-------------------------------------------------
@@ -991,7 +987,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinDrawPoly(GHandle gh, coord_t tx, coord_t ty, const point *pntarray, unsigned cnt);
+		void gwinDrawPoly(GHandle gh, gCoord tx, gCoord ty, const gPoint *pntarray, unsigned cnt);
 
 		/**
 		 * @brief   Fill a convex polygon
@@ -1014,7 +1010,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinFillConvexPoly(GHandle gh, coord_t tx, coord_t ty, const point *pntarray, unsigned cnt);
+		void gwinFillConvexPoly(GHandle gh, gCoord tx, gCoord ty, const gPoint *pntarray, unsigned cnt);
 	
 		/**
 		 * @brief	Draw a thick line in the window
@@ -1031,7 +1027,7 @@ extern "C" {
 		 * 
 		 * @api
 		 */
-		void gwinDrawThickLine(GHandle gh, coord_t x0, coord_t y0, coord_t x1, coord_t y1, coord_t width, bool_t round);
+		void gwinDrawThickLine(GHandle gh, gCoord x0, gCoord y0, gCoord x1, gCoord y1, gCoord width, gBool round);
 	#endif
 
 /*-------------------------------------------------
@@ -1060,12 +1056,8 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		gdispImageError gwinDrawImage(GHandle gh, gdispImage *img, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t sx, coord_t sy);
+		gdispImageError gwinDrawImage(GHandle gh, gImage *img, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoord sx, gCoord sy);
 	#endif
-
-#ifdef __cplusplus
-}
-#endif
 
 /*-------------------------------------------------
  * Additional functionality

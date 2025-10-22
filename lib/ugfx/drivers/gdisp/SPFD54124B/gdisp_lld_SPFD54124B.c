@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /*
@@ -15,13 +15,14 @@
 
 #if GFX_USE_GDISP
 
-#if defined(GDISP_SCREEN_HEIGHT)
-#warning "GDISP: This low level driver does not support setting a screen size. It is being ignored."
-#undef GDISP_SCREEN_HEIGHT
-#endif
-#if defined(GDISP_SCREEN_WIDTH)
-#warning "GDISP: This low level driver does not support setting a screen size. It is being ignored."
-#undef GDISP_SCREEN_WIDTH
+#if defined(GDISP_SCREEN_HEIGHT) || defined(GDISP_SCREEN_HEIGHT)
+	#if GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_DIRECT
+		#warning "GDISP: This low level driver does not support setting a screen size. It is being ignored."
+	#elif GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_MACRO
+		COMPILER_WARNING("GDISP: This low level driver does not support setting a screen size. It is being ignored.")
+	#endif
+	#undef GDISP_SCREEN_WIDTH
+	#undef GDISP_SCREEN_HEIGHT
 #endif
 
 #include "gdisp_lld_config.h"
@@ -67,8 +68,8 @@
 /*===========================================================================*/
 
 // Use the priv pointer itself to save our color. This save allocating ram for it
-//	and works provided sizeof(uint16_t) <= sizeof(void *)
-#define savecolor(g)				(*(uint16_t *)&g->priv)
+//	and works provided sizeof(gU16) <= sizeof(void *)
+#define savecolor(g)				(*(gU16 *)&g->priv)
 
 /*===========================================================================*/
 /* Driver local functions.                                                   */
@@ -93,7 +94,7 @@ static GFXINLINE void set_viewport(GDisplay* g)
 /* Driver exported functions.                                                */
 /*===========================================================================*/
 
-const uint16_t lcd_init_list[] = {
+const gU16 lcd_init_list[] = {
 	SPFD54124B_CMD_SLPOUT,
 	SPFD54124B_CMD_COLMOD, SPFD54124B_SEND_DATA | SPFD54124B_CMD_COLMOD_MCU16bit,
 	SPFD54124B_CMD_DISPON,
@@ -101,7 +102,7 @@ const uint16_t lcd_init_list[] = {
 	SPFD54124B_CMD_NORON
 };
 
-LLDSPEC bool_t gdisp_lld_init(GDisplay *g)
+LLDSPEC gBool gdisp_lld_init(GDisplay *g)
 {
 	// No private area for this controller
 	g->priv = 0;
@@ -110,15 +111,15 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g)
 	init_board(g);
 
 	// Hardware reset
-	setpin_reset(g, TRUE);
+	setpin_reset(g, gTrue);
 	delayms(100);
-	setpin_reset(g, FALSE);
+	setpin_reset(g, gFalse);
 	delayms(100);
 
 	acquire_bus(g);
 
-	const uint16_t *list = &lcd_init_list[0];
-	uint8_t size = sizeof(lcd_init_list) / sizeof(lcd_init_list[0]);
+	const gU16 *list = &lcd_init_list[0];
+	gU8 size = sizeof(lcd_init_list) / sizeof(lcd_init_list[0]);
 
 	while(size--) {
 		write_index(g, *list++);
@@ -135,12 +136,12 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g)
 	// Initialise the GDISP structure to match 
 	g->g.Width = GDISP_SCREEN_WIDTH;
 	g->g.Height = GDISP_SCREEN_HEIGHT;
-	g->g.Orientation = GDISP_ROTATE_0;
-	g->g.Powermode = powerOn;
+	g->g.Orientation = gOrientation0;
+	g->g.Powermode = gPowerOn;
 	g->g.Backlight = GDISP_INITIAL_BACKLIGHT;
 	g->g.Contrast = GDISP_INITIAL_CONTRAST;
 
-	return TRUE;
+	return gTrue;
 }
 
 #if GDISP_HARDWARE_STREAM_WRITE
@@ -174,17 +175,17 @@ LLDSPEC void gdisp_lld_control(GDisplay *g)
 
 	switch(g->p.x) {
 		case GDISP_CONTROL_POWER:
-			if (g->g.Powermode == (powermode_t)g->p.ptr)
+			if (g->g.Powermode == (gPowermode)g->p.ptr)
 				return;
 
-			switch((powermode_t)g->p.ptr) {
-				case powerOff:
+			switch((gPowermode)g->p.ptr) {
+				case gPowerOff:
 					acquire_bus(g);
 					write_index(g, SPFD54124B_CMD_SLPIN);
 					release_bus(g);
 					break;
 
-				case powerOn:
+				case gPowerOn:
 					acquire_bus(g);
 					write_index(g, SPFD54124B_CMD_SLPOUT);
 					delayms(20);
@@ -192,7 +193,7 @@ LLDSPEC void gdisp_lld_control(GDisplay *g)
 					release_bus(g);
 					break;
 
-				case powerSleep:
+				case gPowerSleep:
 					acquire_bus(g);
 					write_index(g, SPFD54124B_CMD_SLPOUT);
 					delayms(20);
@@ -203,15 +204,15 @@ LLDSPEC void gdisp_lld_control(GDisplay *g)
 					return;
 			}
 
-			g->g.Powermode = (powermode_t)g->p.ptr;
+			g->g.Powermode = (gPowermode)g->p.ptr;
 			return;
 
 		case GDISP_CONTROL_ORIENTATION:
-			if (g->g.Orientation == (orientation_t)g->p.ptr)
+			if (g->g.Orientation == (gOrientation)g->p.ptr)
 				return;
 
-			switch((orientation_t)g->p.ptr) {
-				case GDISP_ROTATE_0:
+			switch((gOrientation)g->p.ptr) {
+				case gOrientation0:
 					acquire_bus(g);
 					write_index(g, SPFD54124B_CMD_MADCTR);
 					write_index(g, 0x0100);
@@ -220,7 +221,7 @@ LLDSPEC void gdisp_lld_control(GDisplay *g)
 					g->g.Width = GDISP_SCREEN_WIDTH;
 					break;
 
-				case GDISP_ROTATE_90:
+				case gOrientation90:
 					acquire_bus(g);
 					write_index(g, SPFD54124B_CMD_MADCTR);
 					write_index(g, 0x01A0);
@@ -229,7 +230,7 @@ LLDSPEC void gdisp_lld_control(GDisplay *g)
 					g->g.Width = GDISP_SCREEN_HEIGHT;
 					break;
 
-				case GDISP_ROTATE_180:
+				case gOrientation180:
 					acquire_bus(g);
 					write_index(g, SPFD54124B_CMD_MADCTR);
 					write_index(g, 0x01C0);
@@ -238,7 +239,7 @@ LLDSPEC void gdisp_lld_control(GDisplay *g)
 					g->g.Width = GDISP_SCREEN_WIDTH;
 					break;
 
-				case GDISP_ROTATE_270:
+				case gOrientation270:
 					acquire_bus(g);
 					write_index(g, SPFD54124B_CMD_MADCTR);
 					write_index(g, 0x0160);
@@ -248,11 +249,11 @@ LLDSPEC void gdisp_lld_control(GDisplay *g)
 					break;
 
 				default:
-					// GDISP_ROTATE_PORTRAIT and GDISP_ROTATE_LANDSCAPE are handled by the higher level code
+					// gOrientationPortrait and gOrientationLandscape are handled by the higher level code
 					return;
 			}
 
-			g->g.Orientation = (orientation_t)g->p.ptr;
+			g->g.Orientation = (gOrientation)g->p.ptr;
 
 			return;
 	}

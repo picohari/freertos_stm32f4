@@ -1,0 +1,12 @@
+loadrt remote_jog
+addf remote_jog servo-thread
+
+# Connect feedback positions (absolute machine position)
+net x-pos-fb axis.0.pos-fb => remote_jog.x-pos-fb
+net y-pos-fb axis.1.pos-fb => remote_jog.y-pos-fb
+net z-pos-fb axis.2.pos-fb => remote_jog.z-pos-fb
+
+# Connect jog deltas to motion
+net x-jog remote_jog.x-jog-delta => motion.jog-increment[0]
+net y-jog remote_jog.y-jog-delta => motion.jog-increment[1]
+net z-jog remote_jog.z-jog-delta => motion.jog-increment[2]

@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -46,7 +46,7 @@
 static I2CConfig i2cconfig;
 
 #if GFX_USE_OS_CHIBIOS
-	static int32_t thdPriority = 0;
+	static gI32 thdPriority = 0;
 #endif
 
 static GFXINLINE void init_board(GDisplay *g) {
@@ -82,7 +82,7 @@ static GFXINLINE void post_init_board(GDisplay *g) {
 	(void) g;
 }
 
-static GFXINLINE void setpin_reset(GDisplay *g, bool_t state) {
+static GFXINLINE void setpin_reset(GDisplay *g, gBool state) {
 	(void) g;
 	if(state)
 		CLR_RST
@@ -93,7 +93,7 @@ static GFXINLINE void setpin_reset(GDisplay *g, bool_t state) {
 static GFXINLINE void acquire_bus(GDisplay *g) {
 	(void) g;
 	#if GFX_USE_OS_CHIBIOS
-		thdPriority = (int32_t)chThdGetPriority();
+		thdPriority = (gI32)chThdGetPriority();
 		chThdSetPriority(HIGHPRIO);
 	#endif
 	i2cAcquireBus(&I2CD1);
@@ -107,8 +107,8 @@ static GFXINLINE void release_bus(GDisplay *g) {
 	i2cReleaseBus(&I2CD1);
 }
 
-static GFXINLINE void write_cmd(GDisplay *g, uint8_t cmd) {
-	uint8_t command[2];
+static GFXINLINE void write_cmd(GDisplay *g, gU8 cmd) {
+	gU8 command[2];
 	(void) g;
 
 	command[0] = 0x00;		// Co = 0, D/C = 0
@@ -119,7 +119,7 @@ static GFXINLINE void write_cmd(GDisplay *g, uint8_t cmd) {
 	i2cStop(&I2CD1);
 }
 
-static GFXINLINE void write_data(GDisplay *g, uint8_t* data, uint16_t length) {
+static GFXINLINE void write_data(GDisplay *g, gU8* data, gU16 length) {
 	(void) g;
 
 	i2cStart(&I2CD1, &i2cconfig);

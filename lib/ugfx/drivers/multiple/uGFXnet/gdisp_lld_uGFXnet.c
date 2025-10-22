@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 // We need to include stdio.h below. Turn off GFILE_NEED_STDIO just for this file to prevent conflicts
@@ -27,13 +27,13 @@
 	#define GDISP_GFXNET_PORT	GNETCODE_DEFAULT_PORT
 #endif
 #ifndef GDISP_DONT_WAIT_FOR_NET_DISPLAY
-	#define GDISP_DONT_WAIT_FOR_NET_DISPLAY	FALSE
+	#define GDISP_DONT_WAIT_FOR_NET_DISPLAY	GFXOFF
 #endif
 #ifndef GDISP_GFXNET_UNSAFE_SOCKETS
-	#define GDISP_GFXNET_UNSAFE_SOCKETS	FALSE
+	#define GDISP_GFXNET_UNSAFE_SOCKETS	GFXOFF
 #endif
 #ifndef GDISP_GFXNET_BROKEN_LWIP_ACCEPT
-	#define GDISP_GFXNET_BROKEN_LWIP_ACCEPT		FALSE
+	#define GDISP_GFXNET_BROKEN_LWIP_ACCEPT		GFXOFF
 #endif
 
 #if GINPUT_NEED_MOUSE
@@ -42,8 +42,8 @@
 	#include "../../../src/ginput/ginput_driver_mouse.h"
 
 	// Forward definitions
-	static bool_t NMouseInit(GMouse *m, unsigned driverinstance);
-	static bool_t NMouseRead(GMouse *m, GMouseReading *prd);
+	static gBool NMouseInit(GMouse *m, unsigned driverinstance);
+	static gBool NMouseRead(GMouse *m, GMouseReading *prd);
 
 	const GMouseVMT const GMOUSE_DRIVER_VMT[1] = {{
 		{
@@ -124,7 +124,7 @@
 		#define StartSockets()		Start_LWIP();
 	#else
 		#include "lwipthread.h"
-		#define StartSockets()		gfxThreadClose(gfxThreadCreate(wa_lwip_thread, LWIP_THREAD_STACK_SIZE, NORMAL_PRIORITY, lwip_thread, 0))
+		#define StartSockets()		gfxThreadClose(gfxThreadCreate(wa_lwip_thread, LWIP_THREAD_STACK_SIZE, gThreadpriorityNormal, lwip_thread, 0))
 	#endif
 
 	#if !LWIP_SOCKET
@@ -137,9 +137,13 @@
 
 	// Mutex protection is required for LWIP
 	#if !GDISP_GFXNET_UNSAFE_SOCKETS
-		#warning "GDISP: uGFXnet - LWIP sockets are not thread-safe. GDISP_GFXNET_UNSAFE_SOCKETS has been turned on for you."
+		#if GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_DIRECT
+			#warning "GDISP: uGFXnet - LWIP sockets are not thread-safe. GDISP_GFXNET_UNSAFE_SOCKETS has been turned on for you."
+		#elif GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_MACRO
+			COMPILER_WARNING("GDISP: uGFXnet - LWIP sockets are not thread-safe. GDISP_GFXNET_UNSAFE_SOCKETS has been turned on for you.")
+		#endif
 		#undef GDISP_GFXNET_UNSAFE_SOCKETS
-		#define GDISP_GFXNET_UNSAFE_SOCKETS	TRUE
+		#define GDISP_GFXNET_UNSAFE_SOCKETS	GFXON
 	#endif
 #endif
 
@@ -153,18 +157,18 @@
 typedef struct netPriv {
 	SOCKET_TYPE		netfd;					// The current socket
 	unsigned		databytes;				// How many bytes have been read
-	uint16_t		data[2];				// Buffer for storing data read.
+	gU16		data[2];				// Buffer for storing data read.
 	#if GINPUT_NEED_MOUSE
-		coord_t		mousex, mousey;
-		uint16_t	mousebuttons;
+		gCoord		mousex, mousey;
+		gU16	mousebuttons;
 		GMouse *	mouse;
 	#endif
 } netPriv;
 
-static gfxThreadHandle	hThread;
+static gThread	hThread;
 
 #if GDISP_GFXNET_UNSAFE_SOCKETS
-	static gfxMutex	uGFXnetMutex;
+	static gMutex	uGFXnetMutex;
 	#define MUTEX_INIT		gfxMutexInit(&uGFXnetMutex)
 	#define MUTEX_ENTER		gfxMutexEnter(&uGFXnetMutex)
 	#define MUTEX_EXIT		gfxMutexExit(&uGFXnetMutex)
@@ -176,23 +180,23 @@ static gfxThreadHandle	hThread;
 
 /**
  * Send a whole packet of data.
- * Len is specified in the number of uint16_t's we want to send as our protocol only talks uint16_t's.
+ * Len is specified in the number of gU16's we want to send as our protocol only talks gU16's.
  * Note that contents of the packet are modified to ensure it will cross the wire in the correct format.
- * If the connection closes before we send all the data - the call returns FALSE.
+ * If the connection closes before we send all the data - the call returns gFalse.
  */
-static bool_t sendpkt(SOCKET_TYPE netfd, uint16_t *pkt, int len) {
+static gBool sendpkt(SOCKET_TYPE netfd, gU16 *pkt, int len) {
 	int		i;
 
-	// Convert each uint16_t to network order
+	// Convert each gU16 to network order
 	for(i = 0; i < len; i++)
 		pkt[i] = htons(pkt[i]);
 
 	// Send it
-	len *= sizeof(uint16_t);
+	len *= sizeof(gU16);
 	return send(netfd, (const char *)pkt, len, 0) == len;
 }
 
-static bool_t newconnection(SOCKET_TYPE clientfd) {
+static gBool newconnection(SOCKET_TYPE clientfd) {
 	GDisplay *	g;
     netPriv *	priv;
 
@@ -209,7 +213,7 @@ static bool_t newconnection(SOCKET_TYPE clientfd) {
 
 	// Was anything found?
 	if (!g)
-		return FALSE;
+		return gFalse;
 
 	// Reset the priv area
 	priv = g->priv;
@@ -236,13 +240,13 @@ static bool_t newconnection(SOCKET_TYPE clientfd) {
 	// Send a redraw all
 	#if GFX_USE_GWIN && GWIN_NEED_WINDOWMANAGER
 		gdispGClear(g, gwinGetDefaultBgColor());
-		gwinRedrawDisplay(g, FALSE);
+		gwinRedrawDisplay(g, gFalse);
 	#endif
 
-	return TRUE;
+	return gTrue;
 }
 
-static bool_t rxdata(SOCKET_TYPE fd) {
+static gBool rxdata(SOCKET_TYPE fd) {
 	GDisplay *	g;
     netPriv *	priv;
     int			len;
@@ -265,7 +269,7 @@ static bool_t rxdata(SOCKET_TYPE fd) {
 		// The higher level is still processing the previous data.
 		//	Give it a chance to run by coming back to this data.
 		gfxSleepMilliseconds(1);
-		return TRUE;
+		return gTrue;
 	}
 
 	/* handle data from a client */
@@ -274,14 +278,14 @@ static bool_t rxdata(SOCKET_TYPE fd) {
 		// Socket closed or in error state
 		MUTEX_EXIT;
 		g->flags &= ~GDISP_FLG_CONNECTED;
-		return FALSE;
+		return gFalse;
 	}
 	MUTEX_EXIT;
 
 	// Do we have a full reply yet
 	priv->databytes += len;
 	if (priv->databytes < sizeof(priv->data))
-		return TRUE;
+		return gTrue;
 	priv->databytes = 0;
 
 	// Convert network byte or to host byte order
@@ -311,11 +315,11 @@ static bool_t rxdata(SOCKET_TYPE fd) {
 		// Just ignore unrecognised data
 		break;
 	}
-	return TRUE;
+	return gTrue;
 }
 
-static DECLARE_THREAD_STACK(waNetThread, 512);
-static DECLARE_THREAD_FUNCTION(NetThread, param) {
+static GFX_THREAD_STACK(waNetThread, 512);
+static GFX_THREAD_FUNCTION(NetThread, param) {
 	SOCKET_TYPE			listenfd, fdmax, i, clientfd;
 	socklen_t			len;
 	fd_set				master, read_fds;
@@ -352,7 +356,11 @@ static DECLARE_THREAD_FUNCTION(NetThread, param) {
     fdmax = listenfd; /* so far, it's this one*/
 
 	#if GDISP_GFXNET_BROKEN_LWIP_ACCEPT
-		#warning "Using GDISP_GFXNET_BROKEN_LWIP_ACCEPT limits the number of displays and the use of GFXNET. Avoid if possible!"
+		#if GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_DIRECT
+			#warning "Using GDISP_GFXNET_BROKEN_LWIP_ACCEPT limits the number of displays and the use of GFXNET. Avoid if possible!"
+		#elif GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_MACRO
+			COMPILER_WARNING("Using GDISP_GFXNET_BROKEN_LWIP_ACCEPT limits the number of displays and the use of GFXNET. Avoid if possible!")
+		#endif
 		len = sizeof(addr);
 		if((clientfd = accept(listenfd, (struct sockaddr *)&addr, &len)) == (SOCKET_TYPE)-1)
 			gfxHalt("GDISP: uGFXnet - Accept failed");
@@ -421,13 +429,13 @@ static DECLARE_THREAD_FUNCTION(NetThread, param) {
 /* Driver exported functions.                                                */
 /*===========================================================================*/
 
-LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
+LLDSPEC gBool gdisp_lld_init(GDisplay *g) {
 	netPriv	*	priv;
 
 	// Initialise the receiver thread (if it hasn't been done already)
 	if (!hThread) {
 		MUTEX_INIT;
-		hThread = gfxThreadCreate(waNetThread, sizeof(waNetThread), HIGH_PRIORITY, NetThread, 0);
+		hThread = gfxThreadCreate(waNetThread, sizeof(waNetThread), gThreadpriorityHigh, NetThread, 0);
 		gfxThreadClose(hThread);
 	}
 
@@ -444,20 +452,20 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	#endif
 
 	// Initialise the GDISP structure
-	g->g.Orientation = GDISP_ROTATE_0;
-	g->g.Powermode = powerOn;
+	g->g.Orientation = gOrientation0;
+	g->g.Powermode = gPowerOn;
 	g->g.Backlight = 100;
 	g->g.Contrast = 50;
 	g->g.Width = GDISP_SCREEN_WIDTH;
 	g->g.Height = GDISP_SCREEN_HEIGHT;
 
-	return TRUE;
+	return gTrue;
 }
 
 #if GDISP_HARDWARE_FLUSH
 	LLDSPEC void gdisp_lld_flush(GDisplay *g) {
 		netPriv	*	priv;
-		uint16_t	buf[1];
+		gU16	buf[1];
 
 		#if GDISP_DONT_WAIT_FOR_NET_DISPLAY
 			if (!(g->flags & GDISP_FLG_CONNECTED))
@@ -478,7 +486,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 #if GDISP_HARDWARE_DRAWPIXEL
 	LLDSPEC void gdisp_lld_draw_pixel(GDisplay *g) {
 		netPriv	*	priv;
-		uint16_t	buf[4];
+		gU16	buf[4];
 
 		#if GDISP_DONT_WAIT_FOR_NET_DISPLAY
 			if (!(g->flags & GDISP_FLG_CONNECTED))
@@ -504,7 +512,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 #if GDISP_HARDWARE_FILLS
 	LLDSPEC void gdisp_lld_fill_area(GDisplay *g) {
 		netPriv	*	priv;
-		uint16_t	buf[6];
+		gU16	buf[6];
 
 		#if GDISP_DONT_WAIT_FOR_NET_DISPLAY
 			if (!(g->flags & GDISP_FLG_CONNECTED))
@@ -530,9 +538,9 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 #if GDISP_HARDWARE_BITFILLS
 	LLDSPEC void gdisp_lld_blit_area(GDisplay *g) {
 		netPriv	*	priv;
-		pixel_t	*	buffer;
-		uint16_t	buf[5];
-		coord_t		x, y;
+		gPixel	*	buffer;
+		gU16	buf[5];
+		gCoord		x, y;
 
 		#if GDISP_DONT_WAIT_FOR_NET_DISPLAY
 			if (!(g->flags & GDISP_FLG_CONNECTED))
@@ -566,10 +574,10 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 #endif
 
 #if GDISP_HARDWARE_PIXELREAD
-	LLDSPEC	color_t gdisp_lld_get_pixel_color(GDisplay *g) {
+	LLDSPEC	gColor gdisp_lld_get_pixel_color(GDisplay *g) {
 		netPriv	*	priv;
-		uint16_t	buf[3];
-		color_t		data;
+		gU16	buf[3];
+		gColor		data;
 
 		#if GDISP_DONT_WAIT_FOR_NET_DISPLAY
 			if (!(g->flags & GDISP_FLG_CONNECTED))
@@ -601,7 +609,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 #if GDISP_NEED_SCROLL && GDISP_HARDWARE_SCROLL
 	LLDSPEC void gdisp_lld_vertical_scroll(GDisplay *g) {
 		netPriv	*	priv;
-		uint16_t	buf[6];
+		gU16	buf[6];
 
 		#if GDISP_DONT_WAIT_FOR_NET_DISPLAY
 			if (!(g->flags & GDISP_FLG_CONNECTED))
@@ -627,8 +635,8 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 #if GDISP_NEED_CONTROL && GDISP_HARDWARE_CONTROL
 	LLDSPEC void gdisp_lld_control(GDisplay *g) {
 		netPriv	*	priv;
-		uint16_t	buf[3];
-		bool_t		allgood;
+		gU16	buf[3];
+		gBool		allgood;
 
 		#if GDISP_DONT_WAIT_FOR_NET_DISPLAY
 			if (!(g->flags & GDISP_FLG_CONNECTED))
@@ -641,17 +649,17 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 		// Check if we might support the code
 		switch(g->p.x) {
 		case GDISP_CONTROL_ORIENTATION:
-			if (g->g.Orientation == (orientation_t)g->p.ptr)
+			if (g->g.Orientation == (gOrientation)g->p.ptr)
 				return;
 			break;
 		case GDISP_CONTROL_POWER:
-			if (g->g.Powermode == (powermode_t)g->p.ptr)
+			if (g->g.Powermode == (gPowermode)g->p.ptr)
 				return;
 			break;
 		case GDISP_CONTROL_BACKLIGHT:
-			if (g->g.Backlight == (uint16_t)(int)g->p.ptr)
+			if (g->g.Backlight == (gU16)(int)g->p.ptr)
 				return;
-			if ((uint16_t)(int)g->p.ptr > 100)
+			if ((gU16)(int)g->p.ptr > 100)
 				g->p.ptr = (void *)100;
 			break;
 		default:
@@ -662,7 +670,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 		priv = g->priv;
 		buf[0] = GNETCODE_CONTROL;
 		buf[1] = g->p.x;
-		buf[2] = (uint16_t)(int)g->p.ptr;
+		buf[2] = (gU16)(int)g->p.ptr;
 		MUTEX_ENTER;
 		sendpkt(priv->netfd, buf, 3);
 		MUTEX_EXIT;
@@ -672,7 +680,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 			gfxSleepMilliseconds(1);
 
 		// Extract the return status
-		allgood = priv->data[1] ? TRUE : FALSE;
+		allgood = priv->data[1] ? gTrue : gFalse;
 		g->flags &= ~GDISP_FLG_HAVEDATA;
 
 		// Do nothing more if the operation failed
@@ -681,39 +689,39 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 		// Update the local stuff
 		switch(g->p.x) {
 		case GDISP_CONTROL_ORIENTATION:
-			switch((orientation_t)g->p.ptr) {
-				case GDISP_ROTATE_0:
-				case GDISP_ROTATE_180:
+			switch((gOrientation)g->p.ptr) {
+				case gOrientation0:
+				case gOrientation180:
 					g->g.Width = GDISP_SCREEN_WIDTH;
 					g->g.Height = GDISP_SCREEN_HEIGHT;
 					break;
-				case GDISP_ROTATE_90:
-				case GDISP_ROTATE_270:
+				case gOrientation90:
+				case gOrientation270:
 					g->g.Height = GDISP_SCREEN_WIDTH;
 					g->g.Width = GDISP_SCREEN_HEIGHT;
 					break;
 				default:
 					return;
 			}
-			g->g.Orientation = (orientation_t)g->p.ptr;
+			g->g.Orientation = (gOrientation)g->p.ptr;
 			break;
 		case GDISP_CONTROL_POWER:
-			g->g.Powermode = (powermode_t)g->p.ptr;
+			g->g.Powermode = (gPowermode)g->p.ptr;
 			break;
 		case GDISP_CONTROL_BACKLIGHT:
-			g->g.Backlight = (uint16_t)(int)g->p.ptr;
+			g->g.Backlight = (gU16)(int)g->p.ptr;
 			break;
 		}
 	}
 #endif
 
 #if GINPUT_NEED_MOUSE
-	static bool_t NMouseInit(GMouse *m, unsigned driverinstance) {
+	static gBool NMouseInit(GMouse *m, unsigned driverinstance) {
 		(void)	m;
 		(void)	driverinstance;
-		return TRUE;
+		return gTrue;
 	}
-	static bool_t NMouseRead(GMouse *m, GMouseReading *pt) {
+	static gBool NMouseRead(GMouse *m, GMouseReading *pt) {
 		GDisplay *	g;
 		netPriv	*	priv;
 
@@ -724,7 +732,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 		pt->y = priv->mousey;
 		pt->z = (priv->mousebuttons & GINPUT_MOUSE_BTN_LEFT) ? 1 : 0;
 		pt->buttons = priv->mousebuttons;
-		return TRUE;
+		return gTrue;
 	}
 #endif /* GINPUT_NEED_MOUSE */
 

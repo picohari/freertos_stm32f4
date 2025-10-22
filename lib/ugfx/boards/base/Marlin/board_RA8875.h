@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -15,8 +15,8 @@
 
 // For a multiple display configuration we would put all this in a structure and then
 // set g->board to that structure.
-#define GDISP_RAM              (*((volatile uint16_t *) 0x68000000)) /* RS = 0 */
-#define GDISP_REG              (*((volatile uint16_t *) 0x68020000)) /* RS = 1 */
+#define GDISP_RAM              (*((volatile gU16 *) 0x68000000)) /* RS = 0 */
+#define GDISP_REG              (*((volatile gU16 *) 0x68020000)) /* RS = 1 */
 #define FSMC_BANK				4
 
 
@@ -70,7 +70,7 @@ static GFXINLINE void post_init_board(GDisplay *g) {
 	FSMC_Bank1->BTCR[2] = FSMC_BCR1_MWID_0 | FSMC_BCR1_WREN | FSMC_BCR1_MBKEN;
 }
 
-static GFXINLINE void setpin_reset(GDisplay *g, bool_t state) {
+static GFXINLINE void setpin_reset(GDisplay *g, gBool state) {
 	(void) g;
 	(void) state;
 }
@@ -83,13 +83,13 @@ static GFXINLINE void release_bus(GDisplay *g) {
 	(void) g;
 }
 
-static GFXINLINE void write_index(GDisplay *g, uint16_t index) {
+static GFXINLINE void write_index(GDisplay *g, gU16 index) {
 	(void) g;
 
 	GDISP_REG = index;
 }
 
-static GFXINLINE void write_data(GDisplay *g, uint16_t data) {
+static GFXINLINE void write_data(GDisplay *g, gU16 data) {
 	(void) g;
 
 	GDISP_RAM = data;
@@ -103,7 +103,7 @@ static GFXINLINE void setwritemode(GDisplay *g) {
 	(void) g;
 }
 
-static GFXINLINE uint16_t read_data(GDisplay *g) {
+static GFXINLINE gU16 read_data(GDisplay *g) {
 	(void) g;
 
 	return GDISP_RAM;

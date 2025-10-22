@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -28,10 +28,10 @@
  */
 	/**
 	 * @brief	Defines the GTIMER thread priority
-	 * @details	Defaults to HIGH_PRIORITY
+	 * @details	Defaults to gThreadpriorityHigh
 	 */
 	#ifndef GTIMER_THREAD_PRIORITY
-		#define GTIMER_THREAD_PRIORITY			HIGH_PRIORITY
+		#define GTIMER_THREAD_PRIORITY			gThreadpriorityHigh
 	#endif
 	/**
 	 * @brief   Defines the size of the timer threads work area (stack+structures).

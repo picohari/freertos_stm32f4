@@ -1,7 +1,9 @@
 #include "../../../gfx.h"
-#undef Red
-#undef Green
-#undef Blue
+#if GFX_COMPAT_V2 && GFX_COMPAT_OLDCOLORS
+	#undef Red
+	#undef Green
+	#undef Blue
+#endif
 #include "stm32f746g_discovery_sdram.h"
 #include "stm32f7xx_hal_rcc.h"
 #include "stm32f7xx_hal_dma.h"
@@ -14,8 +16,8 @@
 
 #define SDRAM_MEMORY_WIDTH               FMC_SDRAM_MEM_BUS_WIDTH_16
 #define SDCLOCK_PERIOD                   FMC_SDRAM_CLOCK_PERIOD_2
-#define REFRESH_COUNT                    ((uint32_t)0x0603)   /* SDRAM refresh counter (100Mhz SD clock) */
-#define SDRAM_TIMEOUT                    ((uint32_t)0xFFFF)
+#define REFRESH_COUNT                    ((gU32)0x0603)   /* SDRAM refresh counter (100Mhz SD clock) */
+#define SDRAM_TIMEOUT                    ((gU32)0xFFFF)
 
 /* DMA definitions for SDRAM DMA transfer */
 #define __DMAx_CLK_ENABLE                 __HAL_RCC_DMA2_CLK_ENABLE
@@ -24,25 +26,25 @@
 #define SDRAM_DMAx_IRQn                   DMA2_Stream0_IRQn
 
 /* FMC SDRAM Mode definition register defines */
-#define SDRAM_MODEREG_BURST_LENGTH_1             ((uint16_t)0x0000)
-#define SDRAM_MODEREG_BURST_LENGTH_2             ((uint16_t)0x0001)
-#define SDRAM_MODEREG_BURST_LENGTH_4             ((uint16_t)0x0002)
-#define SDRAM_MODEREG_BURST_LENGTH_8             ((uint16_t)0x0004)
-#define SDRAM_MODEREG_BURST_TYPE_SEQUENTIAL      ((uint16_t)0x0000)
-#define SDRAM_MODEREG_BURST_TYPE_INTERLEAVED     ((uint16_t)0x0008)
-#define SDRAM_MODEREG_CAS_LATENCY_2              ((uint16_t)0x0020)
-#define SDRAM_MODEREG_CAS_LATENCY_3              ((uint16_t)0x0030)
-#define SDRAM_MODEREG_OPERATING_MODE_STANDARD    ((uint16_t)0x0000)
-#define SDRAM_MODEREG_WRITEBURST_MODE_PROGRAMMED ((uint16_t)0x0000)
-#define SDRAM_MODEREG_WRITEBURST_MODE_SINGLE     ((uint16_t)0x0200)
+#define SDRAM_MODEREG_BURST_LENGTH_1             ((gU16)0x0000)
+#define SDRAM_MODEREG_BURST_LENGTH_2             ((gU16)0x0001)
+#define SDRAM_MODEREG_BURST_LENGTH_4             ((gU16)0x0002)
+#define SDRAM_MODEREG_BURST_LENGTH_8             ((gU16)0x0004)
+#define SDRAM_MODEREG_BURST_TYPE_SEQUENTIAL      ((gU16)0x0000)
+#define SDRAM_MODEREG_BURST_TYPE_INTERLEAVED     ((gU16)0x0008)
+#define SDRAM_MODEREG_CAS_LATENCY_2              ((gU16)0x0020)
+#define SDRAM_MODEREG_CAS_LATENCY_3              ((gU16)0x0030)
+#define SDRAM_MODEREG_OPERATING_MODE_STANDARD    ((gU16)0x0000)
+#define SDRAM_MODEREG_WRITEBURST_MODE_PROGRAMMED ((gU16)0x0000)
+#define SDRAM_MODEREG_WRITEBURST_MODE_SINGLE     ((gU16)0x0200)
 
-static void BSP_SDRAM_Initialization_sequence(SDRAM_HandleTypeDef *hsdram, uint32_t RefreshCount);
+static void BSP_SDRAM_Initialization_sequence(SDRAM_HandleTypeDef *hsdram, gU32 RefreshCount);
 static void BSP_SDRAM_MspInit(SDRAM_HandleTypeDef  *hsdram);
 static void _HAL_SDRAM_Init(SDRAM_HandleTypeDef *hsdram, FMC_SDRAM_TimingTypeDef *Timing);
 static HAL_StatusTypeDef _FMC_SDRAM_Init(FMC_SDRAM_TypeDef *Device, FMC_SDRAM_InitTypeDef *Init);
-static HAL_StatusTypeDef _FMC_SDRAM_Timing_Init(FMC_SDRAM_TypeDef *Device, FMC_SDRAM_TimingTypeDef *Timing, uint32_t Bank);
-static HAL_StatusTypeDef _FMC_SDRAM_SendCommand(FMC_SDRAM_TypeDef *Device, FMC_SDRAM_CommandTypeDef *Command, uint32_t Timeout);
-static HAL_StatusTypeDef _FMC_SDRAM_ProgramRefreshRate(FMC_SDRAM_TypeDef *Device, uint32_t RefreshRate);
+static HAL_StatusTypeDef _FMC_SDRAM_Timing_Init(FMC_SDRAM_TypeDef *Device, FMC_SDRAM_TimingTypeDef *Timing, gU32 Bank);
+static HAL_StatusTypeDef _FMC_SDRAM_SendCommand(FMC_SDRAM_TypeDef *Device, FMC_SDRAM_CommandTypeDef *Command, gU32 Timeout);
+static HAL_StatusTypeDef _FMC_SDRAM_ProgramRefreshRate(FMC_SDRAM_TypeDef *Device, gU32 RefreshRate);
 
 static void _HAL_SDRAM_Init(SDRAM_HandleTypeDef *hsdram, FMC_SDRAM_TimingTypeDef *Timing)
 {
@@ -71,8 +73,8 @@ static void _HAL_SDRAM_Init(SDRAM_HandleTypeDef *hsdram, FMC_SDRAM_TimingTypeDef
 
 static HAL_StatusTypeDef _FMC_SDRAM_Init(FMC_SDRAM_TypeDef *Device, FMC_SDRAM_InitTypeDef *Init)
 {
-  uint32_t tmpr1 = 0;
-  uint32_t tmpr2 = 0;
+  gU32 tmpr1 = 0;
+  gU32 tmpr2 = 0;
 
   /* Set SDRAM bank configuration parameters */
   if (Init->SDBank != FMC_SDRAM_BANK2)
@@ -80,11 +82,11 @@ static HAL_StatusTypeDef _FMC_SDRAM_Init(FMC_SDRAM_TypeDef *Device, FMC_SDRAM_In
     tmpr1 = Device->SDCR[FMC_SDRAM_BANK1];
 
     /* Clear NC, NR, MWID, NB, CAS, WP, SDCLK, RBURST, and RPIPE bits */
-    tmpr1 &= ((uint32_t)~(FMC_SDCR1_NC  | FMC_SDCR1_NR | FMC_SDCR1_MWID | \
+    tmpr1 &= ((gU32)~(FMC_SDCR1_NC  | FMC_SDCR1_NR | FMC_SDCR1_MWID | \
                          FMC_SDCR1_NB  | FMC_SDCR1_CAS | FMC_SDCR1_WP | \
                          FMC_SDCR1_SDCLK | FMC_SDCR1_RBURST | FMC_SDCR1_RPIPE));
 
-    tmpr1 |= (uint32_t)(Init->ColumnBitsNumber   |\
+    tmpr1 |= (gU32)(Init->ColumnBitsNumber   |\
                         Init->RowBitsNumber      |\
                         Init->MemoryDataWidth    |\
                         Init->InternalBankNumber |\
@@ -101,22 +103,22 @@ static HAL_StatusTypeDef _FMC_SDRAM_Init(FMC_SDRAM_TypeDef *Device, FMC_SDRAM_In
     tmpr1 = Device->SDCR[FMC_SDRAM_BANK1];
 
     /* Clear NC, NR, MWID, NB, CAS, WP, SDCLK, RBURST, and RPIPE bits */
-    tmpr1 &= ((uint32_t)~(FMC_SDCR1_NC  | FMC_SDCR1_NR | FMC_SDCR1_MWID | \
+    tmpr1 &= ((gU32)~(FMC_SDCR1_NC  | FMC_SDCR1_NR | FMC_SDCR1_MWID | \
                           FMC_SDCR1_NB  | FMC_SDCR1_CAS | FMC_SDCR1_WP | \
                           FMC_SDCR1_SDCLK | FMC_SDCR1_RBURST | FMC_SDCR1_RPIPE));
 
-    tmpr1 |= (uint32_t)(Init->SDClockPeriod      |\
+    tmpr1 |= (gU32)(Init->SDClockPeriod      |\
                         Init->ReadBurst          |\
                         Init->ReadPipeDelay);
 
     tmpr2 = Device->SDCR[FMC_SDRAM_BANK2];
 
     /* Clear NC, NR, MWID, NB, CAS, WP, SDCLK, RBURST, and RPIPE bits */
-    tmpr2 &= ((uint32_t)~(FMC_SDCR1_NC  | FMC_SDCR1_NR | FMC_SDCR1_MWID | \
+    tmpr2 &= ((gU32)~(FMC_SDCR1_NC  | FMC_SDCR1_NR | FMC_SDCR1_MWID | \
                           FMC_SDCR1_NB  | FMC_SDCR1_CAS | FMC_SDCR1_WP | \
                           FMC_SDCR1_SDCLK | FMC_SDCR1_RBURST | FMC_SDCR1_RPIPE));
 
-    tmpr2 |= (uint32_t)(Init->ColumnBitsNumber   |\
+    tmpr2 |= (gU32)(Init->ColumnBitsNumber   |\
                        Init->RowBitsNumber      |\
                        Init->MemoryDataWidth    |\
                        Init->InternalBankNumber |\
@@ -130,10 +132,10 @@ static HAL_StatusTypeDef _FMC_SDRAM_Init(FMC_SDRAM_TypeDef *Device, FMC_SDRAM_In
   return HAL_OK;
 }
 
-static HAL_StatusTypeDef _FMC_SDRAM_Timing_Init(FMC_SDRAM_TypeDef *Device, FMC_SDRAM_TimingTypeDef *Timing, uint32_t Bank)
+static HAL_StatusTypeDef _FMC_SDRAM_Timing_Init(FMC_SDRAM_TypeDef *Device, FMC_SDRAM_TimingTypeDef *Timing, gU32 Bank)
 {
-  uint32_t tmpr1 = 0;
-  uint32_t tmpr2 = 0;
+  gU32 tmpr1 = 0;
+  gU32 tmpr2 = 0;
 
   /* Set SDRAM device timing parameters */
   if (Bank != FMC_SDRAM_BANK2)
@@ -141,11 +143,11 @@ static HAL_StatusTypeDef _FMC_SDRAM_Timing_Init(FMC_SDRAM_TypeDef *Device, FMC_S
     tmpr1 = Device->SDTR[FMC_SDRAM_BANK1];
 
     /* Clear TMRD, TXSR, TRAS, TRC, TWR, TRP and TRCD bits */
-    tmpr1 &= ((uint32_t)~(FMC_SDTR1_TMRD  | FMC_SDTR1_TXSR | FMC_SDTR1_TRAS | \
+    tmpr1 &= ((gU32)~(FMC_SDTR1_TMRD  | FMC_SDTR1_TXSR | FMC_SDTR1_TRAS | \
                           FMC_SDTR1_TRC  | FMC_SDTR1_TWR | FMC_SDTR1_TRP | \
                           FMC_SDTR1_TRCD));
 
-    tmpr1 |= (uint32_t)(((Timing->LoadToActiveDelay)-1)           |\
+    tmpr1 |= (gU32)(((Timing->LoadToActiveDelay)-1)           |\
                        (((Timing->ExitSelfRefreshDelay)-1) << 4) |\
                        (((Timing->SelfRefreshTime)-1) << 8)      |\
                        (((Timing->RowCycleDelay)-1) << 12)       |\
@@ -159,11 +161,11 @@ static HAL_StatusTypeDef _FMC_SDRAM_Timing_Init(FMC_SDRAM_TypeDef *Device, FMC_S
     tmpr1 = Device->SDTR[FMC_SDRAM_BANK2];
 
     /* Clear TMRD, TXSR, TRAS, TRC, TWR, TRP and TRCD bits */
-    tmpr1 &= ((uint32_t)~(FMC_SDTR1_TMRD  | FMC_SDTR1_TXSR | FMC_SDTR1_TRAS | \
+    tmpr1 &= ((gU32)~(FMC_SDTR1_TMRD  | FMC_SDTR1_TXSR | FMC_SDTR1_TRAS | \
                           FMC_SDTR1_TRC  | FMC_SDTR1_TWR | FMC_SDTR1_TRP | \
                           FMC_SDTR1_TRCD));
 
-    tmpr1 |= (uint32_t)(((Timing->LoadToActiveDelay)-1)           |\
+    tmpr1 |= (gU32)(((Timing->LoadToActiveDelay)-1)           |\
                        (((Timing->ExitSelfRefreshDelay)-1) << 4) |\
                        (((Timing->SelfRefreshTime)-1) << 8)      |\
                        (((Timing->WriteRecoveryTime)-1) <<16)    |\
@@ -172,10 +174,10 @@ static HAL_StatusTypeDef _FMC_SDRAM_Timing_Init(FMC_SDRAM_TypeDef *Device, FMC_S
     tmpr2 = Device->SDTR[FMC_SDRAM_BANK1];
 
     /* Clear TMRD, TXSR, TRAS, TRC, TWR, TRP and TRCD bits */
-    tmpr2 &= ((uint32_t)~(FMC_SDTR1_TMRD  | FMC_SDTR1_TXSR | FMC_SDTR1_TRAS | \
+    tmpr2 &= ((gU32)~(FMC_SDTR1_TMRD  | FMC_SDTR1_TXSR | FMC_SDTR1_TRAS | \
                           FMC_SDTR1_TRC  | FMC_SDTR1_TWR | FMC_SDTR1_TRP | \
                           FMC_SDTR1_TRCD));
-    tmpr2 |= (uint32_t)((((Timing->RowCycleDelay)-1) << 12)       |\
+    tmpr2 |= (gU32)((((Timing->RowCycleDelay)-1) << 12)       |\
                         (((Timing->RPDelay)-1) << 20));
 
     Device->SDTR[FMC_SDRAM_BANK2] = tmpr1;
@@ -227,7 +229,7 @@ void BSP_SDRAM_Init(void)
   BSP_SDRAM_Initialization_sequence(&sdramHandle, REFRESH_COUNT);
 }
 
-static HAL_StatusTypeDef _HAL_SDRAM_SendCommand(SDRAM_HandleTypeDef *hsdram, FMC_SDRAM_CommandTypeDef *Command, uint32_t Timeout)
+static HAL_StatusTypeDef _HAL_SDRAM_SendCommand(SDRAM_HandleTypeDef *hsdram, FMC_SDRAM_CommandTypeDef *Command, gU32 Timeout)
 {
   /* Check the SDRAM controller state */
   if(hsdram->State == HAL_SDRAM_STATE_BUSY)
@@ -254,13 +256,13 @@ static HAL_StatusTypeDef _HAL_SDRAM_SendCommand(SDRAM_HandleTypeDef *hsdram, FMC
   return HAL_OK;
 }
 
-static HAL_StatusTypeDef _FMC_SDRAM_SendCommand(FMC_SDRAM_TypeDef *Device, FMC_SDRAM_CommandTypeDef *Command, uint32_t Timeout)
+static HAL_StatusTypeDef _FMC_SDRAM_SendCommand(FMC_SDRAM_TypeDef *Device, FMC_SDRAM_CommandTypeDef *Command, gU32 Timeout)
 {
-  __IO uint32_t tmpr = 0;
-  systemticks_t tickstart = 0;
+  __IO gU32 tmpr = 0;
+  gTicks tickstart = 0;
 
   /* Set command register */
-  tmpr = (uint32_t)((Command->CommandMode)                  |\
+  tmpr = (gU32)((Command->CommandMode)                  |\
                     (Command->CommandTarget)                |\
                     (((Command->AutoRefreshNumber)-1) << 5) |\
                     ((Command->ModeRegisterDefinition) << 9)
@@ -289,7 +291,7 @@ static HAL_StatusTypeDef _FMC_SDRAM_SendCommand(FMC_SDRAM_TypeDef *Device, FMC_S
   return HAL_OK;
 }
 
-static HAL_StatusTypeDef _HAL_SDRAM_ProgramRefreshRate(SDRAM_HandleTypeDef *hsdram, uint32_t RefreshRate)
+static HAL_StatusTypeDef _HAL_SDRAM_ProgramRefreshRate(SDRAM_HandleTypeDef *hsdram, gU32 RefreshRate)
 {
   /* Check the SDRAM controller state */
   if(hsdram->State == HAL_SDRAM_STATE_BUSY)
@@ -309,7 +311,7 @@ static HAL_StatusTypeDef _HAL_SDRAM_ProgramRefreshRate(SDRAM_HandleTypeDef *hsdr
   return HAL_OK;
 }
 
-static HAL_StatusTypeDef _FMC_SDRAM_ProgramRefreshRate(FMC_SDRAM_TypeDef *Device, uint32_t RefreshRate)
+static HAL_StatusTypeDef _FMC_SDRAM_ProgramRefreshRate(FMC_SDRAM_TypeDef *Device, gU32 RefreshRate)
 {
   /* Set the refresh rate in command register */
   Device->SDRTR |= (RefreshRate<<1);
@@ -319,7 +321,7 @@ static HAL_StatusTypeDef _FMC_SDRAM_ProgramRefreshRate(FMC_SDRAM_TypeDef *Device
 
 static HAL_StatusTypeDef _HAL_DMA_Init(DMA_HandleTypeDef *hdma)
 {
-  uint32_t tmp = 0;
+  gU32 tmp = 0;
 
   /* Check the DMA peripheral state */
   if(hdma == NULL)
@@ -334,7 +336,7 @@ static HAL_StatusTypeDef _HAL_DMA_Init(DMA_HandleTypeDef *hdma)
   tmp = hdma->Instance->CR;
 
   /* Clear CHSEL, MBURST, PBURST, PL, MSIZE, PSIZE, MINC, PINC, CIRC, DIR, CT and DBM bits */
-  tmp &= ((uint32_t)~(DMA_SxCR_CHSEL | DMA_SxCR_MBURST | DMA_SxCR_PBURST | \
+  tmp &= ((gU32)~(DMA_SxCR_CHSEL | DMA_SxCR_MBURST | DMA_SxCR_PBURST | \
                       DMA_SxCR_PL    | DMA_SxCR_MSIZE  | DMA_SxCR_PSIZE  | \
                       DMA_SxCR_MINC  | DMA_SxCR_PINC   | DMA_SxCR_CIRC   | \
                       DMA_SxCR_DIR   | DMA_SxCR_CT     | DMA_SxCR_DBM));
@@ -359,7 +361,7 @@ static HAL_StatusTypeDef _HAL_DMA_Init(DMA_HandleTypeDef *hdma)
   tmp = hdma->Instance->FCR;
 
   /* Clear Direct mode and FIFO threshold bits */
-  tmp &= (uint32_t)~(DMA_SxFCR_DMDIS | DMA_SxFCR_FTH);
+  tmp &= (gU32)~(DMA_SxFCR_DMDIS | DMA_SxFCR_FTH);
 
   /* Prepare the DMA Stream FIFO configuration */
   tmp |= hdma->Init.FIFOMode;
@@ -422,7 +424,7 @@ static HAL_StatusTypeDef _HAL_DMA_DeInit(DMA_HandleTypeDef *hdma)
   hdma->Instance->M1AR = 0;
 
   /* Reset DMA Streamx FIFO control register */
-  hdma->Instance->FCR  = (uint32_t)0x00000021;
+  hdma->Instance->FCR  = (gU32)0x00000021;
 
   /* Clear all flags */
   __HAL_DMA_CLEAR_FLAG(hdma, __HAL_DMA_GET_DME_FLAG_INDEX(hdma));
@@ -448,7 +450,7 @@ static HAL_StatusTypeDef _HAL_DMA_DeInit(DMA_HandleTypeDef *hdma)
   * @param  RefreshCount: SDRAM refresh counter value 
   * @retval None
   */
-static void BSP_SDRAM_Initialization_sequence(SDRAM_HandleTypeDef *hsdram, uint32_t RefreshCount)
+static void BSP_SDRAM_Initialization_sequence(SDRAM_HandleTypeDef *hsdram, gU32 RefreshCount)
 {
   FMC_SDRAM_CommandTypeDef Command;
   
@@ -487,7 +489,7 @@ static void BSP_SDRAM_Initialization_sequence(SDRAM_HandleTypeDef *hsdram, uint3
   Command.CommandMode            = FMC_SDRAM_CMD_LOAD_MODE;
   Command.CommandTarget          = FMC_SDRAM_CMD_TARGET_BANK1;
   Command.AutoRefreshNumber      = 1;
-  Command.ModeRegisterDefinition = (uint32_t)SDRAM_MODEREG_BURST_LENGTH_1          |\
+  Command.ModeRegisterDefinition = (gU32)SDRAM_MODEREG_BURST_LENGTH_1          |\
           	  	  	  	  	  	  	  	  	  SDRAM_MODEREG_BURST_TYPE_SEQUENTIAL   |\
           	  	  	  	  	  	  	  	  	  SDRAM_MODEREG_CAS_LATENCY_2           |\
           	  	  	  	  	  	  	  	  	  SDRAM_MODEREG_OPERATING_MODE_STANDARD |\
@@ -510,9 +512,7 @@ static void BSP_SDRAM_Initialization_sequence(SDRAM_HandleTypeDef *hsdram, uint3
 static void BSP_SDRAM_MspInit(SDRAM_HandleTypeDef  *hsdram)
 {  
   static DMA_HandleTypeDef dma_handle;
-#if !GFX_USE_OS_CHIBIOS
   GPIO_InitTypeDef gpio_init_structure;
-#endif
   
   /* Enable FMC clock */
   __HAL_RCC_FMC_CLK_ENABLE();
@@ -529,7 +529,6 @@ static void BSP_SDRAM_MspInit(SDRAM_HandleTypeDef  *hsdram)
   __HAL_RCC_GPIOH_CLK_ENABLE();
   
   /* Common GPIO configuration - some are already setup by ChibiOS Init */
-#if !GFX_USE_OS_CHIBIOS
   gpio_init_structure.Mode      = GPIO_MODE_AF_PP;
   gpio_init_structure.Pull      = GPIO_PULLUP;
   gpio_init_structure.Speed     = GPIO_SPEED_FAST;
@@ -564,7 +563,6 @@ static void BSP_SDRAM_MspInit(SDRAM_HandleTypeDef  *hsdram)
   /* GPIOH configuration */  
   gpio_init_structure.Pin   = GPIO_PIN_3 | GPIO_PIN_5;
   HAL_GPIO_Init(GPIOH, &gpio_init_structure); 
-#endif
   
   /* Configure common DMA parameters */
   dma_handle.Init.Channel             = SDRAM_DMAx_CHANNEL;

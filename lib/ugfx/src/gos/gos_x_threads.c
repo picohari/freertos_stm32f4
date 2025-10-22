@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "../../gfx.h"
@@ -26,11 +26,11 @@ void gfxSystemUnlock(void) {
 	INTERRUPTS_ON();
 }
 
-void gfxMutexInit(gfxMutex *pmutex) {
+void gfxMutexInit(gMutex *pmutex) {
 	pmutex[0] = 0;
 }
 
-void gfxMutexEnter(gfxMutex *pmutex) {
+void gfxMutexEnter(gMutex *pmutex) {
 	INTERRUPTS_OFF();
 	while (pmutex[0]) {
 		INTERRUPTS_ON();
@@ -41,26 +41,26 @@ void gfxMutexEnter(gfxMutex *pmutex) {
 	INTERRUPTS_ON();
 }
 
-void gfxMutexExit(gfxMutex *pmutex) {
+void gfxMutexExit(gMutex *pmutex) {
 	pmutex[0] = 0;
 }
 
-void gfxSemInit(gfxSem *psem, semcount_t val, semcount_t limit) {
+void gfxSemInit(gSem *psem, gSemcount val, gSemcount limit) {
 	psem->cnt = val;
 	psem->limit = limit;
 }
 
-bool_t gfxSemWait(gfxSem *psem, delaytime_t ms) {
-	systemticks_t	starttm, delay;
+gBool gfxSemWait(gSem *psem, gDelay ms) {
+	gTicks	starttm, delay;
 
 	// Convert our delay to ticks
 	starttm = 0;
 	switch (ms) {
-	case TIME_IMMEDIATE:
-		delay = TIME_IMMEDIATE;
+	case gDelayNone:
+		delay = gDelayNone;
 		break;
-	case TIME_INFINITE:
-		delay = TIME_INFINITE;
+	case gDelayForever:
+		delay = gDelayForever;
 		break;
 	default:
 		delay = gfxMillisecondsToTicks(ms);
@@ -73,13 +73,13 @@ bool_t gfxSemWait(gfxSem *psem, delaytime_t ms) {
 		INTERRUPTS_ON();
 		// Check if we have exceeded the defined delay
 		switch (delay) {
-		case TIME_IMMEDIATE:
-			return FALSE;
-		case TIME_INFINITE:
+		case gDelayNone:
+			return gFalse;
+		case gDelayForever:
 			break;
 		default:
 			if (gfxSystemTicks() - starttm >= delay)
-				return FALSE;
+				return gFalse;
 			break;
 		}
 		gfxYield();
@@ -87,23 +87,23 @@ bool_t gfxSemWait(gfxSem *psem, delaytime_t ms) {
 	}
 	psem->cnt--;
 	INTERRUPTS_ON();
-	return TRUE;
+	return gTrue;
 }
 
-bool_t gfxSemWaitI(gfxSem *psem) {
+gBool gfxSemWaitI(gSem *psem) {
 	if (psem->cnt <= 0)
-		return FALSE;
+		return gFalse;
 	psem->cnt--;
-	return TRUE;
+	return gTrue;
 }
 
-void gfxSemSignal(gfxSem *psem) {
+void gfxSemSignal(gSem *psem) {
 	INTERRUPTS_OFF();
 	gfxSemSignalI(psem);
 	INTERRUPTS_ON();
 }
 
-void gfxSemSignalI(gfxSem *psem) {
+void gfxSemSignalI(gSem *psem) {
 	if (psem->cnt < psem->limit)
 		psem->cnt++;
 }
@@ -112,14 +112,14 @@ void gfxSemSignalI(gfxSem *psem) {
  * Sleep functions
  *********************************************************/
 
-void gfxSleepMilliseconds(delaytime_t ms) {
-	systemticks_t	starttm, delay;
+void gfxSleepMilliseconds(gDelay ms) {
+	gTicks	starttm, delay;
 
 	// Safety first
 	switch (ms) {
-	case TIME_IMMEDIATE:
+	case gDelayNone:
 		return;
-	case TIME_INFINITE:
+	case gDelayForever:
 		while(1)
 			gfxYield();
 		return;
@@ -134,14 +134,14 @@ void gfxSleepMilliseconds(delaytime_t ms) {
 	} while (gfxSystemTicks() - starttm < delay);
 }
 
-void gfxSleepMicroseconds(delaytime_t ms) {
-	systemticks_t	starttm, delay;
+void gfxSleepMicroseconds(gDelay ms) {
+	gTicks	starttm, delay;
 
 	// Safety first
 	switch (ms) {
-	case TIME_IMMEDIATE:
+	case gDelayNone:
 		return;
-	case TIME_INFINITE:
+	case gDelayForever:
 		while(1)
 			gfxYield();
 		return;
@@ -175,8 +175,8 @@ typedef struct thread {
 		#define FLG_THD_MAIN	0x0002
 		#define FLG_THD_DEAD	0x0004
 		#define FLG_THD_WAIT	0x0008
-	size_t			size;					// Size of the thread stack (including this structure)
-	threadreturn_t	(*fn)(void *param);		// Thread function
+	gMemSize		size;					// Size of the thread stack (including this structure)
+	gThreadreturn	(*fn)(void *param);		// Thread function
 	void *			param;					// Parameter for the thread function
 	void *			cxt;					// The current thread context.
 	} thread;
@@ -242,18 +242,18 @@ static thread		mainthread;				// The main thread context
 	 *
 	 * MACROS:
 	 *
-	 *	AUTO_DETECT_STACKFRAME	TRUE/FALSE			- TRUE to auto-detect stack frame structure
-	 *	STACK_DIR_UP			Macro/bool_t		- TRUE if the stack grows up instead of down
-	 *	MASK1					Macro/uint32_t		- The 1st mask of jmp_buf elements that need relocation
-	 *	MASK2					Macro/uint32_t		- The 2nd mask of jmp_buf elements that need relocation
-	 *	STACK_BASE				Macro/size_t		- The base of the stack frame relative to the local variables
+	 *	AUTO_DETECT_STACKFRAME	GFXON/GFXOFF			- GFXON to auto-detect stack frame structure
+	 *	STACK_DIR_UP			Macro/gBool		- GFXON if the stack grows up instead of down
+	 *	MASK1					Macro/gU32		- The 1st mask of jmp_buf elements that need relocation
+	 *	MASK2					Macro/gU32		- The 2nd mask of jmp_buf elements that need relocation
+	 *	STACK_BASE				Macro/gMemSize		- The base of the stack frame relative to the local variables
 	 *	_gfxThreadsInit()		Macro/Function		- Initialise the scheduler
 	 *
 	 */
 	#if GFX_COMPILER == GFX_COMPILER_MINGW32
 
-		#define AUTO_DETECT_STACKFRAME	FALSE
-		#define STACK_DIR_UP		FALSE
+		#define AUTO_DETECT_STACKFRAME	GFXOFF
+		#define STACK_DIR_UP		GFXOFF
 		#define MASK1				0x00000011
 		#define MASK2				0x00000000
 		#define STACK_BASE			12
@@ -263,8 +263,8 @@ static thread		mainthread;				// The main thread context
 
 		// Use auto-detection of the stack frame format
 		// Assumes all the relevant stuff to be relocated is in the first 256 bytes of the jmpbuf.
-		#define AUTO_DETECT_STACKFRAME	TRUE
-		#define STACK_DIR_UP		stackdirup			// TRUE if the stack grow up instead of down
+		#define AUTO_DETECT_STACKFRAME	GFXON
+		#define STACK_DIR_UP		stackdirup			// GFXON if the stack grow up instead of down
 		#define MASK1				jmpmask1			// The 1st mask of jmp_buf elements that need relocation
 		#define MASK2				jmpmask2			// The 2nd mask of jmp_buf elements that need relocation
 		#define STACK_BASE			stackbase			// The base of the stack frame relative to the local variables
@@ -275,10 +275,10 @@ static thread		mainthread;				// The main thread context
 			jmp_buf		cxt;
 		} saveloc;
 
-		static bool_t		stackdirup;
-		static uint32_t		jmpmask1;
-		static uint32_t		jmpmask2;
-		static size_t		stackbase;
+		static gBool		stackdirup;
+		static gU32		jmpmask1;
+		static gU32		jmpmask2;
+		static gMemSize		stackbase;
 		static saveloc		*pframeinfo;
 
 		// These two functions are not static to prevent the compiler removing them as functions
@@ -293,10 +293,10 @@ static thread		mainthread;				// The main thread context
 			pframeinfo--;
 		}
 		static void _gfxThreadsInit(void) {
-			uint32_t	i;
+			gU32	i;
 			char **		pout;
 			char **		pin;
-			size_t		diff;
+			gPtrDiff	diff;
 			char *		framebase;
 			saveloc		tmpsaveloc[2];
 
@@ -320,7 +320,7 @@ static thread		mainthread;				// The main thread context
 			framebase = pframeinfo[0].localptr;
 			jmpmask1 = jmpmask2 = 0;
 			for (i = 0; i < sizeof(jmp_buf)/sizeof(char *); i++, pout++, pin++) {
-				if ((size_t)(*pout - *pin) == diff) {
+				if ((gPtrDiff)(*pout - *pin) == diff) {
 					if (i < 32)
 						jmpmask1 |= 1 << i;
 					else
@@ -345,7 +345,7 @@ static thread		mainthread;				// The main thread context
 		char **	s;
 		char *	nf;
 		int		diff;
-		uint32_t	i;
+		gU32	i;
 
 		// Copy the stack frame
 		s = 0;
@@ -384,7 +384,7 @@ static thread		mainthread;				// The main thread context
 			}
 		#endif
 	}
-	static void _gfxXSwitch(thread *oldt, thread *newt, bool_t doBuildFrame) {
+	static void _gfxXSwitch(thread *oldt, thread *newt, gBool doBuildFrame) {
 
 		// Save the old context
 		if (CXT_SAVE(oldt->cxt)) return;
@@ -415,8 +415,8 @@ static thread		mainthread;				// The main thread context
 		CXT_RESTORE(newt->cxt, 1);
 	}
 
-	#define _gfxTaskSwitch(oldt, newt)		_gfxXSwitch(oldt, newt, FALSE)
-	#define _gfxStartThread(oldt, newt)		_gfxXSwitch(oldt, newt, TRUE)
+	#define _gfxTaskSwitch(oldt, newt)		_gfxXSwitch(oldt, newt, gFalse)
+	#define _gfxStartThread(oldt, newt)		_gfxXSwitch(oldt, newt, gTrue)
 #endif
 #undef GFX_THREADS_DONE
 
@@ -457,8 +457,8 @@ void _gosThreadsInit(void) {
 	_gfxCurrentThread = &mainthread;
 }
 
-gfxThreadHandle gfxThreadMe(void) {
-	return (gfxThreadHandle)_gfxCurrentThread;
+gThread gfxThreadMe(void) {
+	return (gThread)_gfxCurrentThread;
 }
 
 // Check if there are dead processes to deallocate
@@ -485,7 +485,7 @@ void gfxYield(void) {
 }
 
 // This routine is not currently public - but it could be.
-void gfxThreadExit(threadreturn_t ret) {
+void gfxThreadExit(gThreadreturn ret) {
 	thread	*me;
 
 	// Save the results in case someone is waiting
@@ -508,7 +508,7 @@ void gfxThreadExit(threadreturn_t ret) {
 	// We never get back here as we didn't re-queue ourselves
 }
 
-gfxThreadHandle gfxThreadCreate(void *stackarea, size_t stacksz, threadpriority_t prio, DECLARE_THREAD_FUNCTION((*fn),p), void *param) {
+gThread gfxThreadCreate(void *stackarea, gMemSize stacksz, gThreadpriority prio, GFX_THREAD_FUNCTION((*fn),p), void *param) {
 	thread *	t;
 	thread *	me;
 	(void)		prio;
@@ -543,7 +543,7 @@ gfxThreadHandle gfxThreadCreate(void *stackarea, size_t stacksz, threadpriority_
 	return t;
 }
 
-threadreturn_t gfxThreadWait(gfxThreadHandle th) {
+gThreadreturn gfxThreadWait(gThread th) {
 	thread *		t;
 
 	t = th;
@@ -565,7 +565,7 @@ threadreturn_t gfxThreadWait(gfxThreadHandle th) {
 		gfxFree(t);
 
 	// Return the status left by the dead process
-	return (threadreturn_t)t->param;
+	return (gThreadreturn)t->param;
 }
 
-#endif /* GFX_USE_OS_RAW32 */
+#endif

@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "../../gfx.h"
@@ -91,7 +91,7 @@ void gmiscMatrixFloat2DApplyRotation(MatrixFloat2D *dst, const MatrixFloat2D *sr
 	}
 }
 
-void gmiscMatrixFloat2DApplyToPoints(point *dst, const point *src, const MatrixFloat2D *m, int cnt) {
+void gmiscMatrixFloat2DApplyToPoints(gPoint *dst, const gPoint *src, const MatrixFloat2D *m, int cnt) {
 	float	x;
 
 	for( ;cnt--; dst++, src++) {
@@ -177,8 +177,8 @@ void gmiscMatrixFixed2DApplyShear(MatrixFixed2D *dst, const MatrixFixed2D *src, 
 	}
 #endif
 
-void gmiscMatrixFixed2DApplyToPoints(point *dst, const point *src, const MatrixFixed2D *m, int cnt) {
-	coord_t	x;
+void gmiscMatrixFixed2DApplyToPoints(gPoint *dst, const gPoint *src, const MatrixFixed2D *m, int cnt) {
+	gCoord	x;
 
 	for( ;cnt--; dst++, src++) {
 		x = src->x;						// This allows in-place operation

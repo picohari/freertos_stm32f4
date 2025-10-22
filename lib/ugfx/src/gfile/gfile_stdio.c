@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /********************************************************
@@ -39,9 +39,9 @@ int gstdioSeek(GFILE *f, size_t offset, int origin) {
 	return gfileSetPos(f, offset) ? 0 : -1;
 }
 
-int gstdioGetpos(GFILE *f, long int *pos) {
+int gstdioGetpos(GFILE *f, gFileSize *pos) {
 	if (!(f->flags & GFILEFLG_OPEN))
-		return -1;
+		return (gFileSize)-1;
 	*pos = f->pos;
 	return 0;
 }

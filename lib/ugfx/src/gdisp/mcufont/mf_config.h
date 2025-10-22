@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /* Configuration constants for mcufont. */
@@ -15,6 +15,10 @@
  *******************************************************/
 
 #include "../../../gfx.h"
+
+/* Ensure definitions are compatible with uGFX */
+#undef bool
+#define bool gBool
 
 #if !GFX_USE_GDISP || !GDISP_NEED_TEXT
 	#define MF_NO_COMPILE				// Don't compile any font code
@@ -39,8 +43,18 @@
 #define MF_USE_KERNING GDISP_NEED_TEXT_KERNING
 #define MF_FONT_FILE_NAME "src/gdisp/fonts/fonts.h"
 
-/* These are not used for now */
-#define MF_USE_JUSTIFY 0
+
+#ifdef __AVR__
+#include <avr/pgmspace.h>
+#elif defined(ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32)
+#include <pgmspace.h>
+#else
+#include <stdint.h>
+#define PROGMEM
+#define pgm_read_byte(addr) (*(const unsigned char *)(addr))
+#define pgm_read_word(addr) (*(const gU16 *)(addr))
+#endif /* __AVR__ */
+
 
 /*******************************************************
  * Configuration settings related to build environment *
@@ -59,7 +73,7 @@
 /* Encoding for the input data.
  * With the unicode encodings, the library supports the range of unicode
  * characters 0x0000-0xFFFF (the Basic Multilingual Plane).
- * 
+ *
  * ASCII: Plain ascii (somewhat works with ISO8859-1 also)
  * UTF8:  UTF8 encoding (variable number of bytes)
  * UTF16: UTF16 encoding (2 bytes per character, compatible with UCS-2)
@@ -164,7 +178,7 @@
 #ifdef __cplusplus
 #define MF_EXTERN extern "C"
 #else
-#define MF_EXTERN
+#define MF_EXTERN extern
 #endif
 
 #endif

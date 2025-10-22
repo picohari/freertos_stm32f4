@@ -253,7 +253,7 @@ The STM32F4xx allows computing and verifying the IP, UDP, TCP and ICMP checksums
  */
 #define LWIP_HTTPD_CUSTOM_FILES       1
 
-#define LWIP_HTTPD_FILE_STATE         0 /* must provide own functions ... */
+#define LWIP_HTTPD_FILE_STATE         0   /* must provide own functions ... */
 
 #define LWIP_HTTPD_DYNAMIC_FILE_READ  1
 #define LWIP_HTTPD_DYNAMIC_HEADERS    1

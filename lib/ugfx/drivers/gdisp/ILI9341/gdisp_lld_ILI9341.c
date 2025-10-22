@@ -2,20 +2,21 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "gfx.h"
 
 #if GFX_USE_GDISP
 
-#if defined(GDISP_SCREEN_HEIGHT)
-	#warning "GDISP: This low level driver does not support setting a screen size. It is being ignored."
-	#undef GISP_SCREEN_HEIGHT
-#endif
-#if defined(GDISP_SCREEN_WIDTH)
-	#warning "GDISP: This low level driver does not support setting a screen size. It is being ignored."
+#if defined(GDISP_SCREEN_HEIGHT) || defined(GDISP_SCREEN_HEIGHT)
+	#if GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_DIRECT
+		#warning "GDISP: This low level driver does not support setting a screen size. It is being ignored."
+	#elif GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_MACRO
+		COMPILER_WARNING("GDISP: This low level driver does not support setting a screen size. It is being ignored.")
+	#endif
 	#undef GDISP_SCREEN_WIDTH
+	#undef GDISP_SCREEN_HEIGHT
 #endif
 
 #define GDISP_DRIVER_VMT			GDISPVMT_ILI9341
@@ -48,31 +49,31 @@
 /*===========================================================================*/
 
 // Some common routines and macros
-#define dummy_read(g)				{ volatile uint16_t dummy; dummy = read_data(g); (void) dummy; }
+#define dummy_read(g)				{ volatile gU16 dummy; dummy = read_data(g); (void) dummy; }
 #define write_reg(g, reg, data)		{ write_index(g, reg); write_data(g, data); }
-#define write_data16(g, data)		{ write_data(g, data >> 8); write_data(g, (uint8_t)data); }
+#define write_data16(g, data)		{ write_data(g, data >> 8); write_data(g, (gU8)data); }
 #define delay(us)					gfxSleepMicroseconds(us)
 #define delayms(ms)					gfxSleepMilliseconds(ms)
 
 static void set_viewport(GDisplay *g) {
 	write_index(g, 0x2A);
 	write_data(g, (g->p.x >> 8));
-	write_data(g, (uint8_t) g->p.x);
+	write_data(g, (gU8) g->p.x);
 	write_data(g, (g->p.x + g->p.cx - 1) >> 8);
-	write_data(g, (uint8_t) (g->p.x + g->p.cx - 1));
+	write_data(g, (gU8) (g->p.x + g->p.cx - 1));
 
 	write_index(g, 0x2B);
 	write_data(g, (g->p.y >> 8));
-	write_data(g, (uint8_t) g->p.y);
+	write_data(g, (gU8) g->p.y);
 	write_data(g, (g->p.y + g->p.cy - 1) >> 8);
-	write_data(g, (uint8_t) (g->p.y + g->p.cy - 1));
+	write_data(g, (gU8) (g->p.y + g->p.cy - 1));
 }
 
 /*===========================================================================*/
 /* Driver exported functions.                                                */
 /*===========================================================================*/
 
-LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
+LLDSPEC gBool gdisp_lld_init(GDisplay *g) {
 	// No private area for this controller
 	g->priv = 0;
 
@@ -80,9 +81,9 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	init_board(g);
 
 	// Hardware reset
-	setpin_reset(g, TRUE);
+	setpin_reset(g, gTrue);
 	gfxSleepMilliseconds(20);
-	setpin_reset(g, FALSE);
+	setpin_reset(g, gFalse);
 	gfxSleepMilliseconds(20);
 
 	// Get the bus for the following initialisation commands
@@ -226,11 +227,11 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	/* Initialise the GDISP structure */
 	g->g.Width = GDISP_SCREEN_WIDTH;
 	g->g.Height = GDISP_SCREEN_HEIGHT;
-	g->g.Orientation = GDISP_ROTATE_0;
-	g->g.Powermode = powerOn;
+	g->g.Orientation = gOrientation0;
+	g->g.Powermode = gPowerOn;
 	g->g.Backlight = GDISP_INITIAL_BACKLIGHT;
 	g->g.Contrast = GDISP_INITIAL_CONTRAST;
-	return TRUE;
+	return gTrue;
 }
 
 #if GDISP_HARDWARE_STREAM_WRITE
@@ -255,8 +256,8 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 		setreadmode(g);
 		dummy_read(g);
 	}
-	LLDSPEC	color_t gdisp_lld_read_color(GDisplay *g) {
-		uint16_t	data;
+	LLDSPEC	gColor gdisp_lld_read_color(GDisplay *g) {
+		gU16	data;
 
 		data = read_data(g);
 		return gdispNative2Color(data);
@@ -271,17 +272,17 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	LLDSPEC void gdisp_lld_control(GDisplay *g) {
 		switch(g->p.x) {
 		case GDISP_CONTROL_POWER:
-			if (g->g.Powermode == (powermode_t)g->p.ptr)
+			if (g->g.Powermode == (gPowermode)g->p.ptr)
 				return;
-			switch((powermode_t)g->p.ptr) {
-			case powerOff:
-			case powerSleep:
-			case powerDeepSleep:
+			switch((gPowermode)g->p.ptr) {
+			case gPowerOff:
+			case gPowerSleep:
+			case gPowerDeepSleep:
 				acquire_bus(g);
 				write_reg(g, 0x0010, 0x0001);	/* enter sleep mode */
 				release_bus(g);
 				break;
-			case powerOn:
+			case gPowerOn:
 				acquire_bus(g);
 				write_reg(g, 0x0010, 0x0000);	/* leave sleep mode */
 				release_bus(g);
@@ -289,35 +290,35 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 			default:
 				return;
 			}
-			g->g.Powermode = (powermode_t)g->p.ptr;
+			g->g.Powermode = (gPowermode)g->p.ptr;
 			return;
 
 		case GDISP_CONTROL_ORIENTATION:
-			if (g->g.Orientation == (orientation_t)g->p.ptr)
+			if (g->g.Orientation == (gOrientation)g->p.ptr)
 				return;
-			switch((orientation_t)g->p.ptr) {
-			case GDISP_ROTATE_0:
+			switch((gOrientation)g->p.ptr) {
+			case gOrientation0:
 				acquire_bus(g);
 				write_reg(g, 0x36, 0x48);	/* X and Y axes non-inverted */
 				release_bus(g);
 				g->g.Height = GDISP_SCREEN_HEIGHT;
 				g->g.Width = GDISP_SCREEN_WIDTH;
 				break;
-			case GDISP_ROTATE_90:
+			case gOrientation90:
 				acquire_bus(g);
 				write_reg(g, 0x36, 0xE8);	/* Invert X and Y axes */
 				release_bus(g);
 				g->g.Height = GDISP_SCREEN_WIDTH;
 				g->g.Width = GDISP_SCREEN_HEIGHT;
 				break;
-			case GDISP_ROTATE_180:
+			case gOrientation180:
 				acquire_bus(g);
 				write_reg(g, 0x36, 0x88);		/* X and Y axes non-inverted */
 				release_bus(g);
 				g->g.Height = GDISP_SCREEN_HEIGHT;
 				g->g.Width = GDISP_SCREEN_WIDTH;
 				break;
-			case GDISP_ROTATE_270:
+			case gOrientation270:
 				acquire_bus(g);
 				write_reg(g, 0x36, 0x28);	/* Invert X and Y axes */
 				release_bus(g);
@@ -327,7 +328,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 			default:
 				return;
 			}
-			g->g.Orientation = (orientation_t)g->p.ptr;
+			g->g.Orientation = (gOrientation)g->p.ptr;
 			return;
 
         case GDISP_CONTROL_BACKLIGHT:

@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #ifndef _GDISP_LLD_BOARD_H
@@ -49,8 +49,8 @@
 
 	static void spi_delay(volatile unsigned long a) { while (a!=0) a--; }
 
-	static void spi_write(uint8_t data) {
-		uint8_t bit;
+	static void spi_write(gU8 data) {
+		gU8 bit;
 
 		for(bit = 0x80; bit; bit >>= 1) {
 			if(data & bit)
@@ -161,7 +161,7 @@ static GFXINLINE void post_init_board(GDisplay *g) {
 	(void) g;
 }
 
-static GFXINLINE void setpin_reset(GDisplay *g, bool_t state) {
+static GFXINLINE void setpin_reset(GDisplay *g, gBool state) {
 	(void) g;
 	(void) state;
 
@@ -171,7 +171,7 @@ static GFXINLINE void setpin_reset(GDisplay *g, bool_t state) {
 		PinSet(PORT_RESET, PIN_RESET);
 }
 
-static GFXINLINE void set_backlight(GDisplay *g, uint8_t percent) {
+static GFXINLINE void set_backlight(GDisplay *g, gU8 percent) {
 	(void) g;
 	(void) percent;
 }
@@ -189,7 +189,7 @@ static GFXINLINE void release_bus(GDisplay *g) {
 	SPI_RELEASEBUS();
 }
 
-static GFXINLINE void write_cmd(GDisplay *g, uint8_t cmd) {
+static GFXINLINE void write_cmd(GDisplay *g, gU8 cmd) {
 	(void) g;
 
 	// Command mode please
@@ -199,7 +199,7 @@ static GFXINLINE void write_cmd(GDisplay *g, uint8_t cmd) {
 	SPI_WRITEBYTE(cmd);
 }
 
-static GFXINLINE void write_data(GDisplay *g, uint8_t* data, uint16_t length) {
+static GFXINLINE void write_data(GDisplay *g, gU8* data, gU16 length) {
 	(void) g;
 
 	// Data mode please

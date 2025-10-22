@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "../../gfx.h"
@@ -19,7 +19,7 @@ static const struct mf_font_list_s *fontList;
 /**
  * Match a pattern against the font name.
  */
-static bool_t matchfont(const char *pattern, const char *name) {
+static gBool matchfont(const char *pattern, const char *name) {
 	while(1) {
 		switch (pattern[0]) {
 		case '*':
@@ -34,7 +34,7 @@ static bool_t matchfont(const char *pattern, const char *name) {
 			return name[0] == 0;
 		default:
 			if (name[0] != pattern[0])
-				return FALSE;
+				return gFalse;
 			pattern++;
 			name++;
 			break;
@@ -42,7 +42,7 @@ static bool_t matchfont(const char *pattern, const char *name) {
 	}
 }
 
-font_t gdispOpenFont(const char *name) {
+gFont gdispOpenFont(const char *name) {
 	const struct mf_font_list_s *fp;
 	
 	if (!fontList)
@@ -64,7 +64,7 @@ font_t gdispOpenFont(const char *name) {
 	return mf_get_font_list()->font;
 }
 
-void gdispCloseFont(font_t font) {
+void gdispCloseFont(gFont font) {
 	if ((font->flags & (FONT_FLAG_DYNAMIC|FONT_FLAG_UNLISTED)) == (FONT_FLAG_DYNAMIC|FONT_FLAG_UNLISTED)) {
 		/* Make sure that no-one can successfully use font after closing */
 		((struct mf_font_s *)font)->render_character = 0;
@@ -74,7 +74,7 @@ void gdispCloseFont(font_t font) {
 	}
 }
 
-font_t gdispScaleFont(font_t font, uint8_t scale_x, uint8_t scale_y)
+gFont gdispScaleFont(gFont font, gU8 scale_x, gU8 scale_y)
 {
 	struct mf_scaledfont_s *newfont;
 	
@@ -83,21 +83,21 @@ font_t gdispScaleFont(font_t font, uint8_t scale_x, uint8_t scale_y)
 	
 	mf_scale_font(newfont, font, scale_x, scale_y);
 	((struct mf_font_s *)newfont)->flags |= FONT_FLAG_DYNAMIC|FONT_FLAG_UNLISTED;
-	return (font_t)newfont;
+	return (gFont)newfont;
 }
 
-const char *gdispGetFontName(font_t font) {
+const char *gdispGetFontName(gFont font) {
 	return font->short_name;
 }
 
-bool_t gdispAddFont(font_t font) {
+gBool gdispAddFont(gFont font) {
 	struct mf_font_list_s *hdr;
 
 	if ((font->flags & (FONT_FLAG_DYNAMIC|FONT_FLAG_UNLISTED)) != (FONT_FLAG_DYNAMIC|FONT_FLAG_UNLISTED))
-		return FALSE;
+		return gFalse;
 		
 	if (!(hdr = gfxAlloc(sizeof(struct mf_font_list_s))))
-		return FALSE;
+		return gFalse;
 
 	if (!fontList)
 		fontList = mf_get_font_list();
@@ -105,7 +105,7 @@ bool_t gdispAddFont(font_t font) {
 	hdr->next = fontList;
 	((struct mf_font_s *)font)->flags &= ~FONT_FLAG_UNLISTED;
 	fontList = hdr;
-	return TRUE;
+	return gTrue;
 }
 
 #endif /* GFX_USE_GDISP && GDISP_NEED_TEXT */

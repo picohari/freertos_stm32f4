@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /********************************************************
@@ -18,9 +18,9 @@
 static void ChibiOSBFSClose(GFILE *f);
 static int ChibiOSBFSRead(GFILE *f, void *buf, int size);
 static int ChibiOSBFSWrite(GFILE *f, const void *buf, int size);
-static bool_t ChibiOSBFSSetpos(GFILE *f, long int pos);
-static long int ChibiOSBFSGetsize(GFILE *f);
-static bool_t ChibiOSBFSEof(GFILE *f);
+static gBool ChibiOSBFSSetpos(GFILE *f, gFileSize pos);
+static gFileSize ChibiOSBFSGetsize(GFILE *f);
+static gBool ChibiOSBFSEof(GFILE *f);
 
 static const GFILEVMT FsCHIBIOSVMT = {
 	GFSFLG_SEEKABLE|GFSFLG_WRITEABLE,					// flags
@@ -52,12 +52,12 @@ static int ChibiOSBFSRead(GFILE *f, void *buf, int size) {
 static int ChibiOSBFSWrite(GFILE *f, const void *buf, int size) {
 	return fileStreamWrite(((FileStream *)f->obj), (uint8_t *)buf, size);
 }
-static bool_t ChibiOSBFSSetpos(GFILE *f, long int pos) {
+static gBool ChibiOSBFSSetpos(GFILE *f, gFileSize pos) {
 	fileStreamSeek(((FileStream *)f->obj), pos);
-	return TRUE;
+	return gTrue;
 }
-static long int ChibiOSBFSGetsize(GFILE *f) { return fileStreamGetSize(((FileStream *)f->obj)); }
-static bool_t ChibiOSBFSEof(GFILE *f) { return f->pos >= fileStreamGetSize(((FileStream *)f->obj)); }
+static gFileSize ChibiOSBFSGetsize(GFILE *f) { return (gFileSize)fileStreamGetSize(((FileStream *)f->obj)); }
+static gBool ChibiOSBFSEof(GFILE *f) { return f->pos >= fileStreamGetSize(((FileStream *)f->obj)); }
 
 GFILE *		gfileOpenChibiOSFileStream(void *FileStreamPtr, const char *mode) {
 	GFILE *			f;

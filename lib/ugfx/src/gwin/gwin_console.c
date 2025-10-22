@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -18,9 +18,9 @@
 
 #include "gwin_class.h"
 
-#define GWIN_CONSOLE_USE_CLEAR_LINES			TRUE			// Clear each line before using it
-#define GWIN_CONSOLE_USE_FILLED_CHARS			FALSE			// Use filled characters instead of drawn characters
-#define GWIN_CONSOLE_BUFFER_SCROLLING			TRUE			// Use the history buffer to scroll when it is available
+#define GWIN_CONSOLE_USE_CLEAR_LINES			GFXON			// Clear each line before using it
+#define GWIN_CONSOLE_USE_FILLED_CHARS			GFXOFF			// Use filled characters instead of drawn characters
+#define GWIN_CONSOLE_BUFFER_SCROLLING			GFXON			// Use the history buffer to scroll when it is available
 
 // Our control flags
 #define GCONSOLE_FLG_NOSTORE					(GWIN_FIRST_CONTROL_FLAG<<0)
@@ -42,23 +42,23 @@
 	#define Stream2GWindow(ip)		((GHandle)(((char *)(ip)) - (size_t)(&(((GConsoleObject *)0)->stream))))
 
 #if CH_KERNEL_MAJOR == 2
-	static size_t GWinStreamWrite(void *ip, const uint8_t *bp, size_t n) { gwinPutCharArray(Stream2GWindow(ip), (const char *)bp, n); return RDY_OK; }
-	static size_t GWinStreamRead(void *ip, uint8_t *bp, size_t n) {	(void)ip; (void)bp; (void)n; return 0; }
-	static msg_t GWinStreamPut(void *ip, uint8_t b) { gwinPutChar(Stream2GWindow(ip), (char)b); return RDY_OK; }
+	static size_t GWinStreamWrite(void *ip, const gU8 *bp, size_t n) { gwinPutCharArray(Stream2GWindow(ip), (const char *)bp, n); return RDY_OK; }
+	static size_t GWinStreamRead(void *ip, gU8 *bp, size_t n) {	(void)ip; (void)bp; (void)n; return 0; }
+	static msg_t GWinStreamPut(void *ip, gU8 b) { gwinPutChar(Stream2GWindow(ip), (char)b); return RDY_OK; }
 	static msg_t GWinStreamGet(void *ip) {(void)ip; return RDY_OK; }
-	static msg_t GWinStreamPutTimed(void *ip, uint8_t b, systime_t time) { (void)time; gwinPutChar(Stream2GWindow(ip), (char)b); return RDY_OK; }
+	static msg_t GWinStreamPutTimed(void *ip, gU8 b, systime_t time) { (void)time; gwinPutChar(Stream2GWindow(ip), (char)b); return RDY_OK; }
 	static msg_t GWinStreamGetTimed(void *ip, systime_t timeout) { (void)ip; (void)timeout; return RDY_OK; }
-	static size_t GWinStreamWriteTimed(void *ip, const uint8_t *bp, size_t n, systime_t time) { (void)time; gwinPutCharArray(Stream2GWindow(ip), (const char *)bp, n); return RDY_OK; }
-	static size_t GWinStreamReadTimed(void *ip, uint8_t *bp, size_t n, systime_t time) { (void)ip; (void)bp; (void)n; (void)time; return 0; }
+	static size_t GWinStreamWriteTimed(void *ip, const gU8 *bp, size_t n, systime_t time) { (void)time; gwinPutCharArray(Stream2GWindow(ip), (const char *)bp, n); return RDY_OK; }
+	static size_t GWinStreamReadTimed(void *ip, gU8 *bp, size_t n, systime_t time) { (void)ip; (void)bp; (void)n; (void)time; return 0; }
 #elif CH_KERNEL_MAJOR == 3
-    static size_t GWinStreamWrite(void *ip, const uint8_t *bp, size_t n) { gwinPutCharArray(Stream2GWindow(ip), (const char *)bp, n); return MSG_OK; }
-    static size_t GWinStreamRead(void *ip, uint8_t *bp, size_t n) { (void)ip; (void)bp; (void)n; return 0; }
-    static msg_t GWinStreamPut(void *ip, uint8_t b) { gwinPutChar(Stream2GWindow(ip), (char)b); return MSG_OK; }
+    static size_t GWinStreamWrite(void *ip, const gU8 *bp, size_t n) { gwinPutCharArray(Stream2GWindow(ip), (const char *)bp, n); return MSG_OK; }
+    static size_t GWinStreamRead(void *ip, gU8 *bp, size_t n) { (void)ip; (void)bp; (void)n; return 0; }
+    static msg_t GWinStreamPut(void *ip, gU8 b) { gwinPutChar(Stream2GWindow(ip), (char)b); return MSG_OK; }
     static msg_t GWinStreamGet(void *ip) {(void)ip; return MSG_OK; }
-    static msg_t GWinStreamPutTimed(void *ip, uint8_t b, systime_t time) { (void)time; gwinPutChar(Stream2GWindow(ip), (char)b); return MSG_OK; }
+    static msg_t GWinStreamPutTimed(void *ip, gU8 b, systime_t time) { (void)time; gwinPutChar(Stream2GWindow(ip), (char)b); return MSG_OK; }
     static msg_t GWinStreamGetTimed(void *ip, systime_t timeout) { (void)ip; (void)timeout; return MSG_OK; }
-    static size_t GWinStreamWriteTimed(void *ip, const uint8_t *bp, size_t n, systime_t time) { (void)time; gwinPutCharArray(Stream2GWindow(ip), (const char *)bp, n); return MSG_OK; }
-    static size_t GWinStreamReadTimed(void *ip, uint8_t *bp, size_t n, systime_t time) { (void)ip; (void)bp; (void)n; (void)time; return 0; }
+    static size_t GWinStreamWriteTimed(void *ip, const gU8 *bp, size_t n, systime_t time) { (void)time; gwinPutCharArray(Stream2GWindow(ip), (const char *)bp, n); return MSG_OK; }
+    static size_t GWinStreamReadTimed(void *ip, gU8 *bp, size_t n, systime_t time) { (void)ip; (void)bp; (void)n; (void)time; return 0; }
 #endif
 
 	struct GConsoleWindowVMT_t {
@@ -79,8 +79,8 @@
 
 #if GWIN_CONSOLE_ESCSEQ
 	// Convert escape sequences to attributes
-	static bool_t ESCtoAttr(char c, uint8_t *pattr) {
-		uint8_t		attr;
+	static gBool ESCtoAttr(char c, gU8 *pattr) {
+		gU8		attr;
 
 		attr = pattr[0];
 		switch(c) {
@@ -105,32 +105,32 @@
 			attr &= ~ESC_BOLD;
 			break;
 		default:
-			return FALSE;
+			return gFalse;
 		}
 		if (attr == pattr[0])
-			return FALSE;
+			return gFalse;
 		pattr[0] = attr;
-		return TRUE;
+		return gTrue;
 	}
 
-	static color_t ESCPrintColor(GConsoleObject *gcw) {
+	static gColor ESCPrintColor(GConsoleObject *gcw) {
 		switch(gcw->currattr & (ESC_REDBIT|ESC_GREENBIT|ESC_BLUEBIT|ESC_USECOLOR)) {
 		case (ESC_USECOLOR):
-			return Black;
+			return GFX_BLACK;
 		case (ESC_USECOLOR|ESC_REDBIT):
-			return Red;
+			return GFX_RED;
 		case (ESC_USECOLOR|ESC_GREENBIT):
-			return Green;
+			return GFX_GREEN;
 		case (ESC_USECOLOR|ESC_REDBIT|ESC_GREENBIT):
-			return Yellow;
+			return GFX_YELLOW;
 		case (ESC_USECOLOR|ESC_BLUEBIT):
-			return Blue;
+			return GFX_BLUE;
 		case (ESC_USECOLOR|ESC_REDBIT|ESC_BLUEBIT):
-			return Magenta;
+			return GFX_MAGENTA;
 		case (ESC_USECOLOR|ESC_GREENBIT|ESC_BLUEBIT):
-			return Cyan;
+			return GFX_CYAN;
 		case (ESC_USECOLOR|ESC_REDBIT|ESC_GREENBIT|ESC_BLUEBIT):
-			return White;
+			return GFX_WHITE;
 		default:
 			return gcw->g.color;
 		}
@@ -157,7 +157,7 @@
 	 */
 	static void scrollBuffer(GConsoleObject *gcw) {
 		char	*p, *ep;
-		size_t	dp;
+		gPtrDiff	dp;
 
 		// Only scroll if we need to
 		if (!gcw->buffer || (gcw->g.flags & GCONSOLE_FLG_NOSTORE))
@@ -179,7 +179,7 @@
 		}
 
 		// Was there a newline, if not delete everything.
-		if (*p != '\n') {
+		if (p >= ep) {
 			gcw->bufpos = 0;
 			return;
 		}
@@ -193,14 +193,14 @@
 
 	static void HistoryRedraw(GWindowObject *gh) {
 		#define gcw		((GConsoleObject *)gh)
-		coord_t fy;
+		gCoord fy;
 
 		// No redrawing if there is no history
 		if (!gcw->buffer)
 			return;
 
 		// Handle vertical size decrease - We have to scroll out first lines of the log 
-		fy = gdispGetFontMetric(gh->font, fontHeight);
+		fy = gdispGetFontMetric(gh->font, gFontHeight);
 		while (gcw->cy > gh->height) {
 			scrollBuffer(gcw);
 			gcw->cy -= fy;
@@ -229,11 +229,11 @@
 		#if GWIN_CONSOLE_USE_CLEAR_LINES
 			// Clear the remaining space
 			{
-				coord_t		y;
+				gCoord		y;
 
 				y = gcw->cy;
 				if (gcw->cx)
-					y += gdispGetFontMetric(gh->font, fontHeight);
+					y += gdispGetFontMetric(gh->font, gFontHeight);
 				if (y < gh->height)
 					gdispGFillArea(gh->display, gh->x, gh->y+y, gh->width, gh->height-y, gh->bgcolor);
 			}
@@ -256,7 +256,7 @@
 		// Do we have enough space in the buffer
 		if (gcw->bufpos >= gcw->bufsize) {
 			char	*p, *ep;
-			size_t	dp;
+			gPtrDiff	dp;
 
 			/**
 			 * This should never really happen except if the user has changed the window
@@ -348,7 +348,7 @@ GHandle gwinGConsoleCreate(GDisplay *g, GConsoleObject *gc, const GWindowInit *p
 	#if GWIN_CONSOLE_USE_HISTORY
 		gc->buffer = 0;
 		#if GWIN_CONSOLE_HISTORY_ATCREATE
-			gwinConsoleSetBuffer(&gc->g, TRUE);
+			gwinConsoleSetBuffer(&gc->g, gTrue);
 		#endif
 	#endif
 
@@ -376,11 +376,11 @@ GHandle gwinGConsoleCreate(GDisplay *g, GConsoleObject *gc, const GWindowInit *p
 #endif
 
 #if GWIN_CONSOLE_USE_HISTORY
-	bool_t gwinConsoleSetBuffer(GHandle gh, bool_t onoff) {
+	gBool gwinConsoleSetBuffer(GHandle gh, gBool onoff) {
 		#define gcw		((GConsoleObject *)gh)
 
 		if (gh->vmt != &consoleVMT)
-			return FALSE;
+			return gFalse;
 
 		// Do we want the buffer turned off?
 		if (!onoff) {
@@ -388,32 +388,32 @@ GHandle gwinGConsoleCreate(GDisplay *g, GConsoleObject *gc, const GWindowInit *p
 				gfxFree(gcw->buffer);
 				gcw->buffer = 0;
 			}
-			return FALSE;
+			return gFalse;
 		}
 
 		// Is the buffer already on?
 		if (gcw->buffer)
-			return TRUE;
+			return gTrue;
 
 		// Get the number of characters that fit in the x direction
 		#if GWIN_CONSOLE_HISTORY_AVERAGING
-			gcw->bufsize = gh->width / ((2*gdispGetFontMetric(gh->font, fontMinWidth)+gdispGetFontMetric(gh->font, fontMaxWidth))/3);
+			gcw->bufsize = gh->width / ((2*gdispGetFontMetric(gh->font, gFontMinWidth)+gdispGetFontMetric(gh->font, gFontMaxWidth))/3);
 		#else
-			gcw->bufsize = gh->width / gdispGetFontMetric(gh->font, fontMinWidth);
+			gcw->bufsize = gh->width / gdispGetFontMetric(gh->font, gFontMinWidth);
 		#endif
 		gcw->bufsize++;				// Allow space for a newline on each line.
 
 		// Multiply by the number of lines
-		gcw->bufsize *= gh->height / gdispGetFontMetric(gh->font, fontHeight);
+		gcw->bufsize *= gh->height / gdispGetFontMetric(gh->font, gFontHeight);
 
 		// Allocate the buffer
 		if (!(gcw->buffer = gfxAlloc(gcw->bufsize)))
-			return FALSE;
+			return gFalse;
 
 		// All good!
 		gh->flags &= ~GCONSOLE_FLG_OVERRUN;
 		gcw->bufpos = 0;
-		return TRUE;
+		return gTrue;
 		
 		#undef gcw
 	}
@@ -433,12 +433,12 @@ GHandle gwinGConsoleCreate(GDisplay *g, GConsoleObject *gc, const GWindowInit *p
 
 void gwinPutChar(GHandle gh, char c) {
 	#define gcw		((GConsoleObject *)gh)
-	uint8_t			width, fy;
+	gU8			width, fy;
 
 	if (gh->vmt != &consoleVMT || !gh->font)
 		return;
 
-	fy = gdispGetFontMetric(gh->font, fontHeight);
+	fy = gdispGetFontMetric(gh->font, gFontHeight);
 
 	#if GWIN_CONSOLE_ESCSEQ
 		/**
@@ -563,7 +563,7 @@ void gwinPutChar(GHandle gh, char c) {
 
 				// Set the cursor to the start of the last line
 				gcw->cx = 0;
-				gcw->cy = (((coord_t)(gh->height/fy))-1)*fy;
+				gcw->cy = (((gCoord)(gh->height/fy))-1)*fy;
 			}
 		#else
 			{
@@ -603,8 +603,8 @@ void gwinPutChar(GHandle gh, char c) {
 		#if GWIN_CONSOLE_ESCSEQ
 			// Draw the underline
 			if ((gcw->currattr & ESC_UNDERLINE))
-				gdispGDrawLine(gh->display, gh->x + gcw->cx, gh->y + gcw->cy + fy - gdispGetFontMetric(gh->font, fontDescendersHeight),
-											gh->x + gcw->cx + width + gdispGetFontMetric(gh->font, fontCharPadding), gh->y + gcw->cy + fy - gdispGetFontMetric(gh->font, fontDescendersHeight),
+				gdispGDrawLine(gh->display, gh->x + gcw->cx, gh->y + gcw->cy + fy - gdispGetFontMetric(gh->font, gFontDescendersHeight),
+											gh->x + gcw->cx + width + gdispGetFontMetric(gh->font, gFontCharPadding), gh->y + gcw->cy + fy - gdispGetFontMetric(gh->font, gFontDescendersHeight),
 											ESCPrintColor(gcw));
 			// Bold (very crude)
 			if ((gcw->currattr & ESC_BOLD))
@@ -615,7 +615,7 @@ void gwinPutChar(GHandle gh, char c) {
 	}
 
 	// Update the cursor
-	gcw->cx += width + gdispGetFontMetric(gh->font, fontCharPadding);
+	gcw->cx += width + gdispGetFontMetric(gh->font, gFontCharPadding);
 
 	#undef gcw
 }
@@ -625,7 +625,7 @@ void gwinPutString(GHandle gh, const char *str) {
 		gwinPutChar(gh, *str++);
 }
 
-void gwinPutCharArray(GHandle gh, const char *str, size_t n) {
+void gwinPutCharArray(GHandle gh, const char *str, gMemSize n) {
 	while(n--)
 		gwinPutChar(gh, *str++);
 }
@@ -676,7 +676,7 @@ void gwinPrintf(GHandle gh, const char *fmt, ...) {
 	va_list ap;
 	char *p, *s, c, filler;
 	int i, precision, width;
-	bool_t is_long, left_align;
+	gBool is_long, left_align;
 	long l;
 	#if GWIN_CONSOLE_USE_FLOAT
 		float f;
@@ -689,7 +689,7 @@ void gwinPrintf(GHandle gh, const char *fmt, ...) {
 		return;
 
 	va_start(ap, fmt);
-	while (TRUE) {
+	while (gTrue) {
 		c = *fmt++;
 		if (c == 0) {
 			va_end(ap);
@@ -702,10 +702,10 @@ void gwinPrintf(GHandle gh, const char *fmt, ...) {
 
 		p = tmpbuf;
 		s = tmpbuf;
-		left_align = FALSE;
+		left_align = gFalse;
 		if (*fmt == '-') {
 			fmt++;
-			left_align = TRUE;
+			left_align = gTrue;
 		}
 		filler = ' ';
 		if (*fmt == '0') {
@@ -714,7 +714,7 @@ void gwinPrintf(GHandle gh, const char *fmt, ...) {
 		}
 		width = 0;
 
-		while (TRUE) {
+		while (gTrue) {
 			c = *fmt++;
 			if (c >= '0' && c <= '9')
 				c -= '0';
@@ -726,7 +726,7 @@ void gwinPrintf(GHandle gh, const char *fmt, ...) {
 		}
 		precision = 0;
 		if (c == '.') {
-			while (TRUE) {
+			while (gTrue) {
 				c = *fmt++;
 				if (c >= '0' && c <= '9')
 					c -= '0';
@@ -739,7 +739,7 @@ void gwinPrintf(GHandle gh, const char *fmt, ...) {
 		}
 		/* Long modifier.*/
 		if (c == 'l' || c == 'L') {
-			is_long = TRUE;
+			is_long = gTrue;
 			if (*fmt)
 				c = *fmt++;
 		}
@@ -808,7 +808,7 @@ void gwinPrintf(GHandle gh, const char *fmt, ...) {
 		i = (int)(p - s);
 		if ((width -= i) < 0)
 			width = 0;
-		if (left_align == FALSE)
+		if (!left_align)
 			width = -width;
 		if (width < 0) {
 			if (*s == '-' && filler == '0') {

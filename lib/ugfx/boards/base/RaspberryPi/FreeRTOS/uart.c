@@ -46,12 +46,12 @@ enum {
  
 /*
  * delay function
- * int32_t delay: number of cycles to delay
+ * gI32 delay: number of cycles to delay
  *
  * This just loops <delay> times in a way that the compiler
  * wont optimize away.
  */
-static void delay(int32_t count) {
+static void delay(gI32 count) {
     asm volatile("__delay_%=: subs %[count], %[count], #1; bne __delay_%=\n"
 	     : : [count]"r"(count) : "cc");
 }
@@ -102,9 +102,9 @@ void uart_init() {
  
 /*
  * Transmit a byte via UART0.
- * uint8_t Byte: byte to send.
+ * gU8 Byte: byte to send.
  */
-void uart_putc(uint8_t byte) {
+void uart_putc(gU8 byte) {
     // wait for UART to become ready to transmit
     while (1) {
         if (!(mmio_read(UART0_FR) & (1 << 5))) {

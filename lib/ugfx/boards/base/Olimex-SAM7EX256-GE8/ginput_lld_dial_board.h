@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -22,7 +22,7 @@
 #define GINPUT_DIAL_NUM_PORTS			1
 #define GINPUT_DIAL_DEVICE0				GADC_PHYSDEV_DIAL
 #define GINPUT_DIAL_POLL_PERIOD			200
-#define GINPUT_DIAL_CYCLE_POLL			FALSE
+#define GINPUT_DIAL_CYCLE_POLL			GFXOFF
 
 #endif	/* GFX_USE_GINPUT && GINPUT_NEED_DIAL */
 

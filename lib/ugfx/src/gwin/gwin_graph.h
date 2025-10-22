@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -16,8 +16,8 @@
  *
  * @details	GWIN allows it to easily draw graphs.
  *
- * @pre		GFX_USE_GWIN must be set to TRUE in your gfxconf.h
- * @pre		GWIN_NEED_GRAPH must be set to TRUE in your gfxconf.h
+ * @pre		GFX_USE_GWIN must be set to GFXON in your gfxconf.h
+ * @pre		GWIN_NEED_GRAPH must be set to GFXON in your gfxconf.h
  *
  * @{
  */
@@ -33,8 +33,8 @@ typedef enum GGraphPointType_e {
 
 typedef struct GGraphPointStyle_t {
 	GGraphPointType		type;
-	coord_t				size;
-	color_t				color;
+	gCoord				size;
+	gColor				color;
 	} GGraphPointStyle;
 
 typedef enum GGraphLineType_e {
@@ -43,15 +43,15 @@ typedef enum GGraphLineType_e {
 
 typedef struct GGraphLineStyle_t {
 	GGraphLineType		type;
-	coord_t				size;
-	color_t				color;
+	gCoord				size;
+	gColor				color;
 	} GGraphLineStyle;
 
 typedef struct GGraphGridStyle_t {
 	GGraphLineType		type;
-	coord_t				size;
-	color_t				color;
-	coord_t				spacing;
+	gCoord				size;
+	gColor				color;
+	gCoord				spacing;
 	} GGraphGridStyle;
 
 typedef struct GGraphStyle_t {
@@ -61,7 +61,7 @@ typedef struct GGraphStyle_t {
 	GGraphLineStyle		yaxis;
 	GGraphGridStyle		xgrid;
 	GGraphGridStyle		ygrid;
-	uint16_t			flags;
+	gU16			flags;
 		#define GWIN_GRAPH_STYLE_XAXIS_POSITIVE_ARROWS	0x0001
 		#define GWIN_GRAPH_STYLE_XAXIS_NEGATIVE_ARROWS	0x0002
 		#define GWIN_GRAPH_STYLE_YAXIS_POSITIVE_ARROWS	0x0004
@@ -77,17 +77,13 @@ typedef struct GGraphStyle_t {
 typedef struct GGraphObject {
 	GWindowObject		g;
 	GGraphStyle			style;
-	coord_t				xorigin, yorigin;
-	coord_t				lastx, lasty;
+	gCoord				xorigin, yorigin;
+	gCoord				lastx, lasty;
 	} GGraphObject;
 
 /*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * @brief   Create a graph window.
@@ -98,7 +94,7 @@ extern "C" {
  * @param[in] pInit		The initialization parameters to use
  *
  * @note				The drawing color and the background color get set to the current defaults. If you haven't called
- * 						@p gwinSetDefaultColor() or @p gwinSetDefaultBgColor() then these are White and Black respectively.
+ * 						@p gwinSetDefaultColor() or @p gwinSetDefaultBgColor() then these are GFX_WHITE and GFX_BLACK respectively.
  * @note				The font gets set to the current default font. If you haven't called @p gwinSetDefaultFont() then there
  * 						is no default font and text drawing operations will no nothing.
  * @note				The dimensions and position may be changed to fit on the real screen.
@@ -134,7 +130,7 @@ void gwinGraphSetStyle(GHandle gh, const GGraphStyle *pstyle);
  *
  * @api
  */
-void gwinGraphSetOrigin(GHandle gh, coord_t x, coord_t y);
+void gwinGraphSetOrigin(GHandle gh, gCoord x, gCoord y);
 
 /**
  * @brief   Draw the axis and the background grid.
@@ -165,7 +161,7 @@ void gwinGraphStartSet(GHandle gh);
  *
  * @api
  */
-void gwinGraphDrawPoint(GHandle gh, coord_t x, coord_t y);
+void gwinGraphDrawPoint(GHandle gh, gCoord x, gCoord y);
 
 /**
  * @brief   Draw multiple graph points.
@@ -178,11 +174,7 @@ void gwinGraphDrawPoint(GHandle gh, coord_t x, coord_t y);
  *
  * @api
  */
-void gwinGraphDrawPoints(GHandle gh, const point *points, unsigned count);
-
-#ifdef __cplusplus
-}
-#endif
+void gwinGraphDrawPoints(GHandle gh, const gPoint *points, unsigned count);
 
 #endif	/* _GWIN_GRAPH_H */
 /** @} */

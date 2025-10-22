@@ -28,7 +28,7 @@ void ginput_lld_toggle_init(const GToggleConfig *ptc) {
 	// if(GPIOx == GPIOA) ...														
 	__GPIOE_CLK_ENABLE();	
 
-	GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6;	
+	GPIO_InitStruct.Pin = GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6;	
 	GPIO_InitStruct.Mode = GPIO_MODE_INPUT;													
 	GPIO_InitStruct.Pull = GPIO_PULLUP;												
 	GPIO_InitStruct.Speed = GPIO_SPEED_FAST;

@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -15,7 +15,7 @@
  * @details		GEVENT provides a simple to use but yet powerful event
  *				system.
  *
- * @pre			GFX_USE_GEVENT must be set to TRUE in your gfxconf.h
+ * @pre			GFX_USE_GEVENT must be set to GFXON in your gfxconf.h
  *
  * @{
  */
@@ -30,7 +30,7 @@
 /* Type definitions                                                          */
 /*===========================================================================*/
 
-typedef uint16_t						GEventType;
+typedef gU16						GEventType;
 		#define GEVENT_NULL				0x0000				// Null Event - Do nothing
 		#define GEVENT_EXIT				0x0001				// The listener is being forced to exit (someone is destroying the listener)
 		
@@ -55,8 +55,8 @@ typedef void (*GEventCallbackFn)(void *param, GEvent *pe);
 
 // The Listener Object
 typedef struct GListener {
-	gfxSem				waitqueue;			// Private: Semaphore for the listener to wait on.
-	uint16_t			flags;				// Private: Flags for operation
+	gSem				waitqueue;			// Private: Semaphore for the listener to wait on.
+	gU16				flags;				// Private: Flags for operation
 	GEventCallbackFn	callback;			// Private: Call back Function
 	void				*param;				// Private: Parameter for the callback function.
 	GEvent				event;				// Public:  The event object into which the event information is stored.
@@ -69,17 +69,13 @@ typedef struct GSource_t			GSource, *GSourceHandle;
 typedef struct GSourceListener_t {
 	GListener		*pListener;			// The listener
 	GSource			*pSource;			// The source
-	uint32_t		listenflags;		// The flags the listener passed when the source was assigned to it.
-	uint32_t		srcflags;			// For the source's exclusive use. Initialised as 0 for a new listener source assignment.
+	gU32		listenflags;		// The flags the listener passed when the source was assigned to it.
+	gU32		srcflags;			// For the source's exclusive use. Initialised as 0 for a new listener source assignment.
 	} GSourceListener;
 
 /*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /* How to listen for events (act as a Listener)...
 	1. Get handles for all the event sources you are interested in.
@@ -97,7 +93,7 @@ extern "C" {
 			For each listener	- check the flags to see if an event should be sent.
 								- use geventGetEventBuffer() to get the event buffer supplied by the listener
 									and then call geventSendEvent() to send the event.
-								- Note: geventGetEventBuffer() may return FALSE to indicate the listener is currently not listening and
+								- Note: geventGetEventBuffer() may return gFalse to indicate the listener is currently not listening and
 									therefore no event should be sent. This situation enables the source to (optionally) flag
 									to the listener on its next wait that there have been missed events.
 								- Note: The GSourceListener pointer (and the GEvent buffer) are only valid between
@@ -121,16 +117,16 @@ void geventListenerInit(GListener *pl);
  * @brief 	Attach a source to a listener
  * @details	Flags are interpreted by the source when generating events for each listener.
  *			If this source is already assigned to the listener it will update the flags.
- *			If insufficient resources are available it will either assert or return FALSE
+ *			If insufficient resources are available it will either assert or return gFalse
  *			depending on the value of GEVENT_ASSERT_NO_RESOURCE.
  *
  * @param[in] pl	The listener
  * @param[in] gsh	The source which has to be attached to the listener
  * @param[in] flags	The flags
  *
- * @return TRUE if succeeded, FALSE otherwise
+ * @return gTrue if succeeded, gFalse otherwise
  */
-bool_t geventAttachSource(GListener *pl, GSourceHandle gsh, uint32_t flags);
+gBool geventAttachSource(GListener *pl, GSourceHandle gsh, gU32 flags);
 
 /**
  * @brief	Detach a source from a listener
@@ -146,8 +142,8 @@ void geventDetachSource(GListener *pl, GSourceHandle gsh);
  * @brief	Wait for an event on a listener from an assigned source.
  * @details	The type of the event should be checked (pevent->type) and then pevent should
  *			be typecast to the actual event type if it needs to be processed.
- *			TIME_INFINITE means no timeout - wait forever for an event.
- *			TIME_IMMEDIATE means return immediately
+ *			gDelayForever means no timeout - wait forever for an event.
+ *			gDelayNone means return immediately
  * @note	The returned GEvent is released when this routine is called again
  * 			or when optionally @p geventEventComplete() is called. Calling @p geventEventComplete()
  * 			allows the GEvent object to be reused earlier which can reduce missed events. The GEvent
@@ -161,7 +157,7 @@ void geventDetachSource(GListener *pl, GSourceHandle gsh);
  *
  * @return	NULL on timeout
  */
-GEvent *geventEventWait(GListener *pl, delaytime_t timeout);
+GEvent *geventEventWait(GListener *pl, gDelay timeout);
 
 /**
  * @brief	Release the GEvent buffer associated with a listener.
@@ -235,10 +231,6 @@ void geventSendEvent(GSourceListener *psl);
  * @param[in] gsh	The source handle
  */
 void geventDetachSourceListeners(GSourceHandle gsh);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* GFX_USE_GEVENT */
 

@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -43,7 +43,7 @@ static const SPIConfig spi2cfg = {
   (SPI_CR1_MSTR | SPI_CR1_SPE | SPI_CR1_SSM | SPI_CR1_SSI)
 };
 
-static void send_data(uint16_t data);
+static void send_data(gU16 data);
 
 /**
  * @brief   Initialise the board for the display.
@@ -83,14 +83,14 @@ static GFXINLINE void post_init_board(GDisplay *g) {
  * @brief   Set or clear the lcd reset pin.
  *
  * @param[in] g			The GDisplay structure
- * @param[in] state		TRUE = lcd in reset, FALSE = normal operation
+ * @param[in] state		gTrue = lcd in reset, gFalse = normal operation
  * 
  * @notapi
  */
-static GFXINLINE void setpin_reset(GDisplay *g, bool_t state) {
+static GFXINLINE void setpin_reset(GDisplay *g, gBool state) {
 	(void) g;
 
-	if (state == TRUE) {
+	if (state) {
 		palClearPad(LCD_PORT, LCD_RES);
 	} else {
 		palSetPad(LCD_PORT, LCD_RES);
@@ -105,7 +105,7 @@ static GFXINLINE void setpin_reset(GDisplay *g, bool_t state) {
  * 
  * @notapi
  */
-static GFXINLINE void set_backlight(GDisplay *g, uint8_t percent) {
+static GFXINLINE void set_backlight(GDisplay *g, gU8 percent) {
 	(void) g;
 	(void) percent;
 }
@@ -139,7 +139,7 @@ static GFXINLINE void release_bus(GDisplay *g) {
  * 
  * @notapi
  */
-static GFXINLINE void send_data(uint16_t data) {
+static GFXINLINE void send_data(gU16 data) {
 // http://forum.easyelectronics.ru/viewtopic.php?p=262122#p262122
   while (!(SPI2->SR & SPI_SR_TXE)); // при входе на отправку проверяем - а пустой ли SPI_DR
   SPI2->DR = data; // загрузили в SPI_DR код команды
@@ -154,7 +154,7 @@ static GFXINLINE void send_data(uint16_t data) {
  *
  * @notapi
  */
-static GFXINLINE void write_index(GDisplay *g, uint16_t index) {
+static GFXINLINE void write_index(GDisplay *g, gU16 index) {
 	(void) g;
 
   while (SPI2->SR & SPI_SR_BSY);
@@ -177,7 +177,7 @@ static GFXINLINE void write_index(GDisplay *g, uint16_t index) {
  * 
  * @notapi
  */
-static GFXINLINE void write_data(GDisplay *g, uint16_t data) {
+static GFXINLINE void write_data(GDisplay *g, gU16 data) {
 	(void) g;
 
   send_data(data);
@@ -213,7 +213,7 @@ static GFXINLINE void setwritemode(GDisplay *g) {
  *
  * @notapi
  */
-static GFXINLINE uint16_t read_data(GDisplay *g) {
+static GFXINLINE gU16 read_data(GDisplay *g) {
 	(void) g;
 	return 0;
 }

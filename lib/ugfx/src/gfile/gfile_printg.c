@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /********************************************************
@@ -54,9 +54,10 @@ static char *ltoa_wd(char *p, long num, unsigned radix, long divisor) {
 
 int vfnprintg(GFILE *f, int maxlen, const char *fmt, va_list arg) {
 	int		ret;
-	char	*p, *s, c, filler;
+	char	*p, c, filler;
+	const char *s;
 	int		i, precision, width;
-	bool_t	is_long, left_align;
+	gBool	is_long, left_align;
 	long	l;
 	#if GFILE_ALLOW_FLOATS
 		float	fpv;
@@ -80,15 +81,15 @@ int vfnprintg(GFILE *f, int maxlen, const char *fmt, va_list arg) {
 		}
 		fmt++;
 
-		p = s = tmpbuf;
-		left_align = FALSE;
+		s = p = tmpbuf;
+		left_align = gFalse;
 		filler = ' ';
 		width = 0;
 		precision = 0;
 
 		if (*fmt == '-') {
 			fmt++;
-			left_align = TRUE;
+			left_align = gTrue;
 		}
 		if (*fmt == '0') {
 			fmt++;
@@ -119,7 +120,7 @@ int vfnprintg(GFILE *f, int maxlen, const char *fmt, va_list arg) {
 		}
 		/* Long modifier.*/
 		if (c == 'l' || c == 'L') {
-			is_long = TRUE;
+			is_long = gTrue;
 			if (*fmt)
 				c = *fmt++;
 		}
@@ -140,7 +141,7 @@ int vfnprintg(GFILE *f, int maxlen, const char *fmt, va_list arg) {
 				s = "(null)";
 			if (precision == 0)
 				precision = 32767;
-			for (p = s; *p && (--precision >= 0); p++);
+			for (p = (char*)s; *p && (--precision >= 0); p++);
 			break;
 		case 'D':
 		case 'd':
@@ -194,7 +195,7 @@ int vfnprintg(GFILE *f, int maxlen, const char *fmt, va_list arg) {
 		i = (int)(p - s);
 		if ((width -= i) < 0)
 			width = 0;
-		if (left_align == FALSE)
+		if (!left_align)
 			width = -width;
 		if (width < 0) {
 			if (*s == '-' && filler == '0') {

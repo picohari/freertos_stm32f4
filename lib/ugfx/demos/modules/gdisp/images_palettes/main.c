@@ -36,11 +36,11 @@
  * the same time there's still just one copy of the image in memory at all times.
  */
 
-#define USE_PRINTF TRUE
+#define USE_PRINTF GFXON
 
 #include "gfx.h"
 
-static gdispImage _imgHome;
+static gImage _imgHome;
 
 int main(void)
 {
@@ -48,7 +48,7 @@ int main(void)
 
 	// Initialize everything
 	gfxInit();
-	gdispClear(Silver);
+	gdispClear(GFX_SILVER);
 
 	// Open the image file
 	gdispImageOpenFile(&_imgHome, "icon_home.bmp");
@@ -56,7 +56,7 @@ int main(void)
 	// Retrieve the color palette size and dump it - just for fun.
 	paletteSize = gdispImageGetPaletteSize(&_imgHome);
 	if (paletteSize != 2) {		// With this image we expect the palette to have only two entries!
-		gdispClear(Red);
+		gdispClear(GFX_RED);
 		while (1);
 	}
 	
@@ -64,33 +64,33 @@ int main(void)
 	gdispImageDraw(&_imgHome, 10, 10, gdispGetWidth(), gdispGetHeight(), 0, 0);
 	
 	// Modify the palette & redraw at a different location
-	gdispImageAdjustPalette(&_imgHome, 0, Blue);
-	gdispImageAdjustPalette(&_imgHome, 1, Red);
+	gdispImageAdjustPalette(&_imgHome, 0, GFX_BLUE);
+	gdispImageAdjustPalette(&_imgHome, 1, GFX_RED);
 	gdispImageDraw(&_imgHome, 10, 60, gdispGetWidth(), gdispGetHeight(), 0, 0);
 	
 	// Modify the palette & redraw at a different location
-	gdispImageAdjustPalette(&_imgHome, 0, White);
-	gdispImageAdjustPalette(&_imgHome, 1, Black);
+	gdispImageAdjustPalette(&_imgHome, 0, GFX_WHITE);
+	gdispImageAdjustPalette(&_imgHome, 1, GFX_BLACK);
 	gdispImageDraw(&_imgHome, 10, 110, gdispGetWidth(), gdispGetHeight(), 0, 0);
 	
 	// Modify the palette & redraw at a different location
-	gdispImageAdjustPalette(&_imgHome, 0, Lime);
-	gdispImageAdjustPalette(&_imgHome, 1, Navy);
+	gdispImageAdjustPalette(&_imgHome, 0, GFX_LIME);
+	gdispImageAdjustPalette(&_imgHome, 1, GFX_NAVY);
 	gdispImageDraw(&_imgHome, 10, 160, gdispGetWidth(), gdispGetHeight(), 0, 0);
 	
 	// Modify the palette & redraw at a different location
-	gdispImageAdjustPalette(&_imgHome, 0, Gray);
-	gdispImageAdjustPalette(&_imgHome, 1, Yellow);
+	gdispImageAdjustPalette(&_imgHome, 0, GFX_GRAY);
+	gdispImageAdjustPalette(&_imgHome, 1, GFX_YELLOW);
 	gdispImageDraw(&_imgHome, 60, 60, gdispGetWidth(), gdispGetHeight(), 0, 0);
 	
 	// Modify the palette & redraw at a different location
-	gdispImageAdjustPalette(&_imgHome, 0, Green);
-	gdispImageAdjustPalette(&_imgHome, 1, Black);
+	gdispImageAdjustPalette(&_imgHome, 0, GFX_GREEN);
+	gdispImageAdjustPalette(&_imgHome, 1, GFX_BLACK);
 	gdispImageDraw(&_imgHome, 60, 110, gdispGetWidth(), gdispGetHeight(), 0, 0);
 	
 	// Modify the palette & redraw at a different location
-	gdispImageAdjustPalette(&_imgHome, 0, Lime);
-	gdispImageAdjustPalette(&_imgHome, 1, Teal);
+	gdispImageAdjustPalette(&_imgHome, 0, GFX_LIME);
+	gdispImageAdjustPalette(&_imgHome, 1, GFX_TEAL);
 	gdispImageDraw(&_imgHome, 60, 160, gdispGetWidth(), gdispGetHeight(), 0, 0);
 	
 	// We're done. Clean up.

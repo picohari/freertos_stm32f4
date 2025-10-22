@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "../../gfx.h"
@@ -25,7 +25,11 @@ void _gosInit(void)
 	 * getting here!
 	 */
 	#if !GFX_OS_INIT_NO_WARNING
-		#warning "GOS: Arduino - Make sure you initialize your hardware and the C runtime before calling gfxInit() in your application!"
+		#if GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_DIRECT
+			#warning "GOS: Arduino - Make sure you initialize your hardware and the C runtime before calling gfxInit() in your application!"
+		#elif GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_MACRO
+			COMPILER_WARNING("GOS: Arduino - Make sure you initialize your hardware and the C runtime before calling gfxInit() in your application!")
+		#endif
 	#endif
 
 	// Start the heap allocator
@@ -33,6 +37,10 @@ void _gosInit(void)
 
 	// Start the scheduler
 	_gosThreadsInit();
+}
+
+void _gosPostInit(void)
+{
 }
 
 void _gosDeinit(void)
@@ -45,7 +53,7 @@ void _gosDeinit(void)
  *********************************************************/
 
 void gfxHalt(const char *msg) {
-	volatile uint32_t	dummy;
+	volatile gU32	dummy;
 	(void)				msg;
 
 	while(1)
@@ -53,7 +61,7 @@ void gfxHalt(const char *msg) {
 }
 
 void gfxExit(void) {
-	volatile uint32_t	dummy;
+	volatile gU32	dummy;
 
 	while(1)
 		dummy++;
@@ -64,10 +72,10 @@ void gfxExit(void) {
  * Sleep functions
  *********************************************************/
 
-systemticks_t gfxSystemTicks(void) {
+gTicks gfxSystemTicks(void) {
 	return millis();
 }
-systemticks_t gfxMillisecondsToTicks(delaytime_t ms) {
+gTicks gfxMillisecondsToTicks(gDelay ms) {
 	return ms;
 }
 

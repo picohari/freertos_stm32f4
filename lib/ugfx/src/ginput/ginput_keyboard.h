@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -30,7 +30,7 @@
 
 typedef struct GEventKeyboard_t {
 	GEventType		type;				// The type of this event (GEVENT_KEYBOARD)
-	uint16_t		bytecount;			// The number of bytes in c[]. Note this will only ever represent 0 or 1 characters. This is set to 0 for state transitions.
+	gU16		bytecount;			// The number of bytes in c[]. Note this will only ever represent 0 or 1 characters. This is set to 0 for state transitions.
 	char			c[8];				// The utf8 code for the key or a special key code
 		// Normal characters with special meaning. They are a maximum of 1 byte in length.
 		#define GKEY_NULL			0
@@ -104,7 +104,7 @@ typedef struct GEventKeyboard_t {
 		#define GKEY_LAYOUT_FIRST	0xC0		// Special characters the layout can return start here.
 		#define GKEY_DRIVER_FIRST	0xE0		// Special characters the driver can return start here.
 
-	uint32_t		keystate;			// The keyboard state.
+	gU32		keystate;			// The keyboard state.
 		#define GKEYSTATE_KEYUP_BIT			0
 		#define GKEYSTATE_REPEAT_BIT		1
 		#define GKEYSTATE_SPECIAL_BIT		2
@@ -175,47 +175,39 @@ typedef struct GEventKeyboard_t {
 /* External declarations.                                                    */
 /*===========================================================================*/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+/**
+ * @brief	Create a keyboard input instance
+ *
+ * @param[in] instance	The ID of the keyboard input instance (from 0 to 9999)
+ *
+ * @return	The source handle of the created input instance
+ */
+GSourceHandle ginputGetKeyboard(unsigned instance);
+
+#if GINPUT_NEED_KEYBOARD || defined(__DOXYGEN__)
 
 	/**
-	 * @brief	Create a keyboard input instance
+	 * @brief	Get the current keyboard status
 	 *
-	 * @param[in] instance	The ID of the keyboard input instance (from 0 to 9999)
+	 * @param[in] instance	The ID of the keyboard input instance
+	 * @param[in] pkeyboard	The keyboard event struct
 	 *
-	 * @return	The source handle of the created input instance
+	 * @return Returns gFalse on an error (eg invalid instance)
 	 */
-	GSourceHandle ginputGetKeyboard(unsigned instance);
-	
-	#if GINPUT_NEED_KEYBOARD || defined(__DOXYGEN__)
+	gBool ginputGetKeyboardStatus(unsigned instance, GEventKeyboard *pkeyboard);
 
+	#if !GKEYBOARD_LAYOUT_OFF || defined(__DOXYGEN__)
 		/**
-		 * @brief	Get the current keyboard status
+		 * @brief	Set the keyboard layout
 		 *
 		 * @param[in] instance	The ID of the keyboard input instance
-		 * @param[in] pkeyboard	The keyboard event struct
+		 * @param[in] pLayout	The keyboard layout micro-code. Passing NULL defaults to the driver's default layout.
 		 *
-		 * @return Returns FALSE on an error (eg invalid instance)
+		 * @return Returns gFalse on an error (eg invalid instance)
 		 */
-		bool_t ginputGetKeyboardStatus(unsigned instance, GEventKeyboard *pkeyboard);
-
-		#if !GKEYBOARD_LAYOUT_OFF || defined(__DOXYGEN__)
-			/**
-			 * @brief	Set the keyboard layout
-			 *
-			 * @param[in] instance	The ID of the keyboard input instance
-			 * @param[in] pLayout	The keyboard layout micro-code. Passing NULL defaults to the driver's default layout.
-			 *
-			 * @return Returns FALSE on an error (eg invalid instance)
-			 */
-			bool_t ginputSetKeyboardLayout(unsigned instance, const void *pLayout);
-		#endif
-	#endif /* GINPUT_NEED_KEYBOARD */
-
-#ifdef __cplusplus
-}
-#endif
+		gBool ginputSetKeyboardLayout(unsigned instance, const void *pLayout);
+	#endif
+#endif /* GINPUT_NEED_KEYBOARD */
 
 #endif /* _GINPUT_KEYBOARD_H */
 /** @} */

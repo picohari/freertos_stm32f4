@@ -31,46 +31,46 @@
 #define _GFXCONF_H
 
 /* The operating system to use. One of these must be defined - preferably in your Makefile */
-//#define GFX_USE_OS_CHIBIOS	FALSE
-//#define GFX_USE_OS_WIN32		FALSE
-//#define GFX_USE_OS_LINUX		FALSE
-//#define GFX_USE_OS_OSX		FALSE
+//#define GFX_USE_OS_CHIBIOS	GFXOFF
+//#define GFX_USE_OS_WIN32		GFXOFF
+//#define GFX_USE_OS_LINUX		GFXOFF
+//#define GFX_USE_OS_OSX		GFXOFF
 
 /* GFX sub-systems to turn on */
-#define GFX_USE_GDISP			TRUE
-#define GFX_USE_GWIN			TRUE
-#define GFX_USE_GINPUT			TRUE
-#define GFX_USE_GEVENT			TRUE
-#define GFX_USE_GTIMER			TRUE
+#define GFX_USE_GDISP			GFXON
+#define GFX_USE_GWIN			GFXON
+#define GFX_USE_GINPUT			GFXON
+#define GFX_USE_GEVENT			GFXON
+#define GFX_USE_GTIMER			GFXON
 
 /* Features for the GDISP sub-system. */
-#define GDISP_NEED_VALIDATION	TRUE
-#define GDISP_NEED_CLIP			TRUE
-#define GDISP_NEED_TEXT			TRUE
-#define GDISP_NEED_TEXT_KERNING	TRUE
-#define GDISP_NEED_MULTITHREAD  TRUE
+#define GDISP_NEED_VALIDATION	GFXON
+#define GDISP_NEED_CLIP			GFXON
+#define GDISP_NEED_TEXT			GFXON
+#define GDISP_NEED_TEXT_KERNING	GFXON
+#define GDISP_NEED_MULTITHREAD  GFXON
 
 /* GDISP fonts to include */
-#define GDISP_INCLUDE_FONT_UI2	TRUE
-#define GDISP_INCLUDE_FONT_DEJAVUSANS16	TRUE
+#define GDISP_INCLUDE_FONT_UI2	GFXON
+#define GDISP_INCLUDE_FONT_DEJAVUSANS16	GFXON
 
 /* Features for the GWIN subsystem. */
-#define GWIN_NEED_WINDOWMANAGER TRUE
-#define GWIN_NEED_WIDGET        TRUE
-#define GWIN_NEED_CONSOLE		TRUE
-#define GWIN_NEED_TEXTEDIT		TRUE
-#define GWIN_NEED_BUTTON		TRUE
+#define GWIN_NEED_WINDOWMANAGER GFXON
+#define GWIN_NEED_WIDGET        GFXON
+#define GWIN_NEED_CONSOLE		GFXON
+#define GWIN_NEED_TEXTEDIT		GFXON
+#define GWIN_NEED_BUTTON		GFXON
 
 /* Features for the GINPUT subsystem. */
-#define GINPUT_NEED_MOUSE		TRUE
+#define GINPUT_NEED_MOUSE		GFXON
 
 /* One or both of these */
-//#define GINPUT_NEED_KEYBOARD	TRUE
-#define GWIN_NEED_KEYBOARD      TRUE
+//#define GINPUT_NEED_KEYBOARD	GFXON
+#define GWIN_NEED_KEYBOARD      GFXON
 
 /* Features for the GQUEUE subsystem. */
-#define GFX_USE_GQUEUE                               TRUE
-#define GQUEUE_NEED_ASYNC                            TRUE
+#define GFX_USE_GQUEUE                               GFXON
+#define GQUEUE_NEED_ASYNC                            GFXON
 
 #endif /* _GFXCONF_H */
 

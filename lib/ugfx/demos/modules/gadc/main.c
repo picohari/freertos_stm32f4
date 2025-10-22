@@ -134,10 +134,10 @@ static GTimer				lsTimer;
  */
 int main(void) {
 	GHandle					ghScope;
-	coord_t					swidth, sheight;
+	gCoord					swidth, sheight;
 	#if defined(MY_DIAL_DEVICE) || defined(MY_TEMP_DEVICE)
 		GHandle					ghText;
-		font_t					font;
+		gFont					font;
 	#endif
 
 	gfxInit();
@@ -154,19 +154,19 @@ int main(void) {
 			GWindowInit	wi;
 
 			gwinClearInit(&wi);
-			wi.show = TRUE;
+			wi.show = gTrue;
 			wi.x = wi.y = 0;
 			wi.width = swidth-SCOPE_CX;
 			wi.height = sheight;
 			ghText = gwinConsoleCreate(&gTextWindow, &wi);
 		}
-		gwinSetBgColor(ghText, Black);
-		gwinSetColor(ghText, Yellow);
+		gwinSetBgColor(ghText, GFX_BLACK);
+		gwinSetColor(ghText, GFX_YELLOW);
 		gwinClear(ghText);
 
 		/* Start our timer for reading the dial */
 		gtimerInit(&lsTimer);
-		gtimerStart(&lsTimer, LowSpeedTimer, ghText, TRUE, MY_LS_DELAY);
+		gtimerStart(&lsTimer, LowSpeedTimer, ghText, gTrue, MY_LS_DELAY);
 	#endif
 
 	/**
@@ -188,19 +188,19 @@ int main(void) {
 		GWindowInit	wi;
 
 		gwinClearInit(&wi);
-		wi.show = TRUE;
+		wi.show = gTrue;
 		wi.x = swidth-SCOPE_CX;
 		wi.y = 0;
 		wi.width = SCOPE_CX;
 		wi.height = SCOPE_CY;
 		ghScope = gwinScopeCreate(&gScopeWindow, &wi, MY_MIC_DEVICE, MY_MIC_FREQUENCY);
 	}
-	gwinSetBgColor(ghScope, White);
-	gwinSetColor(ghScope, Red);
+	gwinSetBgColor(ghScope, GFX_WHITE);
+	gwinSetColor(ghScope, GFX_RED);
 	gwinClear(ghScope);
 
 	/* Just keep displaying the scope traces */
-	while (TRUE) {
+	while (1) {
 		/**
 		 * The function below internally performs a wait thus giving the timer thread a
 		 * chance to run.

@@ -97,11 +97,11 @@
   *        (when HSE is used as system clock source, directly or through the PLL).  
   */
 #if !defined  (HSE_VALUE) 
-  #define HSE_VALUE    (8000000) /*!< Value of the External oscillator in Hz */
+  #define HSE_VALUE               (8000000) /*!< Value of the External oscillator in Hz */
 #endif /* HSE_VALUE */
 
 #if !defined  (HSE_STARTUP_TIMEOUT)
-  #define HSE_STARTUP_TIMEOUT    (100U)   /*!< Time out for HSE start up, in ms */
+  #define HSE_STARTUP_TIMEOUT     (100U)   /*!< Time out for HSE start up, in ms */
 #endif /* HSE_STARTUP_TIMEOUT */
 
 /**
@@ -110,14 +110,14 @@
   *        (when HSI is used as system clock source, directly or through the PLL). 
   */
 #if !defined  (HSI_VALUE)
-  #define HSI_VALUE    (16000000U) /*!< Value of the Internal oscillator in Hz*/
+  #define HSI_VALUE               (16000000U) /*!< Value of the Internal oscillator in Hz*/
 #endif /* HSI_VALUE */
 
 /**
   * @brief Internal Low Speed oscillator (LSI) value.
   */
 #if !defined  (LSI_VALUE) 
- #define LSI_VALUE  (32000U)    
+ #define LSI_VALUE                (32000U)    
 #endif /* LSI_VALUE */                      /*!< Value of the Internal Low Speed oscillator in Hz
                                              The real value may vary depending on the variations
                                              in voltage and temperature.  */
@@ -125,7 +125,7 @@
   * @brief External Low Speed oscillator (LSE) value.
   */
 #if !defined  (LSE_VALUE)
- #define LSE_VALUE  (32768U)    /*!< Value of the External Low Speed oscillator in Hz */
+ #define LSE_VALUE                (32768U)    /*!< Value of the External Low Speed oscillator in Hz */
 #endif /* LSE_VALUE */
 
 #if !defined  (LSE_STARTUP_TIMEOUT)
@@ -198,7 +198,6 @@
 #define PHY_WRITE_TO                    (0x0000FFFFU)
 
 /* Section 3: Common PHY Registers */
-
 #define PHY_BCR                         ((uint16_t)0x00)    /*!< Transceiver Basic Control Register   */
 #define PHY_BSR                         ((uint16_t)0x01)    /*!< Transceiver Basic Status Register    */
  
@@ -218,7 +217,6 @@
 #define PHY_JABBER_DETECTION            ((uint16_t)0x0002)  /*!< Jabber condition detected            */
   
 /* Section 4: Extended PHY Registers */
-
 #define PHY_SR                          ((uint16_t)0x10)    /*!< PHY status register Offset                      */
 #define PHY_MICR                        ((uint16_t)0x11)    /*!< MII Interrupt Control Register                  */
 #define PHY_MISR                        ((uint16_t)0x12)    /*!< MII Interrupt Status and Misc. Control Register */

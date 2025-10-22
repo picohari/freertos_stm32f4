@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /********************************************************
@@ -24,17 +24,22 @@
 #define ROMFS_CMP_UNCOMPRESSED		0
 
 typedef struct ROMFS_DIRENTRY {
-	uint16_t						ver;			// Directory Entry Version
-	uint16_t						cmp;			// Compression format
+	gU16						ver;			// Directory Entry Version
+	gU16						cmp;			// Compression format
 	const struct ROMFS_DIRENTRY *	next;			// The next entry
 	const char *					name;			// The file name
-	long int						size;			// The file size
+	gFileSize						size;			// The file size
 	const char *					file;			// The file data
 } ROMFS_DIRENTRY;
 
 #define ROMFS_DIRENTRY_HEAD		0
 #include "romfs_files.h"
-static const ROMFS_DIRENTRY const *FsROMHead = ROMFS_DIRENTRY_HEAD;
+
+/*
+ * This should be: static const ROMFS_DIRENTRY const *FsROMHead = ROMFS_DIRENTRY_HEAD;
+ * However, some major compilers complain about the duplicate const specifier even though this is perfectly valid standard C.
+ */
+static const ROMFS_DIRENTRY *FsROMHead = ROMFS_DIRENTRY_HEAD;
 
 typedef struct ROMFileList {
 	gfileList				fl;
@@ -42,16 +47,16 @@ typedef struct ROMFileList {
 } ROMFileList;
 
 
-static bool_t ROMExists(const char *fname);
-static long int	ROMFilesize(const char *fname);
-static bool_t ROMOpen(GFILE *f, const char *fname);
+static gBool ROMExists(const char *fname);
+static gFileSize	ROMFilesize(const char *fname);
+static gBool ROMOpen(GFILE *f, const char *fname);
 static void ROMClose(GFILE *f);
 static int ROMRead(GFILE *f, void *buf, int size);
-static bool_t ROMSetpos(GFILE *f, long int pos);
-static long int ROMGetsize(GFILE *f);
-static bool_t ROMEof(GFILE *f);
+static gBool ROMSetpos(GFILE *f, gFileSize pos);
+static gFileSize ROMGetsize(GFILE *f);
+static gBool ROMEof(GFILE *f);
 #if GFILE_NEED_FILELISTS
-	static gfileList *ROMFlOpen(const char *path, bool_t dirs);
+	static gfileList *ROMFlOpen(const char *path, gBool dirs);
 	static const char *ROMFlRead(gfileList *pfl);
 	static void ROMFlClose(gfileList *pfl);
 #endif
@@ -79,26 +84,26 @@ static const ROMFS_DIRENTRY *ROMFindFile(const char *fname)
 	return p;
 }
 
-static bool_t ROMExists(const char *fname)
+static gBool ROMExists(const char *fname)
 {
 	return ROMFindFile(fname) != 0;
 }
 
-static long int	ROMFilesize(const char *fname)
+static gFileSize	ROMFilesize(const char *fname)
 {
 	const ROMFS_DIRENTRY *p;
 
-	if (!(p = ROMFindFile(fname))) return -1;
+	if (!(p = ROMFindFile(fname))) return (gFileSize)-1;
 	return p->size;
 }
 
-static bool_t ROMOpen(GFILE *f, const char *fname)
+static gBool ROMOpen(GFILE *f, const char *fname)
 {
 	const ROMFS_DIRENTRY *p;
 
-	if (!(p = ROMFindFile(fname))) return FALSE;
+	if (!(p = ROMFindFile(fname))) return gFalse;
 	f->obj = (void *)p;
-	return TRUE;
+	return gTrue;
 }
 
 static void ROMClose(GFILE *f)
@@ -118,23 +123,23 @@ static int ROMRead(GFILE *f, void *buf, int size)
 	return size;
 }
 
-static bool_t ROMSetpos(GFILE *f, long int pos)
+static gBool ROMSetpos(GFILE *f, gFileSize pos)
 {
 	return pos <= ((const ROMFS_DIRENTRY *)f->obj)->size;
 }
 
-static long int ROMGetsize(GFILE *f)
+static gFileSize ROMGetsize(GFILE *f)
 {
 	return ((const ROMFS_DIRENTRY *)f->obj)->size;
 }
 
-static bool_t ROMEof(GFILE *f)
+static gBool ROMEof(GFILE *f)
 {
 	return f->pos >= ((const ROMFS_DIRENTRY *)f->obj)->size;
 }
 
 #if GFILE_NEED_FILELISTS
-	static gfileList *ROMFlOpen(const char *path, bool_t dirs) {
+	static gfileList *ROMFlOpen(const char *path, gBool dirs) {
 		ROMFileList *	p;
 		(void)			path;
 

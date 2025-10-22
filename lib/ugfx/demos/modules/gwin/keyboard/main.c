@@ -28,7 +28,7 @@
 #include "gfx.h"
 
 /* The variables we need */
-static font_t		font;
+static gFont		font;
 static GListener	gl;
 static GHandle		ghConsole;
 static GHandle		ghKeyboard;
@@ -43,17 +43,17 @@ static void createWidgets(void) {
 	gwinWidgetClearInit(&wi);
 
 	// Create the console - set colors before making it visible
-	wi.g.show = FALSE;
+	wi.g.show = gFalse;
 	wi.g.x = 0; wi.g.y = 0;
 	wi.g.width = gdispGetWidth(); wi.g.height = gdispGetHeight()/2;
 	ghConsole = gwinConsoleCreate(0, &wi.g);
-	gwinSetColor(ghConsole, Black);
+	gwinSetColor(ghConsole, GFX_BLACK);
 	gwinSetBgColor(ghConsole, HTML2COLOR(0xF0F0F0));
 	gwinShow(ghConsole);
 	gwinClear(ghConsole);
 
 	// Create the keyboard
-	wi.g.show = TRUE;
+	wi.g.show = gTrue;
 	wi.g.x = 0; wi.g.y = gdispGetHeight()/2;
 	wi.g.width = gdispGetWidth(); wi.g.height = gdispGetHeight()/2;
 	ghKeyboard = gwinKeyboardCreate(0, &wi);
@@ -70,8 +70,8 @@ int main(void) {
 	// Set the widget defaults
 	font = gdispOpenFont("*");			// Get the first defined font.
 	gwinSetDefaultFont(font);
-	gwinSetDefaultStyle(&WhiteWidgetStyle, FALSE);
-	gdispClear(White);
+	gwinSetDefaultStyle(&WhiteWidgetStyle, gFalse);
+	gdispClear(GFX_WHITE);
 
 	// Create the gwin windows/widgets
 	createWidgets();
@@ -85,7 +85,7 @@ int main(void) {
 
 	while(1) {
 		// Get an Event
-		pe = geventEventWait(&gl, TIME_INFINITE);
+		pe = geventEventWait(&gl, gDelayForever);
 
 		switch(pe->type) {
 		case GEVENT_GWIN_KEYBOARD:
@@ -121,7 +121,7 @@ int main(void) {
 			if (pk->bytecount) {
 				gwinPrintf(ghConsole, " Keys:");
 				for (i = 0; i < pk->bytecount; i++)
-					gwinPrintf(ghConsole, " 0x%02X", (uint8_t)pk->c[i]);
+					gwinPrintf(ghConsole, " 0x%02X", (int)(gU8)pk->c[i]);
 				gwinPrintf(ghConsole, " [");
 				for (i = 0; i < pk->bytecount; i++)
 					gwinPrintf(ghConsole, "%c", pk->c[i] >= ' ' && pk->c[i] <= '~' ? pk->c[i] : ' ');

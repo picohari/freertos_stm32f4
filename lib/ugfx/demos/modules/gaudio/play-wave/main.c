@@ -45,13 +45,13 @@ static char whdr[32];
  * Application entry point.
  */
 int main(void) {
-	font_t			font;
+	gFont			font;
 	GFILE			*f;
 	char 			*errmsg;
-	uint32_t		toplay;
-	uint32_t		frequency;
+	gU32		toplay;
+	gU32		frequency;
 	ArrayDataFormat datafmt;
-	uint32_t		len;
+	gU32		len;
 	GDataBuffer		*pd;
 
 	// Initialise everything
@@ -92,8 +92,8 @@ repeatplay:
 	}
 
 	// Read the fmt block
-	len = (((uint32_t)(uint8_t)whdr[16])<<0) | (((uint32_t)(uint8_t)whdr[17])<<8)
-					| (((uint32_t)(uint8_t)whdr[18])<<16) | (((uint32_t)(uint8_t)whdr[19])<<24);
+	len = (((gU32)(gU8)whdr[16])<<0) | (((gU32)(gU8)whdr[17])<<8)
+					| (((gU32)(gU8)whdr[18])<<16) | (((gU32)(gU8)whdr[19])<<24);
 	if (len > sizeof(whdr) || len < 16) {
 		errmsg = "Err: Bad fmt len";
 		goto theend;
@@ -123,8 +123,8 @@ repeatplay:
 	#endif
 
 	// Get the sample frequency (little endian format) and format
-	frequency = (((uint32_t)(uint8_t)whdr[4])<<0) | (((uint32_t)(uint8_t)whdr[5])<<8)
-					| (((uint32_t)(uint8_t)whdr[6])<<16) | (((uint32_t)(uint8_t)whdr[7])<<24);
+	frequency = (((gU32)(gU8)whdr[4])<<0) | (((gU32)(gU8)whdr[5])<<8)
+					| (((gU32)(gU8)whdr[6])<<16) | (((gU32)(gU8)whdr[7])<<24);
 	datafmt = whdr[14] == 8 ? ARRAY_DATA_8BITUNSIGNED : ARRAY_DATA_16BITSIGNED;
 
 	// Initialise the audio output device
@@ -139,15 +139,15 @@ repeatplay:
 	len += 20;
 
 	// Read RIFF blocks until we get to the data RIFF block (contains the audio)
-	while(TRUE) {
+	while(1) {
 		if (gfileRead(f, whdr, 8) != 8) {
 			errmsg = "Err: Read block";
 			goto theend;
 		}
 
 		// Get the block length (little endian format)
-		toplay = (((uint32_t)(uint8_t)whdr[4])<<0) | (((uint32_t)(uint8_t)whdr[5])<<8)
-						| (((uint32_t)(uint8_t)whdr[6])<<16) | (((uint32_t)(uint8_t)whdr[7])<<24);
+		toplay = (((gU32)(gU8)whdr[4])<<0) | (((gU32)(gU8)whdr[5])<<8)
+						| (((gU32)(gU8)whdr[6])<<16) | (((gU32)(gU8)whdr[7])<<24);
 
 		// Stop scanning when this is a data block
 		if (whdr[0] == 'd' && whdr[1] == 'a' && whdr[2] == 't' && whdr[3] == 'a')
@@ -162,10 +162,10 @@ repeatplay:
 	}
 
 	// Play the file
-	gdispDrawString(0, gdispGetHeight()/2, "Playing...", font, Yellow);
+	gdispDrawString(0, gdispGetHeight()/2, "Playing...", font, GFX_YELLOW);
 	while(toplay) {
 		// Get a buffer to put the data into
-		pd = gfxBufferGet(TIME_INFINITE);		// This should never fail as we are waiting forever
+		pd = gfxBufferGet(gDelayForever);		// This should never fail as we are waiting forever
 
 		// How much data can we put in
 		len = toplay > pd->size ? pd->size : toplay;
@@ -183,19 +183,19 @@ repeatplay:
 	gfileClose(f);
 
 	// Wait for the play to finish
-	gaudioPlayWait(TIME_INFINITE);
-	gdispDrawString(0, gdispGetHeight()/2+10, "Done", font, Green);
+	gaudioPlayWait(gDelayForever);
+	gdispDrawString(0, gdispGetHeight()/2+10, "Done", font, GFX_GREEN);
 
 	// Repeat the whole thing
 	gfxSleepMilliseconds(1500);
-	gdispClear(Black);
+	gdispClear(GFX_BLACK);
 	goto repeatplay;
 
 	// The end
 theend:
 	if (errmsg)
-		gdispDrawString(0, gdispGetHeight()/2, errmsg, font, Red);
+		gdispDrawString(0, gdispGetHeight()/2, errmsg, font, GFX_RED);
 
-	while(TRUE)
+	while(1)
 		gfxSleepMilliseconds(1000);
 }

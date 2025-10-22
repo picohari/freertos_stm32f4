@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "mf_rlefont.h"
@@ -35,8 +35,8 @@
  * through the character ranges. If the character is not found, return
  * pointer to the default glyph.
  */
-static const uint8_t *find_glyph(const struct mf_rlefont_s *font,
-                                 uint16_t character)
+static const gU8 *find_glyph(const struct mf_rlefont_s *font,
+                                 gU16 character)
 {
    unsigned i, index;
    const struct mf_rlefont_char_range_s *range;
@@ -46,7 +46,7 @@ static const uint8_t *find_glyph(const struct mf_rlefont_s *font,
        index = character - range->first_char;
        if (character >= range->first_char && index < range->char_count)
        {
-           uint16_t offset = range->glyph_offsets[index];
+           gU16 offset = pgm_read_word(range->glyph_offsets + index);
            return &range->glyph_data[offset];
        }
    }
@@ -58,24 +58,24 @@ static const uint8_t *find_glyph(const struct mf_rlefont_s *font,
  * and also the bounds of the character. */
 struct renderstate_r
 {
-    int16_t x_begin;
-    int16_t x_end;
-    int16_t x;
-    int16_t y;
-    int16_t y_end;
+    gI16 x_begin;
+    gI16 x_end;
+    gI16 x;
+    gI16 y;
+    gI16 y_end;
     mf_pixel_callback_t callback;
     void *state;
 };
 
 /* Call the callback to write one pixel to screen, and advance to next
  * pixel position. */
-static void write_pixels(struct renderstate_r *rstate, uint16_t count,
-                         uint8_t alpha)
+static void write_pixels(struct renderstate_r *rstate, gU16 count,
+                         gU8 alpha)
 {
-    uint8_t rowlen;
+    gU8 rowlen;
     
     /* Write row-by-row if the run spans multiple rows. */
-    while (rstate->x + count >= rstate->x_end)
+    while ((int32_t)rstate->x + count >= rstate->x_end)
     {
         rowlen = rstate->x_end - rstate->x;
         rstate->callback(rstate->x, rstate->y, rowlen, alpha, rstate->state);
@@ -83,7 +83,7 @@ static void write_pixels(struct renderstate_r *rstate, uint16_t count,
         rstate->x = rstate->x_begin;
         rstate->y++;
     }
-    
+
     /* Write the remaining part */
     if (count)
     {
@@ -93,7 +93,7 @@ static void write_pixels(struct renderstate_r *rstate, uint16_t count,
 }
 
 /* Skip the given number of pixels (0 alpha) */
-static void skip_pixels(struct renderstate_r *rstate, uint16_t count)
+static void skip_pixels(struct renderstate_r *rstate, gU16 count)
 {
     rstate->x += count;
     while (rstate->x >= rstate->x_end)
@@ -106,15 +106,15 @@ static void skip_pixels(struct renderstate_r *rstate, uint16_t count)
 /* Decode and write out a RLE-encoded dictionary entry. */
 static void write_rle_dictentry(const struct mf_rlefont_s *font,
                                 struct renderstate_r *rstate,
-                                uint8_t index)
+                                gU8 index)
 {
-    uint16_t offset = font->dictionary_offsets[index];
-    uint16_t length = font->dictionary_offsets[index + 1] - offset;
-    uint16_t i;
-    
+    gU16 offset = pgm_read_word(font->dictionary_offsets + index);
+    gU16 length = pgm_read_word(font->dictionary_offsets + index + 1) - offset;
+    gU16 i;
+
     for (i = 0; i < length; i++)
     {
-        uint8_t code = font->dictionary_data[offset + i];
+        gU8 code = pgm_read_byte(font->dictionary_data + offset + i);
         if ((code & RLE_CODEMASK) == RLE_ZEROS)
         {
             skip_pixels(rstate, code & RLE_VALMASK);
@@ -129,7 +129,7 @@ static void write_rle_dictentry(const struct mf_rlefont_s *font,
         }
         else if ((code & RLE_CODEMASK) == RLE_SHADE)
         {
-            uint8_t count, alpha;
+            gU8 count, alpha;
             count = ((code & RLE_VALMASK) >> 4) + 1;
             alpha = ((code & RLE_VALMASK) & 0xF) * 0x11;
             write_pixels(rstate, count, alpha);
@@ -138,7 +138,7 @@ static void write_rle_dictentry(const struct mf_rlefont_s *font,
 }
 
 /* Get bit count for the "fill entries" */
-static uint8_t fillentry_bitcount(uint8_t index)
+static gU8 fillentry_bitcount(gU8 index)
 {
     if (index >= DICT_START2BIT)
         return 2;
@@ -157,33 +157,33 @@ static uint8_t fillentry_bitcount(uint8_t index)
 /* Decode and write out a direct binary codeword */
 static void write_bin_codeword(const struct mf_rlefont_s *font,
                                 struct renderstate_r *rstate,
-                                uint8_t code)
+                                gU8 code)
 {
-    uint8_t bitcount = fillentry_bitcount(code);
-    uint8_t byte = code - DICT_START7BIT;
-    uint8_t runlen = 0;
-    (void) font;
-    
+    (void)font;
+    gU8 bitcount = fillentry_bitcount(code);
+    gU8 byte = code - DICT_START7BIT;
+    gU8 runlen = 0;
+
     while (bitcount--)
     {
         if (byte & 1)
         {
             runlen++;
         }
-        else 
+        else
         {
             if (runlen)
             {
                 write_pixels(rstate, runlen, 255);
                 runlen = 0;
             }
-            
+
             skip_pixels(rstate, 1);
         }
-        
+
         byte >>= 1;
     }
-    
+
     if (runlen)
         write_pixels(rstate, runlen, 255);
 }
@@ -191,9 +191,13 @@ static void write_bin_codeword(const struct mf_rlefont_s *font,
 /* Decode and write out a reference codeword */
 static void write_ref_codeword(const struct mf_rlefont_s *font,
                                 struct renderstate_r *rstate,
-                                uint8_t code)
+                                gU8 code)
 {
-    if (code <= 15)
+    if (code == 0)
+    {
+        skip_pixels(rstate, 1);
+    }
+    else if (code <= 15)
     {
         write_pixels(rstate, 1, 0x11 * code);
     }
@@ -219,15 +223,15 @@ static void write_ref_codeword(const struct mf_rlefont_s *font,
 /* Decode and write out a reference encoded dictionary entry. */
 static void write_ref_dictentry(const struct mf_rlefont_s *font,
                                 struct renderstate_r *rstate,
-                                uint8_t index)
+                                gU8 index)
 {
-    uint16_t offset = font->dictionary_offsets[index];
-    uint16_t length = font->dictionary_offsets[index + 1] - offset;
-    uint16_t i;
-    
+    gU16 offset = pgm_read_word(font->dictionary_offsets + index);
+    gU16 length = pgm_read_word(font->dictionary_offsets + index + 1) - offset;
+    gU16 i;
+
     for (i = 0; i < length; i++)
     {
-        uint8_t code = font->dictionary_data[offset + i];
+        gU8 code = pgm_read_byte(font->dictionary_data + offset + i);
         write_ref_codeword(font, rstate, code);
     }
 }
@@ -235,7 +239,7 @@ static void write_ref_dictentry(const struct mf_rlefont_s *font,
 /* Decode and write out an arbitrary glyph codeword */
 static void write_glyph_codeword(const struct mf_rlefont_s *font,
                                 struct renderstate_r *rstate,
-                                uint8_t code)
+                                gU8 code)
 {
     if (code >= DICT_START + font->rle_entry_count &&
         code < DICT_START + font->dict_entry_count)
@@ -249,15 +253,15 @@ static void write_glyph_codeword(const struct mf_rlefont_s *font,
 }
 
 
-uint8_t mf_rlefont_render_character(const struct mf_font_s *font,
+gU8 mf_rlefont_render_character(const struct mf_font_s *font,
                                     int16_t x0, int16_t y0,
-                                    uint16_t character,
+                                    gU16 character,
                                     mf_pixel_callback_t callback,
                                     void *state)
 {
-    const uint8_t *p;
-    uint8_t width;
-    
+    const gU8 *p;
+    gU8 width;
+
     struct renderstate_r rstate;
     rstate.x_begin = x0;
     rstate.x_end = x0 + font->width;
@@ -266,29 +270,28 @@ uint8_t mf_rlefont_render_character(const struct mf_font_s *font,
     rstate.y_end = y0 + font->height;
     rstate.callback = callback;
     rstate.state = state;
-    
-   	p = find_glyph((struct mf_rlefont_s*)font, character);
-    if (!p)
-        return 0;
-    
-    width = *p++;
-    while (rstate.y < rstate.y_end)
-    {
-        write_glyph_codeword((struct mf_rlefont_s*)font, &rstate, *p++);
-    }
-    
-    return width;
-}
 
-uint8_t mf_rlefont_character_width(const struct mf_font_s *font,
-                                   uint16_t character)
-{
-    const uint8_t *p;
     p = find_glyph((struct mf_rlefont_s*)font, character);
     if (!p)
         return 0;
-    
-    return *p;
+
+    width = pgm_read_byte(p++);
+    while (rstate.y < rstate.y_end)
+    {
+        write_glyph_codeword((struct mf_rlefont_s*)font, &rstate, pgm_read_byte(p++));
+    }
+
+    return width;
 }
 
+gU8 mf_rlefont_character_width(const struct mf_font_s *font,
+                                   gU16 character)
+{
+    const gU8 *p;
+    p = find_glyph((struct mf_rlefont_s*)font, character);
+    if (!p)
+        return 0;
+
 #endif //MF_NO_COMPILE
+    return pgm_read_byte(p);
+}

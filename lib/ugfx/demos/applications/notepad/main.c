@@ -44,28 +44,28 @@
 
 void drawScreen(void) {
 	char *msg = "uGFX";
-	font_t		font1, font2;
+	gFont		font1, font2;
 
 	font1 = gdispOpenFont("DejaVuSans24*");
 	font2 = gdispOpenFont("DejaVuSans12*");
 
-	gdispClear(White);
-	gdispDrawString(gdispGetWidth()-gdispGetStringWidth(msg, font1)-3, 3, msg, font1, Black);
+	gdispClear(GFX_WHITE);
+	gdispDrawString(gdispGetWidth()-gdispGetStringWidth(msg, font1)-3, 3, msg, font1, GFX_BLACK);
 	
 	/* colors */
-	gdispFillArea(0 * COLOR_SIZE + 3, 3, COLOR_SIZE, COLOR_SIZE, Black);	/* Black */
-	gdispFillArea(1 * COLOR_SIZE + 3, 3, COLOR_SIZE, COLOR_SIZE, Red);		/* Red */
-	gdispFillArea(2 * COLOR_SIZE + 3, 3, COLOR_SIZE, COLOR_SIZE, Yellow);	/* Yellow */
-	gdispFillArea(3 * COLOR_SIZE + 3, 3, COLOR_SIZE, COLOR_SIZE, Green);	/* Green */
-	gdispFillArea(4 * COLOR_SIZE + 3, 3, COLOR_SIZE, COLOR_SIZE, Blue);		/* Blue */
-	gdispDrawBox (5 * COLOR_SIZE + 3, 3, COLOR_SIZE, COLOR_SIZE, Black);	/* White */
+	gdispFillArea(0 * COLOR_SIZE + 3, 3, COLOR_SIZE, COLOR_SIZE, GFX_BLACK);	/* Black */
+	gdispFillArea(1 * COLOR_SIZE + 3, 3, COLOR_SIZE, COLOR_SIZE, GFX_RED);		/* Red */
+	gdispFillArea(2 * COLOR_SIZE + 3, 3, COLOR_SIZE, COLOR_SIZE, GFX_YELLOW);	/* Yellow */
+	gdispFillArea(3 * COLOR_SIZE + 3, 3, COLOR_SIZE, COLOR_SIZE, GFX_GREEN);	/* Green */
+	gdispFillArea(4 * COLOR_SIZE + 3, 3, COLOR_SIZE, COLOR_SIZE, GFX_BLUE);		/* Blue */
+	gdispDrawBox (5 * COLOR_SIZE + 3, 3, COLOR_SIZE, COLOR_SIZE, GFX_WHITE);	/* White */
 
 	/* pens */	
-	gdispFillStringBox(OFFSET * 2, DRAW_PEN(1), PEN_SIZE, PEN_SIZE, "1", font2, White, Black, justifyCenter);
-	gdispFillStringBox(OFFSET * 2, DRAW_PEN(2), PEN_SIZE, PEN_SIZE, "2", font2, White, Black, justifyCenter);
-	gdispFillStringBox(OFFSET * 2, DRAW_PEN(3), PEN_SIZE, PEN_SIZE, "3", font2, White, Black, justifyCenter);
-	gdispFillStringBox(OFFSET * 2, DRAW_PEN(4), PEN_SIZE, PEN_SIZE, "4", font2, White, Black, justifyCenter);
-	gdispFillStringBox(OFFSET * 2, DRAW_PEN(5), PEN_SIZE, PEN_SIZE, "5", font2, White, Black, justifyCenter);
+	gdispFillStringBox(OFFSET * 2, DRAW_PEN(1), PEN_SIZE, PEN_SIZE, "1", font2, GFX_WHITE, GFX_BLACK, gJustifyCenter);
+	gdispFillStringBox(OFFSET * 2, DRAW_PEN(2), PEN_SIZE, PEN_SIZE, "2", font2, GFX_WHITE, GFX_BLACK, gJustifyCenter);
+	gdispFillStringBox(OFFSET * 2, DRAW_PEN(3), PEN_SIZE, PEN_SIZE, "3", font2, GFX_WHITE, GFX_BLACK, gJustifyCenter);
+	gdispFillStringBox(OFFSET * 2, DRAW_PEN(4), PEN_SIZE, PEN_SIZE, "4", font2, GFX_WHITE, GFX_BLACK, gJustifyCenter);
+	gdispFillStringBox(OFFSET * 2, DRAW_PEN(5), PEN_SIZE, PEN_SIZE, "5", font2, GFX_WHITE, GFX_BLACK, gJustifyCenter);
 	
 	gdispCloseFont(font1);
 	gdispCloseFont(font2);
@@ -74,27 +74,27 @@ void drawScreen(void) {
 GEventMouse		ev;
 
 int main(void) {
-	color_t color = Black;
-	uint16_t pen = 0;
+	gColor color = GFX_BLACK;
+	gU16 pen = 0;
 
 	gfxInit();
 	ginputGetMouse(0);
 
 	drawScreen();
 
-	while (TRUE) {
+	while (1) {
 		ginputGetMouseStatus(0, &ev);
 		if (!(ev.buttons & GINPUT_MOUSE_BTN_LEFT))
 			continue;
 
 		/* inside color box ? */
 		if(ev.y >= OFFSET && ev.y <= COLOR_SIZE) {
-			     if(GET_COLOR(0)) 	color = Black;
-			else if(GET_COLOR(1))	color = Red;
-			else if(GET_COLOR(2))	color = Yellow;
-			else if(GET_COLOR(3))	color = Green;
-			else if(GET_COLOR(4))	color = Blue;
-			else if(GET_COLOR(5))	color = White;
+			     if(GET_COLOR(0)) 	color = GFX_BLACK;
+			else if(GET_COLOR(1))	color = GFX_RED;
+			else if(GET_COLOR(2))	color = GFX_YELLOW;
+			else if(GET_COLOR(3))	color = GFX_GREEN;
+			else if(GET_COLOR(4))	color = GFX_BLUE;
+			else if(GET_COLOR(5))	color = GFX_WHITE;
 		
 		/* inside pen box ? */
 		} else if(ev.x >= OFFSET && ev.x <= PEN_SIZE) {

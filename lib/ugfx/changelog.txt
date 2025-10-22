@@ -2,7 +2,91 @@
 *** Releases                                                              ***
 *****************************************************************************
 
-*** Changes after 2.7 ***
+*** After Release 2.9 ***
+CHANGE:		Added type gImage to replace V2.x gdispImage.
+FIX:		Fixed GWIN console widget scroll.
+FIX:		A warning and adjustment is made if GDISP_IMAGE_BMP_BLIT_BUFFER_SIZE is less than 40 bytes.
+FIX:        Prevent compiler warnings on duplicate const specifiers.
+FEATURE:	Added support for ChibiOS 6.x kernel.
+FEATURE:	Added support for ChibiOS 7.x kernel.
+CHANGE:		STM32LTDC driver: Refactor to outsource clock setup for LTDC & DMA2D peripherals to the board file.
+CHANGE:     STM32LTDC driver: Remove obsolete LTDC_NO_CLOCK_INIT macro as this clock setup is now outsourced to the board file.
+CHANGE:     STM32LTDC driver: Automatically enable DMA cache flushing on STM32H7 platforms.
+CHANGE:     STM32LTDC driver: Rename LTDC_USE_DMA2D to STM32LTDC_USE_DMA2D.
+CHANGE:     STM32LTDC driver: Rename ALLOW_2ND_LAYER to STM32LTDC_USE_LAYER2.
+CHANGE:     STM32LTDC driver: Rename LTDC_DMA_CACHE_FLUSH to STM32LTDC_DMA_CACHE_FLUSH.
+CHANGE:     STM32LTDC driver: Rename GDISP_LTDC_USE_RGB565 to STM32LTDC_USE_RGB565.
+FEATURE:    STM32LTDC driver: Support double buffering. This introduces STM32LTDC_USE_DOUBLEBUFFERING.
+FIX:        STM32LTDC driver: Fix bug in gdisp_lld_blit_area() which affected blits with source coordinates other than (0, 0).
+FIX:        Improve /demos/benchmarks/rectangles.
+FIX:        Win32 driver: Fix buffer position calculation in gdisp_lld_blit_area().
+FIX:        Win32 driver: Fix memory leak / invalid pointer to free() when re-calculating buffer position in a specific situation.
+FIX:        Prevent const qualifier being discarded in vfnprintg().
+FIX:        Fix missing return value in gfxQueueFSyncPut().
+FIX:        Fix missing return value in gfxQueueFSyncPush().
+FIX:        Fix missing return value in gfxQueueFSyncInsert().
+FEATURE:    Adding support for FreeBSD.
+FIX:        Fix incorrect calls to mmap() and sem_open() in SDL2 driver (lax operating systems such as Linux & MacOS were silently tolerating these).
+FIX:        Minor code improvements
+FEATURE:    Add cmake support
+FIX:        Add missing driver.mk to SSD1322 driver.
+FEATURE:    LGDP4532 driver improvements.
+FIX:        Win32 Keyboard driver now retrieves lock key states on window activate
+FEATURE:    Add SSD1312 GDISP driver
+FEATURE:    Add CH1115 GDISP driver
+FIX:		Fix multiple redraws of GWIN windows (thanks to Sergey Kushnir)
+
+
+*** Release 2.9 ***
+FEATURE:	Added config vars GINPUT_TOUCH_CALIBRATION_FONT1 and GINPUT_TOUCH_CALIBRATION_FONT2
+FEATURE:	Added config vars GINPUT_TOUCH_CALIBRATION_TITLE and GINPUT_TOUCH_CALIBRATION_ERROR
+FIX:		Fixed ensuring the clock is fully started in STM32LTDC based boards
+FIX:		Added support for negative baseline_x in fonts
+FIX:		Fixed some word wrapping issues
+FIX:		Fixed drawing of 3x3 pixel boxes
+FIX:		Fixed issue in RTX5/CMSIS2 port which resulted in hanging delays/threads
+FEATURE:	Added GFX_COMPAT_V2 to maintain source compatibility with V2.x programs. It is turned on by default.
+FEATURE:	Added GFX_COMPAT_OLDCOLORS to allow V2.x Red, Green, Blue color names. It is turned on by default.
+CHANGE:		Added GFX_RED, GFX_BLUE, GFX_GREEN etc to replace V2.x Red, Gree, Blue color names
+CHANGE:		Added GFXON/GFXOFF to replace V2.x TRUE/FALSE for configuration options.
+CHANGE:		Added types gI8, gU8 .. gI32, gU32 to replace V2.x int8_t etc
+CHANGE:		Added type gBool           to replace V2.x bool_t,        and values gTrue/gFalse to replace TRUE/FALSE
+CHANGE:		Added type gDelay          to replace V2.x delaytime_t    and values gDelayNone/gDelayForever to replace TIME_IMMEDIATE/TIME_INFINITE
+CHANGE:		Added type gTicks          to replace V2.x systemticks_t
+CHANGE:		Added type gThread         to replace V2.x gfxThreadHandle and macros GFX_THREAD_FUNCTION/STACK to replace DECLARE_THREAD_FUNCTION & DECLARE_THREAD_STACK
+CHANGE:		Added type gThreadreturn   to replace V2.x threadreturn_t and pseudo function gfxThreadReturn() to replace THREAD_RETURN()
+CHANGE:		Added type gThreadpriority to replace V2.x threadpriority_t and values gThreadpriorityLow/Normal/High to replace LOW_/NORMAL_/HIGH_PRIORITY
+CHANGE:		Added type gPoint          to replace V2.x point and point_t
+CHANGE:		Added type gCoord          to replace V2.x coord_t
+CHANGE:		Added type gPixel          to replace V2.x pixel_t
+CHANGE:		Added type gColor          to replace V2.x color_t
+CHANGE:		Added type gColorformat    to replace V2.x colorformat
+CHANGE:		Added type gFont           to replace V2.x font_t
+CHANGE:		Added type gPowermode      to replace V2.x powermode_t,   and values gPowerXXX replace powerXXX
+CHANGE:		Added type gJustify        to replace V2.x justify_t,     and values gJustifyXXX replace justifyXXX
+CHANGE:		Added type gFontmetric     to replace V2.x fontmetric_t,  and values gFontXXX replace fontXXX
+CHANGE:		Added type gOrientation    to replace V2.x orientation_t, and values gOrientationX replace GDISP_ROTATE_X
+CHANGE:		Added type gSem            to replace V2.x gfxSem, and values gSemMaxCount replace MAX_SEMAPHORE_COUNT
+CHANGE:		Added type gMutex          to replace V2.x gfxMutex
+CHANGE:		Added macros JUSTIFYMASK_HORIZONTAL, JUSTIFYMASK_VERTICAL to replace V2.x macros JUSTIFYMASK_LEFTRIGHT, JUSTIFYMASK_TOPBOTTOM
+FEATURE:	Added types gPtr, gPtrDiff and gAny
+FEATURE:	Added type gMemSize and config macro GFX_MEM_LT64K
+FEATURE:	Added type gFileSize
+FEATURE:	Added gI64 and gU64 when the compiler supports it. GFX_TYPE_64 macro is defined as GFXON if it does.
+FEATURE:	Fixed headers to ensure size_t, NULL are always defined. size_t is not used as it may be 64bit.
+FIX:		Added gfxRealloc() to Qt port
+FIX:		Fixed UC1610 driver private area initialisation
+FIX:		Fixed ST7735 driver and added kapacuk changes
+FEATURE:	Added keyboard support to radio buttons (by Steffan)
+FEATURE:	Added internal use only GFX_COMPILESTAGE (used to control compilation)
+FEATURE:	Added support for ChibiOS Kernel V5
+FEATURE:	Added WS29EPD WaveShare E-Paper display
+FIX:		Fixed GQUEUE full synchronous function signatures
+CHANGE:		Removed label widget auto-sizing during redraw. It will still auto-size during creation
+FIX:		Fixed realloc bug for RAW32 (and derivitives)
+
+
+*** Release 2.8 ***
 FEATURE:	Added support for 128x32 SSD1306 based displays
 FIX:		Fixed recursion bug in console history
 FIX:		Multithreading issue with slow window redraws and large images
@@ -17,6 +101,54 @@ FEATURE:	Added GDISP_IMAGE_GIF_BLIT_BUFFER_SIZE configuration option
 FIX:		Fixed extra dots when drawing anti-aliased fonts with wordwrap
 FEATURE:	Increase non-UTF8 font support to 0 to 255 rather than just the true ascii set
 FEATURE:	Added Fb24bpp driver for RGB888 and BGR888 packed framebuffer displays
+FEATURE:	Added UC8173 driver
+FEATURE:	Added complete support for Altera Terasic MAX10 NEEK board
+FEATURE:	Significantly improved the FreeRTOS port
+FEATURE:	Added support for operating system initialisation in FreeRTOS
+FEATURE:	Added GFX_OS_CALL_UGFXMAIN configuration option to allow uGFXMain() to be automatically called
+FEATURE:	Added GFX_OS_UGFXMAIN_STACKSIZE configuration option to control uGFXMain() stack size
+FIX:		Fixed where a font with more than 255 glyphs could fail to display some glyphs
+FIX:		Fixed where a font with a large x baseline could be incorrectly clipped or word-wrapped
+IMPROVE:	Significantly decrease the stack usage required for word-wrapping
+FEATURE:	Added justifyTop, justifyMiddle & justifyBottom text justification to GDISP
+FEATURE:	Added justifyWordWrap, justifyNoWordWrap text justification to GDISP (requires GDISP_NEED_TEXT_WORDWRAP)
+FEATURE:	Added justifyPad, justifyNoPad text justification to GDISP
+FEATURE:	Added GDISP_NEED_TEXT_BOXPADLR and GDISP_NEED_TEXT_BOXPADTB configuration options
+FIX:		Fixed an issue on FreeRTOS where thread stacks were being created too large
+FEATURE:	Added UC1601s driver
+FIX:		Fixed issues with the STM746-Discovery board with ChibiOS
+FEATURE:	Added partial definition for the STM32F469i-Discovery board
+FIX:		Fixed issue where the variable type of the syncflags of the STM32LTDC driver was too small
+FEATURE:	Added KS0108 driver
+FEATURE:	Added RA6963 driver
+FIX:		Fixed clipping issue in gdispGDrawString()
+CHANGE:		Upgrade GFILE FATFS support from V0.10b to V0.13
+FEATURE:	Added UC1610 driver
+FIX:		Fixed to allow gwinSetText with static text on a TextEdit control
+FIX:		Fixed to ChibiOS realloc on a TextEdit control
+FEATURE:	Added support for CMSIS V2.0 operating systems (eg RTX5)
+REMOVED:	Removed long deprecated functions gfxSemCounter() and gfxSemCounterI()
+FIX:		gwinDetachToggle() is now a visible part of the API
+CHANGE:		Update OSX makefiles (allows for 64bit building)
+FIX:		Fixed resetting a timer on gwinImage objects when using animated GIFs
+FEATURE:	Added gwinTextEditSendKey() and gwinTextEditSendSpecialKey()
+FEATURE:	Implemented the JPG image decoder
+FEATURE:	Added SSD1322 driver
+FEATURE:    Added support for Zephyr operating system
+FEATURE:	STM32LTDC driver now supports using both layers as seperate displays. The 2nd display is the foreground layer
+CHANGE:		STM32LTDC driver now uses RGB888 pixel format by default
+FEATURE:	Added GDISP_LTDC_USE_RGB565 config variable to force STM32LTDC driver to use RGB565 pixel format
+FEATURE:	The STM32LTDC 2nd display (the foreground layer) supports alpha.
+FEATURE:	The STM32 board files for known boards have been updated to contain support for the 2nd layer.
+FEATURE:	Added AHTML2COLOR() and ARGB2COLOR() to support alpha. This is currently only supported for the RGB888 pixel format.
+FEATURE:	Added the new color GFXTRANSPARENT - only available for RGB888 pixel format on alpha capable displays.
+NOTE:		Alpha support in RGB888 requies an alpha capable display (STM32LTDC 2nd display only currently)
+NOTE:		Alpha support in RGB888 is NOT the standard ARGB8888 format. Only use AHTML2COLOR() and ARGB2COLOR() to create alpha colors.
+FEATURE:    Added nullpointer checks to GDISP image functions (with new error code GDISP_IMAGE_ERR_NULLPOINTER)
+FIX:		Add cache flushing to the ChibiOS FATFS/PETITFS block drivers. Needed for STM32F7 chips. This should really be in the ChibiOS DMA routines.
+FIX:		Add cache flushing to enable DMA2D accelerated bitblits in the STM32LTDC driver on the STM32F7 cpu.
+FIX:		Improved STM32F469i-Discovery board support.
+FIX:		Improved STM32F746G-Discovery board support.
 
 
 *** Release 2.7 ***
@@ -70,7 +202,7 @@ FEATURE:	Added support for IAR and EDG compilers
 FIX:		Fixed crash when loading GIF image without enough memory available
 FEATURE:	Added games/minesweeper demo
 FEATURE:	Added games/justget10 demo
-		
+
 
 *** Release 2.5 ***
 FEATURE:	Added support for numerous compilers

@@ -78,9 +78,11 @@
 ------------------------------------------------------------------------------*/
 
 /* Includes ------------------------------------------------------------------*/
-#undef Red
-#undef Green
-#undef Blue
+#if GFX_COMPAT_V2 && GFX_COMPAT_OLDCOLORS
+	#undef Red
+	#undef Green
+	#undef Blue
+#endif
 #include "stm324x9i_eval_sdram.h"
 
 /** @addtogroup BSP
@@ -142,9 +144,9 @@ static void SDRAM_MspInit(void);
   * @brief  Initializes the SDRAM device.
   * @retval SDRAM status
   */
-uint8_t BSP_SDRAM_Init(void)
+gU8 BSP_SDRAM_Init(void)
 { 
-  static uint8_t sdramstatus = SDRAM_ERROR;
+  static gU8 sdramstatus = SDRAM_ERROR;
   /* SDRAM device configuration */
   sdramHandle.Instance = FMC_SDRAM_DEVICE;
     
@@ -189,9 +191,9 @@ uint8_t BSP_SDRAM_Init(void)
   * @brief  Programs the SDRAM device.
   * @param  RefreshCount: SDRAM refresh counter value 
   */
-void BSP_SDRAM_Initialization_sequence(uint32_t RefreshCount)
+void BSP_SDRAM_Initialization_sequence(gU32 RefreshCount)
 {
-  __IO uint32_t tmpmrd = 0;
+  __IO gU32 tmpmrd = 0;
   
   /* Step 1: Configure a clock configuration enable command */
   Command.CommandMode            = FMC_SDRAM_CMD_CLK_ENABLE;
@@ -225,7 +227,7 @@ void BSP_SDRAM_Initialization_sequence(uint32_t RefreshCount)
   HAL_SDRAM_SendCommand(&sdramHandle, &Command, SDRAM_TIMEOUT);
   
   /* Step 5: Program the external memory mode register */
-  tmpmrd = (uint32_t)SDRAM_MODEREG_BURST_LENGTH_1          |\
+  tmpmrd = (gU32)SDRAM_MODEREG_BURST_LENGTH_1          |\
                      SDRAM_MODEREG_BURST_TYPE_SEQUENTIAL   |\
                      SDRAM_MODEREG_CAS_LATENCY_3           |\
                      SDRAM_MODEREG_OPERATING_MODE_STANDARD |\
@@ -251,9 +253,9 @@ void BSP_SDRAM_Initialization_sequence(uint32_t RefreshCount)
   * @param  uwDataSize: Size of read data from the memory
   * @retval SDRAM status
   */
-uint8_t BSP_SDRAM_ReadData(uint32_t uwStartAddress, uint32_t *pData, uint32_t uwDataSize)
+gU8 BSP_SDRAM_ReadData(gU32 uwStartAddress, gU32 *pData, gU32 uwDataSize)
 {
-  if(HAL_SDRAM_Read_32b(&sdramHandle, (uint32_t *)uwStartAddress, pData, uwDataSize) != HAL_OK)
+  if(HAL_SDRAM_Read_32b(&sdramHandle, (gU32 *)uwStartAddress, pData, uwDataSize) != HAL_OK)
   {
     return SDRAM_ERROR;
   }
@@ -270,9 +272,9 @@ uint8_t BSP_SDRAM_ReadData(uint32_t uwStartAddress, uint32_t *pData, uint32_t uw
   * @param  uwDataSize: Size of read data from the memory
   * @retval SDRAM status
   */
-uint8_t BSP_SDRAM_ReadData_DMA(uint32_t uwStartAddress, uint32_t *pData, uint32_t uwDataSize)
+gU8 BSP_SDRAM_ReadData_DMA(gU32 uwStartAddress, gU32 *pData, gU32 uwDataSize)
 {
-  if(HAL_SDRAM_Read_DMA(&sdramHandle, (uint32_t *)uwStartAddress, pData, uwDataSize) != HAL_OK)
+  if(HAL_SDRAM_Read_DMA(&sdramHandle, (gU32 *)uwStartAddress, pData, uwDataSize) != HAL_OK)
   {
     return SDRAM_ERROR;
   }
@@ -289,9 +291,9 @@ uint8_t BSP_SDRAM_ReadData_DMA(uint32_t uwStartAddress, uint32_t *pData, uint32_
   * @param  uwDataSize: Size of written data from the memory
   * @retval SDRAM status
   */
-uint8_t BSP_SDRAM_WriteData(uint32_t uwStartAddress, uint32_t *pData, uint32_t uwDataSize) 
+gU8 BSP_SDRAM_WriteData(gU32 uwStartAddress, gU32 *pData, gU32 uwDataSize) 
 {
-  if(HAL_SDRAM_Write_32b(&sdramHandle, (uint32_t *)uwStartAddress, pData, uwDataSize) != HAL_OK)
+  if(HAL_SDRAM_Write_32b(&sdramHandle, (gU32 *)uwStartAddress, pData, uwDataSize) != HAL_OK)
   {
     return SDRAM_ERROR;
   }
@@ -308,9 +310,9 @@ uint8_t BSP_SDRAM_WriteData(uint32_t uwStartAddress, uint32_t *pData, uint32_t u
   * @param  uwDataSize: Size of written data from the memory
   * @retval SDRAM status
   */
-uint8_t BSP_SDRAM_WriteData_DMA(uint32_t uwStartAddress, uint32_t *pData, uint32_t uwDataSize) 
+gU8 BSP_SDRAM_WriteData_DMA(gU32 uwStartAddress, gU32 *pData, gU32 uwDataSize) 
 {
-  if(HAL_SDRAM_Write_DMA(&sdramHandle, (uint32_t *)uwStartAddress, pData, uwDataSize) != HAL_OK)
+  if(HAL_SDRAM_Write_DMA(&sdramHandle, (gU32 *)uwStartAddress, pData, uwDataSize) != HAL_OK)
   {
     return SDRAM_ERROR;
   }
@@ -325,7 +327,7 @@ uint8_t BSP_SDRAM_WriteData_DMA(uint32_t uwStartAddress, uint32_t *pData, uint32
   * @param  SdramCmd: Pointer to SDRAM command structure 
   * @retval HAL status
   */  
-uint8_t BSP_SDRAM_Sendcmd(FMC_SDRAM_CommandTypeDef *SdramCmd)
+gU8 BSP_SDRAM_Sendcmd(FMC_SDRAM_CommandTypeDef *SdramCmd)
 {
   if(HAL_SDRAM_SendCommand(&sdramHandle, SdramCmd, SDRAM_TIMEOUT) != HAL_OK)
   {

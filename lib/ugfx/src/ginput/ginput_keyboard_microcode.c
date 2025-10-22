@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -20,7 +20,7 @@
 
 	#error "Keyboard Layout SCANCODE2_US is not fully implemented yet"
 
-	uint8_t	KeyboardLayout_ScancodeSet2_US[] = {
+	gU8	KeyboardLayout_ScancodeSet2_US[] = {
 		KMC_HEADERSTART, KMC_HEADER_ID1, KMC_HEADER_ID2, KMC_HEADER_VER_1,
 
 		KMC_RECORDSTART, 0x03,													// Handle E0 codes (ignore for now assuming a single character)

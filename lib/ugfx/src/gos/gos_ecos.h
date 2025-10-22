@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #ifndef _GOS_ECOS_H
@@ -18,51 +18,36 @@
 /* Type definitions                                                          */
 /*===========================================================================*/
 
-typedef cyg_bool_t			bool_t;
-typedef cyg_int8			int8_t;
-typedef cyg_uint8	 		uint8_t;
-typedef cyg_int16	 		int16_t;
-typedef cyg_uint16	 		uint16_t;
-typedef cyg_int32 			int32_t;
-typedef cyg_uint32 			uint32_t;
-typedef cyg_uint32 			size_t;
+#define gDelayNone			0
+#define gDelayForever		0xFFFFFFFF
 
-#define TRUE				-1
-#define FALSE				0
-#define TIME_IMMEDIATE		0
-#define TIME_INFINITE		0xFFFFFFFF
+typedef cyg_ucount32		gDelay;
+typedef cyg_tick_count_t	gTicks;
+typedef cyg_count32 		gSemcount;
+typedef void				gThreadreturn;
+typedef cyg_addrword_t		gThreadpriority;
+typedef cyg_handle_t		gThread;
 
-typedef cyg_ucount32		delaytime_t;
-typedef cyg_tick_count_t	systemticks_t;
-typedef cyg_count32 		semcount_t;
-typedef void				threadreturn_t;
-typedef cyg_addrword_t		threadpriority_t;
-typedef cyg_handle_t		gfxThreadHandle;
+#define gSemMaxCount			0x7FFFFFFF
+#define gThreadpriorityLow		(CYGNUM_KERNEL_SCHED_PRIORITIES-2)
+#define gThreadpriorityNormal	(CYGNUM_KERNEL_SCHED_PRIORITIES/2)
+#define gThreadpriorityHigh		0
 
-#define MAX_SEMAPHORE_COUNT			0x7FFFFFFF
-#define LOW_PRIORITY				(CYGNUM_KERNEL_SCHED_PRIORITIES-2)
-#define NORMAL_PRIORITY				(CYGNUM_KERNEL_SCHED_PRIORITIES/2)
-#define HIGH_PRIORITY				0
-
-#define DECLARE_THREAD_STACK(name, sz)			struct { cyg_thread t; unsigned char stk[(sz) & ~3]; } name[1]
-#define DECLARE_THREAD_FUNCTION(fnName, param)	threadreturn_t fnName(cyg_addrword_t param)
-#define THREAD_RETURN(retval)
+#define GFX_THREAD_STACK(name, sz)			struct { cyg_thread t; unsigned char stk[(sz) & ~3]; } name[1]
+#define GFX_THREAD_FUNCTION(fnName, param)	gThreadreturn fnName(cyg_addrword_t param)
+#define gfxThreadReturn(retval)				return
 
 typedef struct {
 	cyg_sem_t	sem;
-	semcount_t	limit;
-	} gfxSem;
+	gSemcount	limit;
+	} gSem;
 
-typedef cyg_mutex_t		gfxMutex;
+typedef cyg_mutex_t		gMutex;
 
 
 /*===========================================================================*/
 /* Function declarations.                                                    */
 /*===========================================================================*/
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #define gfxSystemTicks()			cyg_current_time()
 #define gfxExit()					exit(0)
@@ -70,8 +55,8 @@ extern "C" {
 #define gfxYield()					cyg_thread_yield()
 
 #define gfxMillisecondsToTicks(ms)	(((ms)*(CYGNUM_HAL_RTC_DENOMINATOR*1000))/(CYGNUM_HAL_RTC_NUMERATOR/1000))
-void gfxSleepMilliseconds(delaytime_t ms);
-void gfxSleepMicroseconds(delaytime_t ms);
+void gfxSleepMilliseconds(gDelay ms);
+void gfxSleepMicroseconds(gDelay ms);
 
 #define gfxAlloc(sz)					malloc(sz)
 #define gfxFree(ptr)					free(ptr)
@@ -85,23 +70,17 @@ void gfxSleepMicroseconds(delaytime_t ms);
 #define gfxMutexDestroy(pmutex)			cyg_mutex_destroy(pmutex)
 #define gfxMutexEnter(pmutex)			cyg_mutex_lock(pmutex)
 
-void gfxSemInit(gfxSem *psem, semcount_t val, semcount_t limit);
-void gfxSemDestroy(gfxSem *psem);
-bool_t gfxSemWait(gfxSem *psem, delaytime_t ms);
-bool_t gfxSemWaitI(gfxSem *psem);
-void gfxSemSignal(gfxSem *psem);
-void gfxSemSignalI(gfxSem *psem);
-semcount_t gfxSemCounterI(gfxSem *psem);
-#define gfxSemCounter(psem)			gfxSemCounterI(psem)
+void gfxSemInit(gSem *psem, gSemcount val, gSemcount limit);
+void gfxSemDestroy(gSem *psem);
+gBool gfxSemWait(gSem *psem, gDelay ms);
+gBool gfxSemWaitI(gSem *psem);
+void gfxSemSignal(gSem *psem);
+void gfxSemSignalI(gSem *psem);
 
-gfxThreadHandle gfxThreadCreate(void *stackarea, size_t stacksz, threadpriority_t prio, DECLARE_THREAD_FUNCTION((*fn),p), void *param);
+gThread gfxThreadCreate(void *stackarea, gMemSize stacksz, gThreadpriority prio, GFX_THREAD_FUNCTION((*fn),p), void *param);
 #define gfxThreadWait(thread)		NOTIMPLEMENTED_YET
 #define gfxThreadMe()				cyg_thread_self()
 #define gfxThreadClose(thread)		(void)thread
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* GFX_USE_OS_ECOS */
 #endif /* _GOS_ECOS_H */

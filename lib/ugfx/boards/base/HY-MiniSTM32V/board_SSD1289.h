@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #ifndef GDISP_LLD_BOARD_H
@@ -40,8 +40,8 @@ static const PWMConfig pwmcfg =
 /*
  * LCD_RS is on A16 (PD11)
  */
-#define GDISP_REG   (*((volatile uint16_t *) 0x60000000)) /* RS = 0 */
-#define GDISP_RAM   (*((volatile uint16_t *) 0x60020000)) /* RS = 1 */
+#define GDISP_REG   (*((volatile gU16 *) 0x60000000)) /* RS = 0 */
+#define GDISP_RAM   (*((volatile gU16 *) 0x60020000)) /* RS = 1 */
 /*
  * STM32_DMA1_STREAM7
  * NOTE: conflicts w/ USART2_TX, TIM2_CH2, TIM2_CH4, TIM4_UP, I2C1_RX in case
@@ -124,14 +124,14 @@ static GFXINLINE void post_init_board(GDisplay *g) {
   (void) g;
 }
 
-static GFXINLINE void setpin_reset(GDisplay *g, bool_t state) {
+static GFXINLINE void setpin_reset(GDisplay *g, gBool state) {
   (void) g;
 
   if(state) {}
   else {}
 }
 
-static GFXINLINE void set_backlight(GDisplay *g, uint8_t percent) {
+static GFXINLINE void set_backlight(GDisplay *g, gU8 percent) {
   (void) g;
   if (percent > 100) { percent = 100; }
   pwmEnableChannel(&PWMD3, 1, percent);
@@ -145,12 +145,12 @@ static GFXINLINE void release_bus(GDisplay *g) {
   (void) g;
 }
 
-static GFXINLINE void write_index(GDisplay *g, uint16_t index) {
+static GFXINLINE void write_index(GDisplay *g, gU16 index) {
   (void) g;
   GDISP_REG = index;
 }
 
-static GFXINLINE void write_data(GDisplay *g, uint16_t data) {
+static GFXINLINE void write_data(GDisplay *g, gU16 data) {
   (void) g;
   GDISP_RAM = data;
 }
@@ -163,13 +163,13 @@ static GFXINLINE void setwritemode(GDisplay *g) {
   (void) g;
 }
 
-static GFXINLINE uint16_t read_data(GDisplay *g) {
+static GFXINLINE gU16 read_data(GDisplay *g) {
   (void) g;
   return GDISP_RAM;
 }
 
 #if defined(GDISP_USE_DMA) || defined(__DOXYGEN__)
-static GFXINLINE void dma_with_noinc(GDisplay *g, color_t *buffer, int area) {
+static GFXINLINE void dma_with_noinc(GDisplay *g, gColor *buffer, int area) {
   (void) g;
   dmaStreamSetPeripheral(GDISP_DMA_STREAM, buffer);
   dmaStreamSetMode(GDISP_DMA_STREAM, STM32_DMA_CR_PL(0) |                      \
@@ -182,7 +182,7 @@ static GFXINLINE void dma_with_noinc(GDisplay *g, color_t *buffer, int area) {
   }
 }
 
-static GFXINLINE void dma_with_inc(GDisplay *g, color_t *buffer, int area) {
+static GFXINLINE void dma_with_inc(GDisplay *g, gColor *buffer, int area) {
   (void) g;
   dmaStreamSetPeripheral(GDISP_DMA_STREAM, buffer);
   dmaStreamSetMode(GDISP_DMA_STREAM, STM32_DMA_CR_PL(0) | STM32_DMA_CR_PINC |  \

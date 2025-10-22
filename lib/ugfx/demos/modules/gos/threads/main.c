@@ -10,34 +10,40 @@
 	// Instead we use the Win32 API directly as that always works.
 	#define DEBUGWRITE(str)		WriteFile(GetStdHandle(STD_ERROR_HANDLE), str, strlen(str), &nres, 0)
 #else
-	#warning "You must alter this demo to define a DEBUGWRITE macro for your platform."
-	#warning "Be careful of using C library functions as they sometimes crash if they are not expecting stack changes (if possible use a multi-thread aware C library)"
-	#warning "You might flash LED's instead if that is better for your platform."
+	#if GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_DIRECT
+		#warning "You must alter this demo to define a DEBUGWRITE macro for your platform."
+		#warning "Be careful of using C library functions as they sometimes crash if they are not expecting stack changes (if possible use a multi-thread aware C library)"
+		#warning "You might flash LED's instead if that is better for your platform."
+	#elif GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_MACRO
+		COMPILER_WARNING("You must alter this demo to define a DEBUGWRITE macro for your platform.")
+		COMPILER_WARNING("Be careful of using C library functions as they sometimes crash if they are not expecting stack changes (if possible use a multi-thread aware C library)")
+		COMPILER_WARNING("You might flash LED's instead if that is better for your platform.")
+	#endif
 	#error "--"
 #endif
 
-threadreturn_t heartbeat1(void* param)
+gThreadreturn heartbeat1(void* param)
 {
     (void)param;
 
-    while (TRUE) {
+    while (1) {
     	DEBUGWRITE("thread 1\n");
         gfxSleepMilliseconds(500);
     }
 
-    return (threadreturn_t)0;
+    return (gThreadreturn)0;
 }
 
-threadreturn_t heartbeat2(void* param)
+gThreadreturn heartbeat2(void* param)
 {
     (void)param;
 
-    while (TRUE) {
+    while (1) {
     	DEBUGWRITE("thread 2\n");
         gfxSleepMilliseconds(900);
     }
 
-    return (threadreturn_t)0;
+    return (gThreadreturn)0;
 }
 
 int main(void)
@@ -45,10 +51,10 @@ int main(void)
     gfxInit();
 
     // Give this plenty of stack. Stack size optimisation should be a production change only
-    gfxThreadCreate(0, 2048, NORMAL_PRIORITY, heartbeat1, 0);
-    gfxThreadCreate(0, 2048, NORMAL_PRIORITY, heartbeat2, 0);
+    gfxThreadCreate(0, 2048, gThreadpriorityNormal, heartbeat1, 0);
+    gfxThreadCreate(0, 2048, gThreadpriorityNormal, heartbeat2, 0);
 
-    while (TRUE) {
+    while (1) {
     	DEBUGWRITE("thread main\n");
         gfxSleepMilliseconds(1400);
     }

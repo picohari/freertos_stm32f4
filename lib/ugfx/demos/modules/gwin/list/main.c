@@ -38,7 +38,7 @@ static void createWidgets(void) {
 
 	// Apply some default values for GWIN
 	gwinWidgetClearInit(&wi);
-	wi.g.show = TRUE;
+	wi.g.show = gTrue;
 
 	// Create the label for the first list
 	wi.g.width = 150; wi.g.height = 20; wi.g.x = 10, wi.g.y = 80;
@@ -56,7 +56,7 @@ static void createWidgets(void) {
 	wi.g.y = 100;
 	wi.g.x = 10;
 	wi.text = "Name of list 1";
-	ghList1 = gwinListCreate(0, &wi, FALSE);
+	ghList1 = gwinListCreate(0, &wi, gFalse);
 
 	// The second list widget
 	wi.g.width = 150;
@@ -64,7 +64,7 @@ static void createWidgets(void) {
 	wi.g.y = 100;
 	wi.g.x = 165;
 	wi.text = "Name of list 2";
-	ghList2 = gwinListCreate(0, &wi, FALSE);
+	ghList2 = gwinListCreate(0, &wi, gFalse);
 	gwinListSetScroll(ghList2, scrollSmooth);
 }
 
@@ -76,8 +76,8 @@ int main(void) {
 
 	// Set the widget defaults
 	gwinSetDefaultFont(gdispOpenFont("UI2"));
-	gwinSetDefaultStyle(&WhiteWidgetStyle, FALSE);
-	gdispClear(White);
+	gwinSetDefaultStyle(&WhiteWidgetStyle, gFalse);
+	gdispClear(GFX_WHITE);
 
 	// create the widget
 	createWidgets();
@@ -87,44 +87,44 @@ int main(void) {
 	gwinAttachListener(&gl);
 
 	// Add some items to the first list widget
-	gwinListAddItem(ghList1, "Item 0", FALSE);
-	gwinListAddItem(ghList1, "Item 1", FALSE);
-	gwinListAddItem(ghList1, "Item 2", FALSE);
-	gwinListAddItem(ghList1, "Item 3", FALSE);
-	gwinListAddItem(ghList1, "Item 4", FALSE);
-	gwinListAddItem(ghList1, "Item 5", FALSE);
-	gwinListAddItem(ghList1, "Item 6", FALSE);
-	gwinListAddItem(ghList1, "Item 7", FALSE);
-	gwinListAddItem(ghList1, "Item 8", FALSE);
-	gwinListAddItem(ghList1, "Item 9", FALSE);
-	gwinListAddItem(ghList1, "Item 10", FALSE);
-	gwinListAddItem(ghList1, "Item 11", FALSE);
-	gwinListAddItem(ghList1, "Item 12", FALSE);
-	gwinListAddItem(ghList1, "Item 13", FALSE);
+	gwinListAddItem(ghList1, "Item 0", gFalse);
+	gwinListAddItem(ghList1, "Item 1", gFalse);
+	gwinListAddItem(ghList1, "Item 2", gFalse);
+	gwinListAddItem(ghList1, "Item 3", gFalse);
+	gwinListAddItem(ghList1, "Item 4", gFalse);
+	gwinListAddItem(ghList1, "Item 5", gFalse);
+	gwinListAddItem(ghList1, "Item 6", gFalse);
+	gwinListAddItem(ghList1, "Item 7", gFalse);
+	gwinListAddItem(ghList1, "Item 8", gFalse);
+	gwinListAddItem(ghList1, "Item 9", gFalse);
+	gwinListAddItem(ghList1, "Item 10", gFalse);
+	gwinListAddItem(ghList1, "Item 11", gFalse);
+	gwinListAddItem(ghList1, "Item 12", gFalse);
+	gwinListAddItem(ghList1, "Item 13", gFalse);
 
 	// Add some items to the second list widget
 	// This time we will disable the render until
 	// all the items have been added
-	gwinListEnableRender(ghList2, FALSE);
-	gwinListAddItem(ghList2, "Item 0", FALSE);
-	gwinListAddItem(ghList2, "Item 1", FALSE);
-	gwinListAddItem(ghList2, "Item 2", FALSE);
-	gwinListAddItem(ghList2, "Item 3", FALSE);
-	gwinListAddItem(ghList2, "Item 4", FALSE);
-	gwinListAddItem(ghList2, "Item 5", FALSE);
-	gwinListAddItem(ghList2, "Item 6", FALSE);
-	gwinListAddItem(ghList2, "Item 7", FALSE);
-	gwinListAddItem(ghList2, "Item 8", FALSE);
-	gwinListAddItem(ghList2, "Item 9", FALSE);
-	gwinListAddItem(ghList2, "Item 10", FALSE);
-	gwinListAddItem(ghList2, "Item 11", FALSE);
-	gwinListAddItem(ghList2, "Item 12", FALSE);
-	gwinListAddItem(ghList2, "Item 13", FALSE);
-	gwinListEnableRender(ghList2, TRUE);
+	gwinListEnableRender(ghList2, gFalse);
+	gwinListAddItem(ghList2, "Item 0", gFalse);
+	gwinListAddItem(ghList2, "Item 1", gFalse);
+	gwinListAddItem(ghList2, "Item 2", gFalse);
+	gwinListAddItem(ghList2, "Item 3", gFalse);
+	gwinListAddItem(ghList2, "Item 4", gFalse);
+	gwinListAddItem(ghList2, "Item 5", gFalse);
+	gwinListAddItem(ghList2, "Item 6", gFalse);
+	gwinListAddItem(ghList2, "Item 7", gFalse);
+	gwinListAddItem(ghList2, "Item 8", gFalse);
+	gwinListAddItem(ghList2, "Item 9", gFalse);
+	gwinListAddItem(ghList2, "Item 10", gFalse);
+	gwinListAddItem(ghList2, "Item 11", gFalse);
+	gwinListAddItem(ghList2, "Item 12", gFalse);
+	gwinListAddItem(ghList2, "Item 13", gFalse);
+	gwinListEnableRender(ghList2, gTrue);
 
 	while(1) {
 		// Get an Event
-		pe = geventEventWait(&gl, TIME_INFINITE);
+		pe = geventEventWait(&gl, gDelayForever);
 
 	}
 

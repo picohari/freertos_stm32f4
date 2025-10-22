@@ -2,7 +2,7 @@
  * File: main.c
  *
  * This file is a part of the Notepad demo application for ChibiOS/GFX
- * Copyright © 2013, Kumar Abhishek [abhishek.kakkar@edaboard.com].
+ * Copyright 2013, Kumar Abhishek [abhishek.kakkar@edaboard.com].
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@
 
 const NColorScheme schemeDefault = {
   .titleBarColor = HTML2COLOR(0x3064D8),
-  .titleTextColor = White,
+  .titleTextColor = GFX_WHITE,
 
   .winBgColor = HTML2COLOR(0xFFECB0),
   .drawingWinBorder = HTML2COLOR(0xCEBA77),
@@ -53,7 +53,7 @@ const NColorScheme schemeDefault = {
 
 const NColorScheme schemeDefault2 = {
   .titleBarColor = HTML2COLOR(0x3064D8),
-  .titleTextColor = White,
+  .titleTextColor = GFX_WHITE,
 
   .winBgColor = HTML2COLOR(0xC8D8F8),
   .drawingWinBorder = HTML2COLOR(0x8098E0),
@@ -66,7 +66,7 @@ const NColorScheme schemeDefault2 = {
   .statusBarText = HTML2COLOR(0x000000)
 };
 
-const char *tsCalibRead(uint16_t instance) {
+const char *tsCalibRead(gU16 instance) {
   // This will perform a on-spot calibration
   // Unless you read and add the co-efficients here
   (void) instance;
@@ -75,25 +75,25 @@ const char *tsCalibRead(uint16_t instance) {
 
 int main(void) {
 
-  font_t font = gdispOpenFont("UI2");
+  gFont font = gdispOpenFont("UI2");
 
   /* initialize the hardware and the OS */
   gfxInit();
 
   /* Calibrate the touchscreen */
-  ginputSetMouseCalibrationRoutines(0, NULL, tsCalibRead, FALSE);
+  ginputSetMouseCalibrationRoutines(0, NULL, tsCalibRead, gFalse);
   ginputGetMouse(0);
 
   // Set the color scheme
   nSetColorScheme(schemeDefault);
 
-  while (TRUE) {
+  while (1) {
 	gfxThreadWait(nLaunchNotepadApp());
 
 	gdispSetClip(0, 0, gdispGetWidth(), gdispGetHeight());
-	gdispClear(Black);
-	gdispDrawString(3, 3, "Notepad Terminated.", font, White);
-	gdispDrawString(3, 20, "Relaunching Notepad App...", font, White);
+	gdispClear(GFX_BLACK);
+	gdispDrawString(3, 3, "Notepad Terminated.", font, GFX_WHITE);
+	gdispDrawString(3, 20, "Relaunching Notepad App...", font, GFX_WHITE);
 
 	gfxSleepMilliseconds(1000);
   }

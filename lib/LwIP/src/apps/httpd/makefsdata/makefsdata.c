@@ -16,13 +16,16 @@
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include "windows.h"
+#include <sys/dos.h>
 #else
-#include <dir.h>
+#include <sys/dir.h>
 #endif
-#include <dos.h>
 #include <string.h>
 #include <time.h>
 #include <sys/stat.h>
+
+#include <errno.h>
+#include <unistd.h>
 
 /** Makefsdata can generate *all* files deflate-compressed (where file size shrinks).
  * Since nearly all browsers support this, this is a good way to reduce ROM size.

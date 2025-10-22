@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "mf_encoding.h"
@@ -13,16 +13,16 @@
 
 mf_char mf_getchar(mf_str *str)
 {
-    uint8_t c;
-    uint8_t tmp, seqlen;
-    uint16_t result;
+    gU8 c;
+    gU8 tmp, seqlen;
+    gU16 result;
     
     c = **str;
     if (!c)
         return 0;
-    
+
     (*str)++;
-    
+
     if ((c & 0x80) == 0)
     {
         /* Just normal ASCII character. */
@@ -54,14 +54,14 @@ mf_char mf_getchar(mf_str *str)
         {
             seqlen++;
             tmp >>= 1;
-            
+
             result = (result << 6) | (**str & 0x3F);
             (*str)++;
         }
-        
+
         result = (result << 6) | (**str & 0x3F);
         (*str)++;
-        
+
         result |= (c & (tmp - 1)) << ((seqlen - 1) * 6);
         return result;
     }
@@ -70,7 +70,7 @@ mf_char mf_getchar(mf_str *str)
 void mf_rewind(mf_str *str)
 {
     (*str)--;
-    
+
     while ((**str & 0x80) != 0x00 && (**str & 0xC0) != 0xC0)
         (*str)--;
 }
@@ -87,7 +87,7 @@ mf_char mf_getchar(mf_str *str)
 
 void mf_rewind(mf_str *str)
 {
-	(*str)--;
+    (*str)--;
 }
 
 #endif

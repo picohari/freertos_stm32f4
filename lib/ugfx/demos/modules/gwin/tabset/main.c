@@ -39,14 +39,14 @@ static void createWidgets(void) {
 
 	// Apply some default values for GWIN
 	gwinWidgetClearInit(&wi);
-	wi.g.show = TRUE;
+	wi.g.show = gTrue;
 
 	// Create the Tabset
 	wi.g.width = 200; wi.g.height = 200; wi.g.x = 10, wi.g.y = 10;
 	ghTabset = gwinTabsetCreate(0, &wi, GWIN_TABSET_BORDER);
-	ghPage1 = gwinTabsetAddTab(ghTabset, "Page 1", FALSE);
-	ghPage2 = gwinTabsetAddTab(ghTabset, "Page 2", FALSE);
-	ghPage3 = gwinTabsetAddTab(ghTabset, "Page 3", FALSE);
+	ghPage1 = gwinTabsetAddTab(ghTabset, "Page 1", gFalse);
+	ghPage2 = gwinTabsetAddTab(ghTabset, "Page 2", gFalse);
+	ghPage3 = gwinTabsetAddTab(ghTabset, "Page 3", gFalse);
 
 	// Add some widgets to Page 1
 	wi.g.width = 120; wi.g.height = 20; wi.g.x = 10; wi.g.y = 10;
@@ -75,8 +75,8 @@ int main(void) {
 
 	// Set the widget defaults
 	gwinSetDefaultFont(gdispOpenFont("UI2"));
-	gwinSetDefaultStyle(&WhiteWidgetStyle, FALSE);
-	gdispClear(White);
+	gwinSetDefaultStyle(&WhiteWidgetStyle, gFalse);
+	gdispClear(GFX_WHITE);
 
 	// create the widget
 	createWidgets();
@@ -87,7 +87,7 @@ int main(void) {
 
 	while(1) {
 		// Get an Event
-		pe = geventEventWait(&gl, TIME_INFINITE);
+		pe = geventEventWait(&gl, gDelayForever);
 
 		(void)pe;
 	}

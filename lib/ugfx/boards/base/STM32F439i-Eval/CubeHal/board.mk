@@ -19,7 +19,7 @@ ifeq ($(OPT_OS),raw32)
 				$(GFXLIB)/boards/base/STM32F439i-Eval/CubeHAL/stm32f439i_raw32_ugfx.c \
 				$(GFXLIB)/boards/base/STM32F439i-Eval/CubeHAL/stm32f439i_raw32_system.c \
 				$(GFXLIB)/boards/base/STM32F439i-Eval/CubeHAL/stm32f439i_raw32_interrupts.c
-	GFXDEFS	+=	GFX_OS_PRE_INIT_FUNCTION=Raw32OSInit GFX_OS_INIT_NO_WARNING=TRUE
+	GFXDEFS	+=	GFX_OS_PRE_INIT_FUNCTION=Raw32OSInit GFX_OS_INIT_NO_WARNING=GFXON
 	GFXINC	+=	$(CMSIS)/Device/ST/STM32F4xx/Include \
 				$(CMSIS)/Include \
 				$(STMHAL)/Inc

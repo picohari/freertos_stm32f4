@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #ifndef _GINPUT_LLD_MOUSE_BOARD_H
@@ -30,7 +30,7 @@
 	#define AFRH	AFR[1]
 #endif
 
-static bool_t init_board(GMouse* m, unsigned instance)
+static gBool init_board(GMouse* m, unsigned instance)
 {
 	(void)m;
 	(void)instance;
@@ -40,38 +40,38 @@ static bool_t init_board(GMouse* m, unsigned instance)
 	GPIOH->MODER |= GPIO_MODER_MODER7_1;					// Alternate function
 	GPIOH->OTYPER |= GPIO_OTYPER_OT_7;						// OpenDrain
 	GPIOH->OSPEEDR &= ~GPIO_OSPEEDER_OSPEEDR7;				// LowSpeed
-	GPIOH->AFRL |= ((uint32_t)0x04 << 4*7);							// AF4
+	GPIOH->AFRL |= ((gU32)0x04 << 4*7);							// AF4
 
 	// I2C3_SDA    GPIOH8, alternate, opendrain, highspeed
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOHEN;					// Enable clock
 	GPIOH->MODER |= GPIO_MODER_MODER8_1;					// Alternate function
 	GPIOH->OTYPER |= GPIO_OTYPER_OT_8;						// OpenDrain
 	GPIOH->OSPEEDR &= ~GPIO_OSPEEDER_OSPEEDR8;				// LowSpeed
-	GPIOH->AFRH |= ((uint32_t)0x04 << 4*0);							// AF4
+	GPIOH->AFRH |= ((gU32)0x04 << 4*0);							// AF4
 
 	// Initialize the I2C3 peripheral
 	if (!(i2cInit(I2C3))) {
-		return FALSE;
+		return gFalse;
 	}
 
-	return TRUE;
+	return gTrue;
 }
 
-static void write_reg(GMouse* m, uint8_t reg, uint8_t val)
+static void write_reg(GMouse* m, gU8 reg, gU8 val)
 {
 	(void)m;
 
 	i2cWriteReg(I2C3, FT5336_SLAVE_ADDR, reg, val);
 }
 
-static uint8_t read_byte(GMouse* m, uint8_t reg)
+static gU8 read_byte(GMouse* m, gU8 reg)
 {
 	(void)m;
 
 	return i2cReadByte(I2C3, FT5336_SLAVE_ADDR, reg);
 }
 
-static uint16_t read_word(GMouse* m, uint8_t reg)
+static gU16 read_word(GMouse* m, gU8 reg)
 {
 	(void)m;
 

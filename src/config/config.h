@@ -53,43 +53,37 @@
 * Use like this: STM32_UUID[0], STM32_UUID[1], STM32_UUID[2]
 */
 
+/* Read out UUID codes */
 #define STM32_UUID         ((uint32_t *)0x1FFF7A10)       // F4
 //#define STM32_UUID 		     ((uint32_t *)0x1FF0F420)     // F7
 
+/* Read out FLASH size */
 #define STM32_UUID_FLASH   ((uint32_t *)0x1FFF7A22)       // F4
 //#define STM32_UUID_FLASH	 ((uint32_t *)0x1FF0F442)     // F7
 
-#define STM32_UUID_PACK		 ((uint32_t *)0x1FFF7BF0)       // chip case form
+/* Read out chip case form */
+#define STM32_UUID_PACK		 ((uint32_t *)0x1FFF7BF0)       // F4
 
 
-#define VERSION_STRING VERSION
+/* Version string provided by makefile (shows git description tag on current branch) */
+#define VERSION_STRING      VERSION
 #define VERSION_STRING_LONG VERSION " built on " __DATE__ " " __TIME__
 
 /**
 * The IP Adresses of the system 
 */
 
-#define HOME_NET
-
-#ifdef HOME_NET
-  #define IP_ADDR_HOME_NET    1
-  #define IP_ADDR_HOME_GW     1
-#else /* my office network has different settings... */
-  #define IP_ADDR_HOME_NET    200
-  #define IP_ADDR_HOME_GW     254
-#endif
-
 /* Static IP Address */
 #define IP_ADDR0        (uint8_t) 192
 #define IP_ADDR1        (uint8_t) 168
-#define IP_ADDR2        (uint8_t) IP_ADDR_HOME_NET
+#define IP_ADDR2        (uint8_t) 100
 #define IP_ADDR3        (uint8_t) 164
 
 /* Gateway IP Address */
 #define GW_ADDR0        (uint8_t) 192
 #define GW_ADDR1        (uint8_t) 168
-#define GW_ADDR2        (uint8_t) IP_ADDR_HOME_NET
-#define GW_ADDR3        (uint8_t) IP_ADDR_HOME_GW
+#define GW_ADDR2        (uint8_t) 100
+#define GW_ADDR3        (uint8_t) 1
    
 /* Netmask */
 #define NETMASK_ADDR0   (uint8_t) 255

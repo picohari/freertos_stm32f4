@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "gfx.h"
@@ -18,9 +18,9 @@
 // Hardware definitions
 #include "ft5x06.h"
 
-static bool_t MouseInit(GMouse* m, unsigned driverinstance) {
+static gBool MouseInit(GMouse* m, unsigned driverinstance) {
 	if (!init_board(m, driverinstance))
-		return FALSE;
+		return gFalse;
 
 	aquire_bus(m);
 
@@ -53,10 +53,10 @@ static bool_t MouseInit(GMouse* m, unsigned driverinstance) {
 	write_reg(m, FT5x06_ID_G_PERIODMONITOR, 0x28);
 
 	release_bus(m);
-	return TRUE;
+	return gTrue;
 }
 
-static bool_t read_xyz(GMouse* m, GMouseReading* pdr)
+static gBool read_xyz(GMouse* m, GMouseReading* pdr)
 {
 	// Assume not touched.
 	pdr->buttons = 0;
@@ -68,8 +68,8 @@ static bool_t read_xyz(GMouse* m, GMouseReading* pdr)
 	if ((read_byte(m, FT5x06_TOUCH_POINTS) & 0x07)) {
 
 		/* Get the X, Y, Z values */
-		pdr->x = (coord_t)(read_word(m, FT5x06_TOUCH1_XH) & 0x0fff);
-		pdr->y = (coord_t)read_word(m, FT5x06_TOUCH1_YH);
+		pdr->x = (gCoord)(read_word(m, FT5x06_TOUCH1_XH) & 0x0fff);
+		pdr->y = (gCoord)read_word(m, FT5x06_TOUCH1_YH);
 		pdr->z = 1;
 
 		// Rescale X,Y if we are using self-calibration
@@ -77,13 +77,13 @@ static bool_t read_xyz(GMouse* m, GMouseReading* pdr)
 			#if GDISP_NEED_CONTROL
 				switch(gdispGGetOrientation(m->display)) {
 				default:
-				case GDISP_ROTATE_0:
-				case GDISP_ROTATE_180:
+				case gOrientation0:
+				case gOrientation180:
 					pdr->x = gdispGGetWidth(m->display) - pdr->x / (4096/gdispGGetWidth(m->display));
 					pdr->y = pdr->y / (4096/gdispGGetHeight(m->display));
 					break;
-				case GDISP_ROTATE_90:
-				case GDISP_ROTATE_270:
+				case gOrientation90:
+				case gOrientation270:
 					pdr->x = gdispGGetHeight(m->display) - pdr->x / (4096/gdispGGetHeight(m->display));
 					pdr->y = pdr->y / (4096/gdispGGetWidth(m->display));
 					break;
@@ -96,7 +96,7 @@ static bool_t read_xyz(GMouse* m, GMouseReading* pdr)
 	}
 
 	release_bus(m);
-	return TRUE;
+	return gTrue;
 }
 
 const GMouseVMT const GMOUSE_DRIVER_VMT[1] = {{

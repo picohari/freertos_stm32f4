@@ -10,33 +10,33 @@
 #define _GFXCONF_H
 
 /* The operating system to use. One of these must be defined - preferably in your Makefile */
-//#define GFX_USE_OS_CHIBIOS            FALSE
-//#define GFX_USE_OS_WIN32              FALSE
-//#define GFX_USE_OS_LINUX              FALSE
-//#define GFX_USE_OS_OSX                FALSE
+//#define GFX_USE_OS_CHIBIOS            GFXOFF
+//#define GFX_USE_OS_WIN32              GFXOFF
+//#define GFX_USE_OS_LINUX              GFXOFF
+//#define GFX_USE_OS_OSX                GFXOFF
 
 /* GFX sub-systems to turn on */
-#define GFX_USE_GDISP                   TRUE
+#define GFX_USE_GDISP                   GFXON
 
 /* Features for the GDISP sub-system. */
-#define GDISP_NEED_VALIDATION           FALSE
-#define GDISP_NEED_CLIP                 FALSE
-#define GDISP_NEED_TEXT                 FALSE
-#define GDISP_NEED_CIRCLE               TRUE
-#define GDISP_NEED_ELLIPSE              FALSE
-#define GDISP_NEED_ARC                  FALSE
-#define GDISP_NEED_SCROLL               FALSE
-#define GDISP_NEED_PIXELREAD            FALSE
-#define GDISP_NEED_CONTROL              FALSE
-#define GDISP_NEED_MULTITHREAD          FALSE
-#define GDISP_NEED_ASYNC                FALSE
-#define GDISP_NEED_MSGAPI               FALSE
+#define GDISP_NEED_VALIDATION           GFXOFF
+#define GDISP_NEED_CLIP                 GFXOFF
+#define GDISP_NEED_TEXT                 GFXOFF
+#define GDISP_NEED_CIRCLE               GFXON
+#define GDISP_NEED_ELLIPSE              GFXOFF
+#define GDISP_NEED_ARC                  GFXOFF
+#define GDISP_NEED_SCROLL               GFXOFF
+#define GDISP_NEED_PIXELREAD            GFXOFF
+#define GDISP_NEED_CONTROL              GFXOFF
+#define GDISP_NEED_MULTITHREAD          GFXOFF
+#define GDISP_NEED_ASYNC                GFXOFF
+#define GDISP_NEED_MSGAPI               GFXOFF
 
 /* Builtin Fonts */
-#define GDISP_INCLUDE_FONT_SMALL        FALSE
-#define GDISP_INCLUDE_FONT_LARGER       FALSE
-#define GDISP_INCLUDE_FONT_UI1          FALSE
-#define GDISP_INCLUDE_FONT_UI2          FALSE
-#define GDISP_INCLUDE_FONT_LARGENUMBERS FALSE
+#define GDISP_INCLUDE_FONT_SMALL        GFXOFF
+#define GDISP_INCLUDE_FONT_LARGER       GFXOFF
+#define GDISP_INCLUDE_FONT_UI1          GFXOFF
+#define GDISP_INCLUDE_FONT_UI2          GFXOFF
+#define GDISP_INCLUDE_FONT_LARGENUMBERS GFXOFF
 
 #endif /* _GFXCONF_H */

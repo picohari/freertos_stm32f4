@@ -7,6 +7,8 @@
 
 #include "gfx.h"
 
+#include "uart.h"
+
 #if GFX_USE_GDISP /*|| defined(__DOXYGEN__)*/
 
 /* This controller is only ever used with a 240 x 320 display */
@@ -122,6 +124,9 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
    setreadmode(g);
    DeviceCode = read_reg(g, 0x00);
    setwritemode(g);
+
+   writef("TFT Driver: ILI%x\n\r", DeviceCode);
+   writef("\n\r");
 
    if( DeviceCode == 0x9320 || DeviceCode == 0x9300 )
    {

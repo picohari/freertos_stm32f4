@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -17,7 +17,7 @@
 
 #if GFX_USE_GINPUT && GINPUT_NEED_KEYBOARD
 
-#define MICROCODE_DEBUG		FALSE
+#define MICROCODE_DEBUG		GFXOFF
 
 #if MICROCODE_DEBUG
 	#include <stdio.h>
@@ -90,7 +90,7 @@ static void SendKeyboardEvent(GKeyboard *k) {
 #define FLAG_INIT		0x02
 
 #if GKEYBOARD_LAYOUT_OFF
-	static void microengine(GKeyboard *k, uint8_t code, uint8_t flags) {
+	static void microengine(GKeyboard *k, gU8 code, gU8 flags) {
 		if (flags)
 			return;
 
@@ -101,10 +101,10 @@ static void SendKeyboardEvent(GKeyboard *k) {
 		k->cntc = k->cntsc = 0;
 	}
 #else
-	static void microengine(GKeyboard *k, uint8_t code, uint8_t flags) {
-		const uint8_t	*pc;
-		const uint8_t	*nrec;
-		uint8_t			ver, diff, p1, p2;
+	static void microengine(GKeyboard *k, gU8 code, gU8 flags) {
+		const gU8	*pc;
+		const gU8	*nrec;
+		gU8			ver, diff, p1, p2;
 		#if MICROCODE_DEBUG
 			unsigned	cnt;
 		#endif
@@ -446,7 +446,7 @@ static void SendKeyboardEvent(GKeyboard *k) {
 
 static void KeyboardPoll(void *param) {
 	GKeyboard *	k;
-	uint8_t		scancodes[8];
+	gU8		scancodes[8];
 	int			sz, i;
 	(void) 		param;
 
@@ -471,7 +471,7 @@ void _gkeyboardInit(void) {
 			static const GKeyboardVMT *	const dclist[] = {GINPUT_KEYBOARD_DRIVER_LIST};
 
 			for(i = 0; i < sizeof(dclist)/sizeof(dclist[0]); i++) {
-                if (!(dclist[i]->d.flags & GKEYBOARD_VFLG_DYNAMICONLY))
+				if (!(dclist[i]->d.flags & GKEYBOARD_VFLG_DYNAMICONLY))
 					gdriverRegister(&dclist[i]->d, 0);
 			}
 		}
@@ -481,8 +481,8 @@ void _gkeyboardInit(void) {
 		{
 			extern const GKeyboardVMT const GKEYBOARDVMT_OnlyOne[1];
 
-            if (!(GKEYBOARDVMT_OnlyOne->d.flags & GKEYBOARD_VFLG_DYNAMICONLY))
-					gdriverRegister(&GKEYBOARDVMT_OnlyOne->d, 0);
+			if (!(GKEYBOARDVMT_OnlyOne->d.flags & GKEYBOARD_VFLG_DYNAMICONLY))
+				gdriverRegister(&GKEYBOARDVMT_OnlyOne->d, 0);
 		}
 	#endif
 
@@ -492,47 +492,47 @@ void _gkeyboardDeinit(void) {
 	gtimerDeinit(&KeyboardTimer);
 }
 
-bool_t _gkeyboardInitDriver(GDriver *g, void *param, unsigned driverinstance, unsigned systeminstance) {
-    #define k   ((GKeyboard *)g)
+gBool _gkeyboardInitDriver(GDriver *g, void *param, unsigned driverinstance, unsigned systeminstance) {
+	#define k   ((GKeyboard *)g)
 	(void) param;
-    (void) systeminstance;
+	(void) systeminstance;
 
 	// The initial keyboard layout comes from the VMT
 	k->pLayout = gkvmt(k)->defLayout;
 
 	// Init the mouse
-    if (!gkvmt(k)->init((GKeyboard *)g, driverinstance))
-        return FALSE;
+	if (!gkvmt(k)->init((GKeyboard *)g, driverinstance))
+		return gFalse;
 
 	// Ensure the Poll timer is started
 	if (!gtimerIsActive(&KeyboardTimer))
-		gtimerStart(&KeyboardTimer, KeyboardPoll, 0, TRUE, GINPUT_KEYBOARD_POLL_PERIOD);
+		gtimerStart(&KeyboardTimer, KeyboardPoll, 0, gTrue, GINPUT_KEYBOARD_POLL_PERIOD);
 
-    return TRUE;
+	return gTrue;
 
-    #undef k
+	#undef k
 }
 
 void _gkeyboardPostInitDriver(GDriver *g) {
-    #define     k   ((GKeyboard *)g)
+	#define     k   ((GKeyboard *)g)
 
 	// Run the init sequence from the layout microcode.
 	microengine(k, 0, FLAG_INIT);
 
-    #undef k
+	#undef k
 }
 
 void _gkeyboardDeInitDriver(GDriver *g) {
-    (void) g;
+	(void) g;
 }
 
 GSourceHandle ginputGetKeyboard(unsigned instance) {
 	if (instance == GKEYBOARD_ALL_INSTANCES)
 		return (GSourceHandle)&KeyboardTimer;
-    return (GSourceHandle)gdriverGetInstance(GDRIVER_TYPE_KEYBOARD, instance);
+	return (GSourceHandle)gdriverGetInstance(GDRIVER_TYPE_KEYBOARD, instance);
 }
 
-bool_t ginputGetKeyboardStatus(unsigned instance, GEventKeyboard *pe) {
+gBool ginputGetKeyboardStatus(unsigned instance, GEventKeyboard *pe) {
 	GKeyboard *k;
 
 	// Win32 threads don't seem to recognise priority and/or pre-emption
@@ -540,26 +540,26 @@ bool_t ginputGetKeyboardStatus(unsigned instance, GEventKeyboard *pe) {
 	gfxSleepMilliseconds(1);
 
 	if (!(k = (GKeyboard *)gdriverGetInstance(GDRIVER_TYPE_KEYBOARD, instance)))
-		return FALSE;
+		return gFalse;
 
 	pe->type = GEVENT_KEYBOARD;
 	// TODO
-	return TRUE;
+	return gTrue;
 }
 
 #if !GKEYBOARD_LAYOUT_OFF
-	bool_t ginputSetKeyboardLayout(unsigned instance, const void *pLayout) {
+	gBool ginputSetKeyboardLayout(unsigned instance, const void *pLayout) {
 		GKeyboard *k;
 
 		if (!(k = (GKeyboard *)gdriverGetInstance(GDRIVER_TYPE_KEYBOARD, instance)))
-			return FALSE;
+			return gFalse;
 
 		if (pLayout)
 			k->pLayout = pLayout;
 		else
 			k->pLayout = gkvmt(k)->defLayout;
 
-		return TRUE;
+		return gTrue;
 	}
 #endif
 

@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -23,7 +23,7 @@
 
 #if GFX_USE_GDISP || defined(__DOXYGEN__)
 
-typedef uint16_t	colorformat;
+typedef gU16	gColorformat;
 
 /**
  * @name	Color system masks
@@ -80,29 +80,54 @@ typedef uint16_t	colorformat;
  * @name   Some basic colors
  * @{
  */
-#define White			HTML2COLOR(0xFFFFFF)
-#define Black			HTML2COLOR(0x000000)
-#define Gray			HTML2COLOR(0x808080)
-#define Grey			Gray
-#define Blue			HTML2COLOR(0x0000FF)
-#define Red				HTML2COLOR(0xFF0000)
-#define Fuchsia			HTML2COLOR(0xFF00FF)
-#define Magenta			Fuchsia
-#define Green			HTML2COLOR(0x008000)
-#define Yellow			HTML2COLOR(0xFFFF00)
-#define Aqua			HTML2COLOR(0x00FFFF)
-#define Cyan			Aqua
-#define Lime			HTML2COLOR(0x00FF00)
-#define Maroon			HTML2COLOR(0x800000)
-#define Navy			HTML2COLOR(0x000080)
-#define Olive			HTML2COLOR(0x808000)
-#define Purple			HTML2COLOR(0x800080)
-#define Silver			HTML2COLOR(0xC0C0C0)
-#define Teal			HTML2COLOR(0x008080)
-#define Orange			HTML2COLOR(0xFFA500)
-#define Pink			HTML2COLOR(0xFFC0CB)
-#define SkyBlue			HTML2COLOR(0x87CEEB)
+#define GFX_WHITE		HTML2COLOR(0xFFFFFF)
+#define GFX_BLACK		HTML2COLOR(0x000000)
+#define GFX_GRAY		HTML2COLOR(0x808080)
+#define GFX_GREY		GFX_GRAY
+#define GFX_BLUE		HTML2COLOR(0x0000FF)
+#define GFX_RED			HTML2COLOR(0xFF0000)
+#define GFX_FUCHSIA		HTML2COLOR(0xFF00FF)
+#define GFX_MAGENTA		GFX_FUCHSIA
+#define GFX_GREEN		HTML2COLOR(0x008000)
+#define GFX_YELLOW		HTML2COLOR(0xFFFF00)
+#define GFX_AQUA		HTML2COLOR(0x00FFFF)
+#define GFX_CYAN		GFX_AQUA
+#define GFX_LIME		HTML2COLOR(0x00FF00)
+#define GFX_MAROON		HTML2COLOR(0x800000)
+#define GFX_NAVY		HTML2COLOR(0x000080)
+#define GFX_OLIVE		HTML2COLOR(0x808000)
+#define GFX_PURPLE		HTML2COLOR(0x800080)
+#define GFX_SILVER		HTML2COLOR(0xC0C0C0)
+#define GFX_TEAL		HTML2COLOR(0x008080)
+#define GFX_ORANGE		HTML2COLOR(0xFFA500)
+#define GFX_PINK		HTML2COLOR(0xFFC0CB)
+#define GFX_SKYBLUE		HTML2COLOR(0x87CEEB)
 /** @} */
+
+#if GFX_COMPAT_V2 && GFX_COMPAT_OLDCOLORS
+	#define White			GFX_WHITE
+	#define Black			GFX_BLACK
+	#define Gray			GFX_GRAY
+	#define Grey			GFX_GREY
+	#define Blue			GFX_BLUE
+	#define Red				GFX_RED
+	#define Fuchsia			GFX_FUCHSIA
+	#define Magenta			GFX_MAGENTA
+	#define Green			GFX_GREEN
+	#define Yellow			GFX_YELLOW
+	#define Aqua			GFX_AQUA
+	#define Cyan			GFX_CYAN
+	#define Lime			GFX_LIME
+	#define Maroon			GFX_MAROON
+	#define Navy			GFX_NAVY
+	#define Olive			GFX_OLIVE
+	#define Purple			GFX_PURPLE
+	#define Silver			GFX_SILVER
+	#define Teal			GFX_TEAL
+	#define Orange			GFX_ORANGE
+	#define Pink			GFX_PINK
+	#define SkyBlue			GFX_SKYBLUE
+#endif
 
 #if defined(__DOXYGEN__)
 	/**
@@ -138,7 +163,7 @@ typedef uint16_t	colorformat;
 	/**
 	 * @brief	Does the color need masking to remove invalid bits
 	 */
-	#define COLOR_NEEDS_MASK	FALSE
+	#define COLOR_NEEDS_MASK	GFXOFF
 
 	/**
 	 * @brief	If the color needs masking to remove invalid bits, this is the mask
@@ -148,7 +173,7 @@ typedef uint16_t	colorformat;
 	/**
 	 * @brief   The color type
 	 */
-	#define COLOR_TYPE			uint16_t
+	#define COLOR_TYPE			gU16
 
 	/**
 	 * @brief	The number of bits in the color type (not necessarily the same as COLOR_BITS).
@@ -163,17 +188,17 @@ typedef uint16_t	colorformat;
 	 * 			tv luminance (0.26126R + 0.7152G + 0.0722B),  digital tv luminance of (0.299R + 0.587G + 0.114B), or
 	 * 			@p LUMA_OF() which uses (0.25R + 0.5G + 0.25B).
 	 */
-	#define LUMA2COLOR(l)		((color_t)((((l) & 0xF8)<<8) | (((l) & 0xFC)<<3) | (((l) & 0xF8)>>3)))
+	#define LUMA2COLOR(l)		((gColor)((((l) & 0xF8)<<8) | (((l) & 0xFC)<<3) | (((l) & 0xF8)>>3)))
 
 	/**
 	 * @brief   Convert red, green, blue (each 0 to 255) into a color value.
 	 */
-	#define RGB2COLOR(r,g,b)	((color_t)((((r) & 0xF8)<<8) | (((g) & 0xFC)<<3) | (((b) & 0xF8)>>3)))
+	#define RGB2COLOR(r,g,b)	((gColor)((((r) & 0xF8)<<8) | (((g) & 0xFC)<<3) | (((b) & 0xF8)>>3)))
 
 	/**
 	 * @brief   Convert a 6 digit HTML code (hex) into a color value.
 	 */
-	#define HTML2COLOR(h)		((color_t)((((h) & 0xF80000)>>8) | (((h) & 0x00FC00)>>5) | (((h) & 0x0000F8)>>3)))
+	#define HTML2COLOR(h)		((gColor)((((h) & 0xF80000)>>8) | (((h) & 0x00FC00)>>5) | (((h) & 0x0000F8)>>3)))
 
 	/**
 	 * @name	Extraction macros (quick)
@@ -189,9 +214,9 @@ typedef uint16_t	colorformat;
 	 * @note	A 5 bit color component maximum value (0x1F) converts to 0xF8 (slightly off-color)
 	 * @{
 	 */
-	#define LUMA_OF(c)			((RED_OF(c)+((uint16_t)GREEN_OF(c)<<1)+BLUE_OF(c))>>2)
+	#define LUMA_OF(c)			((RED_OF(c)+((gU16)GREEN_OF(c)<<1)+BLUE_OF(c))>>2)
 	#define RED_OF(c)			(((c) & 0xF800)>>8)
-	#define GREEN_OF(c)			(((c)&0x007E)>>3)
+	#define GREEN_OF(c)			(((c)&0x07E0)>>3)
 	#define BLUE_OF(c)			(((c)&0x001F)<<3)
 	/** @} */
 
@@ -209,7 +234,7 @@ typedef uint16_t	colorformat;
 	 * @note	A 5 bit color component maximum value (0x1F) converts to 0xFF (the true equivalent color)
 	 * @{
 	 */
-	#define EXACT_LUMA_OF(c)	((EXACT_RED_OF(c)+((uint16_t)EXACT_GREEN_OF(c)<<1)+EXACT_BLUE_OF(c))>>2)
+	#define EXACT_LUMA_OF(c)	((EXACT_RED_OF(c)+((gU16)EXACT_GREEN_OF(c)<<1)+EXACT_BLUE_OF(c))>>2)
 	#define EXACT_RED_OF(c)		(((((c)>>11)&0x1F)*255)/31)
 	#define EXACT_GREEN_OF(c)	(((((c)>>5)&0x3F)*255)/63)
 	#define EXACT_BLUE_OF(c)	(((((c)>>0)&0x1F)*255)/31)
@@ -236,21 +261,21 @@ typedef uint16_t	colorformat;
 
 	// From the number of bits determine COLOR_TYPE, COLOR_TYPE_BITS and masking
 	#if COLOR_BITS <= 8
-		#define COLOR_TYPE			uint8_t
+		#define COLOR_TYPE			gU8
 		#define COLOR_TYPE_BITS		8
 	#elif COLOR_BITS <= 16
-		#define COLOR_TYPE			uint16_t
+		#define COLOR_TYPE			gU16
 		#define COLOR_TYPE_BITS		16
 	#elif COLOR_BITS <= 32
-		#define COLOR_TYPE			uint32_t
+		#define COLOR_TYPE			gU32
 		#define COLOR_TYPE_BITS		32
 	#else
 		#error "GDISP: Cannot define color types with more than 32 bits"
 	#endif
 	#if COLOR_TYPE_BITS == COLOR_BITS
-		#define COLOR_NEEDS_MASK	FALSE
+		#define COLOR_NEEDS_MASK	GFXOFF
 	#else
-		#define COLOR_NEEDS_MASK	TRUE
+		#define COLOR_NEEDS_MASK	GFXON
 	#endif
 	#define COLOR_MASK()			((1 << COLOR_BITS)-1)
 
@@ -296,11 +321,11 @@ typedef uint16_t	colorformat;
 		#define BLUE_OF(c)			(((c) & (((1<<COLOR_BITS_B)-1) << COLOR_SHIFT_B)) << (8-(COLOR_BITS_B+COLOR_SHIFT_B)))
 		#define RGB2COLOR_B(b)		(((COLOR_TYPE)((b) & (0xFF & ~((1<<(8-COLOR_BITS_B))-1)))) >> (8-(COLOR_BITS_B+COLOR_SHIFT_B)))
 	#endif
-	#define LUMA_OF(c)				((RED_OF(c)+((uint16_t)GREEN_OF(c)<<1)+BLUE_OF(c))>>2)
-	#define EXACT_RED_OF(c)			(((uint16_t)(((c)>>COLOR_SHIFT_R)&((1<<COLOR_BITS_R)-1))*255)/((1<<COLOR_BITS_R)-1))
-	#define EXACT_GREEN_OF(c)		(((uint16_t)(((c)>>COLOR_SHIFT_G)&((1<<COLOR_BITS_G)-1))*255)/((1<<COLOR_BITS_G)-1))
-	#define EXACT_BLUE_OF(c)		(((uint16_t)(((c)>>COLOR_SHIFT_B)&((1<<COLOR_BITS_B)-1))*255)/((1<<COLOR_BITS_B)-1))
-	#define EXACT_LUMA_OF(c)		((EXACT_RED_OF(c)+((uint16_t)EXACT_GREEN_OF(c)<<1)+EXACT_BLUE_OF(c))>>2)
+	#define LUMA_OF(c)				((RED_OF(c)+((gU16)GREEN_OF(c)<<1)+BLUE_OF(c))>>2)
+	#define EXACT_RED_OF(c)			(((gU16)(((c)>>COLOR_SHIFT_R)&((1<<COLOR_BITS_R)-1))*255)/((1<<COLOR_BITS_R)-1))
+	#define EXACT_GREEN_OF(c)		(((gU16)(((c)>>COLOR_SHIFT_G)&((1<<COLOR_BITS_G)-1))*255)/((1<<COLOR_BITS_G)-1))
+	#define EXACT_BLUE_OF(c)		(((gU16)(((c)>>COLOR_SHIFT_B)&((1<<COLOR_BITS_B)-1))*255)/((1<<COLOR_BITS_B)-1))
+	#define EXACT_LUMA_OF(c)		((EXACT_RED_OF(c)+((gU16)EXACT_GREEN_OF(c)<<1)+EXACT_BLUE_OF(c))>>2)
 	#define LUMA2COLOR(l)			(RGB2COLOR_R(l) | RGB2COLOR_G(l) | RGB2COLOR_B(l))
 	#define RGB2COLOR(r,g,b)		(RGB2COLOR_R(r) | RGB2COLOR_G(g) | RGB2COLOR_B(b))
 
@@ -328,6 +353,18 @@ typedef uint16_t	colorformat;
 	#endif
 	#define HTML2COLOR(h)		((COLOR_TYPE)(HTML2COLOR_R(h) | HTML2COLOR_G(h) | HTML2COLOR_B(h)))
 
+	// Special hack to allow alpha on RGB888
+	#if GDISP_PIXELFORMAT == GDISP_PIXELFORMAT_RGB888
+		#define COLOR_BITS_A		8
+		#define COLOR_SHIFT_A		24
+		#define ALPHA_OF(c)			(((c)>>24) ^ 0xFF)
+		#define EXACT_ALPHA_OF(c)	ALPHA_OF((c))
+		#define AHTML2COLOR(h)		((h) ^ 0xFF000000)
+		#define RGB2COLOR_A(a)		(((COLOR_TYPE)(((a) ^ 0xFF) & 0xFF)) << 24)
+ 		#define ARGB2COLOR(a,r,g,b)	(RGB2COLOR_A(a) | RGB2COLOR_R(r) | RGB2COLOR_G(g) | RGB2COLOR_B(b))
+		#define GFXTRANSPARENT		(0xFF000000)
+	#endif
+
 //-------------------------
 //	Gray-scale color system
 //-------------------------
@@ -345,15 +382,15 @@ typedef uint16_t	colorformat;
 
 	// From the number of bits determine COLOR_TYPE, COLOR_TYPE_BITS and masking
 	#if COLOR_BITS <= 8
-		#define COLOR_TYPE			uint8_t
+		#define COLOR_TYPE			gU8
 		#define COLOR_TYPE_BITS		8
 	#else
 		#error "GDISP: Cannot define gray-scale color types with more than 8 bits"
 	#endif
 	#if COLOR_TYPE_BITS == COLOR_BITS
-		#define COLOR_NEEDS_MASK	FALSE
+		#define COLOR_NEEDS_MASK	GFXOFF
 	#else
-		#define COLOR_NEEDS_MASK	TRUE
+		#define COLOR_NEEDS_MASK	GFXON
 	#endif
 	#define COLOR_MASK()			((1 << COLOR_BITS)-1)
 
@@ -365,11 +402,11 @@ typedef uint16_t	colorformat;
 		#define EXACT_LUMA_OF(c)	LUMA_OF(c)
 	#else
 		// They eye is more sensitive to green
-		#define RGB2COLOR(r,g,b)	((COLOR_TYPE)(((uint16_t)(r)+(g)+(g)+(b)) >> (10-COLOR_BITS)))
+		#define RGB2COLOR(r,g,b)	((COLOR_TYPE)(((gU16)(r)+(g)+(g)+(b)) >> (10-COLOR_BITS)))
 		#define LUMA2COLOR(l)		((COLOR_TYPE)((l)>>(8-COLOR_BITS)))
 		#define HTML2COLOR(h)		((COLOR_TYPE)(((((h)&0xFF0000)>>16)+(((h)&0x00FF00)>>7)+((h)&0x0000FF)) >> (10-COLOR_BITS)))
 		#define LUMA_OF(c)			(((c) & ((1<<COLOR_BITS)-1)) << (8-COLOR_BITS))
-		#define EXACT_LUMA_OF(c)	((((uint16_t)(c) & ((1<<COLOR_BITS)-1))*255)/((1<<COLOR_BITS)-1))
+		#define EXACT_LUMA_OF(c)	((((gU16)(c) & ((1<<COLOR_BITS)-1))*255)/((1<<COLOR_BITS)-1))
 	#endif
 
 	#define RED_OF(c)			LUMA_OF(c)
@@ -397,7 +434,7 @@ typedef uint16_t	colorformat;
 /**
  * @brief	The color type definition
  */
-typedef COLOR_TYPE			color_t;
+typedef COLOR_TYPE			gColor;
 
 #endif /* GFX_USE_GDISP */
 

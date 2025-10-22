@@ -43,11 +43,11 @@
  * Application entry point.
  */
 int main(void) {
-	font_t			font;
+	gFont			font;
 	GFILE			*f;
 	char 			*errmsg;
-	uint32_t		toplay;
-	uint32_t		len;
+	gU32		toplay;
+	gU32		len;
 	GDataBuffer		*pd;
 
 	// Initialise everything
@@ -79,11 +79,11 @@ repeatplay:
 	}
 
 	// Play the file
-	gdispDrawString(0, gdispGetHeight()/2, "Playing...", font, Yellow);
+	gdispDrawString(0, gdispGetHeight()/2, "Playing...", font, GFX_YELLOW);
 	toplay = gfileGetSize(f);
 	while(toplay) {
 		// Get a buffer to put the data into
-		pd = gfxBufferGet(TIME_INFINITE);		// This should never fail as we are waiting forever
+		pd = gfxBufferGet(gDelayForever);		// This should never fail as we are waiting forever
 
 		// How much data can we put in
 		len = toplay > pd->size ? pd->size : toplay;
@@ -101,19 +101,19 @@ repeatplay:
 	gfileClose(f);
 
 	// Wait for the play to finish
-	gaudioPlayWait(TIME_INFINITE);
-	gdispDrawString(0, gdispGetHeight()/2+10, "Done", font, Green);
+	gaudioPlayWait(gDelayForever);
+	gdispDrawString(0, gdispGetHeight()/2+10, "Done", font, GFX_GREEN);
 
 	// Repeat the whole thing
 	gfxSleepMilliseconds(1500);
-	gdispClear(Black);
+	gdispClear(GFX_BLACK);
 	goto repeatplay;
 
 	// The end
 theend:
 	if (errmsg)
-		gdispDrawString(0, gdispGetHeight()/2, errmsg, font, Red);
+		gdispDrawString(0, gdispGetHeight()/2, errmsg, font, GFX_RED);
 
-	while(TRUE)
+	while(1)
 		gfxSleepMilliseconds(1000);
 }

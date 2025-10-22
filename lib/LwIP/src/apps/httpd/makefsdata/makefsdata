@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-open(OUTPUT, "> fsdata.c");
+open(OUTPUT, "> fsdata_custom.c");
 
 chdir("fs");
 open(FILES, "find . -type f |");
@@ -13,7 +13,8 @@ while($file = <FILES>) {
     }
     
     chop($file);
-    
+
+=pod    
     open(HEADER, "> /tmp/header") || die $!;
     if($file =~ /404/) {
 	print(HEADER "HTTP/1.0 404 File not found\r\n");
@@ -38,7 +39,7 @@ while($file = <FILES>) {
     }
     print(HEADER "\r\n");
     close(HEADER);
-
+=cut
     unless($file =~ /\.plain$/ || $file =~ /cgi/) {
 	system("cat /tmp/header $file > /tmp/file");
     } else {

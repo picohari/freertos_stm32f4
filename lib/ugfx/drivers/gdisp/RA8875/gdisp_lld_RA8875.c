@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "gfx.h"
@@ -38,7 +38,7 @@
 /*===========================================================================*/
 
 // Some common routines and macros
-#define dummy_read(g)					{ volatile uint16_t dummy; dummy = read_data(g); (void) dummy; }
+#define dummy_read(g)					{ volatile gU16 dummy; dummy = read_data(g); (void) dummy; }
 #define write_reg8(g, reg, data)		{ write_index(g, reg); write_data(g, data); }
 #define write_reg16(g, reg, data)		{ write_index(g, reg); write_data(g, data); write_index(g, reg+1); write_data(g, (data)>>8); }
 #define write_reg8x2(g, reg, d1, d2)	{ write_index(g, reg); write_data(g, d1); write_data(g, d2); }
@@ -58,8 +58,8 @@ static GFXINLINE void set_viewport(GDisplay* g) {
 
 // On this controller the back-light is controlled by the controllers internal PWM
 //	which is why it is in this file rather than the board file.
-static GFXINLINE void set_backlight(GDisplay* g, uint8_t percent) {
-	uint8_t temp;
+static GFXINLINE void set_backlight(GDisplay* g, gU8 percent) {
+	gU8 temp;
 
 	//Work in progress: the RA8875 has a built-in PWM, its output can
 	//be used by a Dynamic Background Control or by a host (user)
@@ -101,7 +101,7 @@ static GFXINLINE void set_backlight(GDisplay* g, uint8_t percent) {
 /* Driver exported functions.                                                */
 /*===========================================================================*/
 
-LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
+LLDSPEC gBool gdisp_lld_init(GDisplay *g) {
 	// No private area for this controller
 	g->priv = 0;
 
@@ -109,9 +109,9 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	init_board(g);
 
 	// Hardware reset
-	setpin_reset(g, TRUE);
+	setpin_reset(g, gTrue);
 	gfxSleepMilliseconds(20);
-	setpin_reset(g, FALSE);
+	setpin_reset(g, gFalse);
 	gfxSleepMilliseconds(20);
 
 	// Get the bus for the following initialisation commands
@@ -166,11 +166,11 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	/* Initialise the GDISP structure */
 	g->g.Width = GDISP_SCREEN_WIDTH;
 	g->g.Height = GDISP_SCREEN_HEIGHT;
-	g->g.Orientation = GDISP_ROTATE_0;
-	g->g.Powermode = powerOn;
+	g->g.Orientation = gOrientation0;
+	g->g.Powermode = gPowerOn;
 	g->g.Backlight = GDISP_INITIAL_BACKLIGHT;
 	g->g.Contrast = GDISP_INITIAL_CONTRAST;
-	return TRUE;
+	return gTrue;
 }
 
 #if GDISP_HARDWARE_STREAM_WRITE
@@ -194,20 +194,20 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 		switch(g->p.x) {
 		#if 0
 			case GDISP_CONTROL_POWER:
-				if (g->g.Powermode == (powermode_t)g->p.ptr)
+				if (g->g.Powermode == (gPowermode)g->p.ptr)
 					return;
-				switch((powermode_t)g->p.ptr) {
-				case powerOff:
+				switch((gPowermode)g->p.ptr) {
+				case gPowerOff:
 					acquire_bus(g);
 					// TODO
 					release_bus(g);
 					break;
-				case powerOn:
+				case gPowerOn:
 					acquire_bus(g);
 					// TODO
 					release_bus(g);
 					break;
-				case powerSleep:
+				case gPowerSleep:
 					acquire_bus(g);
 					// TODO
 					release_bus(g);
@@ -215,37 +215,37 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 				default:
 					return;
 				}
-				g->g.Powermode = (powermode_t)g->p.ptr;
+				g->g.Powermode = (gPowermode)g->p.ptr;
 				return;
 		#endif
 
 		#if 0
 			case GDISP_CONTROL_ORIENTATION:
-				if (g->g.Orientation == (orientation_t)g->p.ptr)
+				if (g->g.Orientation == (gOrientation)g->p.ptr)
 					return;
-				switch((orientation_t)g->p.ptr) {
-				case GDISP_ROTATE_0:
+				switch((gOrientation)g->p.ptr) {
+				case gOrientation0:
 					acquire_bus(g);
 					// TODO
 					release_bus(g);
 					g->g.Height = GDISP_SCREEN_HEIGHT;
 					g->g.Width = GDISP_SCREEN_WIDTH;
 					break;
-				case GDISP_ROTATE_90:
+				case gOrientation90:
 					acquire_bus(g);
 					// TODO
 					release_bus(g);
 					g->g.Height = GDISP_SCREEN_WIDTH;
 					g->g.Width = GDISP_SCREEN_HEIGHT;
 					break;
-				case GDISP_ROTATE_180:
+				case gOrientation180:
 					acquire_bus(g);
 					// TODO
 					release_bus(g);
 					g->g.Height = GDISP_SCREEN_HEIGHT;
 					g->g.Width = GDISP_SCREEN_WIDTH;
 					break;
-				case GDISP_ROTATE_270:
+				case gOrientation270:
 					acquire_bus(g);
 					// TODO
 					release_bus(g);
@@ -255,7 +255,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 				default:
 					return;
 				}
-				g->g.Orientation = (orientation_t)g->p.ptr;
+				g->g.Orientation = (gOrientation)g->p.ptr;
 				return;
 		#endif
 

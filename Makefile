@@ -30,13 +30,17 @@ include ./src/hw/HW.mk
 include ./src/protocols/PROTO.mk
 
 # 5. Application libraries and external modules
-include ./src/gui/GUI.mk
+include ./src/gui/AXIS.mk
+# include ./src/gui/GUI.mk
+# include ./src/gui/ZEN.mk
 # include ./src/gui/WORK.mk
 # include ./src/gui/TEST.mk
 
 # 6. Network applications and services
 include ./src/services/SERVICES.mk
 
+# 7. Master Application code
+include ./src/app/APP.mk
 
 # OPT - FATFS Host setup
 include ./drv/USBH.mk
@@ -71,7 +75,6 @@ USE_OPT = -Os -D$(MCU_MODEL_FAMILY) -DUSE_HAL_DRIVER -DUSE_STM324xG_EVAL -DUSE_U
 
 # C specific options (added to USE_OPT).
 USE_COPT = -fstack-usage -ggdb
-# USE_COPT =
 
 # C++ specific options (added to USE_OPT).
 USE_CPPOPT = -fno-rtti
@@ -90,6 +93,7 @@ TRGT = arm-none-eabi-
 CC   = $(TRGT)gcc
 CPPC = $(TRGT)g++
 LD   = $(TRGT)gcc
+
 # Enable loading with g++ only if you need C++ runtime support.
 # NOTE: You can use C++ even without C++ support if you are careful. C++
 #       runtime support makes code size explode.
@@ -110,7 +114,7 @@ CWARN = -Wall -Wextra -Wstrict-prototypes
 CPPWARN = -Wall -Wextra
 
 # Verbose log while compiling
-USE_VERBOSE_COMPILE = yes
+USE_VERBOSE_COMPILE = no
 
 
 ##############################################################################
@@ -140,7 +144,6 @@ OPENOCD_BOARD_DIR = /home/dk6yf/stm32/openocd/scripts/board
 
 # OpenOCD board config file
 OPENOCD_BOARD_CFG = stm32f7discovery.cfg
-
 
 # ARM Cortex-Mx common makefile scripts and rules.
 
@@ -279,21 +282,15 @@ VPATH     = $(SRCPATHS)
 
 
 
-
-
-
 ##############################################################################
 # Makefile rules
 #
 
 all: $(OBJS) $(OUTFILES) MAKE_ALL_RULE_HOOK
 
-
 MAKE_ALL_RULE_HOOK:
 
-
 $(OBJS): | $(BUILDDIR)
-
 
 $(BUILDDIR) $(OBJDIR) $(LSTDIR):
 ifneq ($(USE_VERBOSE_COMPILE),yes)

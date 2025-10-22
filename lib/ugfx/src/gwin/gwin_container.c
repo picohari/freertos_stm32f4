@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -59,20 +59,19 @@ GHandle gwinGetSibling(GHandle gh) {
 	return 0;
 }
 
-coord_t gwinGetInnerWidth(GHandle gh) {
+gCoord gwinGetInnerWidth(GHandle gh) {
 	if (!(gh->flags & GWIN_FLG_CONTAINER))
 		return 0;
 	return gh->width - ((const gcontainerVMT *)gh->vmt)->LeftBorder(gh) - ((const gcontainerVMT *)gh->vmt)->RightBorder(gh);
 }
 
-coord_t gwinGetInnerHeight(GHandle gh) {
+gCoord gwinGetInnerHeight(GHandle gh) {
 	if (!(gh->flags & GWIN_FLG_CONTAINER))
 		return 0;
 	return gh->height - ((const gcontainerVMT *)gh->vmt)->TopBorder(gh) - ((const gcontainerVMT *)gh->vmt)->BottomBorder(gh);
 }
 
 #endif /* GFX_USE_GWIN && GWIN_NEED_CONTAINERS */
-/** @} */
 
 /*-----------------------------------------------
  * The simplest container type - a container
@@ -92,7 +91,7 @@ coord_t gwinGetInnerHeight(GHandle gh) {
 
 #define BORDER_WIDTH		2
 
-static coord_t ContainerBorderSize(GHandle gh)	{ return (gh->flags & GWIN_CONTAINER_BORDER) ? BORDER_WIDTH : 0; }
+static gCoord ContainerBorderSize(GHandle gh)	{ return (gh->flags & GWIN_CONTAINER_BORDER) ? BORDER_WIDTH : 0; }
 
 // The container VMT table
 static const gcontainerVMT containerVMT = {
@@ -134,7 +133,7 @@ static const gcontainerVMT containerVMT = {
 	0,									// A child has been deleted (optional)
 };
 
-GHandle gwinGContainerCreate(GDisplay *g, GContainerObject *gc, const GWidgetInit *pInit, uint32_t flags) {
+GHandle gwinGContainerCreate(GDisplay *g, GContainerObject *gc, const GWidgetInit *pInit, gU32 flags) {
 	if (!(gc = (GContainerObject *)_gcontainerCreate(g, gc, pInit, &containerVMT)))
 		return 0;
 
@@ -168,8 +167,8 @@ void gwinContainerDraw_Std(GWidgetObject *gw, void *param) {
 
 #if GDISP_NEED_IMAGE
 	void gwinContainerDraw_Image(GWidgetObject *gw, void *param) {
-		#define gi			((gdispImage *)param)
-		coord_t				x, y, iw, ih, mx, my;
+		#define gi			((gImage *)param)
+		gCoord				x, y, iw, ih, mx, my;
 
 		if (gw->g.vmt != (gwinVMT *)&containerVMT)
 			return;
@@ -201,6 +200,10 @@ void gwinContainerDraw_Std(GWidgetObject *gw, void *param) {
 
 		#undef gi
 	}
-#endif
+#endif /* GDISP_NEED_IMAGE */
 
-#endif
+/**
+ * @}
+ */
+
+#endif /* GFX_USE_GWIN && GWIN_NEED_CONTAINERS */

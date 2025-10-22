@@ -50,10 +50,10 @@
 #define __STM324xG_EVAL_BSP_VERSION_SUB1   (0x02) /*!< [23:16] sub1 version */
 #define __STM324xG_EVAL_BSP_VERSION_SUB2   (0x02) /*!< [15:8]  sub2 version */
 #define __STM324xG_EVAL_BSP_VERSION_RC     (0x00) /*!< [7:0]  release candidate */ 
-#define __STM324xG_EVAL_BSP_VERSION         ((__STM324xG_EVAL_BSP_VERSION_MAIN << 24)\
-                                             |(__STM324xG_EVAL_BSP_VERSION_SUB1 << 16)\
-                                             |(__STM324xG_EVAL_BSP_VERSION_SUB2 << 8 )\
-                                             |(__STM324xG_EVAL_BSP_VERSION_RC))
+#define __STM324xG_EVAL_BSP_VERSION        (   (__STM324xG_EVAL_BSP_VERSION_MAIN << 24) \
+                                             | (__STM324xG_EVAL_BSP_VERSION_SUB1 << 16) \
+                                             | (__STM324xG_EVAL_BSP_VERSION_SUB2 <<  8) \
+                                             | (__STM324xG_EVAL_BSP_VERSION_RC))
 
 
 /** @defgroup STM324xG_EVAL_LOW_LEVEL_Private_Variables STM324xG EVAL LOW LEVEL Private Variables
@@ -68,7 +68,6 @@ const uint16_t GPIO_PIN[LEDn] = {LED1_PIN,
                                  LED2_PIN, 
                                  LED3_PIN,
                                  LED4_PIN};
-
 
 
 /** @defgroup STM324xG_EVAL_LOW_LEVEL_Private_Functions STM324xG EVAL LOW LEVEL Private Functions
@@ -166,7 +165,6 @@ void BSP_LCD_Init(void)
   /* Enable GPIOs clock */
   __GPIOD_CLK_ENABLE();
   __GPIOE_CLK_ENABLE();
-  //__GPIOF_CLK_ENABLE();
   __GPIOG_CLK_ENABLE();
   
   /* Common GPIO configuration */
@@ -186,13 +184,6 @@ void BSP_LCD_Init(void)
                               GPIO_PIN_11| GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15;
   HAL_GPIO_Init(GPIOE, &GPIO_Init_Structure);
   
-  #if 0
-  /* GPIOF configuration */  
-  GPIO_Init_Structure.Pin   = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2| GPIO_PIN_3 | GPIO_PIN_4     | \
-                              GPIO_PIN_5 | GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15;
-  HAL_GPIO_Init(GPIOF, &GPIO_Init_Structure);
-  #endif
-
   /* GPIOG configuration */  
   GPIO_Init_Structure.Pin   = GPIO_PIN_5 | GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14;
   
@@ -236,7 +227,6 @@ void BSP_LCD_Init(void)
   HAL_SRAM_Init(&hsram, &SRAM_Timing, &SRAM_Timing);
 
 }
-
 
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

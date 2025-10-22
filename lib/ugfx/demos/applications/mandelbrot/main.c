@@ -31,8 +31,8 @@
 
 void mandelbrot(float x1, float y1, float x2, float y2) {
 	unsigned int i,j, width, height;
-	uint16_t iter;
-	color_t color;
+	gU16 iter;
+	gColor color;
 	float fwidth, fheight;
 	
 	float sy = y2 - y1;
@@ -72,7 +72,7 @@ int main(void) {
 	cx = -0.086f;
 	cy = 0.85f;
 
-	while(TRUE) {
+	while(1) {
 		mandelbrot(-2.0f*zoom+cx, -1.5f*zoom+cy, 2.0f*zoom+cx, 1.5f*zoom+cy);
 
 		zoom *= 0.7f;

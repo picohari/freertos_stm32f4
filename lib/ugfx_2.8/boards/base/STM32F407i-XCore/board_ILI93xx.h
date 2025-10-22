@@ -10,9 +10,9 @@
 
 #include "XCore407I.h"
 
-
-#define  LCD_REG     (*((volatile unsigned short *) 0x6d000000))
-#define  LCD_RAM     (*((volatile unsigned short *) 0x6d010000))
+/* FSMC allows direct write acces to memory */
+#define  LCD_REG     (*((volatile unsigned short *) 0x6C000000))
+#define  LCD_RAM     (*((volatile unsigned short *) 0x6C010000))
 
 
 static GFXINLINE void init_board(GDisplay *g) {
@@ -21,11 +21,10 @@ static GFXINLINE void init_board(GDisplay *g) {
 	g->board = 0;
 
 	switch(g->controllerdisplay) {
-	case 0:											// Set up for Display 0
-		/**/
-		BSP_LCD_Init();
-		break;
-
+		case 0:											// Set up for Display 0
+			/* Set up of LCD port in BSP driver */
+			BSP_LCD_Init();			
+			break;
 	}
 
 	//LOG_UART("uGFX: LCD init");
@@ -55,7 +54,7 @@ static GFXINLINE void release_bus(GDisplay *g) {
 
 static GFXINLINE void write_index(GDisplay *g, uint16_t index) {
 	(void) g;
-	 LCD_REG = index;
+	LCD_REG = index;
 }
 
 static GFXINLINE void write_data(GDisplay *g, uint16_t data) {

@@ -12,12 +12,12 @@
 /* Driver hardware support.                                                  */
 /*===========================================================================*/
 
-#define GDISP_HARDWARE_DRAWPIXEL		TRUE
-#define GDISP_HARDWARE_FILLS			TRUE
-#define GDISP_HARDWARE_BITFILLS			FALSE
-#define GDISP_HARDWARE_SCROLL			FALSE
-#define GDISP_HARDWARE_PIXELREAD		TRUE
-#define GDISP_HARDWARE_CONTROL			FALSE
+#define GDISP_HARDWARE_DRAWPIXEL		GFXON
+#define GDISP_HARDWARE_FILLS			GFXON
+#define GDISP_HARDWARE_BITFILLS			GFXOFF
+#define GDISP_HARDWARE_SCROLL			GFXOFF
+#define GDISP_HARDWARE_PIXELREAD		GFXON
+#define GDISP_HARDWARE_CONTROL			GFXOFF
 
 #define GDISP_LLD_PIXELFORMAT			GDISP_PIXELFORMAT_RGB888
 

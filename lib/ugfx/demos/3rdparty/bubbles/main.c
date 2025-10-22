@@ -25,14 +25,14 @@
 
 #define background RGB2COLOR(0,0,0)
 
-uint16_t width, height;
-int16_t sine[SCALE+(SCALE/4)];
-int16_t *cosi = &sine[SCALE/4]; /* cos(x) = sin(x+90d)... */
+gU16 width, height;
+gI16 sine[SCALE+(SCALE/4)];
+gI16 *cosi = &sine[SCALE/4]; /* cos(x) = sin(x+90d)... */
 
 
 void initialize (void)
 {
-  uint16_t i;
+  gU16 i;
 
   /* if you change the SCALE*1.25 back to SCALE, the program will
    * occassionally overrun the cosi array -- however this actually
@@ -44,12 +44,12 @@ void initialize (void)
 }
 
 
-void matrix (int16_t xyz[3][N], color_t col[N])
+void matrix (gI16 xyz[3][N], gColor col[N])
 {
-  static uint32_t t = 0;
-  int16_t x = -SCALE, y = -SCALE;
-  uint16_t i, s, d;
-  uint8_t red,grn,blu;
+  static gU32 t = 0;
+  gI16 x = -SCALE, y = -SCALE;
+  gU16 i, s, d;
+  gU8 red,grn,blu;
 
 #define RED_COLORS (32)
 #define GREEN_COLORS (64)
@@ -81,13 +81,13 @@ void matrix (int16_t xyz[3][N], color_t col[N])
 }
 
 
-void rotate (int16_t xyz[3][N], uint16_t angleX, uint16_t angleY, uint16_t angleZ)
+void rotate (gI16 xyz[3][N], gU16 angleX, gU16 angleY, gU16 angleZ)
 {
-  uint16_t i;
-  int16_t tmpX, tmpY;
-  int16_t sinx = sine[angleX], cosx = cosi[angleX];
-  int16_t siny = sine[angleY], cosy = cosi[angleY];
-  int16_t sinz = sine[angleZ], cosz = cosi[angleZ];
+  gU16 i;
+  gI16 tmpX, tmpY;
+  gI16 sinx = sine[angleX], cosx = cosi[angleX];
+  gI16 siny = sine[angleY], cosy = cosi[angleY];
+  gI16 sinz = sine[angleZ], cosz = cosi[angleZ];
 
   for (i = 0; i < N; i++)
     {
@@ -106,12 +106,12 @@ void rotate (int16_t xyz[3][N], uint16_t angleX, uint16_t angleY, uint16_t angle
 }
 
 
-void draw(int16_t xyz[3][N], color_t col[N])
+void draw(gI16 xyz[3][N], gColor col[N])
 {
-  static uint16_t oldProjX[N] = {0};
-  static uint16_t oldProjY[N] = {0};
-  static uint8_t oldDotSize[N] = {0};
-  uint16_t i, projX, projY, projZ, dotSize;
+  static gU16 oldProjX[N] = {0};
+  static gU16 oldProjY[N] = {0};
+  static gU8 oldDotSize[N] = {0};
+  gU16 i, projX, projY, projZ, dotSize;
 
   for (i = 0; i < N; i++)
     {
@@ -138,11 +138,11 @@ void draw(int16_t xyz[3][N], color_t col[N])
 
 /* ---------------------------------------------------------------------- */
 
-int16_t angleX = 0, angleY = 0, angleZ = 0;
-int16_t speedX = 0, speedY = 0, speedZ = 0;
+gI16 angleX = 0, angleY = 0, angleZ = 0;
+gI16 speedX = 0, speedY = 0, speedZ = 0;
 
-int16_t xyz[3][N];
-color_t col[N];
+gI16 xyz[3][N];
+gColor col[N];
 
 
 int main (void)
@@ -158,8 +158,8 @@ int main (void)
   gfxSleepMilliseconds (10);
   gdispClear (background);  /* glitches.. */
 
-  width = (uint16_t)gdispGetWidth();
-  height = (uint16_t)gdispGetHeight();
+  width = (gU16)gdispGetWidth();
+  height = (gU16)gdispGetHeight();
 
   initialize();
 

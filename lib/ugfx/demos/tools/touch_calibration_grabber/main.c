@@ -33,10 +33,10 @@
 #include "src/ginput/ginput_driver_mouse.h"
 
 static GConsoleObject			gc;
-static font_t					font;
-static coord_t					bHeight;
+static gFont					font;
+static gCoord					bHeight;
 static GHandle					ghc;
-static coord_t					swidth, sheight;
+static gCoord					swidth, sheight;
 
 #if !GWIN_CONSOLE_USE_FLOAT
 	#error "You need to enable float support for the console widget. (GWIN_CONSOLE_USE_FLOAT)"
@@ -55,15 +55,15 @@ int main(void) {
 	// Create our title
 	font = gdispOpenFont("UI2");
 	gwinSetDefaultFont(font);
-	bHeight = gdispGetFontMetric(font, fontHeight)+4;
-	gdispFillStringBox(0, 0, swidth, bHeight, "Touchscreen Calibration Grabber", font, Red, White, justifyCenter);
+	bHeight = gdispGetFontMetric(font, gFontHeight)+4;
+	gdispFillStringBox(0, 0, swidth, bHeight, "Touchscreen Calibration Grabber", font, GFX_RED, GFX_WHITE, gJustifyCenter);
 
 	// Create our main display writing window
 	{
 		GWindowInit				wi;
 
 		gwinClearInit(&wi);
-		wi.show = TRUE; wi.x = 0; wi.y = bHeight; wi.width = swidth; wi.height = sheight-bHeight;
+		wi.show = gTrue; wi.x = 0; wi.y = bHeight; wi.width = swidth; wi.height = sheight-bHeight;
 		ghc = gwinConsoleCreate(&gc, &wi);
 	}
 

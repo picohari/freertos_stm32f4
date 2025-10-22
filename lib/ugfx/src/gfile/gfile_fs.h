@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -16,7 +16,7 @@
 
 struct GFILE {
 	const struct GFILEVMT *	vmt;
-	uint16_t				flags;
+	gU16				flags;
 		#define	GFILEFLG_OPEN			0x0001		// File is open
 		#define	GFILEFLG_READ			0x0002		// Read the file
 		#define	GFILEFLG_WRITE			0x0004		// Write the file
@@ -29,16 +29,16 @@ struct GFILE {
 		#define GFILEFLG_MUSTNOTEXIST	0x0200		// On open file must not exist
 		#define GFILEFLG_TRUNC			0x0400		// On open truncate the file
 	void *					obj;
-	long int				pos;
+	gFileSize				pos;
 };
 
 struct gfileList {
 	const struct GFILEVMT *	vmt;
-	bool_t					dirs;
+	gBool					dirs;
 };
 
 typedef struct GFILEVMT {
-	uint8_t					flags;
+	gU8					flags;
 		#define GFSFLG_WRITEABLE		0x0001
 		#define GFSFLG_CASESENSITIVE	0x0002
 		#define GFSFLG_SEEKABLE			0x0004
@@ -46,22 +46,22 @@ typedef struct GFILEVMT {
 		#define GFSFLG_SMALL			0x0020
 		#define GFSFLG_TEXTMODES		0x0040
 	char					prefix;
-	bool_t		(*del)		(const char *fname);
-	bool_t		(*exists)	(const char *fname);
-	long int	(*filesize)	(const char *fname);
-	bool_t		(*ren)		(const char *oldname, const char *newname);
-	bool_t		(*open)		(GFILE *f, const char *fname);
+	gBool		(*del)		(const char *fname);
+	gBool		(*exists)	(const char *fname);
+	gFileSize	(*filesize)	(const char *fname);
+	gBool		(*ren)		(const char *oldname, const char *newname);
+	gBool		(*open)		(GFILE *f, const char *fname);
 	void		(*close)	(GFILE *f);
 	int			(*read)		(GFILE *f, void *buf, int size);
 	int			(*write)	(GFILE *f, const void *buf, int size);
-	bool_t		(*setpos)	(GFILE *f, long int pos);
-	long int	(*getsize)	(GFILE *f);
-	bool_t		(*eof)		(GFILE *f);
-	bool_t		(*mount)	(const char *drive);
-	bool_t		(*unmount)	(const char *drive);
-	bool_t		(*sync)		(GFILE *f);
+	gBool		(*setpos)	(GFILE *f, gFileSize pos);
+	gFileSize	(*getsize)	(GFILE *f);
+	gBool		(*eof)		(GFILE *f);
+	gBool		(*mount)	(const char *drive);
+	gBool		(*unmount)	(const char *drive);
+	gBool		(*sync)		(GFILE *f);
 	#if GFILE_NEED_FILELISTS
-		gfileList *	(*flopen)	(const char *path, bool_t dirs);
+		gfileList *	(*flopen)	(const char *path, gBool dirs);
 		const char *(*flread)	(gfileList *pfl);
 		void		(*flclose)	(gfileList *pfl);
 	#endif

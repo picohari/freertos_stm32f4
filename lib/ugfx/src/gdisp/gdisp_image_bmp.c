@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "../../gfx.h"
@@ -11,8 +11,18 @@
 
 #include "gdisp_image_support.h"
 
+#if GDISP_IMAGE_BMP_BLIT_BUFFER_SIZE * (COLOR_TYPE_BITS/8) < 40
+		#if GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_DIRECT
+			#warning "GDISP: GDISP_IMAGE_BMP_BLIT_BUFFER_SIZE must be at least 40 bytes. It has been adjusted for you."
+		#elif GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_MACRO
+			COMPILER_WARNING("GDISP: GDISP_IMAGE_BMP_BLIT_BUFFER_SIZE must be at least 40 bytes. It has been adjusted for you.")
+		#endif
+	#undef GDISP_IMAGE_BMP_BLIT_BUFFER_SIZE
+	#define GDISP_IMAGE_BMP_BLIT_BUFFER_SIZE	((40 + (COLOR_TYPE_BITS/8) - 1) / (COLOR_TYPE_BITS/8))
+#endif
+
 typedef struct gdispImagePrivate_BMP {
-	uint8_t		bmpflags;
+	gU8		bmpflags;
 		#define BMP_V2				0x01		// Version 2 (old) header format
 		#define BMP_V4				0x02		// Version 4 (alpha support) header format
 		#define BMP_PALETTE			0x04		// Uses a palette
@@ -21,52 +31,52 @@ typedef struct gdispImagePrivate_BMP {
 		#define BMP_RLE_ENC			0x20		// Currently in RLE encoded run
 		#define BMP_RLE_ABS			0x40		// Currently in RLE absolute run
 		#define BMP_TOP_TO_BOTTOM	0x80		// Decodes bottom to top line
-	uint8_t		bitsperpixel;
+	gU8		bitsperpixel;
 #if GDISP_NEED_IMAGE_BMP_1 || GDISP_NEED_IMAGE_BMP_4 || GDISP_NEED_IMAGE_BMP_4_RLE || GDISP_NEED_IMAGE_BMP_8 || GDISP_NEED_IMAGE_BMP_8_RLE
-	uint16_t	palsize;
-	pixel_t		*palette;
+	gU16	palsize;
+	gPixel		*palette;
 #endif
 #if GDISP_NEED_IMAGE_BMP_4_RLE || GDISP_NEED_IMAGE_BMP_8_RLE
-	uint16_t	rlerun;
-	uint8_t		rlecode;
+	gU16	rlerun;
+	gU8		rlecode;
 #endif
 #if GDISP_NEED_IMAGE_BMP_16 || GDISP_NEED_IMAGE_BMP_32
-	int8_t		shiftred;
-	int8_t		shiftgreen;
-	int8_t		shiftblue;
-	int8_t		shiftalpha;
-	uint32_t	maskred;
-	uint32_t	maskgreen;
-	uint32_t	maskblue;
-	uint32_t	maskalpha;
+	gI8		shiftred;
+	gI8		shiftgreen;
+	gI8		shiftblue;
+	gI8		shiftalpha;
+	gU32	maskred;
+	gU32	maskgreen;
+	gU32	maskblue;
+	gU32	maskalpha;
 #endif
-	size_t		frame0pos;
-	pixel_t		*frame0cache;
-	pixel_t		buf[GDISP_IMAGE_BMP_BLIT_BUFFER_SIZE];
+	gFileSize	frame0pos;
+	gPixel		*frame0cache;
+	gPixel		buf[GDISP_IMAGE_BMP_BLIT_BUFFER_SIZE];
 	} gdispImagePrivate_BMP;
 
-void gdispImageClose_BMP(gdispImage *img) {
+void gdispImageClose_BMP(gImage *img) {
 	gdispImagePrivate_BMP *priv;
 
 	priv = (gdispImagePrivate_BMP *)img->priv;
 	if (priv) {
 #if GDISP_NEED_IMAGE_BMP_1 || GDISP_NEED_IMAGE_BMP_4 || GDISP_NEED_IMAGE_BMP_4_RLE || GDISP_NEED_IMAGE_BMP_8 || GDISP_NEED_IMAGE_BMP_8_RLE
 		if (priv->palette)
-			gdispImageFree(img, (void *)priv->palette, priv->palsize*sizeof(color_t));
+			gdispImageFree(img, (void *)priv->palette, priv->palsize*sizeof(gColor));
 #endif
 		if (priv->frame0cache)
-			gdispImageFree(img, (void *)priv->frame0cache, img->width*img->height*sizeof(pixel_t));
+			gdispImageFree(img, (void *)priv->frame0cache, img->width*img->height*sizeof(gPixel));
 		gdispImageFree(img, (void *)priv, sizeof(gdispImagePrivate_BMP));
 		img->priv = 0;
 	}
 }
 
-gdispImageError gdispImageOpen_BMP(gdispImage *img) {
+gdispImageError gdispImageOpen_BMP(gImage *img) {
 	gdispImagePrivate_BMP *priv;
-	uint8_t		hdr[2];
-	uint16_t	aword;
-	uint32_t	adword;
-	uint32_t	offsetColorTable;
+	gU8		hdr[2];
+	gU16	aword;
+	gU32	adword;
+	gU32	offsetColorTable;
 
 	/* Read the file identifier */
 	if (gfileRead(img->f, hdr, 2) != 2)
@@ -172,7 +182,7 @@ gdispImageError gdispImageOpen_BMP(gdispImage *img) {
 		img->width = adword;
 		// Get the height
 		adword = gdispImageGetAlignedLE32(priv->buf, 4);
-		if ((int32_t)adword < 0) {		// Negative test
+		if ((gI32)adword < 0) {		// Negative test
 			priv->bmpflags |= BMP_TOP_TO_BOTTOM;
 			adword = -adword;
 		}
@@ -262,17 +272,17 @@ gdispImageError gdispImageOpen_BMP(gdispImage *img) {
 	if (priv->bmpflags & BMP_PALETTE) {
 		gfileSetPos(img->f, offsetColorTable);
 
-		if (!(priv->palette = (color_t *)gdispImageAlloc(img, priv->palsize*sizeof(color_t))))
+		if (!(priv->palette = (gColor *)gdispImageAlloc(img, priv->palsize*sizeof(gColor))))
 			return GDISP_IMAGE_ERR_NOMEMORY;
 		if (priv->bmpflags & BMP_V2) {
 			for(aword = 0; aword < priv->palsize; aword++) {
 				if (gfileRead(img->f, &priv->buf, 3) != 3) goto baddatacleanup;
-				priv->palette[aword] = RGB2COLOR(((uint8_t *)priv->buf)[2], ((uint8_t *)priv->buf)[1], ((uint8_t *)priv->buf)[0]);
+				priv->palette[aword] = RGB2COLOR(((gU8 *)priv->buf)[2], ((gU8 *)priv->buf)[1], ((gU8 *)priv->buf)[0]);
 			}
 		} else {
 			for(aword = 0; aword < priv->palsize; aword++) {
 				if (gfileRead(img->f, &priv->buf, 4) != 4) goto baddatacleanup;
-				priv->palette[aword] = RGB2COLOR(((uint8_t *)priv->buf)[2], ((uint8_t *)priv->buf)[1], ((uint8_t *)priv->buf)[0]);
+				priv->palette[aword] = RGB2COLOR(((gU8 *)priv->buf)[2], ((gU8 *)priv->buf)[1], ((gU8 *)priv->buf)[0]);
 			}
 		}
 
@@ -352,10 +362,10 @@ unsupportedcleanup:
 	return GDISP_IMAGE_ERR_UNSUPPORTED;		// Not supported
 }
 
-static coord_t getPixels(gdispImage *img, coord_t x) {
+static gCoord getPixels(gImage *img, gCoord x) {
 	gdispImagePrivate_BMP *	priv;
-	color_t *			pc;
-	coord_t				len;
+	gColor *			pc;
+	gCoord				len;
 
 	priv = (gdispImagePrivate_BMP *)img->priv;
 	pc = priv->buf;
@@ -365,8 +375,8 @@ static coord_t getPixels(gdispImage *img, coord_t x) {
 #if GDISP_NEED_IMAGE_BMP_1
 	case 1:
 		{
-		uint8_t		b[4];
-		uint8_t		m;
+		gU8		b[4];
+		gU8		m;
 
 			priv = (gdispImagePrivate_BMP *)img->priv;
 			pc = priv->buf;
@@ -398,7 +408,7 @@ static coord_t getPixels(gdispImage *img, coord_t x) {
 		if (priv->bmpflags & BMP_COMP_RLE)
 		#endif
 		{
-			uint8_t		b[4];
+			gU8		b[4];
 
 			while(x < img->width) {
 				if (priv->bmpflags & BMP_RLE_ENC) {
@@ -462,7 +472,7 @@ static coord_t getPixels(gdispImage *img, coord_t x) {
 					// There are always at least 2 bytes in an RLE code
 					if (gfileRead(img->f, &b, 2) != 2)
 						return 0;
-					priv->rlerun = b[0] + (uint16_t)b[1] * img->width;
+					priv->rlerun = b[0] + (gU16)b[1] * img->width;
 					priv->rlecode = 0;					// Who knows what color this should really be
 					priv->bmpflags |= BMP_RLE_ENC;
 				} else {								// Absolute mode
@@ -475,7 +485,7 @@ static coord_t getPixels(gdispImage *img, coord_t x) {
 	#endif
 	#if GDISP_NEED_IMAGE_BMP_4
 		{
-			uint8_t		b[4];
+			gU8		b[4];
 
 			while(x < img->width && len <= GDISP_IMAGE_BMP_BLIT_BUFFER_SIZE-8) {
 				if (gfileRead(img->f, &b, 4) != 4)
@@ -504,7 +514,7 @@ static coord_t getPixels(gdispImage *img, coord_t x) {
 		if (priv->bmpflags & BMP_COMP_RLE)
 		#endif
 		{
-			uint8_t		b[4];
+			gU8		b[4];
 
 			while(x < img->width) {
 				if (priv->bmpflags & BMP_RLE_ENC) {
@@ -555,8 +565,8 @@ static coord_t getPixels(gdispImage *img, coord_t x) {
 				} else if (b[1] == 2) {					// Delta x, y
 					// There are always at least 2 bytes in an RLE code
 					if (gfileRead(img->f, &b, 2) != 2)
-						return GDISP_IMAGE_ERR_BADDATA;
-					priv->rlerun = b[0] + (uint16_t)b[1] * img->width;
+						return (gCoord)GDISP_IMAGE_ERR_BADDATA;
+					priv->rlerun = b[0] + (gU16)b[1] * img->width;
 					priv->rlecode = 0;					// Who knows what color this should really be
 					priv->bmpflags |= BMP_RLE_ENC;
 				} else {								// Absolute mode
@@ -569,7 +579,7 @@ static coord_t getPixels(gdispImage *img, coord_t x) {
 	#endif
 	#if GDISP_NEED_IMAGE_BMP_8
 		{
-			uint8_t		b[4];
+			gU8		b[4];
 
 			while(x < img->width && len <= GDISP_IMAGE_BMP_BLIT_BUFFER_SIZE-4) {
 				if (gfileRead(img->f, &b, 4) != 4)
@@ -590,8 +600,8 @@ static coord_t getPixels(gdispImage *img, coord_t x) {
 #if GDISP_NEED_IMAGE_BMP_16
 	case 16:
 		{
-		uint16_t	w[2];
-		color_t		r, g, b;
+		gU16	w[2];
+		gColor		r, g, b;
 
 			while(x < img->width && len <= GDISP_IMAGE_BMP_BLIT_BUFFER_SIZE-2) {
 				if (gfileRead(img->f, &w, 4) != 4)
@@ -599,31 +609,31 @@ static coord_t getPixels(gdispImage *img, coord_t x) {
 				gdispImageMakeLE16(w[0]);
 				gdispImageMakeLE16(w[1]);
 				if (priv->shiftred < 0)
-					r = (color_t)((w[0] & priv->maskred) << -priv->shiftred);
+					r = (gColor)((w[0] & priv->maskred) << -priv->shiftred);
 				else
-					r = (color_t)((w[0] & priv->maskred) >> priv->shiftred);
+					r = (gColor)((w[0] & priv->maskred) >> priv->shiftred);
 				if (priv->shiftgreen < 0)
-					g = (color_t)((w[0] & priv->maskgreen) << -priv->shiftgreen);
+					g = (gColor)((w[0] & priv->maskgreen) << -priv->shiftgreen);
 				else
-					g = (color_t)((w[0] & priv->maskgreen) >> priv->shiftgreen);
+					g = (gColor)((w[0] & priv->maskgreen) >> priv->shiftgreen);
 				if (priv->shiftblue < 0)
-					b = (color_t)((w[0] & priv->maskblue) << -priv->shiftblue);
+					b = (gColor)((w[0] & priv->maskblue) << -priv->shiftblue);
 				else
-					b = (color_t)((w[0] & priv->maskblue) >> priv->shiftblue);
+					b = (gColor)((w[0] & priv->maskblue) >> priv->shiftblue);
 				/* We don't support alpha yet */
 				*pc++ = RGB2COLOR(r, g, b);
 				if (priv->shiftred < 0)
-					r = (color_t)((w[1] & priv->maskred) << -priv->shiftred);
+					r = (gColor)((w[1] & priv->maskred) << -priv->shiftred);
 				else
-					r = (color_t)((w[1] & priv->maskred) >> priv->shiftred);
+					r = (gColor)((w[1] & priv->maskred) >> priv->shiftred);
 				if (priv->shiftgreen < 0)
-					g = (color_t)((w[1] & priv->maskgreen) << -priv->shiftgreen);
+					g = (gColor)((w[1] & priv->maskgreen) << -priv->shiftgreen);
 				else
-					g = (color_t)((w[1] & priv->maskgreen) >> priv->shiftgreen);
+					g = (gColor)((w[1] & priv->maskgreen) >> priv->shiftgreen);
 				if (priv->shiftblue < 0)
-					b = (color_t)((w[1] & priv->maskblue) << -priv->shiftblue);
+					b = (gColor)((w[1] & priv->maskblue) << -priv->shiftblue);
 				else
-					b = (uint8_t)((w[1] & priv->maskblue) >> priv->shiftblue);
+					b = (gU8)((w[1] & priv->maskblue) >> priv->shiftblue);
 				/* We don't support alpha yet */
 				*pc++ = RGB2COLOR(r, g, b);
 				x += 2;
@@ -636,7 +646,7 @@ static coord_t getPixels(gdispImage *img, coord_t x) {
 #if GDISP_NEED_IMAGE_BMP_24
 	case 24:
 		{
-		uint8_t		b[3];
+		gU8		b[3];
 
 			while(x < img->width && len < GDISP_IMAGE_BMP_BLIT_BUFFER_SIZE) {
 				if (gfileRead(img->f, &b, 3) != 3)
@@ -658,25 +668,25 @@ static coord_t getPixels(gdispImage *img, coord_t x) {
 #if GDISP_NEED_IMAGE_BMP_32
 	case 32:
 		{
-		uint32_t	dw;
-		color_t		r, g, b;
+		gU32	dw;
+		gColor		r, g, b;
 
 			while(x < img->width && len < GDISP_IMAGE_BMP_BLIT_BUFFER_SIZE) {
 				if (gfileRead(img->f, &dw, 4) != 4)
 					return 0;
 				gdispImageMakeLE32(dw);
 				if (priv->shiftred < 0)
-					r = (color_t)((dw & priv->maskred) << -priv->shiftred);
+					r = (gColor)((dw & priv->maskred) << -priv->shiftred);
 				else
-					r = (color_t)((dw & priv->maskred) >> priv->shiftred);
+					r = (gColor)((dw & priv->maskred) >> priv->shiftred);
 				if (priv->shiftgreen < 0)
-					g = (color_t)((dw & priv->maskgreen) << -priv->shiftgreen);
+					g = (gColor)((dw & priv->maskgreen) << -priv->shiftgreen);
 				else
-					g = (color_t)((dw & priv->maskgreen) >> priv->shiftgreen);
+					g = (gColor)((dw & priv->maskgreen) >> priv->shiftgreen);
 				if (priv->shiftblue < 0)
-					b = (color_t)((dw & priv->maskblue) << -priv->shiftblue);
+					b = (gColor)((dw & priv->maskblue) << -priv->shiftblue);
 				else
-					b = (color_t)((dw & priv->maskblue) >> priv->shiftblue);
+					b = (gColor)((dw & priv->maskblue) >> priv->shiftblue);
 				/* We don't support alpha yet */
 				*pc++ = RGB2COLOR(r, g, b);
 				x++;
@@ -691,12 +701,12 @@ static coord_t getPixels(gdispImage *img, coord_t x) {
 	}
 }
 
-gdispImageError gdispImageCache_BMP(gdispImage *img) {
+gdispImageError gdispImageCache_BMP(gImage *img) {
 	gdispImagePrivate_BMP *	priv;
-	color_t *			pcs;
-	color_t *			pcd;
-	coord_t				pos, x, y;
-	size_t				len;
+	gColor *			pcs;
+	gColor *			pcd;
+	gCoord				pos, x, y;
+	gMemSize			len;
 
 	/* If we are already cached - just return OK */
 	priv = (gdispImagePrivate_BMP *)img->priv;
@@ -704,8 +714,8 @@ gdispImageError gdispImageCache_BMP(gdispImage *img) {
 		return GDISP_IMAGE_ERR_OK;
 
 	/* We need to allocate the cache */
-	len = img->width * img->height * sizeof(pixel_t);
-	priv->frame0cache = (pixel_t *)gdispImageAlloc(img, len);
+	len = img->width * img->height * sizeof(gPixel);
+	priv->frame0cache = (gPixel *)gdispImageAlloc(img, len);
 	if (!priv->frame0cache)
 		return GDISP_IMAGE_ERR_NOMEMORY;
 
@@ -749,10 +759,10 @@ gdispImageError gdispImageCache_BMP(gdispImage *img) {
 	return GDISP_IMAGE_ERR_OK;
 }
 
-gdispImageError gdispGImageDraw_BMP(GDisplay *g, gdispImage *img, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t sx, coord_t sy) {
+gdispImageError gdispGImageDraw_BMP(GDisplay *g, gImage *img, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoord sx, gCoord sy) {
 	gdispImagePrivate_BMP *	priv;
-	coord_t				mx, my;
-	coord_t				pos, len, st;
+	gCoord				mx, my;
+	gCoord				pos, len, st;
 
 	priv = (gdispImagePrivate_BMP *)img->priv;
 
@@ -815,14 +825,14 @@ gdispImageError gdispGImageDraw_BMP(GDisplay *g, gdispImage *img, coord_t x, coo
 	return GDISP_IMAGE_ERR_OK;
 }
 
-delaytime_t gdispImageNext_BMP(gdispImage *img) {
+gDelay gdispImageNext_BMP(gImage *img) {
 	(void) img;
 
 	/* No more frames/pages */
-	return TIME_INFINITE;
+	return gDelayForever;
 }
 
-uint16_t gdispImageGetPaletteSize_BMP(gdispImage *img) {
+gU16 gdispImageGetPaletteSize_BMP(gImage *img) {
 	#if GDISP_NEED_IMAGE_BMP_1 || GDISP_NEED_IMAGE_BMP_4 || GDISP_NEED_IMAGE_BMP_8
 		gdispImagePrivate_BMP *priv;
 	
@@ -839,7 +849,7 @@ uint16_t gdispImageGetPaletteSize_BMP(gdispImage *img) {
 	#endif
 }
 
-color_t gdispImageGetPalette_BMP(gdispImage *img, uint16_t index) {
+gColor gdispImageGetPalette_BMP(gImage *img, gU16 index) {
 	#if GDISP_NEED_IMAGE_BMP_1 || GDISP_NEED_IMAGE_BMP_4 || GDISP_NEED_IMAGE_BMP_8
 		gdispImagePrivate_BMP *priv;
 	
@@ -853,30 +863,30 @@ color_t gdispImageGetPalette_BMP(gdispImage *img, uint16_t index) {
 		if (index >= priv->palsize)
 			return 0;
 	
-		return priv->palette[(uint8_t)index];
+		return priv->palette[(gU8)index];
 	
 	#else
 		return 0;
 	#endif
 }
 
-bool_t gdispImageAdjustPalette_BMP(gdispImage *img, uint16_t index, color_t newColor) {
+gBool gdispImageAdjustPalette_BMP(gImage *img, gU16 index, gColor newColor) {
 	#if GDISP_NEED_IMAGE_BMP_1 || GDISP_NEED_IMAGE_BMP_4 || GDISP_NEED_IMAGE_BMP_8
 		gdispImagePrivate_BMP *priv;
 	
 		priv = (gdispImagePrivate_BMP *)img->priv;
 		if (!priv)
-			return FALSE;
+			return gFalse;
 	
 		if (!(priv->bmpflags & BMP_PALETTE))
-			return FALSE;
+			return gFalse;
 	
 		if (index >= priv->palsize)
-			return FALSE;
+			return gFalse;
 
-		priv->palette[(uint8_t)index] = newColor;
+		priv->palette[(gU8)index] = newColor;
 
-		return TRUE;
+		return gTrue;
 	
 	#else
 		return 0;

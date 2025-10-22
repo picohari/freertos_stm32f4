@@ -6,8 +6,9 @@
 #include "XCore407I.h"
 
 #include "gfx.h"
-#include "pages/zen_main_home.h"
 #include "adc.h"
+
+//#include "pages/zen_main_home.h"
 
 
 

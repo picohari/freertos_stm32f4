@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -16,8 +16,8 @@
  *
  * @details	3D GWIN window based on OpenGL (or more exactly Tiny GL)
  *
- * @pre		GFX_USE_GWIN must be set to TRUE in your gfxconf.h
- * @pre		GWIN_NEED_GL3D must be set to TRUE in your gfxconf.h
+ * @pre		GFX_USE_GWIN must be set to GFXON in your gfxconf.h
+ * @pre		GWIN_NEED_GL3D must be set to GFXON in your gfxconf.h
  *
  * @{
  */
@@ -38,10 +38,6 @@ typedef struct GGL3DObject {
 /* External declarations.                                                    */
 /*===========================================================================*/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /**
  * @brief   Create a gl3d window.
  * @return  NULL if there is no resultant drawing area, otherwise a window handle.
@@ -51,7 +47,7 @@ extern "C" {
  * @param[in] pInit		The initialization parameters to use
  *
  * @note				The drawing color and the background color get set to the current defaults. If you haven't called
- * 						@p gwinSetDefaultColor() or @p gwinSetDefaultBgColor() then these are White and Black respectively.
+ * 						@p gwinSetDefaultColor() or @p gwinSetDefaultBgColor() then these are GFX_WHITE and GFX_BLACK respectively.
  * @note				The font gets set to the current default font. If you haven't called @p gwinSetDefaultFont() then there
  * 						is no default font and text drawing operations will no nothing.
  * @note				The dimensions and position may be changed to fit on the real screen.
@@ -63,10 +59,6 @@ GHandle gwinGGL3DCreate(GDisplay *g, GGL3DObject *gg, const GWindowInit *pInit);
 
 /* Include the gl interface */
 #include "../../3rdparty/tinygl-0.4-ugfx/include/GL/gl.h"
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif	/* _GWIN_GL3D_H */
 /** @} */

@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #ifndef GAUDIO_PLAY_BOARD_H
@@ -33,17 +33,17 @@ static GPTConfig gptcfg = {
   GPT_TRIGGER_NONE,				// trigger
 };
 
-static uint16_t		lastvalue;
+static gU16		lastvalue;
 
-static bool gaudio_play_pwm_setup(uint32_t frequency, ArrayDataFormat format) {
+static gBool gaudio_play_pwm_setup(gU32 frequency, ArrayDataFormat format) {
 	if (format == ARRAY_DATA_10BITUNSIGNED)
 		pwmcfg.period = 1024;
 	else if (format == ARRAY_DATA_8BITUNSIGNED)
 		pwmcfg.period = 256;
 	else
-		return FALSE;
+		return gFalse;
 	gptcfg.frequency = frequency;
-	return TRUE;
+	return gTrue;
 }
 
 static void gaudio_play_pwm_start(void) {
@@ -65,7 +65,7 @@ static void gaudio_play_pwm_stop(void) {
 	pwmStop(&PWMD1);
 }
 
-static void gaudio_play_pwm_setI(uint16_t value) {
+static void gaudio_play_pwm_setI(gU16 value) {
 	if (value != lastvalue) {
 		lastvalue = value;
 		pwmEnableChannelI(&PWMD1, 0, value);

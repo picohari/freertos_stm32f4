@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "gfx.h"
@@ -15,13 +15,13 @@
 
 typedef struct LCD_Parameters
 {
-    uint8_t curXPtr;
-    uint8_t startXPtr;       /* The area start bit position in the start column */
-    uint8_t endXPtr;         /* The area end bit position in the end column */
-    uint8_t curCol;
-    uint8_t startCol;        /* The area start column */
-    uint8_t endCol;          /* The area end column */
-    uint8_t curYPtr;
+    gU8 curXPtr;
+    gU8 startXPtr;       /* The area start bit position in the start column */
+    gU8 endXPtr;         /* The area end bit position in the end column */
+    gU8 curCol;
+    gU8 startCol;        /* The area start column */
+    gU8 endCol;          /* The area end column */
+    gU8 curYPtr;
 } LCD_Parameters;
 
 #include "board_SSD1848.h"
@@ -61,7 +61,7 @@ typedef struct LCD_Parameters
 
 /* Some common routines and macros */
 #define PRM(g)								((LCD_Parameters *)g->priv)
-#define RAM(g)								((uint8_t *)(PRM(g)+1))
+#define RAM(g)								((gU8 *)(PRM(g)+1))
 #define write_cmd2(g, cmd1, cmd2)			{ spi_write_cmd (g, cmd1); spi_write_data (g, cmd2); }
 #define write_cmd3(g, cmd1, cmd2, cmd3)		{ spi_write_cmd (g, cmd1); spi_write_data2 (g, cmd2, cmd3); }
 
@@ -74,15 +74,15 @@ static void set_viewport (GDisplay* g)
     switch (g->g.Orientation)
     {
     default:
-    case GDISP_ROTATE_0:
+    case gOrientation0:
         spi_write_cmd (g, SSD1848_HV_COLUMN_ADDRESS);
-        spi_write_data2 (g, (uint8_t) (g->p.x / 8), (uint8_t) ((g->p.x + g->p.cx - 1) / 8));
+        spi_write_data2 (g, (gU8) (g->p.x / 8), (gU8) ((g->p.x + g->p.cx - 1) / 8));
         spi_write_cmd (g, SSD1848_HV_PAGE_ADDRESS);
         spi_write_data2 (g, g->p.y, g->p.y + g->p.cy - 1);
         spi_write_cmd (g, SSD1848_WRITE_DISP_DATA);
         break;
 
-    case GDISP_ROTATE_90:
+    case gOrientation90:
         spi_write_cmd (g, SSD1848_HV_COLUMN_ADDRESS);
         spi_write_data2 (g, g->p.y, g->p.y + g->p.cy - 1);
         spi_write_cmd (g, SSD1848_HV_PAGE_ADDRESS);
@@ -90,7 +90,7 @@ static void set_viewport (GDisplay* g)
         spi_write_cmd (g, SSD1848_WRITE_DISP_DATA);
         break;
 
-    case GDISP_ROTATE_180:
+    case gOrientation180:
         spi_write_cmd (g, SSD1848_HV_COLUMN_ADDRESS);
         spi_write_data2 (g, g->g.Width - g->p.x - g->p.cx, g->g.Width - 1 - g->p.x);
         spi_write_cmd (g, SSD1848_HV_PAGE_ADDRESS);
@@ -98,7 +98,7 @@ static void set_viewport (GDisplay* g)
         spi_write_cmd (g, SSD1848_WRITE_DISP_DATA);
         break;
 
-    case GDISP_ROTATE_270:
+    case gOrientation270:
         spi_write_cmd (g, SSD1848_HV_COLUMN_ADDRESS);
         spi_write_data2 (g, g->g.Height - g->p.y - g->p.cy, g->g.Height - 1 - g->p.y);
         spi_write_cmd (g, SSD1848_HV_PAGE_ADDRESS);
@@ -116,14 +116,14 @@ static void set_viewport (GDisplay* g)
  * 128 * 128 / 8 = 2048 bytes.
  */
 
-LLDSPEC bool_t gdisp_lld_init (GDisplay *g)
+LLDSPEC gBool gdisp_lld_init (GDisplay *g)
 {
-    uint8_t temp [5] = { 0 };
+    gU8 temp [5] = { 0 };
 
     /* The private area is the display surface. */
     g->priv = gfxAlloc (sizeof(DisplayData) + GDISP_SCREEN_WIDTH / 8 * GDISP_SCREEN_HEIGHT);
 	if (!g->priv)
-		return FALSE;
+		return gFalse;
     memset (g->priv, 0, sizeof(DisplayData) + GDISP_SCREEN_WIDTH / 8 * GDISP_SCREEN_HEIGHT);
 
     /* Initialise the board interface */
@@ -131,11 +131,11 @@ LLDSPEC bool_t gdisp_lld_init (GDisplay *g)
 
     /* Init LCD */
     /* Hardware reset */
-    setpin_reset (g, FALSE);
+    setpin_reset (g, gFalse);
     gfxSleepMilliseconds (50);
-    setpin_reset (g, TRUE);
+    setpin_reset (g, gTrue);
     gfxSleepMilliseconds (50);
-    setpin_reset (g, FALSE);
+    setpin_reset (g, gFalse);
 
 
     acquire_bus (g);
@@ -213,11 +213,11 @@ LLDSPEC bool_t gdisp_lld_init (GDisplay *g)
     /* Initialise the GDISP structure */
     g->g.Width       = GDISP_SCREEN_WIDTH;
     g->g.Height      = GDISP_SCREEN_HEIGHT;
-    g->g.Orientation = GDISP_ROTATE_0;
-    g->g.Powermode   = powerOn;
+    g->g.Orientation = gOrientation0;
+    g->g.Powermode   = gPowerOn;
     g->g.Backlight   = GDISP_INITIAL_BACKLIGHT;
     g->g.Contrast    = GDISP_INITIAL_CONTRAST;
-    return TRUE;
+    return gTrue;
 }
 
 #if GDISP_HARDWARE_STREAM_WRITE
@@ -226,18 +226,18 @@ LLDSPEC void gdisp_lld_write_start (GDisplay *g)
     acquire_bus (g);
     set_viewport (g);
 
-    PRM(g)->curCol  = PRM(g)->startCol = (uint8_t) (g->p.x / 8);
-    PRM(g)->endCol  = (uint8_t) ((g->p.x + g->p.cx - 1) / 8);
-    PRM(g)->curXPtr = PRM(g)->startXPtr = (uint8_t) (g->p.x % 8);
-    PRM(g)->endXPtr = (uint8_t) ((g->p.x + g->p.cx - 1) % 8);
+    PRM(g)->curCol  = PRM(g)->startCol = (gU8) (g->p.x / 8);
+    PRM(g)->endCol  = (gU8) ((g->p.x + g->p.cx - 1) / 8);
+    PRM(g)->curXPtr = PRM(g)->startXPtr = (gU8) (g->p.x % 8);
+    PRM(g)->endXPtr = (gU8) ((g->p.x + g->p.cx - 1) % 8);
     PRM(g)->curYPtr = g->p.y;
 }
 LLDSPEC void gdisp_lld_write_color (GDisplay *g)
 {
-    uint8_t  temp;
-    uint8_t  a;
-    uint16_t y = PRM(g)->curYPtr;
-    uint16_t c = PRM(g)->curCol;
+    gU8  temp;
+    gU8  a;
+    gU16 y = PRM(g)->curYPtr;
+    gU16 c = PRM(g)->curCol;
 
     temp = RAM (g)[y * 16 + c];
     if (gdispColor2Native (g->p.color))
@@ -286,7 +286,7 @@ LLDSPEC void gdisp_lld_write_stop (GDisplay *g)
 #if GDISP_HARDWARE_FLUSH
 LLDSPEC void gdisp_lld_flush (GDisplay *g)
 {
-    uint8_t  * ram;
+    gU8  * ram;
     unsigned pages;
 
     /* Don't flush if we don't need it. */
@@ -312,7 +312,7 @@ LLDSPEC void gdisp_lld_flush (GDisplay *g)
 #if GDISP_HARDWARE_CLEARS
 LLDSPEC void gdisp_lld_clear (GDisplay *g)
 {
-    uint16_t area = GDISP_SCREEN_WIDTH / 8 * GDISP_SCREEN_HEIGHT;
+    gU16 area = GDISP_SCREEN_WIDTH / 8 * GDISP_SCREEN_HEIGHT;
 
 	if (gdispColor2Native (g->p.color))
 	{
@@ -341,15 +341,15 @@ LLDSPEC void gdisp_lld_clear (GDisplay *g)
 #if GDISP_HARDWARE_FILLS
 LLDSPEC void gdisp_lld_fill_area (GDisplay *g)
 {
-    coord_t  scol, ecol, sx, ex;
-    coord_t  y, col, x;
-    uint16_t area = (uint16_t) g->p.cx * g->p.cy;
-    uint8_t  temp;
+    gCoord  scol, ecol, sx, ex;
+    gCoord  y, col, x;
+    gU16 area = (gU16) g->p.cx * g->p.cy;
+    gU8  temp;
 
-    col  = scol = (uint8_t) (g->p.x / 8);
-    ecol = (uint8_t) ((g->p.x + g->p.cx - 1) / 8);
-    x    = sx = (uint8_t) (g->p.x % 8);
-    ex   = (uint8_t) ((g->p.x + g->p.cx - 1) % 8);
+    col  = scol = (gU8) (g->p.x / 8);
+    ecol = (gU8) ((g->p.x + g->p.cx - 1) / 8);
+    x    = sx = (gU8) (g->p.x % 8);
+    ex   = (gU8) ((g->p.x + g->p.cx - 1) % 8);
     y    = g->p.y;
 
 
@@ -400,32 +400,32 @@ LLDSPEC void gdisp_lld_fill_area (GDisplay *g)
 #if GDISP_HARDWARE_DRAWPIXEL
 LLDSPEC void gdisp_lld_draw_pixel (GDisplay *g)
 {
-    coord_t x, y;
+    gCoord x, y;
 
     switch (g->g.Orientation)
     {
     default:
-    case GDISP_ROTATE_0:
+    case gOrientation0:
         x = g->p.x;
         y = g->p.y;
         break;
 
-    case GDISP_ROTATE_90:
+    case gOrientation90:
         x = g->p.y;
         y = GDISP_SCREEN_HEIGHT - 1 - g->p.x;
         break;
 
-    case GDISP_ROTATE_180:
+    case gOrientation180:
         x = GDISP_SCREEN_WIDTH - 1 - g->p.x;
         y = GDISP_SCREEN_HEIGHT - 1 - g->p.y;
         break;
 
-    case GDISP_ROTATE_270:
+    case gOrientation270:
         x = GDISP_SCREEN_WIDTH - 1 - g->p.y;
         y = g->p.x;
         break;
     }
-    if (gdispColor2Native (g->p.color) != gdispColor2Native (Black))
+    if (gdispColor2Native (g->p.color) != gdispColor2Native (GFX_BLACK))
         RAM (g)[xyaddr (x, y)] |= xybit (y);
     else
         RAM (g)[xyaddr (x, y)] &= ~xybit(y);
@@ -434,34 +434,34 @@ LLDSPEC void gdisp_lld_draw_pixel (GDisplay *g)
 #endif
 
 #if GDISP_HARDWARE_PIXELREAD
-LLDSPEC color_t gdisp_lld_get_pixel_color (GDisplay *g)
+LLDSPEC gColor gdisp_lld_get_pixel_color (GDisplay *g)
 {
-    coord_t x, y;
+    gCoord x, y;
 
     switch (g->g.Orientation)
     {
     default:
-    case GDISP_ROTATE_0:
+    case gOrientation0:
         x = g->p.x;
         y = g->p.y;
         break;
 
-    case GDISP_ROTATE_90:
+    case gOrientation90:
         x = g->p.y;
         y = GDISP_SCREEN_HEIGHT - 1 - g->p.x;
         break;
 
-    case GDISP_ROTATE_180:
+    case gOrientation180:
         x = GDISP_SCREEN_WIDTH - 1 - g->p.x;
         y = GDISP_SCREEN_HEIGHT - 1 - g->p.y;
         break;
 
-    case GDISP_ROTATE_270:
+    case gOrientation270:
         x = GDISP_SCREEN_WIDTH - 1 - g->p.y;
         y = g->p.x;
         break;
     }
-    return (RAM (g)[xyaddr (x, y)] & xybit (y)) ? White : Black;
+    return (RAM (g)[xyaddr (x, y)] & xybit (y)) ? GFX_WHITE : GFX_BLACK;
 }
 #endif
 
@@ -471,11 +471,11 @@ LLDSPEC void gdisp_lld_control (GDisplay *g)
     switch (g->p.x)
     {
     case GDISP_CONTROL_POWER:
-        if (g->g.Powermode == (powermode_t) g->p.ptr)
+        if (g->g.Powermode == (gPowermode) g->p.ptr)
             return;
-        switch ((powermode_t) g->p.ptr)
+        switch ((gPowermode) g->p.ptr)
         {
-        case powerOff:
+        case gPowerOff:
             acquire_bus (g);
             spi_write_cmd (g, SSD1848_SETCONTRAST);
             spi_write_data2 (g, 0x00, 0x00);    /* Drop the contrast & gain */
@@ -484,14 +484,14 @@ LLDSPEC void gdisp_lld_control (GDisplay *g)
             release_bus (g);
             break;
 
-        case powerSleep:
-        case powerDeepSleep:
+        case gPowerSleep:
+        case gPowerDeepSleep:
             acquire_bus (g);
             spi_write_cmd (g, SSD1848_ENTERSLEEP);
             release_bus (g);
             break;
 
-        case powerOn:
+        case gPowerOn:
             acquire_bus (g);
             spi_write_cmd (g, SSD1848_EXITSLEEP);       /* need this in case we were in 'normal' sleep mode */
             gfxSleepMilliseconds (5);
@@ -502,23 +502,23 @@ LLDSPEC void gdisp_lld_control (GDisplay *g)
         default:
             return;
         }
-        g->g.Powermode = (powermode_t) g->p.ptr;
+        g->g.Powermode = (gPowermode) g->p.ptr;
         return;
 
     case GDISP_CONTROL_ORIENTATION:
-        if (g->g.Orientation == (orientation_t) g->p.ptr)
+        if (g->g.Orientation == (gOrientation) g->p.ptr)
             return;
-        switch ((orientation_t) g->p.ptr)
+        switch ((gOrientation) g->p.ptr)
         {
         /* Rotation is handled by the drawing routines */
-        case GDISP_ROTATE_0:
-        case GDISP_ROTATE_180:
+        case gOrientation0:
+        case gOrientation180:
             g->g.Height = GDISP_SCREEN_HEIGHT;
             g->g.Width  = GDISP_SCREEN_WIDTH;
             break;
 
-        case GDISP_ROTATE_90:
-        case GDISP_ROTATE_270:
+        case gOrientation90:
+        case gOrientation270:
             g->g.Height = GDISP_SCREEN_WIDTH;
             g->g.Width  = GDISP_SCREEN_HEIGHT;
             break;
@@ -526,7 +526,7 @@ LLDSPEC void gdisp_lld_control (GDisplay *g)
         default:
             return;
         }
-        g->g.Orientation = (orientation_t) g->p.ptr;
+        g->g.Orientation = (gOrientation) g->p.ptr;
         return;
 
     case GDISP_CONTROL_CONTRAST:
@@ -534,9 +534,9 @@ LLDSPEC void gdisp_lld_control (GDisplay *g)
             g->p.ptr = (void *) 100;
         acquire_bus (g);
         spi_write_cmd (g, SSD1848_SETCONTRAST);
-        spi_write_data (g, (((uint16_t) g->p.ptr) << 8) / 101);
+        spi_write_data (g, (((gU16) g->p.ptr) << 8) / 101);
         release_bus (g);
-        g->g.Contrast = (uint8_t) g->p.ptr;
+        g->g.Contrast = (gU8) g->p.ptr;
         return;
 
     /* Our own special controller code to inverse the display */
@@ -554,14 +554,14 @@ LLDSPEC void gdisp_lld_control (GDisplay *g)
 #if GDISP_HARDWARE_BITFILLS
 LLDSPEC void gdisp_lld_blit_area (GDisplay *g)
 {
-    coord_t  scol, ecol, sx;
-    coord_t  y, col;
-    uint16_t area;
-    uint8_t  temp, temp2, i;
+    gCoord  scol, ecol, sx;
+    gCoord  y, col;
+    gU16 area;
+    gU8  temp, temp2, i;
 
-    col  = scol = (uint8_t) (g->p.x / 8);
-    ecol = (uint8_t) ((g->p.x + g->p.cx - 1) / 8);
-    sx   = (uint8_t) (g->p.x % 8);
+    col  = scol = (gU8) (g->p.x / 8);
+    ecol = (gU8) ((g->p.x + g->p.cx - 1) / 8);
+    sx   = (gU8) (g->p.x % 8);
     y    = g->p.y;
     area = (ecol - scol + 1) * (g->p.cy);
 
@@ -574,7 +574,7 @@ LLDSPEC void gdisp_lld_blit_area (GDisplay *g)
     {
         for (; area; area--)
         {
-            temp = RAM (g)[y * 16 + col] = *((uint8_t *) g->p.ptr)++;
+            temp = RAM (g)[y * 16 + col] = *((gU8 *) g->p.ptr)++;
             spi_write_data (g, temp);
             if (col == ecol)
             {
@@ -595,13 +595,13 @@ LLDSPEC void gdisp_lld_blit_area (GDisplay *g)
             temp = RAM (g)[y * 16 + col];
             if (col != ecol)
             {
-                temp |= (*((uint8_t *) g->p.ptr) >> sx);
+                temp |= (*((gU8 *) g->p.ptr) >> sx);
                 RAM (g)[y * 16 + col] = temp;
 
                 temp2  = RAM (g)[y * 16 + col + 1];
-                temp2 |= (*((uint8_t *) g->p.ptr) << (8-sx));
+                temp2 |= (*((gU8 *) g->p.ptr) << (8-sx));
                 RAM (g)[y * 16 + col + 1] = temp2;
-				((uint8_t *) g->p.ptr)++;
+				((gU8 *) g->p.ptr)++;
             }
 
             spi_write_data (g, temp);

@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -16,8 +16,8 @@
  *
  * @details		Extended events can be enabled using @p gwinSliderSendExtendedEvents().
  *
- * @pre			GFX_USE_GWIN must be set to TRUE in your gfxconf.h
- * @pre			GWIN_NEED_SLIDER must be set to TRUE in your gfxconf.h
+ * @pre			GFX_USE_GWIN must be set to GFXON in your gfxconf.h
+ * @pre			GWIN_NEED_SLIDER must be set to GFXON in your gfxconf.h
  * @{
  */
 
@@ -36,7 +36,7 @@ typedef struct GEventGWinSlider {
 	#endif
 	int				position;
 
-	uint8_t			action;
+	gU8			action;
 		#define GSLIDER_EVENT_SET		4		/* Slider position is set. This is the only event returned by default   */
 		#define GSLIDER_EVENT_CANCEL	3		/* Slider position changing has been cancelled */
 		#define GSLIDER_EVENT_START		2		/* Slider position has started changing */
@@ -57,21 +57,17 @@ typedef struct GEventGWinSlider {
 typedef struct GSliderObject {
 	GWidgetObject		w;
 	#if GINPUT_NEED_TOGGLE
-		uint16_t		t_dn;
-		uint16_t		t_up;
+		gU16		t_dn;
+		gU16		t_up;
 	#endif
 	#if GINPUT_NEED_DIAL
-		uint16_t		dial;
+		gU16		dial;
 	#endif
-	coord_t				dpos;
+	gCoord				dpos;
 	int					min;
 	int					max;
 	int					pos;
 } GSliderObject;
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * @brief   Create a slider window.
@@ -82,7 +78,7 @@ extern "C" {
  * @param[in] pInit		The initialization parameters to use
  *
  * @note				The drawing color and the background color get set to the current defaults. If you haven't called
- * 						@p gwinSetDefaultColor() or @p gwinSetDefaultBgColor() then these are White and Black respectively.
+ * 						@p gwinSetDefaultColor() or @p gwinSetDefaultBgColor() then these are GFX_WHITE and GFX_BLACK respectively.
  * @note				The font gets set to the current default font. If you haven't called @p gwinSetDefaultFont() then there
  * 						is no default font and text drawing operations will no nothing.
  * @note				A slider remembers its normal drawing state. If there is a window manager then it is automatically
@@ -143,14 +139,14 @@ void gwinSliderSetPosition(GHandle gh, int pos);
  * @brief   Should the slider send extended events.
  *
  * @param[in] gh		The window handle (must be a slider window)
- * @param[in] enabled	TRUE to enable extended events, FALSE to disable them
+ * @param[in] enabled	gTrue to enable extended events, gFalse to disable them
  *
  * @note	The slider by default will only send slider events with an action of GSLIDER_EVENT_SET.
  * 			This call can be used to enable other slider action's to be sent as events
  *
  * @api
  */
-void gwinSliderSendExtendedEvents(GHandle gh, bool_t enabled);
+void gwinSliderSendExtendedEvents(GHandle gh, gBool enabled);
 
 /**
  * @defgroup Renderings_Slider Renderings
@@ -191,17 +187,13 @@ void gwinSliderDraw_Std(GWidgetObject *gw, void *param);
 	 * 						No checking is done to compare the size of the button to the size of the image.
 	 * 						No text is drawn on top of the image.
 	 *
-	 * @pre					GDISP_NEED_IMAGE must be set to TRUE
+	 * @pre					GDISP_NEED_IMAGE must be set to GFXON
 	 *
 	 * @api
 	 */
 void gwinSliderDraw_Image(GWidgetObject *gw, void *param);
 #endif /* GDISP_NEED_IMAGE */
 /** @} */
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* _GWIN_SLIDER_H */
 /** @} */

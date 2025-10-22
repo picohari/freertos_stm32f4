@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /*
@@ -46,7 +46,7 @@ static const SPIConfig spicfg = {
  * TP_IRQ       PB6
  */
 
-static bool_t init_board(GMouse* m, unsigned driverinstance) {
+static gBool init_board(GMouse* m, unsigned driverinstance) {
   (void) m;
   (void) driverinstance;
 
@@ -63,7 +63,7 @@ static bool_t init_board(GMouse* m, unsigned driverinstance) {
 /*
  * PB6 is connected to TP_IRQ (low active).
  */
-static GFXINLINE bool_t getpin_pressed(GMouse* m) {
+static GFXINLINE gBool getpin_pressed(GMouse* m) {
   (void)m;
   return (!palReadPad(GPIOB, 6));
 }
@@ -83,11 +83,11 @@ static GFXINLINE void release_bus(GMouse* m) {
   spiReleaseBus(&SPID1);
 }
 
-static GFXINLINE uint16_t read_value(GMouse* m, uint16_t port) {
+static GFXINLINE gU16 read_value(GMouse* m, gU16 port) {
   (void)m;
-  static uint8_t txbuf[3] = {0};
-  static uint8_t rxbuf[3] = {0};
-  uint16_t ret;
+  static gU8 txbuf[3] = {0};
+  static gU8 rxbuf[3] = {0};
+  gU16 ret;
 
   txbuf[0] = port;
   spiExchange(&SPID1, 3, txbuf, rxbuf);

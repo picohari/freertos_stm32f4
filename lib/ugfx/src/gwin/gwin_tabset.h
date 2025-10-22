@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -18,8 +18,8 @@
  *				Note: Although the tabset is implemented as a container - you don't put your controls
  *				directly on the tabset. Instead you create a page and put your widgets on the page.
  *
- * @pre			GFX_USE_GWIN must be set to TRUE in your gfxconf.h
- * @pre			GWIN_NEED_TABSET must be set to TRUE in your gfxconf.h
+ * @pre			GFX_USE_GWIN must be set to GFXON in your gfxconf.h
+ * @pre			GWIN_NEED_TABSET must be set to GFXON in your gfxconf.h
  * @{
  */
 
@@ -57,12 +57,8 @@ typedef struct GEventGWinTabset {
 
 typedef struct GTabsetObject {
 	GContainerObject	c;
-	coord_t				border_top;
+	gCoord				border_top;
 	} GTabsetObject;
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * @brief				Create a tabset widget
@@ -80,7 +76,7 @@ extern "C" {
  *
  * @api
  */
-GHandle gwinGTabsetCreate(GDisplay *g, GTabsetObject *fo, GWidgetInit *pInit, uint32_t flags);
+GHandle gwinGTabsetCreate(GDisplay *g, GTabsetObject *fo, GWidgetInit *pInit, gU32 flags);
 #define gwinTabsetCreate(fo, pInit, flags)	gwinGTabsetCreate(GDISP, fo, pInit, flags);
 
 /**
@@ -89,11 +85,11 @@ GHandle gwinGTabsetCreate(GDisplay *g, GTabsetObject *fo, GWidgetInit *pInit, ui
  *
  * @param[in] gh		The tabset handle
  * @param[in] title		The text to set. This must be a constant string unless useAlloc is set.
- * @param[in] useAlloc	If TRUE the string specified will be copied into dynamically allocated memory.
+ * @param[in] useAlloc	If gTrue the string specified will be copied into dynamically allocated memory.
  *
  * @api
  */
-GHandle gwinTabsetAddTab(GHandle gh, const char *title, bool_t useAlloc);
+GHandle gwinTabsetAddTab(GHandle gh, const char *title, gBool useAlloc);
 
 /**
  * @brief   			Delete a tab-page.
@@ -144,14 +140,14 @@ GHandle gwinTabsetGetTabByTitle(GHandle gh, const char *title);
  *
  * @param[in] gh		The tab-page handle (NB: Use the page handle NOT the tabset handle)
  * @param[in] title		The text to set. This must be a constant string unless useAlloc is set.
- * @param[in] useAlloc	If TRUE the string specified will be copied into dynamically allocated memory.
+ * @param[in] useAlloc	If gTrue the string specified will be copied into dynamically allocated memory.
  *
  * @note				This function should be used to change the text associated with a tab-page
  * 						rather than @p gwinSetText().
  *
  * @api
  */
-void gwinTabsetSetTitle(GHandle gh, const char *title, bool_t useAlloc);
+void gwinTabsetSetTitle(GHandle gh, const char *title, gBool useAlloc);
 
 /**
  * @brief   Get the title of a tab-page.
@@ -224,17 +220,13 @@ void gwinTabsetDraw_Transparent(GWidgetObject *gw, void *param);
 	 * @note				The image must be already opened before calling  @p gwinSetCustomDraw(). The handle is passed as the parameter
 	 *						to this function.
 	 *
-	 * @pre					GDISP_NEED_IMAGE must be set to TRUE
+	 * @pre					GDISP_NEED_IMAGE must be set to GFXON
 	 *
 	 * @api
 	 */
 	void gwinTabsetDraw_Image(GWidgetObject *gw, void *param);
 #endif /* GDISP_NEED_IMAGE */
 /** @} */
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* _GWIN_TABSET_H */
 /** @} */

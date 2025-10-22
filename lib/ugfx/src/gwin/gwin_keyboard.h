@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -18,8 +18,8 @@
  *				and check for different meta states such as: PRESSED, CLICKED,
  *				RELEASED etc.
  *
- * @pre			GFX_USE_GWIN must be set to TRUE in your gfxconf.h
- * @pre			GWIN_NEED_BUTTON must be set to TRUE in your gfxconf.h
+ * @pre			GFX_USE_GWIN must be set to GFXON in your gfxconf.h
+ * @pre			GWIN_NEED_BUTTON must be set to GFXON in your gfxconf.h
  * @{
  */
 
@@ -57,16 +57,12 @@ typedef struct GKeyboardObject {
 	GWidgetObject			w;
 	const struct GVKeyTable	*keytable;
 	const char				**keyset;
-	coord_t					keyx, keyy;
-	coord_t					keycx, keycy;
-	uint8_t					lastkeyrow, lastkeycol;
-	uint8_t					keyrow, keycol;
-	uint32_t				key;
+	gCoord					keyx, keyy;
+	gCoord					keycx, keycy;
+	gU8					lastkeyrow, lastkeycol;
+	gU8					keyrow, keycol;
+	gU32				key;
 } GKeyboardObject;
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * @brief   Create a keyboard widget.
@@ -77,7 +73,7 @@ extern "C" {
  * @param[in] pInit		The initialisation parameters
  *
  * @note				The drawing color and the background color get set to the current defaults. If you haven't called
- * 						@p gwinSetDefaultColor() or @p gwinSetDefaultBgColor() then these are White and Black respectively.
+ * 						@p gwinSetDefaultColor() or @p gwinSetDefaultBgColor() then these are GFX_WHITE and GFX_BLACK respectively.
  * @note				The font gets set to the current default font. If you haven't called @p gwinSetDefaultFont() then there
  * 						is no default font and text drawing operations will no nothing.
  * @note				A keyboard remembers its normal drawing state. If there is a window manager then it is automatically
@@ -137,10 +133,6 @@ void gwinKeyboardSetLayout(GHandle gh, const struct GVKeyTable *layout);
 void gwinKeyboardDraw_Normal(GWidgetObject *gw, void *param);
 
 /** @} */
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* _GWIN_KEYBOARD_H */
 /** @} */

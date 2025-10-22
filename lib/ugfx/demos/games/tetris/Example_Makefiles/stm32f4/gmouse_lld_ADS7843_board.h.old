@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #ifndef _GINPUT_LLD_MOUSE_BOARD_H
@@ -22,13 +22,13 @@ static const SPIConfig spicfg = {
     /* SPI_CR1_BR_2 |*/ SPI_CR1_BR_1 | SPI_CR1_BR_0,
 };
 
-static bool_t init_board(GMouse* m, unsigned driverinstance)
+static gBool init_board(GMouse* m, unsigned driverinstance)
 {
     (void)m;
 
     // Only one touch interface on this board
     if (driverinstance)
-	return FALSE;
+		return gFalse;
 
     // Set the GPIO modes
         palSetPadMode(GPIOC, 6, PAL_MODE_OUTPUT_PUSHPULL);
@@ -40,10 +40,10 @@ static bool_t init_board(GMouse* m, unsigned driverinstance)
     // Start the SPI peripheral
     spiStart(&SPID1, &spicfg);
 
-    return TRUE;
+    return gTrue;
 }
 
-GFXINLINE bool_t getpin_pressed(void) {
+GFXINLINE gBool getpin_pressed(void) {
   return (!palReadPad(GPIOC, 4));
 }
 
@@ -57,10 +57,10 @@ static GFXINLINE void release_bus(void) {
   spiReleaseBus(&SPID1);
 }
 
-static GFXINLINE uint16_t read_value(uint16_t port) {
-    static uint8_t txbuf[3] = {0};
-    static uint8_t rxbuf[3] = {0};
-    uint16_t ret;
+static GFXINLINE gU16 read_value(gU16 port) {
+    static gU8 txbuf[3] = {0};
+    static gU8 rxbuf[3] = {0};
+    gU16 ret;
 
     txbuf[0] = port;
 

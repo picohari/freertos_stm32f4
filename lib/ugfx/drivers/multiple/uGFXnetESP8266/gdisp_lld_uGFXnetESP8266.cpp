@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 // We need to include stdio.h below. Turn off GFILE_NEED_STDIO just for this file to prevent conflicts
@@ -29,12 +29,12 @@
 	#define GDISP_GFXNET_PORT	GNETCODE_DEFAULT_PORT
 #endif
 #ifndef GDISP_DONT_WAIT_FOR_NET_DISPLAY
-	#define GDISP_DONT_WAIT_FOR_NET_DISPLAY	FALSE
+	#define GDISP_DONT_WAIT_FOR_NET_DISPLAY	GFXOFF
 #endif
 
 static WiFiServer	server(GDISP_GFXNET_PORT);
 static GTimer		poller;
-static bool_t		uGFXInitDone;
+static gBool		uGFXInitDone;
 
 #ifndef GDISP_GFXNET_WIFI_INIT_FUNCTION
 	#define GDISP_GFXNET_WIFI_INIT_FUNCTION	uGFXnetArduinoWifiInit
@@ -62,8 +62,8 @@ static bool_t		uGFXInitDone;
 	#include "../../../src/ginput/ginput_driver_mouse.h"
 
 	// Forward definitions
-	static bool_t NMouseInit(GMouse *m, unsigned driverinstance);
-	static bool_t NMouseRead(GMouse *m, GMouseReading *prd);
+	static gBool NMouseInit(GMouse *m, unsigned driverinstance);
+	static gBool NMouseRead(GMouse *m, GMouseReading *prd);
 
 	const GMouseVMT const GMOUSE_DRIVER_VMT[1] = {{
 		{
@@ -117,16 +117,16 @@ static bool_t		uGFXInitDone;
 typedef struct netPriv {
 	CLIENTFD		netfd;					// The current client
 	unsigned		databytes;				// How many bytes have been read
-	uint16_t		data[2];				// Buffer for storing data read.
+	gU16		data[2];				// Buffer for storing data read.
 	#if GINPUT_NEED_MOUSE
-		coord_t		mousex, mousey;
-		uint16_t	mousebuttons;
+		gCoord		mousex, mousey;
+		gU16	mousebuttons;
 		GMouse *	mouse;
 	#endif
 } netPriv;
 
 #if GDISP_GFXNET_UNSAFE_SOCKETS
-	static gfxMutex	uGFXnetMutex;
+	static gMutex	uGFXnetMutex;
 	#define MUTEX_INIT		gfxMutexInit(&uGFXnetMutex)
 	#define MUTEX_ENTER		gfxMutexEnter(&uGFXnetMutex)
 	#define MUTEX_EXIT		gfxMutexExit(&uGFXnetMutex)
@@ -148,12 +148,12 @@ static void endcon(GDisplay *g) {
 
 /**
  * Send a whole packet of data.
- * Len is specified in the number of uint16_t's we want to send as our protocol only talks uint16_t's.
+ * Len is specified in the number of gU16's we want to send as our protocol only talks gU16's.
  * Note that contents of the packet are modified to ensure it will cross the wire in the correct format.
- * If the connection closes before we send all the data - the call returns FALSE.
+ * If the connection closes before we send all the data - the call returns gFalse.
  */
-static bool_t sendpkt(CLIENTFD fd, uint16_t *pkt, int len) {
-	// Convert each uint16_t to network order
+static gBool sendpkt(CLIENTFD fd, gU16 *pkt, int len) {
+	// Convert each gU16 to network order
 	#if GFX_CPU_ENDIAN == GFX_CPU_ENDIAN_LITTLE
 		{
 			int		i;
@@ -164,8 +164,8 @@ static bool_t sendpkt(CLIENTFD fd, uint16_t *pkt, int len) {
 	#endif
 
 	// Send it
-	len *= sizeof(uint16_t);
-	return fd->write((uint8_t *)pkt, len) == len;
+	len *= sizeof(gU16);
+	return fd->write((gU8 *)pkt, len) == len;
 }
 
 static void rxdata(GDisplay *g) {
@@ -197,7 +197,7 @@ static void rxdata(GDisplay *g) {
 	}
 	
 	// Get the data
-	if ((len = fd->read(((uint8_t *)priv->data)+priv->databytes, sizeof(priv->data)-priv->databytes, 0)) <= 0) {
+	if ((len = fd->read(((gU8 *)priv->data)+priv->databytes, sizeof(priv->data)-priv->databytes, 0)) <= 0) {
 		// Socket closed or in error state
 		MUTEX_EXIT;
 		endcon(g);
@@ -284,7 +284,7 @@ void uGFXnetClientPoller(void *param) {
 				// Send a redraw all
 				#if GFX_USE_GWIN && GWIN_NEED_WINDOWMANAGER
 					gdispGClear(g, gwinGetDefaultBgColor());
-					gwinRedrawDisplay(g, FALSE);
+					gwinRedrawDisplay(g, gFalse);
 				#endif
 				break;
 			}
@@ -307,7 +307,7 @@ void uGFXnetClientPoller(void *param) {
 /* Driver exported functions.                                                */
 /*===========================================================================*/
 
-LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
+LLDSPEC gBool gdisp_lld_init(GDisplay *g) {
 	netPriv	*	priv;
 
 	// Initialise the receiver thread (if it hasn't been done already)
@@ -318,8 +318,8 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 
 		// Initialise the poller
 		gtimerInit(&poller);
-		gtimerStart(&poller, uGFXnetClientPoller, 0, TRUE, 50);
-		uGFXInitDone = TRUE;
+		gtimerStart(&poller, uGFXnetClientPoller, 0, gTrue, 50);
+		uGFXInitDone = gTrue;
 	}
 
 	// Create a private area for this window
@@ -335,20 +335,20 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	#endif
 
 	// Initialise the GDISP structure
-	g->g.Orientation = GDISP_ROTATE_0;
-	g->g.Powermode = powerOn;
+	g->g.Orientation = gOrientation0;
+	g->g.Powermode = gPowerOn;
 	g->g.Backlight = 100;
 	g->g.Contrast = 50;
 	g->g.Width = GDISP_SCREEN_WIDTH;
 	g->g.Height = GDISP_SCREEN_HEIGHT;
 
-	return TRUE;
+	return gTrue;
 }
 
 #if GDISP_HARDWARE_FLUSH
 	LLDSPEC void gdisp_lld_flush(GDisplay *g) {
 		netPriv	*	priv;
-		uint16_t	buf[1];
+		gU16	buf[1];
 
 		#if GDISP_DONT_WAIT_FOR_NET_DISPLAY
 			if (!(g->flags & GDISP_FLG_CONNECTED))
@@ -369,7 +369,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 #if GDISP_HARDWARE_DRAWPIXEL
 	LLDSPEC void gdisp_lld_draw_pixel(GDisplay *g) {
 		netPriv	*	priv;
-		uint16_t	buf[4];
+		gU16	buf[4];
 
 		#if GDISP_DONT_WAIT_FOR_NET_DISPLAY
 			if (!(g->flags & GDISP_FLG_CONNECTED))
@@ -395,7 +395,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 #if GDISP_HARDWARE_FILLS
 	LLDSPEC void gdisp_lld_fill_area(GDisplay *g) {
 		netPriv	*	priv;
-		uint16_t	buf[6];
+		gU16	buf[6];
 
 		#if GDISP_DONT_WAIT_FOR_NET_DISPLAY
 			if (!(g->flags & GDISP_FLG_CONNECTED))
@@ -421,9 +421,9 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 #if GDISP_HARDWARE_BITFILLS
 	LLDSPEC void gdisp_lld_blit_area(GDisplay *g) {
 		netPriv	*	priv;
-		pixel_t	*	buffer;
-		uint16_t	buf[5];
-		coord_t		x, y;
+		gPixel	*	buffer;
+		gU16	buf[5];
+		gCoord		x, y;
 
 		#if GDISP_DONT_WAIT_FOR_NET_DISPLAY
 			if (!(g->flags & GDISP_FLG_CONNECTED))
@@ -457,10 +457,10 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 #endif
 
 #if GDISP_HARDWARE_PIXELREAD
-	LLDSPEC	color_t gdisp_lld_get_pixel_color(GDisplay *g) {
+	LLDSPEC	gColor gdisp_lld_get_pixel_color(GDisplay *g) {
 		netPriv	*	priv;
-		uint16_t	buf[3];
-		color_t		data;
+		gU16	buf[3];
+		gColor		data;
 
 		#if GDISP_DONT_WAIT_FOR_NET_DISPLAY
 			if (!(g->flags & GDISP_FLG_CONNECTED))
@@ -492,7 +492,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 #if GDISP_NEED_SCROLL && GDISP_HARDWARE_SCROLL
 	LLDSPEC void gdisp_lld_vertical_scroll(GDisplay *g) {
 		netPriv	*	priv;
-		uint16_t	buf[6];
+		gU16	buf[6];
 
 		#if GDISP_DONT_WAIT_FOR_NET_DISPLAY
 			if (!(g->flags & GDISP_FLG_CONNECTED))
@@ -518,8 +518,8 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 #if GDISP_NEED_CONTROL && GDISP_HARDWARE_CONTROL
 	LLDSPEC void gdisp_lld_control(GDisplay *g) {
 		netPriv	*	priv;
-		uint16_t	buf[3];
-		bool_t		allgood;
+		gU16	buf[3];
+		gBool		allgood;
 
 		#if GDISP_DONT_WAIT_FOR_NET_DISPLAY
 			if (!(g->flags & GDISP_FLG_CONNECTED))
@@ -532,17 +532,17 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 		// Check if we might support the code
 		switch(g->p.x) {
 		case GDISP_CONTROL_ORIENTATION:
-			if (g->g.Orientation == (orientation_t)g->p.ptr)
+			if (g->g.Orientation == (gOrientation)g->p.ptr)
 				return;
 			break;
 		case GDISP_CONTROL_POWER:
-			if (g->g.Powermode == (powermode_t)g->p.ptr)
+			if (g->g.Powermode == (gPowermode)g->p.ptr)
 				return;
 			break;
 		case GDISP_CONTROL_BACKLIGHT:
-			if (g->g.Backlight == (uint16_t)(int)g->p.ptr)
+			if (g->g.Backlight == (gU16)(int)g->p.ptr)
 				return;
-			if ((uint16_t)(int)g->p.ptr > 100)
+			if ((gU16)(int)g->p.ptr > 100)
 				g->p.ptr = (void *)100;
 			break;
 		default:
@@ -553,7 +553,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 		priv = g->priv;
 		buf[0] = GNETCODE_CONTROL;
 		buf[1] = g->p.x;
-		buf[2] = (uint16_t)(int)g->p.ptr;
+		buf[2] = (gU16)(int)g->p.ptr;
 		MUTEX_ENTER;
 		sendpkt(priv->netfd, buf, 3);
 		MUTEX_EXIT;
@@ -563,7 +563,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 			gfxSleepMilliseconds(1);
 
 		// Extract the return status
-		allgood = priv->data[1] ? TRUE : FALSE;
+		allgood = priv->data[1] ? gTrue : gFalse;
 		g->flags &= ~GDISP_FLG_HAVEDATA;
 
 		// Do nothing more if the operation failed
@@ -572,39 +572,39 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 		// Update the local stuff
 		switch(g->p.x) {
 		case GDISP_CONTROL_ORIENTATION:
-			switch((orientation_t)g->p.ptr) {
-				case GDISP_ROTATE_0:
-				case GDISP_ROTATE_180:
+			switch((gOrientation)g->p.ptr) {
+				case gOrientation0:
+				case gOrientation180:
 					g->g.Width = GDISP_SCREEN_WIDTH;
 					g->g.Height = GDISP_SCREEN_HEIGHT;
 					break;
-				case GDISP_ROTATE_90:
-				case GDISP_ROTATE_270:
+				case gOrientation90:
+				case gOrientation270:
 					g->g.Height = GDISP_SCREEN_WIDTH;
 					g->g.Width = GDISP_SCREEN_HEIGHT;
 					break;
 				default:
 					return;
 			}
-			g->g.Orientation = (orientation_t)g->p.ptr;
+			g->g.Orientation = (gOrientation)g->p.ptr;
 			break;
 		case GDISP_CONTROL_POWER:
-			g->g.Powermode = (powermode_t)g->p.ptr;
+			g->g.Powermode = (gPowermode)g->p.ptr;
 			break;
 		case GDISP_CONTROL_BACKLIGHT:
-			g->g.Backlight = (uint16_t)(int)g->p.ptr;
+			g->g.Backlight = (gU16)(int)g->p.ptr;
 			break;
 		}
 	}
 #endif
 
 #if GINPUT_NEED_MOUSE
-	static bool_t NMouseInit(GMouse *m, unsigned driverinstance) {
+	static gBool NMouseInit(GMouse *m, unsigned driverinstance) {
 		(void)	m;
 		(void)	driverinstance;
-		return TRUE;
+		return gTrue;
 	}
-	static bool_t NMouseRead(GMouse *m, GMouseReading *pt) {
+	static gBool NMouseRead(GMouse *m, GMouseReading *pt) {
 		GDisplay *	g;
 		netPriv	*	priv;
 
@@ -615,7 +615,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 		pt->y = priv->mousey;
 		pt->z = (priv->mousebuttons & GINPUT_MOUSE_BTN_LEFT) ? 1 : 0;
 		pt->buttons = priv->mousebuttons;
-		return TRUE;
+		return gTrue;
 	}
 #endif /* GINPUT_NEED_MOUSE */
 

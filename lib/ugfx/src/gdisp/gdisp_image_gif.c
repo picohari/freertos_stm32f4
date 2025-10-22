@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "../../gfx.h"
@@ -22,7 +22,7 @@
 #define GIF_CODE_NONE			(GIF_CODE_MAX+3)			// Illegal code to signal empty
 
 // Convert bits to masks for that number of bits
-static const uint16_t GifBitMask[] = {
+static const gU16 GifBitMask[] = {
 		0x0000, 0x0001, 0x0003, 0x0007,
 		0x000f, 0x001f, 0x003f, 0x007f,
 		0x00ff, 0x01ff, 0x03ff, 0x07ff,
@@ -31,74 +31,74 @@ static const uint16_t GifBitMask[] = {
 
 // Structure for decoding a single frame
 typedef struct gifimgdecode {
-	uint8_t		blocksz;								// The size of the block currently being processed
-	uint8_t		maxpixel;								// The maximum allowed pixel value
-	uint8_t		bitsperpixel;
-	uint8_t		bitspercode;
-	uint8_t		shiftbits;
-	uint16_t	maxcodesz;
-	uint16_t	stackcnt;								// The number of items on the stack
-	uint16_t	code_clear;
-	uint16_t	code_eof;
-	uint16_t	code_max;
-	uint16_t	code_last;
-	uint32_t	shiftdata;
-	color_t *	palette;
-	uint8_t		buf[GDISP_IMAGE_GIF_BLIT_BUFFER_SIZE];					// Buffer for decoded pixels
-	uint16_t	prefix[1<<GIF_MAX_CODE_BITS];				// The LZW table
-    uint8_t		suffix[1<<GIF_MAX_CODE_BITS]; 				// So we can trace the codes
-    uint8_t 	stack[1<<GIF_MAX_CODE_BITS];				// Decoded pixels might be stacked here
+	gU8		blocksz;								// The size of the block currently being processed
+	gU8		maxpixel;								// The maximum allowed pixel value
+	gU8		bitsperpixel;
+	gU8		bitspercode;
+	gU8		shiftbits;
+	gU16	maxcodesz;
+	gU16	stackcnt;								// The number of items on the stack
+	gU16	code_clear;
+	gU16	code_eof;
+	gU16	code_max;
+	gU16	code_last;
+	gU32	shiftdata;
+	gColor *	palette;
+	gU8		buf[GDISP_IMAGE_GIF_BLIT_BUFFER_SIZE];					// Buffer for decoded pixels
+	gU16	prefix[1<<GIF_MAX_CODE_BITS];				// The LZW table
+    gU8		suffix[1<<GIF_MAX_CODE_BITS]; 				// So we can trace the codes
+    gU8 	stack[1<<GIF_MAX_CODE_BITS];				// Decoded pixels might be stacked here
 } gifimgdecode;
 
 // The data on a single frame
 typedef struct gifimgframe {
-	coord_t				x, y;							// position relative to full image
-	coord_t				width, height;					// size of frame
-	uint16_t			delay;							// delay after processing
-	uint8_t				flags;							// Local flags
+	gCoord				x, y;							// position relative to full image
+	gCoord				width, height;					// size of frame
+	gU16			delay;							// delay after processing
+	gU8				flags;							// Local flags
 		#define GIFL_TRANSPARENT	0x01					// There exists a transparent color
 		#define GIFL_DISPOSECLEAR	0x02					// Dispose this frame by clearing
 		#define GIFL_DISPOSEREST	0x04					// Dispose this frame by restoring
 		#define GIFL_INTERLACE		0x08					// Current frame is interlaced
-	uint8_t				paltrans;						// Transparency
-	uint16_t			palsize;						// Local palette size
-	size_t				posstart;						// The file position of the start of the image
-	size_t				pospal;							// The file position of the palette
-	size_t				posimg;							// The file position of the image bits
-	size_t				posend;							// The file position of the end of the frame
+	gU8				paltrans;						// Transparency
+	gU16			palsize;						// Local palette size
+	gFileSize			posstart;						// The file position of the start of the image
+	gFileSize			pospal;							// The file position of the palette
+	gFileSize			posimg;							// The file position of the image bits
+	gFileSize			posend;							// The file position of the end of the frame
 } gifimgframe;
 
 // The data for a cache
 typedef struct gifimgcache {
 	gifimgframe			frame;
-	color_t *			palette;						// Local palette
-	uint8_t *			imagebits;						// Image bits - only saved when caching
+	gColor *			palette;						// Local palette
+	gU8 *			imagebits;						// Image bits - only saved when caching
 	struct gifimgcache *next;							// Next cached frame
 } gifimgcache;
 
 // The data for a dispose area
 typedef struct gifimgdispose {
-	uint8_t				flags;							// Frame flags
-	uint8_t				paltrans;						// Transparency
-	coord_t				x, y;							// position relative to full image
-	coord_t				width, height;					// size of dispose area
+	gU8				flags;							// Frame flags
+	gU8				paltrans;						// Transparency
+	gCoord				x, y;							// position relative to full image
+	gCoord				width, height;					// size of dispose area
 } gifimgdispose;
 
 typedef struct gdispImagePrivate_GIF {
-	uint8_t			flags;						// Flags (global)
+	gU8			flags;						// Flags (global)
 		#define GIF_LOOP			0x01			// Loop back to first frame
 		#define GIF_LOOPFOREVER		0x02			// Looping is forever
-	uint8_t			bgcolor;					// Background Color (global)
-	uint16_t		loops;						// Remaining frame loops (if animated)
-	uint16_t		palsize;					// Global palette size (global)
-	pixel_t			*palette;					// Global palette (global)
-	size_t			frame0pos;					// The position of the first frame
+	gU8			bgcolor;					// Background Color (global)
+	gU16		loops;						// Remaining frame loops (if animated)
+	gU16		palsize;					// Global palette size (global)
+	gPixel			*palette;					// Global palette (global)
+	gFileSize		frame0pos;					// The position of the first frame
 	gifimgcache *	cache;						// The list of cached frames
 	gifimgcache *	curcache;					// The cache of the current frame (if created)
 	gifimgdecode *	decode;						// The decode data for the decode in progress
 	gifimgframe		frame;
 	gifimgdispose	dispose;
-	pixel_t			buf[GDISP_IMAGE_GIF_BLIT_BUFFER_SIZE];	// Buffer for reading and blitting
+	gPixel			buf[GDISP_IMAGE_GIF_BLIT_BUFFER_SIZE];	// Buffer for reading and blitting
 	} gdispImagePrivate_GIF;
 
 /**
@@ -106,15 +106,15 @@ typedef struct gdispImagePrivate_GIF {
  *
  * Pre:		Frame info has been read.
  */
-static gdispImageError startDecodeGif(gdispImage *img) {
+static gdispImageError startDecodeGif(gImage *img) {
 	gdispImagePrivate_GIF *	priv;
 	gifimgdecode *			decode;
-	uint16_t				cnt;
+	gU16				cnt;
 
 	priv = (gdispImagePrivate_GIF *)img->priv;
 
 	// We need the decode ram, and possibly a palette
-	if (!(decode = (gifimgdecode *)gdispImageAlloc(img, sizeof(gifimgdecode)+priv->frame.palsize*sizeof(color_t))))
+	if (!(decode = (gifimgdecode *)gdispImageAlloc(img, sizeof(gifimgdecode)+priv->frame.palsize*sizeof(gColor))))
 		return GDISP_IMAGE_ERR_NOMEMORY;
 
 	// We currently have not read any image data block
@@ -124,7 +124,7 @@ static gdispImageError startDecodeGif(gdispImage *img) {
 	if (priv->frame.palsize) {
 		// Local palette
 		decode->maxpixel = priv->frame.palsize-1;
-		decode->palette = (color_t *)(decode+1);
+		decode->palette = (gColor *)(decode+1);
 		gfileSetPos(img->f, priv->frame.pospal);
 		for(cnt = 0; cnt < priv->frame.palsize; cnt++) {
 			if (gfileRead(img->f, &decode->buf, 3) != 3)
@@ -161,7 +161,7 @@ static gdispImageError startDecodeGif(gdispImage *img) {
 	return GDISP_IMAGE_ERR_OK;
 
 baddatacleanup:
-	gdispImageFree(img, decode, sizeof(gifimgdecode)+priv->frame.palsize*sizeof(color_t));
+	gdispImageFree(img, decode, sizeof(gifimgdecode)+priv->frame.palsize*sizeof(gColor));
 	return GDISP_IMAGE_ERR_BADDATA;
 }
 
@@ -170,20 +170,20 @@ baddatacleanup:
  *
  * Pre:		Frame info has been read.
  */
-static void stopDecodeGif(gdispImage *img) {
+static void stopDecodeGif(gImage *img) {
 	gdispImagePrivate_GIF *	priv;
 
 	priv = (gdispImagePrivate_GIF *)img->priv;
 
 	// Free the decode data
 	if (priv->decode) {
-		gdispImageFree(img, (void *)priv->decode, sizeof(gifimgdecode)+priv->frame.palsize*sizeof(color_t));
+		gdispImageFree(img, (void *)priv->decode, sizeof(gifimgdecode)+priv->frame.palsize*sizeof(gColor));
 		priv->decode = 0;
 	}
 }
 
-static uint16_t getPrefixGif(gifimgdecode *decode, uint16_t code) {
-	uint16_t i;
+static gU16 getPrefixGif(gifimgdecode *decode, gU16 code) {
+	gU16 i;
 
 	for(i=0; code > decode->code_clear && i <= GIF_CODE_MAX; i++, code = decode->prefix[code]) {
 		if (code > GIF_CODE_MAX)
@@ -201,12 +201,12 @@ static uint16_t getPrefixGif(gifimgdecode *decode, uint16_t code) {
  *
  * Note:	The resulting pixels are stored in decode->buf
  */
-static uint16_t getBytesGif(gdispImage *img) {
+static gU16 getBytesGif(gImage *img) {
 	gdispImagePrivate_GIF *	priv;
 	gifimgdecode *			decode;
-	uint16_t				cnt;
-	uint16_t				code, prefix;
-	uint8_t					bdata;
+	gU16				cnt;
+	gU16				code, prefix;
+	gU8					bdata;
 
 	priv = (gdispImagePrivate_GIF *)img->priv;
 	decode = priv->decode;
@@ -334,11 +334,11 @@ static uint16_t getBytesGif(gdispImage *img) {
  *
  * Pre:		The file position is at the start of the frame.
  */
-static gdispImageError initFrameGif(gdispImage *img) {
+static gdispImageError initFrameGif(gImage *img) {
 	gdispImagePrivate_GIF *	priv;
 	gifimgcache *			cache;
-	uint8_t					blocktype;
-	uint8_t					blocksz;
+	gU8					blocktype;
+	gU8					blocksz;
 
 	priv = (gdispImagePrivate_GIF *)img->priv;
 
@@ -351,8 +351,8 @@ static gdispImageError initFrameGif(gdispImage *img) {
 	priv->dispose.height = priv->frame.height;
 
 	// Check for a cached version of this image
-	for(cache=priv->cache; cache && cache->frame.posstart <= (size_t)gfileGetPos(img->f); cache=cache->next) {
-		if (cache->frame.posstart == (size_t)gfileGetPos(img->f)) {
+	for(cache=priv->cache; cache && cache->frame.posstart <= gfileGetPos(img->f); cache=cache->next) {
+		if (cache->frame.posstart == gfileGetPos(img->f)) {
 			priv->frame = cache->frame;
 			priv->curcache = cache;
 			return GDISP_IMAGE_ERR_OK;
@@ -380,9 +380,9 @@ static gdispImageError initFrameGif(gdispImage *img) {
 			priv->frame.y = gdispImageGetAlignedLE16(priv->buf, 2);
 			priv->frame.width = gdispImageGetAlignedLE16(priv->buf, 4);
 			priv->frame.height = gdispImageGetAlignedLE16(priv->buf, 6);
-			if (((uint8_t *)priv->buf)[8] & 0x80)				// Local color table?
-				priv->frame.palsize = 2 << (((uint8_t *)priv->buf)[8] & 0x07);
-			if (((uint8_t *)priv->buf)[8] & 0x40)				// Interlaced?
+			if (((gU8 *)priv->buf)[8] & 0x80)				// Local color table?
+				priv->frame.palsize = 2 << (((gU8 *)priv->buf)[8] & 0x07);
+			if (((gU8 *)priv->buf)[8] & 0x40)				// Interlaced?
 				priv->frame.flags |= GIFL_INTERLACE;
 
 			// We are ready to go for the actual palette read and image decode
@@ -406,26 +406,26 @@ static gdispImageError initFrameGif(gdispImage *img) {
 				if (gfileRead(img->f, priv->buf, 6) != 6)
 					return GDISP_IMAGE_ERR_BADDATA;
 				// Check we have read a 4 byte data block and a data block terminator (0)
-				if (((uint8_t *)priv->buf)[0] != 4 || ((uint8_t *)priv->buf)[5] != 0)
+				if (((gU8 *)priv->buf)[0] != 4 || ((gU8 *)priv->buf)[5] != 0)
 					return GDISP_IMAGE_ERR_BADDATA;
 				// Process the flags
-				switch(((uint8_t *)priv->buf)[1] & 0x1C) {
+				switch(((gU8 *)priv->buf)[1] & 0x1C) {
 				case 0x00: case 0x04:												break;		// Dispose = do nothing
 				case 0x08:				priv->frame.flags |= GIFL_DISPOSECLEAR;		break;		// Dispose = clear
 				case 0x0C: case 0x10:	priv->frame.flags |= GIFL_DISPOSEREST;		break;		// Dispose = restore. Value 0x10 is a hack for bad encoders
 				default:				return GDISP_IMAGE_ERR_UNSUPPORTED;
 				}
-				if (((uint8_t *)priv->buf)[1] & 0x01) {
+				if (((gU8 *)priv->buf)[1] & 0x01) {
 					priv->frame.flags |= GIFL_TRANSPARENT;
 					img->flags |= GDISP_IMAGE_FLG_TRANSPARENT;		// We set this but never clear it
 				}
-				if (((uint8_t *)priv->buf)[1] & 0x02)				// Wait for user input?
+				if (((gU8 *)priv->buf)[1] & 0x02)				// Wait for user input?
 					img->flags |= GDISP_IMAGE_FLG_MULTIPAGE;
 				else
 					img->flags &= ~GDISP_IMAGE_FLG_MULTIPAGE;
 				// Process frame delay and the transparent color (if any)
 				priv->frame.delay = gdispImageGetAlignedLE16(priv->buf, 2);
-				priv->frame.paltrans = ((uint8_t *)priv->buf)[4];
+				priv->frame.paltrans = ((gU8 *)priv->buf)[4];
 				break;
 
 			case 0xFF:			// EXTENSION - Application
@@ -436,14 +436,14 @@ static gdispImageError initFrameGif(gdispImage *img) {
 				if (gfileRead(img->f, priv->buf, 16) != 16)
 					return GDISP_IMAGE_ERR_BADDATA;
 				// Check we have read a 11 byte data block
-				if (((uint8_t *)priv->buf)[0] != 11 && ((uint8_t *)priv->buf)[12] != 3)
+				if (((gU8 *)priv->buf)[0] != 11 && ((gU8 *)priv->buf)[12] != 3)
 					return GDISP_IMAGE_ERR_BADDATA;
 				// Check the vendor
-				if (((uint8_t *)priv->buf)[1] == 'N' && ((uint8_t *)priv->buf)[2] == 'E' && ((uint8_t *)priv->buf)[3] == 'T'
-						&& ((uint8_t *)priv->buf)[4] == 'S' && ((uint8_t *)priv->buf)[5] == 'C' && ((uint8_t *)priv->buf)[6] == 'A'
-						&& ((uint8_t *)priv->buf)[7] == 'P' && ((uint8_t *)priv->buf)[8] == 'E' && ((uint8_t *)priv->buf)[9] == '2'
-						&& ((uint8_t *)priv->buf)[10] == '.' && ((uint8_t *)priv->buf)[11] == '0') {
-					if (((uint8_t *)priv->buf)[13] == 1) {
+				if (((gU8 *)priv->buf)[1] == 'N' && ((gU8 *)priv->buf)[2] == 'E' && ((gU8 *)priv->buf)[3] == 'T'
+						&& ((gU8 *)priv->buf)[4] == 'S' && ((gU8 *)priv->buf)[5] == 'C' && ((gU8 *)priv->buf)[6] == 'A'
+						&& ((gU8 *)priv->buf)[7] == 'P' && ((gU8 *)priv->buf)[8] == 'E' && ((gU8 *)priv->buf)[9] == '2'
+						&& ((gU8 *)priv->buf)[10] == '.' && ((gU8 *)priv->buf)[11] == '0') {
+					if (((gU8 *)priv->buf)[13] == 1) {
 						priv->loops = gdispImageGetAlignedLE16(priv->buf, 14);
 						priv->flags |= GIF_LOOP;
 						if (!priv->loops)
@@ -493,7 +493,7 @@ static gdispImageError initFrameGif(gdispImage *img) {
 	}
 }
 
-void gdispImageClose_GIF(gdispImage *img) {
+void gdispImageClose_GIF(gImage *img) {
 	gdispImagePrivate_GIF *	priv;
 	gifimgcache *			cache;
 	gifimgcache *			ncache;
@@ -504,20 +504,20 @@ void gdispImageClose_GIF(gdispImage *img) {
 		cache = priv->cache;
 		while(cache) {
 			ncache = cache->next;
-			gdispImageFree(img, (void *)cache, sizeof(gifimgcache)+cache->frame.width*cache->frame.height+cache->frame.palsize*sizeof(color_t));
+			gdispImageFree(img, (void *)cache, sizeof(gifimgcache)+cache->frame.width*cache->frame.height+cache->frame.palsize*sizeof(gColor));
 			cache = ncache;
 		}
 		if (priv->palette)
-			gdispImageFree(img, (void *)priv->palette, priv->palsize*sizeof(color_t));
+			gdispImageFree(img, (void *)priv->palette, priv->palsize*sizeof(gColor));
 		gdispImageFree(img, (void *)priv, sizeof(gdispImagePrivate_GIF));
 		img->priv = 0;
 	}
 }
 
-gdispImageError gdispImageOpen_GIF(gdispImage *img) {
+gdispImageError gdispImageOpen_GIF(gImage *img) {
 	gdispImagePrivate_GIF *priv;
-	uint8_t		hdr[6];
-	uint16_t	aword;
+	gU8		hdr[6];
+	gU16	aword;
 
 	/* Read the file identifier */
 	if (gfileRead(img->f, hdr, 6) != 6)
@@ -555,20 +555,20 @@ gdispImageError gdispImageOpen_GIF(gdispImage *img) {
 	img->width = gdispImageGetAlignedLE16(priv->buf, 0);
 	// Get the height
 	img->height = gdispImageGetAlignedLE16(priv->buf, 2);
-	if (((uint8_t *)priv->buf)[4] & 0x80) {
+	if (((gU8 *)priv->buf)[4] & 0x80) {
 		// Global color table
-		priv->palsize = 2 << (((uint8_t *)priv->buf)[4] & 0x07);
+		priv->palsize = 2 << (((gU8 *)priv->buf)[4] & 0x07);
 		// Allocate the global palette
-		if (!(priv->palette = (color_t *)gdispImageAlloc(img, priv->palsize*sizeof(color_t))))
+		if (!(priv->palette = (gColor *)gdispImageAlloc(img, priv->palsize*sizeof(gColor))))
 			goto nomemcleanup;
 		// Read the global palette
 		for(aword = 0; aword < priv->palsize; aword++) {
 			if (gfileRead(img->f, &priv->buf, 3) != 3)
 				goto baddatacleanup;
-			priv->palette[aword] = RGB2COLOR(((uint8_t *)priv->buf)[0], ((uint8_t *)priv->buf)[1], ((uint8_t *)priv->buf)[2]);
+			priv->palette[aword] = RGB2COLOR(((gU8 *)priv->buf)[0], ((gU8 *)priv->buf)[1], ((gU8 *)priv->buf)[2]);
 		}
 	}
-	priv->bgcolor = ((uint8_t *)priv->buf)[5];
+	priv->bgcolor = ((gU8 *)priv->buf)[5];
 
 	// Save the fram0pos
 	priv->frame0pos = gfileGetPos(img->f);
@@ -595,14 +595,14 @@ gdispImageError gdispImageOpen_GIF(gdispImage *img) {
 	}
 }
 
-gdispImageError gdispImageCache_GIF(gdispImage *img) {
+gdispImageError gdispImageCache_GIF(gImage *img) {
 	gdispImagePrivate_GIF *	priv;
 	gifimgcache *			cache;
 	gifimgdecode *			decode;
-	uint8_t *				p;
-	uint8_t *				q;
-	coord_t					mx, my;
-	uint16_t				cnt;
+	gU8 *				p;
+	gU8 *				q;
+	gCoord					mx, my;
+	gU16				cnt;
 
 	/* If we are already cached - just return OK */
 	priv = (gdispImagePrivate_GIF *)img->priv;
@@ -610,13 +610,13 @@ gdispImageError gdispImageCache_GIF(gdispImage *img) {
 		return GDISP_IMAGE_ERR_OK;
 
 	/* We need to allocate the frame, the palette and bits for the image */
-	if (!(cache = (gifimgcache *)gdispImageAlloc(img, sizeof(gifimgcache) + priv->frame.palsize*sizeof(color_t) + priv->frame.width*priv->frame.height)))
+	if (!(cache = (gifimgcache *)gdispImageAlloc(img, sizeof(gifimgcache) + priv->frame.palsize*sizeof(gColor) + priv->frame.width*priv->frame.height)))
 		return GDISP_IMAGE_ERR_NOMEMORY;
 
 	/* Initialise the cache */
 	decode = 0;
 	cache->frame = priv->frame;
-	cache->imagebits = (uint8_t *)(cache+1) + cache->frame.palsize*sizeof(color_t);
+	cache->imagebits = (gU8 *)(cache+1) + cache->frame.palsize*sizeof(gColor);
 	cache->next = 0;
 
 	/* Start the decode */
@@ -630,7 +630,7 @@ gdispImageError gdispImageCache_GIF(gdispImage *img) {
 
 	// Save the palette
 	if (cache->frame.palsize) {
-		cache->palette = (color_t *)(cache+1);
+		cache->palette = (gColor *)(cache+1);
 
 		/* Copy the local palette into the cache */
 		for(cnt = 0; cnt < cache->frame.palsize; cnt++)
@@ -757,22 +757,22 @@ gdispImageError gdispImageCache_GIF(gdispImage *img) {
 
 nomemcleanup:
 	stopDecodeGif(img);
-	gdispImageFree(img, cache, sizeof(gifimgcache) + priv->frame.palsize*sizeof(color_t) + priv->frame.width*priv->frame.height);
+	gdispImageFree(img, cache, sizeof(gifimgcache) + priv->frame.palsize*sizeof(gColor) + priv->frame.width*priv->frame.height);
 	return GDISP_IMAGE_ERR_NOMEMORY;
 
 baddatacleanup:
 	stopDecodeGif(img);
-	gdispImageFree(img, cache, sizeof(gifimgcache) + priv->frame.palsize*sizeof(color_t) + priv->frame.width*priv->frame.height);
+	gdispImageFree(img, cache, sizeof(gifimgcache) + priv->frame.palsize*sizeof(gColor) + priv->frame.width*priv->frame.height);
 	return GDISP_IMAGE_ERR_BADDATA;
 }
 
-gdispImageError gdispGImageDraw_GIF(GDisplay *g, gdispImage *img, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t sx, coord_t sy) {
+gdispImageError gdispGImageDraw_GIF(GDisplay *g, gImage *img, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoord sx, gCoord sy) {
 	gdispImagePrivate_GIF *	priv;
 	gifimgdecode *			decode;
-	uint8_t *				q = 0;
-	coord_t					mx, my, fx, fy;
-	uint16_t				cnt, gcnt;
-	uint8_t					col;
+	gU8 *				q = 0;
+	gCoord					mx, my, fx, fy;
+	gU16				cnt, gcnt;
+	gU8					col;
 
 	priv = (gdispImagePrivate_GIF *)img->priv;
 
@@ -1106,15 +1106,15 @@ baddatacleanup:
 	return GDISP_IMAGE_ERR_BADDATA;
 }
 
-delaytime_t gdispImageNext_GIF(gdispImage *img) {
+gDelay gdispImageNext_GIF(gImage *img) {
 	gdispImagePrivate_GIF *	priv;
-	delaytime_t				delay;
-	uint8_t					blocksz;
+	gDelay				delay;
+	gU8					blocksz;
 
 	priv = (gdispImagePrivate_GIF *)img->priv;
 
 	// Save the delay and convert to millisecs
-	delay = (delaytime_t)priv->frame.delay * 10;
+	delay = (gDelay)priv->frame.delay * 10;
 
 	// We need to get to the end of this frame
 	if (!priv->frame.posend) {
@@ -1122,7 +1122,7 @@ delaytime_t gdispImageNext_GIF(gdispImage *img) {
 		gfileSetPos(img->f, priv->frame.posimg+1);				// Skip the code size byte too
 		while(1) {
 			if (gfileRead(img->f, &blocksz, 1) != 1)
-				return TIME_INFINITE;
+				return gDelayForever;
 			if (!blocksz)
 				break;
 			gfileSetPos(img->f, gfileGetPos(img->f) + blocksz);
@@ -1145,10 +1145,10 @@ delaytime_t gdispImageNext_GIF(gdispImage *img) {
 		case GDISP_IMAGE_ERR_NOMEMORY:				// Out of Memory
 		case GDISP_IMAGE_ERR_UNSUPPORTED:			// Unsupported
 		default:
-			return TIME_INFINITE;
+			return gDelayForever;
 		}
 	}
-	return TIME_INFINITE;
+	return gDelayForever;
 }
 
 #endif /* GFX_USE_GDISP && GDISP_NEED_IMAGE && GDISP_NEED_IMAGE_GIF */

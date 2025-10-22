@@ -1,6 +1,6 @@
 GFXINC	+= $(GFXLIB)/boards/base/HY-MiniSTM32V
 GFXSRC	+=
-GFXDEFS += -DGFX_USE_CHIBIOS=TRUE
+GFXDEFS += -DGFX_USE_CHIBIOS=GFXON
 
 include $(GFXLIB)/boards/base/HY-MiniSTM32V/chibios_board/board.mk
 include $(GFXLIB)/drivers/gdisp/SSD1289/driver.mk

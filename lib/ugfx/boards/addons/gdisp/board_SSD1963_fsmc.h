@@ -32,8 +32,8 @@ static const LCD_Parameters	DisplayTimings[] = {
 //	set g->board to that structure.
 
 /* Using FSMC A16 as RS */
-#define GDISP_REG              (*((volatile uint16_t *) 0x60000000)) /* RS = 0 */
-#define GDISP_RAM              (*((volatile uint16_t *) 0x60020000)) /* RS = 1 */
+#define GDISP_REG              (*((volatile gU16 *) 0x60000000)) /* RS = 0 */
+#define GDISP_RAM              (*((volatile gU16 *) 0x60020000)) /* RS = 1 */
 
 static GFXINLINE void init_board(GDisplay *g) {
 
@@ -81,7 +81,7 @@ static GFXINLINE void post_init_board(GDisplay *g) {
 	FSMC_Bank1->BTCR[0] = FSMC_BCR1_MWID_0 | FSMC_BCR1_WREN | FSMC_BCR1_MBKEN;
 }
 
-static GFXINLINE void setpin_reset(GDisplay *g, bool_t state) {
+static GFXINLINE void setpin_reset(GDisplay *g, gBool state) {
 	(void) g;
 	(void) state;
 }
@@ -94,12 +94,12 @@ static GFXINLINE void release_bus(GDisplay *g) {
 	(void) g;
 }
 
-static GFXINLINE void write_index(GDisplay *g, uint16_t index) {
+static GFXINLINE void write_index(GDisplay *g, gU16 index) {
 	(void) g;
 	GDISP_REG = index;
 }
 
-static GFXINLINE void write_data(GDisplay *g, uint16_t data) {
+static GFXINLINE void write_data(GDisplay *g, gU16 data) {
 	(void) g;
 	GDISP_RAM = data;
 }

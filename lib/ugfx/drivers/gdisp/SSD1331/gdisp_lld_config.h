@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #ifndef _GDISP_LLD_CONFIG_H
@@ -15,10 +15,10 @@
 /*===========================================================================*/
 
 // This controller supports some optimized drawing routines - but no read (at least with SPI interfacing)
-#define GDISP_HARDWARE_STREAM_WRITE		TRUE
-#define GDISP_HARDWARE_FILLS			TRUE
-#define GDISP_HARDWARE_SCROLL			TRUE
-#define GDISP_HARDWARE_CONTROL			TRUE
+#define GDISP_HARDWARE_STREAM_WRITE		GFXON
+#define GDISP_HARDWARE_FILLS			GFXON
+#define GDISP_HARDWARE_SCROLL			GFXON
+#define GDISP_HARDWARE_CONTROL			GFXON
 
 // This driver supports 4 pixel formats - pick the one you want.
 #define GDISP_LLD_PIXELFORMAT			GDISP_PIXELFORMAT_RGB565

@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "../../gfx.h"
@@ -25,13 +25,17 @@ void _gosInit(void)
 	_gosThreadsInit();
 }
 
+void _gosPostInit(void)
+{
+}
+
 void _gosDeinit(void)
 {
 }
 
 void gfxHalt(const char *msg)
 {
-	volatile uint32_t dummy;
+	volatile gU32 dummy;
 
 	(void)msg;
 
@@ -41,19 +45,19 @@ void gfxHalt(const char *msg)
 }
 
 void gfxExit(void) {
-	volatile uint32_t dummy;
+	volatile gU32 dummy;
 
 	while(1) {
 		dummy++;
 	}
 }
 
-systemticks_t gfxSystemTicks(void)
+gTicks gfxSystemTicks(void)
 {
 	return alt_nticks();
 }
 
-systemticks_t gfxMillisecondsToTicks(delaytime_t ms)
+gTicks gfxMillisecondsToTicks(gDelay ms)
 {
 	return ms;
 }

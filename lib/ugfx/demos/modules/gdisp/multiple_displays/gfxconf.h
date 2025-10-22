@@ -31,20 +31,20 @@
 #define _GFXCONF_H
 
 //* The operating system to use. One of these must be defined - preferably in your Makefile */
-//#define GFX_USE_OS_CHIBIOS	FALSE
-//#define GFX_USE_OS_WIN32		FALSE
-//#define GFX_USE_OS_LINUX		FALSE
-//#define GFX_USE_OS_OSX		FALSE
+//#define GFX_USE_OS_CHIBIOS	GFXOFF
+//#define GFX_USE_OS_WIN32		GFXOFF
+//#define GFX_USE_OS_LINUX		GFXOFF
+//#define GFX_USE_OS_OSX		GFXOFF
 
 /* GFX sub-systems to turn on */
-#define GFX_USE_GDISP			TRUE
+#define GFX_USE_GDISP			GFXON
 
 /* Features for the GDISP sub-system. */
-#define GDISP_NEED_VALIDATION	TRUE
-#define GDISP_NEED_CLIP			TRUE
-#define GDISP_NEED_TEXT			TRUE
+#define GDISP_NEED_VALIDATION	GFXON
+#define GDISP_NEED_CLIP			GFXON
+#define GDISP_NEED_TEXT			GFXON
 
-#define GDISP_INCLUDE_FONT_UI2	TRUE
+#define GDISP_INCLUDE_FONT_UI2	GFXON
 
 /* You must either define GDISP_TOTAL_DISPLAYS or GDISP_DRIVER_LIST for multiple displays.
  * You cannot define both!
@@ -66,15 +66,15 @@
  * as the program doesn't have to detect the hardware method to use on each call.
  *
  * Hardware definitions can be set to:
- * 		- TRUE		- all controllers support this routine
- * 		- FALSE		- no controllers support this routine
+ * 		- GFXON		- all controllers support this routine
+ * 		- GFXOFF	- no controllers support this routine
  * 		- if not specified then the code auto-detects the hardware.
  *
  * e.g
- * 		#define GDISP_HARDWARE_STREAM_WRITE	FALSE
- * 		#define GDISP_HARDWARE_STREAM_READ	FALSE
- * 		#define GDISP_HARDWARE_DRAWPIXEL	TRUE
- * 		#define GDISP_HARDWARE_FILLS		TRUE
+ * 		#define GDISP_HARDWARE_STREAM_WRITE	GFXOFF
+ * 		#define GDISP_HARDWARE_STREAM_READ	GFXOFF
+ * 		#define GDISP_HARDWARE_DRAWPIXEL	GFXON
+ * 		#define GDISP_HARDWARE_FILLS		GFXON
  */
 #if GFX_USE_OS_WIN32 || GFX_USE_OS_LINUX || GFX_USE_OS_OSX
 	// Emulator
@@ -84,14 +84,14 @@
 	//#define GDISP_PIXELFORMAT     GDISP_PIXELFORMAT_RGB888
 
 #elif !defined(GDISP_TOTAL_DISPLAYS) && (!defined(GDISP_PIXELFORMAT) || !defined(GDISP_DRIVER_LIST))
-	#error "gfxconf.h: You have not defined multiple displays properly. Try defining GDISP_TOTAL_DISPLAY or, GDISP_PIXELFORMAT and GDISP_DRIVER_LIST in your makefile"
+	#error "gfxconf.h: You have not defined multiple displays properly. Try defining GDISP_TOTAL_DISPLAYS or, GDISP_PIXELFORMAT and GDISP_DRIVER_LIST in your makefile"
 #endif
 
 /*
  * The following are needed only for the sprintg() call
  */
-#define GFX_USE_GFILE						TRUE
-#define GFILE_NEED_PRINTG					TRUE
-#define GFILE_NEED_STRINGS					TRUE
+#define GFX_USE_GFILE						GFXON
+#define GFILE_NEED_PRINTG					GFXON
+#define GFILE_NEED_STRINGS					GFXON
 
 #endif /* _GFXCONF_H */

@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -15,7 +15,7 @@
  * @details		GINPUT provides an easy and common interface to use different input devices
  *				such as touchscreens and mices.
  *
- * @pre			GFX_USE_GINPUT must be set to TRUE in your gfxconf.h
+ * @pre			GFX_USE_GINPUT must be set to GFXON in your gfxconf.h
  *
  * @{
  */

@@ -89,7 +89,6 @@ typedef enum
   
 #define LED4_PIN                         GPIO_PIN_10
 #define LED4_GPIO_PORT                   GPIOI
-//#define LED4_GPIO_CLK                    RCC_AHB1Periph_GPIOC
 #define LED4_GPIO_CLK_ENABLE()           __GPIOI_CLK_ENABLE()
 #define LED4_GPIO_CLK_DISABLE()          __GPIOI_CLK_DISABLE()
 
@@ -105,7 +104,6 @@ typedef enum
                                             }while(0)
 
 
-
 /** @defgroup STM324xG_EVAL_LOW_LEVEL_Exported_Functions STM324xG EVAL LOW LEVEL Exported Functions
   * @{
   */
@@ -115,7 +113,6 @@ void BSP_LED_Off(Led_TypeDef Led);
 void BSP_LED_Toggle(Led_TypeDef Led);
 
 void BSP_LCD_Init(void);
-
 
 
 #ifdef __cplusplus

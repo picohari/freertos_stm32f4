@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #ifndef _GDISP_LLD_CONFIG_H
@@ -14,10 +14,10 @@
 /* Driver hardware support.                                                  */
 /*===========================================================================*/
 
-#define GDISP_HARDWARE_FLUSH			TRUE		// This controller requires flushing
-#define GDISP_HARDWARE_DRAWPIXEL		TRUE
-#define GDISP_HARDWARE_PIXELREAD		TRUE
-#define GDISP_HARDWARE_CONTROL			TRUE
+#define GDISP_HARDWARE_FLUSH			GFXON		// This controller requires flushing
+#define GDISP_HARDWARE_DRAWPIXEL		GFXON
+#define GDISP_HARDWARE_PIXELREAD		GFXON
+#define GDISP_HARDWARE_CONTROL			GFXON
 
 // Set this to your frame buffer pixel format.
 #ifndef GDISP_LLD_PIXELFORMAT

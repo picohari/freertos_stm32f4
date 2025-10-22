@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /* Text alignment and justification algorithm. Supports left, right, center
@@ -29,7 +29,7 @@ enum mf_align_t
  * state:       Free state variable for use by the callback.
  * Returns the width of the character.
  */
-typedef uint8_t (*mf_character_callback_t) (int16_t x0, int16_t y0,
+typedef gU8 (*mf_character_callback_t) (gI16 x0, gI16 y0,
                                             mf_char character, void *state);
 
 /* Get width of a string in pixels.
@@ -39,8 +39,8 @@ typedef uint8_t (*mf_character_callback_t) (int16_t x0, int16_t y0,
  * count:  Number of characters on the line or 0 to read until end of string.
  * kern:   True to consider kerning (slower).
  */
-MF_EXTERN int16_t mf_get_string_width(const struct mf_font_s *font,
-                                      mf_str text, uint16_t count, bool kern);
+MF_EXTERN gI16 mf_get_string_width(const struct mf_font_s *font,
+                                      mf_str text, gU16 count, bool kern);
 
 /* Render a single line of aligned text.
  *
@@ -54,9 +54,9 @@ MF_EXTERN int16_t mf_get_string_width(const struct mf_font_s *font,
  * state:    Free variable for use in the callback.
  */
 MF_EXTERN void mf_render_aligned(const struct mf_font_s *font,
-                                 int16_t x0, int16_t y0,
+                                 gI16 x0, gI16 y0,
                                  enum mf_align_t align,
-                                 mf_str text, uint16_t count,
+                                 mf_str text, gU16 count,
                                  mf_character_callback_t callback,
                                  void *state);
 
@@ -72,8 +72,8 @@ MF_EXTERN void mf_render_aligned(const struct mf_font_s *font,
  * state:    Free variable for use in the callback.
  */
 MF_EXTERN void mf_render_justified(const struct mf_font_s *font,
-                                   int16_t x0, int16_t y0, int16_t width,
-                                   mf_str text, uint16_t count,
+                                   gI16 x0, gI16 y0, gI16 width,
+                                   mf_str text, gU16 count,
                                    mf_character_callback_t callback,
                                    void *state);
 

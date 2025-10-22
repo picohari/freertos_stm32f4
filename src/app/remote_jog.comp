@@ -1,0 +1,124 @@
+component remote_jog "UDP interface between LinuxCNC and a remote handwheel controller";
+
+license "GPLv2 or later";
+author "ChatGPT / User Project";
+description "Sends axis positions and receives jog increments over UDP";
+
+// compile with: halcompile --install remote_jog.comp
+
+// --- HAL Pins ---
+// Axis position inputs (from motion or axis)
+pin in float x_pos_fb "Axis X feedback position";
+pin in float y_pos_fb "Axis Y feedback position";
+pin in float z_pos_fb "Axis Z feedback position";
+
+// Jog delta outputs (to feed into motion.jog-increment)
+pin out float x_jog_delta "Jog increment for X axis (mm)";
+pin out float y_jog_delta "Jog increment for Y axis (mm)";
+pin out float z_jog_delta "Jog increment for Z axis (mm)";
+
+// Configuration parameters
+param rw int udp_port = 5005 "UDP port to communicate with remote";
+param rw char remote_ip[64] = "192.168.0.10" "Remote handwheel IP";
+
+// Debug
+pin out bit connected "True if UDP socket is active";
+
+option singleton yes;
+
+// --- Includes ---
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+
+// --- Internal State ---
+static int sockfd = -1;
+static struct sockaddr_in remote_addr;
+static struct sockaddr_in recv_addr;
+static socklen_t addr_len = sizeof(recv_addr);
+
+// --- UDP Data Structures ---
+typedef struct {
+    float x;
+    float y;
+    float z;
+} __attribute__((packed)) AxisPositionPacket;
+
+typedef struct {
+    uint8_t axis;
+    float delta_mm;
+} __attribute__((packed)) JogPacket;
+
+// --- Real-time Function ---
+FUNCTION(_);
+
+// --- Component Init ---
+FUNCTION(init)
+{
+    // Create UDP socket
+    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sockfd < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "remote_jog: Failed to create socket\n");
+        return -1;
+    }
+
+    // Bind to local port
+    struct sockaddr_in local_addr = {0};
+    local_addr.sin_family = AF_INET;
+    local_addr.sin_addr.s_addr = INADDR_ANY;
+    local_addr.sin_port = htons(udp_port);
+
+    if (bind(sockfd, (struct sockaddr*)&local_addr, sizeof(local_addr)) < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "remote_jog: UDP bind failed on port %d\n", udp_port);
+        close(sockfd);
+        sockfd = -1;
+        return -1;
+    }
+
+    // Set remote address
+    memset(&remote_addr, 0, sizeof(remote_addr));
+    remote_addr.sin_family = AF_INET;
+    remote_addr.sin_port = htons(udp_port);
+    inet_pton(AF_INET, remote_ip, &remote_addr.sin_addr);
+
+    rtapi_print_msg(RTAPI_MSG_INFO, "remote_jog: Started UDP on port %d, remote %s\n",
+                    udp_port, remote_ip);
+
+    *(connected) = 1;
+    return 0;
+}
+
+// --- Real-time Periodic Function ---
+FUNCTION(_)
+{
+    if (sockfd < 0) {
+        *(connected) = 0;
+        return;
+    }
+
+    // --- 1. Send axis positions to remote ---
+    AxisPositionPacket pos = {
+        .x = *(x_pos_fb),
+        .y = *(y_pos_fb),
+        .z = *(z_pos_fb)
+    };
+    sendto(sockfd, &pos, sizeof(pos), 0,
+           (struct sockaddr*)&remote_addr, sizeof(remote_addr));
+
+    // --- 2. Receive jog increments from remote ---
+    JogPacket jog;
+    ssize_t recv_len = recvfrom(sockfd, &jog, sizeof(jog), MSG_DONTWAIT,
+                                (struct sockaddr*)&recv_addr, &addr_len);
+
+    if (recv_len == sizeof(jog)) {
+        switch (jog.axis) {
+            case 0: *(x_jog_delta) = jog.delta_mm; break;
+            case 1: *(y_jog_delta) = jog.delta_mm; break;
+            case 2: *(z_jog_delta) = jog.delta_mm; break;
+            default: break;
+        }
+    }
+}

@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /********************************************************
@@ -19,7 +19,7 @@
 
 static int MEMRead(GFILE *f, void *buf, int size);
 static int MEMWrite(GFILE *f, const void *buf, int size);
-static bool_t MEMSetpos(GFILE *f, long int pos);
+static gBool MEMSetpos(GFILE *f, gFileSize pos);
 
 static const GFILEVMT FsMemVMT = {
 	GFSFLG_SEEKABLE|GFSFLG_WRITEABLE,					// flags
@@ -41,10 +41,10 @@ static int MEMWrite(GFILE *f, const void *buf, int size) {
 	memcpy(((char *)f->obj)+f->pos, buf, size);
 	return size;
 }
-static bool_t MEMSetpos(GFILE *f, long int pos) {
+static gBool MEMSetpos(GFILE *f, gFileSize pos) {
 	(void) f;
 	(void) pos;
-	return TRUE;
+	return gTrue;
 }
 
 GFILE *	gfileOpenMemory(void *memptr, const char *mode) {

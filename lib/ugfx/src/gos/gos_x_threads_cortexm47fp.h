@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -92,5 +92,9 @@
 	}
 
 #else
-	#warning "GOS: Threads: You have specified a specific CPU but your compiler is not supported. Defaulting to CLIB switching"
+	#if GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_DIRECT
+		#warning "GOS Threads: You have specified a specific CPU but your compiler is not supported. Defaulting to CLIB switching"
+	#elif GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_MACRO
+		COMPILER_WARNING("GOS Threads: You have specified a specific CPU but your compiler is not supported. Defaulting to CLIB switching")
+	#endif
 #endif

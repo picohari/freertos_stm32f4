@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "../../gfx.h"
@@ -18,7 +18,7 @@
  * the function returns 1. If the point c is on the segment, the function
  * returns 0. If they don't intersect, it returns 2.
  */
-static char _pointCrossingSegment(const point *a, const point *b, const point *c) {
+static char _pointCrossingSegment(const gPoint *a, const gPoint *b, const gPoint *c) {
     /* If both points are left from our point, it won't intersect */
     if (a->x < c->x && b->x < c->x) {
         return -1;
@@ -28,7 +28,7 @@ static char _pointCrossingSegment(const point *a, const point *b, const point *c
      * it won't intersect. 
      */
     if (c->y <= a->y && c->y >= b->y) {
-        coord_t crossProduct;
+        gCoord crossProduct;
         
         /* If the line is parallel */
         if (a->y == b->y) {
@@ -64,10 +64,10 @@ static char _pointCrossingSegment(const point *a, const point *b, const point *c
     return -1;
 }
 
-bool_t gmiscHittestPoly(const point *pntarray, unsigned cnt, const point *p) {
+gBool gmiscHittestPoly(const gPoint *pntarray, unsigned cnt, const gPoint *p) {
     unsigned i = 0;
-    uint8_t nbrIntersection = 0;
-    int8_t crossResult;
+    gU8 nbrIntersection = 0;
+    gI8 crossResult;
 
     // For each pair of points
     for (i = 0; i < cnt-1; i++) {
@@ -80,7 +80,7 @@ bool_t gmiscHittestPoly(const point *pntarray, unsigned cnt, const point *p) {
 
         /* Point on the edge of the polygon */
         if (crossResult == 0) {
-            return TRUE;
+            return gTrue;
         }
         /* Point crossing the polygon */
         else if(crossResult == 1) {
@@ -98,18 +98,18 @@ bool_t gmiscHittestPoly(const point *pntarray, unsigned cnt, const point *p) {
     }
 
     if (crossResult == 0) {
-        return TRUE;
+        return gTrue;
     } else if(crossResult == 1) {
         nbrIntersection++;
     }
 
     /* If we cross an even pair of segments, we are outside */
     if (nbrIntersection % 2 == 0) {
-        return FALSE;
+        return gFalse;
     }
     
     /* Else we are inside the polygon */
-    return TRUE;
+    return gTrue;
 }
 
 #endif // GMISC_NEED_HITTEST_POLY

@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -52,11 +52,11 @@
 typedef struct GVSpecialKey {
 	const char const *keycap;				// The caption on the key
 	const char const *sendkey;				// The key to send (NULL means none)
-	uint8_t		flags;						// Flags
+	gU8		flags;						// Flags
 		#define GVKEY_INVERT		0x01		//		Invert the color
 		#define GVKEY_SINGLESET		0x02		//		Change set when this key is pressed but only for a single keystroke
 		#define GVKEY_LOCKSET		0x04		//		Change set when this key is pressed but stay there until the set is changed by the user
-	uint8_t		newset;							//		The new set to change to
+	gU8		newset;							//		The new set to change to
 	} GVSpecialKey;
 
 typedef const char **GVKeySet;				// Array of Rows - Null indicates the end
@@ -66,4 +66,3 @@ typedef struct GVKeyTable {
 	} GVKeyTable;
 
 #endif /* _GWIN_KEYBOARD_LAYOUT_H */
-/** @} */

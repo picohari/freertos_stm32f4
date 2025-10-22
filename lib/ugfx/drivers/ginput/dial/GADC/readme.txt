@@ -1,9 +1,9 @@
 To use this driver:
 
 1. Add in your gfxconf.h:
-	a)  #define GFX_USE_GINPUT		TRUE
-		#define GINPUT_NEED_DIAL	TRUE
-		#define GINPUT_NEED_GADC	TRUE
+	a)  #define GFX_USE_GINPUT		GFXON
+		#define GINPUT_NEED_DIAL	GFXON
+		#define GINPUT_NEED_GADC	GFXON
 	d) If you are not using a known board then create a ginput_lld_toggle_board.h file
 		and ensure it is on your include path.
 		Use the ginput_lld_dial_board_example.h file as a basis.

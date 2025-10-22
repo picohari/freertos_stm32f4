@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #ifndef _GDISP_LLD_CONFIG_H
@@ -14,16 +14,16 @@
 /* Driver hardware support.                                                  */
 /*===========================================================================*/
 
-#define GDISP_HARDWARE_STREAM_WRITE		TRUE
-#define GDISP_HARDWARE_STREAM_READ		TRUE
-#define GDISP_HARDWARE_STREAM_POS		TRUE
-#define GDISP_HARDWARE_CONTROL			TRUE
+#define GDISP_HARDWARE_STREAM_WRITE		GFXON
+#define GDISP_HARDWARE_STREAM_READ		GFXON
+#define GDISP_HARDWARE_STREAM_POS		GFXON
+#define GDISP_HARDWARE_CONTROL			GFXON
 
 #if defined(GDISP_USE_DMA) && GDISP_USE_DMA
-	#define GDISP_HARDWARE_FILLS		TRUE
+	#define GDISP_HARDWARE_FILLS		GFXON
 	#if !defined(GDISP_PIXELFORMAT) || GDISP_PIXELFORMAT == 0x2565
 		// Hardware BitBlts are only supported in native pixel format on this controller
-		#define GDISP_HARDWARE_BITFILLS		TRUE
+		#define GDISP_HARDWARE_BITFILLS		GFXON
 	#endif
 #endif
 

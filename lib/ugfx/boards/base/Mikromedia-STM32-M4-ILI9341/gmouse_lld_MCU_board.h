@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #ifndef _LLD_GMOUSE_MCU_BOARD_H
@@ -27,7 +27,7 @@
 #define ADC_BUF_DEPTH      1
 
 static const ADCConversionGroup adcgrpcfg = {
-  FALSE,
+  0,
   ADC_NUM_CHANNELS,
   0,
   0,
@@ -41,12 +41,12 @@ static const ADCConversionGroup adcgrpcfg = {
   ADC_SQR3_SQ2_N(ADC_CHANNEL_IN8) | ADC_SQR3_SQ1_N(ADC_CHANNEL_IN9)
 };
 
-static bool_t init_board(GMouse *m, unsigned driverinstance) {
+static gBool init_board(GMouse *m, unsigned driverinstance) {
 	(void)	m;
 
 	// Only one touch interface on this board
 	if (driverinstance)
-		return FALSE;
+		return gFalse;
 
 	adcStart(&ADCD1, 0);
 
@@ -54,10 +54,10 @@ static bool_t init_board(GMouse *m, unsigned driverinstance) {
 	palClearPad(GPIOB, GPIOB_DRIVEA);
 	palClearPad(GPIOB, GPIOB_DRIVEB);
     chThdSleepMilliseconds(1);				// Settling time
-	return TRUE;
+	return gTrue;
 }
 
-static bool_t read_xyz(GMouse *m, GMouseReading *prd) {
+static gBool read_xyz(GMouse *m, GMouseReading *prd) {
 	adcsample_t samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH];
 	(void)		m;
 
@@ -89,7 +89,7 @@ static bool_t read_xyz(GMouse *m, GMouseReading *prd) {
 		palClearPad(GPIOB, GPIOB_DRIVEA);
 		palClearPad(GPIOB, GPIOB_DRIVEB);
     }
-    return TRUE;
+    return gTrue;
 }
 
 #endif /* _LLD_GMOUSE_MCU_BOARD_H */

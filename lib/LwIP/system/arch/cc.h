@@ -35,6 +35,7 @@
 #include "cpu.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/time.h>
 
 typedef int sys_prot_t;
 

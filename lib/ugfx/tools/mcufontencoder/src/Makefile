@@ -1,10 +1,13 @@
 CXXFLAGS = -O2 -Wall -Werror -Wno-unused-function -Wno-sign-compare -std=c++0x
 CXXFLAGS += -ggdb
-LDFLAGS += -pthread
+
+ifneq ($(shell uname -s),Darwin)
+	LDFLAGS += -pthread
+endif
 
 # Libfreetype
-CXXFLAGS += $(shell freetype-config --cflags)
-LDFLAGS += $(shell freetype-config --libs)
+CXXFLAGS += $(shell pkg-config freetype2 --cflags)
+LDFLAGS += $(shell pkg-config freetype2 --libs)
 
 # Class to represent font data internally
 OBJS = datafile.o

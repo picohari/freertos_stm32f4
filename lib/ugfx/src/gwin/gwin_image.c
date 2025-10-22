@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -19,6 +19,10 @@
 #define gw	((GImageObject *)gh)
 
 static void ImageDestroy(GWindowObject *gh) {
+	// Stop the timer
+	#if GWIN_NEED_IMAGE_ANIMATION
+		gtimerStop(&gw->timer);
+	#endif
 	if (gdispImageIsOpen(&gw->image))
 		gdispImageClose(&gw->image);
 }
@@ -30,10 +34,10 @@ static void ImageDestroy(GWindowObject *gh) {
 #endif
 
 static void ImageRedraw(GHandle gh) {
-	coord_t		x, y, w, h, dx, dy;
-	color_t		bg;
+	gCoord		x, y, w, h, dx, dy;
+	gColor		bg;
 	#if GWIN_NEED_IMAGE_ANIMATION
-		delaytime_t	delay;
+		gDelay	delay;
 	#endif
 
 	// The default display area
@@ -95,16 +99,16 @@ static void ImageRedraw(GHandle gh) {
 
 		// Wait for that delay if required
 		switch(delay) {
-		case TIME_INFINITE:
+		case gDelayForever:
 			// Everything is done
 			break;
-		case TIME_IMMEDIATE:
+		case gDelayNone:
 			// We can't allow a continuous loop here as it would lock the system up so we delay for the minimum period
 			delay = 1;
 			// Fall through
 		default:
 			// Start the timer to draw the next frame of the animation
-			gtimerStart(&gw->timer, ImageTimer, (void*)gh, FALSE, delay);
+			gtimerStart(&gw->timer, ImageTimer, (void*)gh, gFalse, delay);
 			break;
 		}
 	#endif
@@ -129,26 +133,26 @@ GHandle gwinGImageCreate(GDisplay *g, GImageObject *gobj, GWindowInit *pInit) {
 	#if GWIN_NEED_IMAGE_ANIMATION
 		gtimerInit(&gobj->timer);
 	#endif
-	
+
 	gwinSetVisible((GHandle)gobj, pInit->show);
 
 	return (GHandle)gobj;
 }
 
-bool_t gwinImageOpenGFile(GHandle gh, GFILE *f) {
+gBool gwinImageOpenGFile(GHandle gh, GFILE *f) {
 	// is it a valid handle?
 	if (gh->vmt != (gwinVMT *)&imageVMT)
-		return FALSE;
+		return gFalse;
 
 	if (gdispImageIsOpen(&gw->image))
 		gdispImageClose(&gw->image);
 
 	if ((gdispImageOpenGFile(&gw->image, f) & GDISP_IMAGE_ERR_UNRECOVERABLE))
-		return FALSE;
+		return gFalse;
 
 	_gwinUpdate(gh);
 
-	return TRUE;
+	return gTrue;
 }
 
 gdispImageError gwinImageCache(GHandle gh) {

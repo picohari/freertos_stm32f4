@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -26,7 +26,7 @@
 /*===========================================================================*/
 
 // Forward definition
-typedef struct point point;
+typedef struct gPoint gPoint;
 
 /**
  * @brief	Sample data formats
@@ -57,7 +57,7 @@ typedef enum ArrayDataFormat_e {
  * @brief   The type for a fixed point type.
  * @details	The top 16 bits are the integer component, the bottom 16 bits are the real component.
  */
-typedef int32_t	fixed;
+typedef gI32	fixed;
 
 /**
  * @brief   Macros to convert to and from a fixed point.
@@ -90,10 +90,6 @@ typedef int32_t	fixed;
 
 #if GFX_USE_GMISC || defined(__DOXYGEN__)
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #if GMISC_NEED_ARRAYOPS || defined(__DOXYGEN__)
 	/**
 	 * @brief				Convert from one array format to another array format.
@@ -116,20 +112,20 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	void gmiscArrayConvert(ArrayDataFormat srcfmt, void *src, ArrayDataFormat dstfmt, void *dst, size_t cnt);
+	void gmiscArrayConvert(ArrayDataFormat srcfmt, void *src, ArrayDataFormat dstfmt, void *dst, gMemSize cnt);
 
 	#if 0
-		void gmiscArrayTranslate(ArrayDataFormat fmt, void *src, void *dst, size_t cnt, int trans);
+		void gmiscArrayTranslate(ArrayDataFormat fmt, void *src, void *dst, gMemSize cnt, int trans);
 
-		void gmiscArrayMultiply(ArrayDataFormat fmt, void *src, void *dst, size_t cnt, int mult);
+		void gmiscArrayMultiply(ArrayDataFormat fmt, void *src, void *dst, gMemSize cnt, int mult);
 
-		void gmiscArrayDivide(ArrayDataFormat fmt, void *src, void *dst, size_t cnt, int mdiv);
+		void gmiscArrayDivide(ArrayDataFormat fmt, void *src, void *dst, gMemSize cnt, int mdiv);
 
-		void gmiscArrayMultDiv(ArrayDataFormat fmt, void *src, void *dst, size_t cnt, int mult, int div);
+		void gmiscArrayMultDiv(ArrayDataFormat fmt, void *src, void *dst, gMemSize cnt, int mult, int div);
 
-		void gmiscArrayAdd(ArrayDataFormat fmt, void *src1, void *src2, void *dst, size_t cnt);
+		void gmiscArrayAdd(ArrayDataFormat fmt, void *src1, void *src2, void *dst, gMemSize cnt);
 
-		void gmiscArrayAddNoOverflow(ArrayDataFormat fmt, void *src1, void *src2, void *dst, size_t cnt);
+		void gmiscArrayAddNoOverflow(ArrayDataFormat fmt, void *src1, void *src2, void *dst, gMemSize cnt);
 	#endif
 #endif
 
@@ -253,7 +249,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	void gmiscMatrixFloat2DApplyToPoints(point *dst, const point *src, const MatrixFloat2D *m, int cnt);
+	void gmiscMatrixFloat2DApplyToPoints(gPoint *dst, const gPoint *src, const MatrixFloat2D *m, int cnt);
 
 	/**
 	 * @brief	Set the 2D matrix to the identity matrix
@@ -371,7 +367,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	void gmiscMatrixFixed2DApplyToPoints(point *dst, const point *src, const MatrixFixed2D *m, int cnt);
+	void gmiscMatrixFixed2DApplyToPoints(gPoint *dst, const gPoint *src, const MatrixFixed2D *m, int cnt);
 
 	/**
 	 * @brief	Set the 2D matrix to the identity matrix
@@ -476,16 +472,12 @@ extern "C" {
 	 * @param[in] cnt			The number of points in the point array @p pntarray
 	 * @param[in] p				The point to test
 	 *
-	 * @return	@p TRUE if the point @p p is inside or on the edge of the polygon @p pntarray, @p FALSE otherwise.
+	 * @return	@p gTrue if the point @p p is inside or on the edge of the polygon @p pntarray, @p gFalse otherwise.
 	 *
 	 * @api
 	 */
-	bool_t gmiscHittestPoly(const point *pntarray, unsigned cnt, const point *p);
+	gBool gmiscHittestPoly(const gPoint *pntarray, unsigned cnt, const gPoint *p);
 #endif // GMISC_NEED_HITTEST_POLY
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* GFX_USE_MISC */
 

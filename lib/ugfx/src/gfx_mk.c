@@ -2,9 +2,15 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
+/**
+ * @file    src/gfx_mk.c
+ * @brief   Single File Make.
+ */
+
+// Include the "Single File Make" compatible parts of uGFX
 #include "gfx.c"
 #include "gos/gos_mk.c"
 #include "gdriver/gdriver_mk.c"

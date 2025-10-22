@@ -2,26 +2,26 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #ifndef STM32_LTDC_H
 #define STM32_LTDC_H
 
 // LTDC enable flags
-#define LTDC_EF_ENABLE          (1 <<  0)   /**< LTDC enabled.*/
-#define LTDC_EF_DITHER          (1 << 16)   /**< Dithering enabled.*/
-#define LTDC_EF_PIXCLK_INVERT   (1 << 28)   /**< Inverted pixel clock.*/
-#define LTDC_EF_DATAEN_HIGH     (1 << 29)   /**< Active-high data enable.*/
-#define LTDC_EF_VSYNC_HIGH      (1 << 30)   /**< Active-high vsync.*/
-#define LTDC_EF_HSYNC_HIGH      (1 << 31)   /**< Active-high hsync.*/
+#define LTDC_EF_ENABLE          (1U <<  0)   /**< LTDC enabled.*/
+#define LTDC_EF_DITHER          (1U << 16)   /**< Dithering enabled.*/
+#define LTDC_EF_PIXCLK_INVERT   (1U << 28)   /**< Inverted pixel clock.*/
+#define LTDC_EF_DATAEN_HIGH     (1U << 29)   /**< Active-high data enable.*/
+#define LTDC_EF_VSYNC_HIGH      (1U << 30)   /**< Active-high vsync.*/
+#define LTDC_EF_HSYNC_HIGH      (1U << 31)   /**< Active-high hsync.*/
 
 #define LTDC_EF_MASK			(LTDC_EF_ENABLE | LTDC_EF_DITHER | LTDC_EF_PIXCLK_INVERT | LTDC_EF_DATAEN_HIGH | LTDC_EF_VSYNC_HIGH | LTDC_EF_HSYNC_HIGH)
 
 // LTDC layer enable flags
-#define LTDC_LEF_ENABLE         (1 << 0)    /**< Layer enabled*/
-#define LTDC_LEF_KEYING         (1 << 1)    /**< Color keying enabled.*/
-#define LTDC_LEF_PALETTE        (1 << 4)    /**< Palette enabled.*/
+#define LTDC_LEF_ENABLE         (1U << 0)    /**< Layer enabled*/
+#define LTDC_LEF_KEYING         (1U << 1)    /**< Color keying enabled.*/
+#define LTDC_LEF_PALETTE        (1U << 4)    /**< Palette enabled.*/
 
 #define LTDC_LEF_MASK			(LTDC_LEF_ENABLE | LTDC_LEF_KEYING | LTDC_LEF_PALETTE)
 
@@ -59,58 +59,58 @@
 
 #define LTDC_MIN_HSYNC_WIDTH            1
 #define LTDC_MIN_VSYNC_HEIGHT           1
-#define LTDC_MAX_HSYNC_WIDTH            (1 << 12)
-#define LTDC_MAX_VSYNC_HEIGHT           (1 << 11)
+#define LTDC_MAX_HSYNC_WIDTH            (1U << 12)
+#define LTDC_MAX_VSYNC_HEIGHT           (1U << 11)
 
 #define LTDC_MIN_HBP_WIDTH              0
 #define LTDC_MIN_VBP_HEIGHT             0
-#define LTDC_MAX_HBP_WIDTH              (1 << 12)
-#define LTDC_MAX_VBP_HEIGHT             (1 << 11)
+#define LTDC_MAX_HBP_WIDTH              (1U << 12)
+#define LTDC_MAX_VBP_HEIGHT             (1U << 11)
 
 #define LTDC_MIN_ACC_HBP_WIDTH          1
 #define LTDC_MIN_ACC_VBP_HEIGHT         1
-#define LTDC_MAX_ACC_HBP_WIDTH          (1 << 12)
-#define LTDC_MAX_ACC_VBP_HEIGHT         (1 << 11)
+#define LTDC_MAX_ACC_HBP_WIDTH          (1U << 12)
+#define LTDC_MAX_ACC_VBP_HEIGHT         (1U << 11)
 
 #define LTDC_MIN_HFP_WIDTH              0
 #define LTDC_MIN_VFP_HEIGHT             0
-#define LTDC_MAX_HFP_WIDTH              (1 << 12)
-#define LTDC_MAX_VFP_HEIGHT             (1 << 11)
+#define LTDC_MAX_HFP_WIDTH              (1U << 12)
+#define LTDC_MAX_VFP_HEIGHT             (1U << 11)
 
 #define LTDC_MIN_ACTIVE_WIDTH           0
 #define LTDC_MIN_ACTIVE_HEIGHT          0
-#define LTDC_MAX_ACTIVE_WIDTH           (1 << 12)
-#define LTDC_MAX_ACTIVE_HEIGHT          (1 << 11)
+#define LTDC_MAX_ACTIVE_WIDTH           (1U << 12)
+#define LTDC_MAX_ACTIVE_HEIGHT          (1U << 11)
 
 #define LTDC_MIN_ACC_ACTIVE_WIDTH       1
 #define LTDC_MIN_ACC_ACTIVE_HEIGHT      1
-#define LTDC_MAX_ACC_ACTIVE_WIDTH       (1 << 12)
-#define LTDC_MAX_ACC_ACTIVE_HEIGHT      (1 << 11)
+#define LTDC_MAX_ACC_ACTIVE_WIDTH       (1U << 12)
+#define LTDC_MAX_ACC_ACTIVE_HEIGHT      (1U << 11)
 
 #define LTDC_MIN_ACC_TOTAL_WIDTH        1
 #define LTDC_MIN_ACC_TOTAL_HEIGHT       1
-#define LTDC_MAX_ACC_TOTAL_WIDTH        (1 << 12)
-#define LTDC_MAX_ACC_TOTAL_HEIGHT       (1 << 11)
+#define LTDC_MAX_ACC_TOTAL_WIDTH        (1U << 12)
+#define LTDC_MAX_ACC_TOTAL_HEIGHT       (1U << 11)
 
 #define LTDC_MIN_LINE_INTERRUPT_POS     0
-#define LTDC_MAX_LINE_INTERRUPT_POS     ((1 << 11) - 1)
+#define LTDC_MAX_LINE_INTERRUPT_POS     ((1U << 11) - 1)
 
 #define LTDC_MIN_WINDOW_HSTART          0
 #define LTDC_MIN_WINDOW_HSTART          0
-#define LTDC_MAX_WINDOW_HSTOP           ((1 << 12) - 1)
-#define LTDC_MAX_WINDOW_HSTOP           ((1 << 12) - 1)
+#define LTDC_MAX_WINDOW_HSTOP           ((1U << 12) - 1)
+#define LTDC_MAX_WINDOW_HSTOP           ((1U << 12) - 1)
 
 #define LTDC_MIN_WINDOW_VSTART          0
 #define LTDC_MIN_WINDOW_VSTART          0
-#define LTDC_MAX_WINDOW_VSTOP           ((1 << 11) - 1)
-#define LTDC_MAX_WINDOW_VSTOP           ((1 << 11) - 1)
+#define LTDC_MAX_WINDOW_VSTOP           ((1U << 11) - 1)
+#define LTDC_MAX_WINDOW_VSTOP           ((1U << 11) - 1)
 
 #define LTDC_MIN_FRAME_WIDTH_BYTES      0
 #define LTDC_MIN_FRAME_HEIGHT_LINES     0
 #define LTDC_MIN_FRAME_PITCH_BYTES      0
-#define LTDC_MAX_FRAME_WIDTH_BYTES      ((1 << 13) - 1 - 3)
-#define LTDC_MAX_FRAME_HEIGHT_LINES     ((1 << 11) - 1)
-#define LTDC_MAX_FRAME_PITCH_BYTES      ((1 << 13) - 1)
+#define LTDC_MAX_FRAME_WIDTH_BYTES      ((1U << 13) - 1 - 3)
+#define LTDC_MAX_FRAME_HEIGHT_LINES     ((1U << 11) - 1)
+#define LTDC_MAX_FRAME_PITCH_BYTES      ((1U << 13) - 1)
 
 #define LTDC_MIN_PIXFMT_ID              0
 #define LTDC_MAX_PIXFMT_ID              7

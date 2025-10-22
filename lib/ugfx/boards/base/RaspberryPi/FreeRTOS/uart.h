@@ -12,9 +12,9 @@ void uart_init();
  
 /*
  * Transmit a byte via UART0.
- * uint8_t Byte: byte to send.
+ * gU8 Byte: byte to send.
  */
-void uart_putc(uint8_t byte);
+void uart_putc(gU8 byte);
  
 /*
  * print a string to the UART one character at a time

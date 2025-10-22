@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #ifndef GAUDIO_PLAY_CONFIG_H
@@ -22,7 +22,7 @@
  * 	No testing is made of the file format - if there is an error it can only be detected by the codec chip
  * 	and its behaviour is undefined (we haven't tested).
  * 	Note that some formats require a firmware patch to be installed to play correctly.
- * 	In this case define VS1053_FIRMWARE_PATCH as TRUE in your gfxconf.h file and include the patch file
+ * 	In this case define VS1053_FIRMWARE_PATCH as GFXON in your gfxconf.h file and include the patch file
  * 	in your project directory. The patch file MUST be called "vs1053_patch.plg".
  */
 #define GAUDIO_PLAY_MAX_SAMPLE_FREQUENCY		48000
@@ -32,8 +32,8 @@
 #define GAUDIO_PLAY_FORMAT3						ARRAY_DATA_UNKNOWN
 #define GAUDIO_PLAY_FORMAT_FILE					ARRAY_DATA_UNKNOWN
 #define GAUDIO_PLAY_NUM_CHANNELS				2
-#define GAUDIO_PLAY_CHANNEL0_IS_STEREO			FALSE
-#define GAUDIO_PLAY_CHANNEL1_IS_STEREO			TRUE
+#define GAUDIO_PLAY_CHANNEL0_IS_STEREO			GFXOFF
+#define GAUDIO_PLAY_CHANNEL1_IS_STEREO			GFXON
 #define	GAUDIO_PLAY_MONO						0
 #define	GAUDIO_PLAY_STEREO						1
 

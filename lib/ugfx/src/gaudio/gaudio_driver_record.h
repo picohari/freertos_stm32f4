@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -71,7 +71,7 @@ extern "C" {
 
 /**
  * @brief				Initialise the record driver
- * @return				TRUE if the channel, frequency and format are valid.
+ * @return				gTrue if the channel, frequency and format are valid.
  *
  * @param[in] channel	The channel to use (see the driver for the available channels provided)
  * @param[in] frequency	The sample frequency to use
@@ -81,7 +81,7 @@ extern "C" {
  *
  * @api
  */
-bool_t gaudio_record_lld_init(uint16_t channel, uint32_t frequency, ArrayDataFormat format);
+gBool gaudio_record_lld_init(gU16 channel, gU32 frequency, ArrayDataFormat format);
 
 /**
  * @brief				Start the audio recording

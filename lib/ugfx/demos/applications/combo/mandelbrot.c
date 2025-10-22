@@ -30,13 +30,13 @@
 #include "gfx.h"
 #include "tasks.h"
 
-static volatile bool_t	run;
+static volatile gBool	run;
 static GHandle			gh;
-static gfxThreadHandle	thread;
+static gThread	thread;
 
 static void mandelbrot(float x1, float y1, float x2, float y2) {
 	unsigned int i,j, width, height;
-	uint16_t iter;
+	gU16 iter;
 	float fwidth, fheight;
 	
 	float sy = y2 - y1;
@@ -66,7 +66,7 @@ static void mandelbrot(float x1, float y1, float x2, float y2) {
 	}
 }
 
-static DECLARE_THREAD_FUNCTION(task, param) {
+static GFX_THREAD_FUNCTION(task, param) {
 	float cx, cy;
 	float zoom = 1.0f;
 	(void) param;
@@ -85,13 +85,13 @@ static DECLARE_THREAD_FUNCTION(task, param) {
 	return 0;
 }
 
-void doMandlebrot(GHandle parent, bool_t start) {
+void doMandlebrot(GHandle parent, gBool start) {
 	if (start) {
-		run = TRUE;
+		run = gTrue;
 		gh = parent;
-		thread = gfxThreadCreate(0, 0x400, LOW_PRIORITY, task, 0);
+		thread = gfxThreadCreate(0, 0x400, gThreadpriorityLow, task, 0);
 	} else if (run) {
-		run = FALSE;
+		run = gFalse;
 		gfxThreadWait(thread);
 	}
 }

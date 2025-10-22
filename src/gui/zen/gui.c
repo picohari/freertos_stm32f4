@@ -263,7 +263,7 @@ void guiCreate(void) {
 
 
 
-	// gdispImageOpenFile(&ic_add,      		"rsc/ic_add.gif");
+	// gdispImageOpenFile(&ic_add,      	"rsc/ic_add.gif");
 	// gdispImageOpenFile(&ic_remove,      	"rsc/ic_remove.gif");
 
 #endif

@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /* Generic font type that supports fonts with multiple kinds of compression.
@@ -22,48 +22,48 @@
  * alpha: The "opaqueness" of the pixels, 0 for background, 255 for text.
  * state: Free variable that was passed to render_character().
  */
-typedef void (*mf_pixel_callback_t) (int16_t x, int16_t y, uint8_t count,
-                                     uint8_t alpha, void *state);
+typedef void (*mf_pixel_callback_t) (gI16 x, gI16 y, gU8 count,
+                                     gU8 alpha, void *state);
 
 /* General information about a font. */
 struct mf_font_s
 {
     /* Full name of the font, comes from the original font file. */
     const char *full_name;
-    
+
     /* Short name of the font, comes from file name. */
     const char *short_name;
-    
+
     /* Width and height of the character bounding box. */
-    uint8_t width;
-    uint8_t height;
-    
+    gU8 width;
+    gU8 height;
+
     /* Minimum and maximum tracking width of characters. */
-    uint8_t min_x_advance;
-    uint8_t max_x_advance;
-    
+    gU8 min_x_advance;
+    gU8 max_x_advance;
+
     /* Location of the text baseline relative to character. */
-    uint8_t baseline_x;
-    uint8_t baseline_y;
-    
+    gI8 baseline_x;
+    gU8 baseline_y;
+
     /* Line height of the font (vertical advance). */
-    uint8_t line_height;
-    
+    gU8 line_height;
+
     /* Flags identifying various aspects of the font. */
-    uint8_t flags;
-    
+    gU8 flags;
+
     /* Fallback character to use for missing glyphs. */
-    uint16_t fallback_character;
-    
+    gU16 fallback_character;
+
     /* Function to get character width. Should return 0 if character is
      * not found. */
-    uint8_t (*character_width)(const struct mf_font_s *font, uint16_t character);
-    
+    gU8 (*character_width)(const struct mf_font_s *font, mf_char character);
+
     /* Function to render a character. Returns the character width or 0 if
      * character is not found. */
-    uint8_t (*render_character)(const struct mf_font_s *font,
-                                int16_t x0, int16_t y0,
-                                uint16_t character,
+    gU8 (*render_character)(const struct mf_font_s *font,
+                                gI16 x0, gI16 y0,
+                                mf_char character,
                                 mf_pixel_callback_t callback,
                                 void *state);
 };
@@ -80,18 +80,18 @@ struct mf_font_list_s
 };
 
 
-/* Function to decode and render a single character. 
- * 
+/* Function to decode and render a single character.
+ *
  * font:      Pointer to the font definition.
  * x0, y0:    Upper left corner of the target area.
  * character: The character code (unicode) to render.
  * callback:  Callback function to write out the pixels.
  * state:     Free variable for caller to use (can be NULL).
- * 
+ *
  * Returns width of the character.
  */
-MF_EXTERN uint8_t mf_render_character(const struct mf_font_s *font,
-                                      int16_t x0, int16_t y0,
+MF_EXTERN gU8 mf_render_character(const struct mf_font_s *font,
+                                      gI16 x0, gI16 y0,
                                       mf_char character,
                                       mf_pixel_callback_t callback,
                                       void *state);
@@ -101,12 +101,31 @@ MF_EXTERN uint8_t mf_render_character(const struct mf_font_s *font,
  * data, but rather the tracking width.
  *
  * font:      Pointer to the font definition.
- * character: The character code (unicode) to render.
- * 
+ * character: The character code (unicode) to check width of.
+ *
  * Returns width of the character in pixels.
  */
-MF_EXTERN uint8_t mf_character_width(const struct mf_font_s *font,
+MF_EXTERN gU8 mf_character_width(const struct mf_font_s *font,
                                      mf_char character);
+
+/* Count the amount of white space at the borders of a character.
+ *
+ * E.g. if the font->width and font->height are 10x20, but the character
+ * is only a thin line at the very left edge, this function will return
+ * (0, 0, 9, 0). If the character is fully whitespace, the function will
+ * return (10, 20, 0, 0).
+ *
+ * font:      Pointer to the font definition.
+ * character: The character code (unicode) to check white space of.
+ * left:      Number of empty rows at left edge. Can be NULL.
+ * top:       Number of empty rows at top edge. Can be NULL.
+ * right:     Number of empty rows at right edge. Can be NULL.
+ * bottom:    Number of empty rows at bottom edge. Can be NULL.
+ */
+MF_EXTERN void mf_character_whitespace(const struct mf_font_s *font,
+                                       mf_char character,
+                                       gU8 *left, gU8 *top,
+                                       gU8 *right, gU8 *bottom);
 
 /* Find a font based on name. The name can be either short name or full name.
  * Note: You can pass MF_INCLUDED_FONTS to search among all the included .h

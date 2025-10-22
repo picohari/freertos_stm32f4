@@ -2,7 +2,7 @@
 # This file is subject to the terms of the GFX License. If a copy of
 # the license was not distributed with this file, you can obtain one at:
 #
-#             http://ugfx.org/license.html
+#             http://ugfx.io/license.html
 #
 
 #
@@ -116,6 +116,10 @@ ifeq ($(basename $(OPT_OS)),osx)
   EXEFILE = $(BUILDDIR)/$(PROJECT)
   TARGETS = $(EXEFILE)
 endif
+ifeq ($(basename $(OPT_OS)),freebsd)
+  EXEFILE = $(BUILDDIR)/$(PROJECT)
+  TARGETS = $(EXEFILE)
+endif
 ifeq ($(EXEFILE),)
   LDFLAGS += -nostartfiles
   EXEFILE = $(BUILDDIR)/$(PROJECT).elf
@@ -215,7 +219,13 @@ ifneq ($(OPT_VERBOSE_COMPILE),yes)
   ifneq ($(filter %.s,$(SRC) $(SRC_NOTHUMB) $(SRC_THUMB)),)
 	@echo .
 	@echo Assembler Options.....
-	@echo $(XCC) -c $(CPPFLAGS) $(CFLAGS) $(SRCFLAGS) $(@:.o=.s) -o $(OBJDIR)/$@
+	@echo $(XAS) -c $(CPPFLAGS) $(CFLAGS) $(SRCFLAGS) $(@:.o=.s) -o $(OBJDIR)/$@
+  else
+   ifneq ($(filter %.S,$(SRC) $(SRC_NOTHUMB) $(SRC_THUMB)),)
+	@echo .
+	@echo Assembler Options.....
+	@echo $(XAS) -c $(CPPFLAGS) $(CFLAGS) $(SRCFLAGS) $(@:.o=.S) -o $(OBJDIR)/$@
+   endif
   endif
   ifneq ($(OPT_MAKE_LIB),yes)
 	@echo .
@@ -269,6 +279,16 @@ else
 endif
 
 $(OBJDIR)/%.o : $$(call obj_src,%.s)
+	@mkdir -p $(dir $@)
+ifeq ($(OPT_VERBOSE_COMPILE),yes)
+	@echo .
+	$(XAS) -c $(CPPFLAGS) $(ASFLAGS) $(SRCFLAGS) $< -o $@
+else
+	@echo Compiling $<
+	@$(XAS) -c $(CPPFLAGS) $(ASFLAGS) $(SRCFLAGS) $< -o $@
+endif
+
+$(OBJDIR)/%.o : $$(call obj_src,%.S)
 	@mkdir -p $(dir $@)
 ifeq ($(OPT_VERBOSE_COMPILE),yes)
 	@echo .

@@ -1,6 +1,6 @@
 Description:
 
-Driver for OLED with 4-wire serial interface and I²C/SPI interface
+Driver for OLED with 4-wire serial interface and I2C/SPI interface
 
 Know restictions:
 - Driver works only with SSD1306 hooked up over I2C or SPI (include corresponding header)
@@ -10,7 +10,7 @@ Know restictions:
 To use this driver:
 
 1. 	Add in your gfxconf.h:
-	a) #define GFX_USE_GDISP	TRUE
+	a) #define GFX_USE_GDISP	GFXON
 
 	b) Any optional high level driver defines (see gdisp.h) eg: GDISP_NEED_MULTITHREAD
 

@@ -1,7 +1,7 @@
 # This file is subject to the terms of the GFX License. If a copy of
 # the license was not distributed with this file, you can obtain one at:
 #
-#              http://ugfx.org/license.html
+#              http://ugfx.io/license.html
 
 GFXINC +=   $(GFXLIB)
 
@@ -31,42 +31,41 @@ endif
 ifneq ($(GFXDRIVERS),)
 	include $(patsubst %,$(GFXLIB)/drivers/%/driver.mk,$(GFXDRIVERS))
 endif
-
 ifneq ($(GFXDEMO),)
-	#include $(GFXLIB)/demos/$(GFXDEMO)/demo.mk
+	include $(GFXLIB)/demos/$(GFXDEMO)/demo.mk
 endif
 
 # Include the operating system define
 ifeq ($(OPT_OS),arduino)
-	GFXDEFS += GFX_USE_OS_ARDUINO=TRUE
+	GFXDEFS += GFX_USE_OS_ARDUINO=GFXON
 endif
 ifeq ($(OPT_OS),win32)
-	GFXDEFS += GFX_USE_OS_WIN32=TRUE
+	GFXDEFS += GFX_USE_OS_WIN32=GFXON
 endif
 ifeq ($(OPT_OS),win32.chibios)
-	GFXDEFS += GFX_USE_OS_CHIBIOS=TRUE
+	GFXDEFS += GFX_USE_OS_CHIBIOS=GFXON
 endif
 ifeq ($(OPT_OS),win32.raw32)
-	GFXDEFS += GFX_USE_OS_RAW32=TRUE
+	GFXDEFS += GFX_USE_OS_RAW32=GFXON
 endif
 ifeq ($(OPT_OS),linux)
-	GFXDEFS += GFX_USE_OS_LINUX=TRUE
+	GFXDEFS += GFX_USE_OS_LINUX=GFXON
 endif
 ifeq ($(OPT_OS),osx)
-	GFXDEFS += GFX_USE_OS_OSX=TRUE
+	GFXDEFS += GFX_USE_OS_OSX=GFXON
 endif
 ifeq ($(OPT_OS),chibios)
-	GFXDEFS += GFX_USE_OS_CHIBIOS=TRUE
+	GFXDEFS += GFX_USE_OS_CHIBIOS=GFXON
 endif
 ifeq ($(OPT_OS),freertos)
-	GFXDEFS += GFX_USE_OS_FREERTOS=TRUE
+	GFXDEFS += GFX_USE_OS_FREERTOS=GFXON
 endif
 ifeq ($(OPT_OS),ecos)
-	GFXDEFS += GFX_USE_OS_ECOS=TRUE
+	GFXDEFS += GFX_USE_OS_ECOS=GFXON
 endif
 ifeq ($(OPT_OS),rawrtos)
-	GFXDEFS += GFX_USE_OS_RAWRTOS=TRUE
+	GFXDEFS += GFX_USE_OS_RAWRTOS=GFXON
 endif
 ifeq ($(OPT_OS),raw32)
-	GFXDEFS += GFX_USE_OS_RAW32=TRUE
+	GFXDEFS += GFX_USE_OS_RAW32=GFXON
 endif

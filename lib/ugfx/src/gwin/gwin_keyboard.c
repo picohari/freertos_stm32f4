@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -17,12 +17,12 @@
 #include "gwin_class.h"
 #include "gwin_keyboard_layout.h"
 
-typedef uint8_t		utf8;
-typedef uint16_t	utf16;
-typedef uint32_t	utf32;
+typedef gU8		utf8;
+typedef gU16	utf16;
+typedef gU32	utf32;
 
 // A character code - note this is not UTF-32 but a representation of the UTF-8 code stream for a single character.
-typedef uint32_t	ucode;
+typedef gU32	ucode;
 
 static GSourceHandle	AllKeyboards;
 
@@ -174,7 +174,7 @@ static void SendVirtualKeyEvent(GKeyboardObject *gk) {
 
 #if GINPUT_NEED_MOUSE
 	// Find the key from the keyset and the x, y position
-	static void KeyFindKey(GKeyboardObject *gk, coord_t x, coord_t y) {
+	static void KeyFindKey(GKeyboardObject *gk, gCoord x, gCoord y) {
 		const utf8		*krow;
 		fixed			f;
 		int				idx;
@@ -210,7 +210,7 @@ static void SendVirtualKeyEvent(GKeyboardObject *gk) {
 	}
 
 	// A mouse up has occurred (it may or may not be over the button)
-	static void KeyMouseUp(GWidgetObject *gw, coord_t x, coord_t y) {
+	static void KeyMouseUp(GWidgetObject *gw, gCoord x, gCoord y) {
 		#define gk		((GKeyboardObject *)gw)
 
 		KeyFindKey(gk, x, y);
@@ -281,7 +281,7 @@ static void SendVirtualKeyEvent(GKeyboardObject *gk) {
 	}
 
 	// A mouse move has occurred (it may or may not be over the button)
-	static void KeyMouseMove(GWidgetObject *gw, coord_t x, coord_t y) {
+	static void KeyMouseMove(GWidgetObject *gw, gCoord x, gCoord y) {
 		#define gk		((GKeyboardObject *)gw)
 
 		KeyFindKey(gk, x, y);
@@ -392,8 +392,8 @@ void gwinKeyboardDraw_Normal(GWidgetObject *gw, void *param) {
 	char cap[5];
 	const char *pcap;
 	const utf8 *krow;
-	coord_t x, y, cx, cy;
-	uint8_t rows, cols, row, col, kcols;
+	gCoord x, y, cx, cy;
+	gU8 rows, cols, row, col, kcols;
 	ucode key;
 	fixed fx, fy;
 	const GColorSet *pcol;
@@ -552,7 +552,7 @@ void gwinKeyboardDraw_Normal(GWidgetObject *gw, void *param) {
 				break;
 
 			default:   // Regular character
-				gdispGFillStringBox(gw->g.display, gw->g.x+x, gw->g.y+y, cx, cy, pcap, gw->g.font, pcol->text, pcol->fill, justifyCenter);
+				gdispGFillStringBox(gw->g.display, gw->g.x+x, gw->g.y+y, cx, cy, pcap, gw->g.font, pcol->text, pcol->fill, gJustifyCenter);
 				
 				break;
 			}

@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -22,38 +22,38 @@
  */
 	/**
 	 * @brief   Include array operation functions
-	 * @details	Defaults to FALSE
+	 * @details	Defaults to GFXOFF
 	 */
 	#ifndef GMISC_NEED_ARRAYOPS
-		#define GMISC_NEED_ARRAYOPS			FALSE
+		#define GMISC_NEED_ARRAYOPS			GFXOFF
 	#endif
 	/**
 	 * @brief   Include fast floating point trig functions (fsin, fcos)
-	 * @details	Defaults to FALSE
+	 * @details	Defaults to GFXOFF
 	 */
 	#ifndef GMISC_NEED_FASTTRIG
-		#define GMISC_NEED_FASTTRIG			FALSE
+		#define GMISC_NEED_FASTTRIG			GFXOFF
 	#endif
 	/**
 	 * @brief   Include fast fixed point trig functions (ffsin, ffcos)
-	 * @details	Defaults to FALSE
+	 * @details	Defaults to GFXOFF
 	 */
 	#ifndef GMISC_NEED_FIXEDTRIG
-		#define GMISC_NEED_FIXEDTRIG		FALSE
+		#define GMISC_NEED_FIXEDTRIG		GFXOFF
 	#endif
 	/**
 	 * @brief   Include fast inverse square root (x^-1/2)
-	 * @details	Defaults to FALSE
+	 * @details	Defaults to GFXOFF
 	 */
 	#ifndef GMISC_NEED_INVSQRT
-		#define GMISC_NEED_INVSQRT		FALSE
+		#define GMISC_NEED_INVSQRT		GFXOFF
 	#endif
 	/**
 	 * @brief   Include polygon hit test functions
-	 * @details	Defaults to FALSE
+	 * @details	Defaults to GFXOFF
 	 */
 	#ifndef GMISC_NEED_HITTEST_POLY
-		#define GMISC_NEED_HITTEST_POLY		FALSE
+		#define GMISC_NEED_HITTEST_POLY		GFXOFF
 	#endif
 /**
  * @}
@@ -75,7 +75,7 @@
 	 * GMISC_INVSQRT_REAL_SLOW and it will do it the hard way.
 	 */
 	#ifndef GMISC_INVSQRT_MIXED_ENDIAN
-		#define GMISC_INVSQRT_MIXED_ENDIAN	FALSE
+		#define GMISC_INVSQRT_MIXED_ENDIAN	GFXOFF
 	#endif
 	/**
 	 * @brief	Modifies the @p invsqrt() function to do things the long slow way.
@@ -84,7 +84,7 @@
 	 * @note	This makes the @p invsqrt() function very slow.
 	 */
 	#ifndef GMISC_INVSQRT_REAL_SLOW
-		#define GMISC_INVSQRT_REAL_SLOW		FALSE
+		#define GMISC_INVSQRT_REAL_SLOW		GFXOFF
 	#endif
 /** @} */
 

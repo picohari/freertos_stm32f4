@@ -211,49 +211,6 @@ void USARTx_IRQHandler(void)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /*! Groesse des Puffers fuer die Logausgaben ueber UART und ueber TCP/IP. */
 #define LOG_BUFFER_SIZE   1024
 #define LINE_FEED         "\r\n"    /**< Linefeed fuer nicht Windows */

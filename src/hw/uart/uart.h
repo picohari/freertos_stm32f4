@@ -99,7 +99,7 @@ void UART_txt_send(void);
                     UART_log_send();               \
 }
 
-#define writef(...) {UART_log_printf(__VA_ARGS__);  \
+#define writef(...) {UART_log_printf(__VA_ARGS__); \
                     UART_txt_send();               \
 }
 

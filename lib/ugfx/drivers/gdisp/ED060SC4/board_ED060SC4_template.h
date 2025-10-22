@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #ifndef _GDISP_LLD_BOARD_H
@@ -37,7 +37,7 @@
  *
  * @note	Do a "blinking" clear, i.e. clear to opposite polarity first.
  *			This reduces the image persistence.<br>
- *			#define EINK_BLINKCLEAR			TRUE
+ *			#define EINK_BLINKCLEAR			GFXON
  *
  * @note	Number of passes to use when clearing the display<br>
  *			#define EINK_CLEARCOUNT			10
@@ -54,57 +54,57 @@ static void eink_delay(int us) {
 	(void) us;
 }
 
-static GFXINLINE void setpower_vdd(GDisplay *g, bool_t on) {
+static GFXINLINE void setpower_vdd(GDisplay *g, gBool on) {
 	(void) g;
 	(void) on;
 }
 
-static GFXINLINE void setpower_vneg(GDisplay *g, bool_t on) {
+static GFXINLINE void setpower_vneg(GDisplay *g, gBool on) {
 	(void) g;
 	(void) on;
 }
 
-static GFXINLINE void setpower_vpos(GDisplay *g, bool_t on) {
+static GFXINLINE void setpower_vpos(GDisplay *g, gBool on) {
 	(void) g;
 	(void) on;
 }
 
-static GFXINLINE void setpin_le(GDisplay *g, bool_t on) {
+static GFXINLINE void setpin_le(GDisplay *g, gBool on) {
 	(void) g;
 	(void) on;
 }
 
-static GFXINLINE void setpin_oe(GDisplay *g, bool_t on) {
+static GFXINLINE void setpin_oe(GDisplay *g, gBool on) {
 	(void) g;
 	(void) on;
 }
 
-static GFXINLINE void setpin_cl(GDisplay *g, bool_t on) {
+static GFXINLINE void setpin_cl(GDisplay *g, gBool on) {
 	(void) g;
 	(void) on;
 }
 
-static GFXINLINE void setpin_sph(GDisplay *g, bool_t on) {
+static GFXINLINE void setpin_sph(GDisplay *g, gBool on) {
 	(void) g;
 	(void) on;
 }
 
-static GFXINLINE void setpins_data(GDisplay *g, uint8_t value) {
+static GFXINLINE void setpins_data(GDisplay *g, gU8 value) {
 	(void) g;
 	(void) value;
 }
 
-static GFXINLINE void setpin_ckv(GDisplay *g, bool_t on) {
+static GFXINLINE void setpin_ckv(GDisplay *g, gBool on) {
 	(void) g;
 	(void) on;
 }
 
-static GFXINLINE void setpin_gmode(GDisplay *g, bool_t on) {
+static GFXINLINE void setpin_gmode(GDisplay *g, gBool on) {
 	(void) g;
 	(void) on;
 }
 
-static GFXINLINE void setpin_spv(GDisplay *g, bool_t on) {
+static GFXINLINE void setpin_spv(GDisplay *g, gBool on) {
 	(void) g;
 	(void) on;
 }

@@ -11,8 +11,8 @@
 #define FGPFCCR_CM_RGB888	0x01
 #define FGPFCCR_CM_RGB565	0x02
 
-#define DMA2D_CR_MODE_R2M	((uint32_t)0x00030000)	/* Register-to-memory mode */
-#define DMA2D_CR_MODE_M2M	((uint32_t)0x00000000)	/* Register-to-memory mode */
+#define DMA2D_CR_MODE_R2M	((gU32)0x00030000)	/* Register-to-memory mode */
+#define DMA2D_CR_MODE_M2M	((gU32)0x00000000)	/* Register-to-memory mode */
 
 static void dma2d_init(void);
 

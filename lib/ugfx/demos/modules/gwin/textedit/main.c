@@ -44,19 +44,19 @@ static void guiCreate(void)
 	gwinWidgetClearInit(&wi);
 
 	// Console
-	wi.g.show = TRUE;
+	wi.g.show = gTrue;
 	wi.g.x = 0;
 	wi.g.y = 0;
 	wi.g.width = gdispGetWidth()/2;
 	wi.g.height = gdispGetHeight();
 	ghConsole = gwinConsoleCreate(0, &wi.g);
-	gwinSetColor(ghConsole, Yellow);
-	gwinSetBgColor(ghConsole, Black);
+	gwinSetColor(ghConsole, GFX_YELLOW);
+	gwinSetBgColor(ghConsole, GFX_BLACK);
 	gwinSetFont(ghConsole, gdispOpenFont("UI2"));
 	gwinClear(ghConsole);
 
 	// TextEdit1
-	wi.g.show = TRUE;
+	wi.g.show = gTrue;
 	wi.g.x = gdispGetWidth()/2 + 10;
 	wi.g.y = 20;
 	wi.g.width = 200;
@@ -65,28 +65,28 @@ static void guiCreate(void)
 	ghTextedit1 = gwinTexteditCreate(0, &wi, 100);
 
 	// TextEdit2
-	wi.g.show = TRUE;
+	wi.g.show = gTrue;
 	wi.g.x = gdispGetWidth()/2 + 10;
 	wi.g.y = 100;
 	wi.g.width = 200;
 	wi.g.height = 35;
 	wi.text = "to switch between";
 	ghTextedit2 = gwinTexteditCreate(0, &wi, 20);
-	//gwinTexteditSetBorder(ghTextedit2, FALSE);
+	//gwinTexteditSetBorder(ghTextedit2, gFalse);
 
 	// TextEdit3
-	wi.g.show = TRUE;
+	wi.g.show = gTrue;
 	wi.g.x = gdispGetWidth()/2 + 10;
 	wi.g.y = 180;
 	wi.g.width = 200;
 	wi.g.height = 35;
 	wi.text = "the different widgets";
 	ghTextedit3 = gwinTexteditCreate(0, &wi, 100);
-	//gwinTexteditSetBorder(ghTextedit3, TRUE);
+	//gwinTexteditSetBorder(ghTextedit3, gTrue);
 
 	// Virtual keyboard
 #if GWIN_NEED_KEYBOARD
-	wi.g.show = TRUE;
+	wi.g.show = gTrue;
 	wi.g.x = 0;
 	wi.g.y = gdispGetHeight()*3/4;
 	wi.g.width = gdispGetWidth();
@@ -102,11 +102,11 @@ int main(void) {
 
 	gfxInit();
 
-	gdispClear(Silver);
+	gdispClear(GFX_SILVER);
 	gwinSetDefaultFont(gdispOpenFont("DejaVuSans16"));
-	gwinSetDefaultStyle(&WhiteWidgetStyle, FALSE);
-	gwinSetDefaultColor(Black);
-	gwinSetDefaultBgColor(White);
+	gwinSetDefaultStyle(&WhiteWidgetStyle, gFalse);
+	gwinSetDefaultColor(GFX_BLACK);
+	gwinSetDefaultBgColor(GFX_WHITE);
 
 	geventListenerInit(&gl);
 	geventAttachSource(&gl, ginputGetKeyboard(0), GLISTEN_KEYTRANSITIONS|GLISTEN_KEYUP);
@@ -117,7 +117,7 @@ int main(void) {
 
 	while(1) {
 		// Get an Event
-		pk = (GEventKeyboard *)geventEventWait(&gl, TIME_INFINITE);
+		pk = (GEventKeyboard *)geventEventWait(&gl, gDelayForever);
 
 		if (pk->type != GEVENT_KEYBOARD)
 			continue;
@@ -145,7 +145,7 @@ int main(void) {
 		if (pk->bytecount) {
 			gwinPrintf(ghConsole, " Keys:");
 			for (i = 0; i < pk->bytecount; i++)
-				gwinPrintf(ghConsole, " 0x%02X", (uint8_t)pk->c[i]);
+				gwinPrintf(ghConsole, " 0x%02X", (int)(gU8)pk->c[i]);
 			gwinPrintf(ghConsole, " [");
 			for (i = 0; i < pk->bytecount; i++)
 				gwinPrintf(ghConsole, "%c", pk->c[i] >= ' ' && pk->c[i] <= '~' ? pk->c[i] : ' ');

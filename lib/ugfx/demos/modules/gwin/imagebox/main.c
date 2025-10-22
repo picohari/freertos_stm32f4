@@ -38,7 +38,7 @@ static void createWidgets(void) {
 
 	// Apply some default values for GWIN
 	gwinWidgetClearInit(&wi);
-	wi.g.show = TRUE;
+	wi.g.show = gTrue;
  
 	// create the first image widget
 	wi.g.x = 10; wi.g.y = 10; wi.g.width = 200; wi.g.height = 100;
@@ -52,8 +52,8 @@ int main(void) {
  
 	// Set the widget defaults
 	gwinSetDefaultFont(gdispOpenFont("UI2"));
-	gwinSetDefaultStyle(&WhiteWidgetStyle, FALSE);
-	gdispClear(White);
+	gwinSetDefaultStyle(&WhiteWidgetStyle, gFalse);
+	gdispClear(GFX_WHITE);
  
 	// create the widget
 	createWidgets();

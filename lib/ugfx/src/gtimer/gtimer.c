@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "../../gfx.h"
@@ -18,27 +18,27 @@
 #define TimeIsWithin(x, start, end)	((end >= start && x >= start && x <= end) || (end < start && (x >= start || x <= end)))
 
 /* This mutex protects access to our tables */
-static gfxMutex			mutex;
-static gfxThreadHandle	hThread = 0;
-static GTimer			*pTimerHead = 0;
-static gfxSem			waitsem;
-static systemticks_t	ticks2ms;
-static DECLARE_THREAD_STACK(waTimerThread, GTIMER_THREAD_WORKAREA_SIZE);
+static gMutex	mutex;
+static gThread	hThread = 0;
+static GTimer	*pTimerHead = 0;
+static gSem		waitsem;
+static gTicks	ticks2ms;
+static GFX_THREAD_STACK(waTimerThread, GTIMER_THREAD_WORKAREA_SIZE);
 
 /*===========================================================================*/
 /* Driver local functions.                                                   */
 /*===========================================================================*/
 
-static DECLARE_THREAD_FUNCTION(GTimerThreadHandler, arg) {
+static GFX_THREAD_FUNCTION(GTimerThreadHandler, arg) {
 	GTimer			*pt;
-	systemticks_t	tm;
-	systemticks_t	nxtTimeout;
-	systemticks_t	lastTime;
+	gTicks	tm;
+	gTicks	nxtTimeout;
+	gTicks	lastTime;
 	GTimerFunction	fn;
 	void			*param;
 	(void)			arg;
 
-	nxtTimeout = TIME_INFINITE;
+	nxtTimeout = gDelayForever;
 	lastTime = 0;
 	while(1) {
 		/* Wait for work to do. */
@@ -49,7 +49,7 @@ static DECLARE_THREAD_FUNCTION(GTimerThreadHandler, arg) {
 	
 		// Our reference time
 		tm = gfxSystemTicks();
-		nxtTimeout = TIME_INFINITE;
+		nxtTimeout = gDelayForever;
 		
 		/* We need to obtain the mutex */
 		gfxMutexEnter(&mutex);
@@ -61,7 +61,7 @@ static DECLARE_THREAD_FUNCTION(GTimerThreadHandler, arg) {
 				if ((pt->flags & GTIMER_FLG_JABBED) || (!(pt->flags & GTIMER_FLG_INFINITE) && TimeIsWithin(pt->when, lastTime, tm))) {
 				
 					// Is this timer periodic?
-					if ((pt->flags & GTIMER_FLG_PERIODIC) && pt->period != TIME_IMMEDIATE) {
+					if ((pt->flags & GTIMER_FLG_PERIODIC) && pt->period != gDelayNone) {
 						// Yes - Update ready for the next period
 						if (!(pt->flags & GTIMER_FLG_INFINITE)) {
 							// We may have skipped a period.
@@ -109,7 +109,7 @@ static DECLARE_THREAD_FUNCTION(GTimerThreadHandler, arg) {
 		lastTime = tm;
 		gfxMutexExit(&mutex);
 	}
-	THREAD_RETURN(0);
+	gfxThreadReturn(0);
 }
 
 void _gtimerInit(void)
@@ -136,7 +136,7 @@ void gtimerDeinit(GTimer* pt)
 	gtimerStop(pt);
 }
 
-void gtimerStart(GTimer *pt, GTimerFunction fn, void *param, bool_t periodic, delaytime_t millisec) {
+void gtimerStart(GTimer *pt, GTimerFunction fn, void *param, gBool periodic, gDelay millisec) {
 	gfxMutexEnter(&mutex);
 	
 	// Start our thread if not already going
@@ -164,9 +164,9 @@ void gtimerStart(GTimer *pt, GTimerFunction fn, void *param, bool_t periodic, de
 	pt->flags = GTIMER_FLG_SCHEDULED;
 	if (periodic)
 		pt->flags |= GTIMER_FLG_PERIODIC;
-	if (millisec == TIME_INFINITE) {
+	if (millisec == gDelayForever) {
 		pt->flags |= GTIMER_FLG_INFINITE;
-		pt->period = TIME_INFINITE;
+		pt->period = gDelayForever;
 	} else {
 		pt->period = gfxMillisecondsToTicks(millisec);
 		pt->when = gfxSystemTicks() + pt->period;
@@ -205,8 +205,8 @@ void gtimerStop(GTimer *pt) {
 	gfxMutexExit(&mutex);
 }
 
-bool_t gtimerIsActive(GTimer *pt) {
-	return (pt->flags & GTIMER_FLG_SCHEDULED) ? TRUE : FALSE;
+gBool gtimerIsActive(GTimer *pt) {
+	return (pt->flags & GTIMER_FLG_SCHEDULED) ? gTrue : gFalse;
 }
 
 void gtimerJab(GTimer *pt) {

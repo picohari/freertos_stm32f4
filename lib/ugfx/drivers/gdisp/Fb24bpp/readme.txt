@@ -1,7 +1,7 @@
 To use this driver:
 
 1. Add in your gfxconf.h:
-	a) #define GFX_USE_GDISP		TRUE
+	a) #define GFX_USE_GDISP		GFXON
 
 2. To your makefile add the following lines:
 	include $(GFXLIB)/gfx.mk

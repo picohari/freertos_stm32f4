@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -41,12 +41,12 @@ extern "C" {
 	unsigned ginput_lld_toggle_getbits(const GToggleConfig *ptc);
 
 	/* This routine is provided to low level drivers to wakeup a value read from a thread context.
-	 *	Particularly useful if GINPUT_TOGGLE_POLL_PERIOD = TIME_INFINITE
+	 *	Particularly useful if GINPUT_TOGGLE_POLL_PERIOD = gDelayForever
 	 */
 	void ginputToggleWakeup(void);
 
 	/* This routine is provided to low level drivers to wakeup a value read from an ISR
-	 *	Particularly useful if GINPUT_TOGGLE_POLL_PERIOD = TIME_INFINITE
+	 *	Particularly useful if GINPUT_TOGGLE_POLL_PERIOD = gDelayForever
 	 */
 	void ginputToggleWakeupI(void);
 

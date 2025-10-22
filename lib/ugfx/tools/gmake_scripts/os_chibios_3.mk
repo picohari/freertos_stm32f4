@@ -2,7 +2,7 @@
 # This file is subject to the terms of the GFX License. If a copy of
 # the license was not distributed with this file, you can obtain one at:
 #
-#             http://ugfx.org/license.html
+#             http://ugfx.io/license.html
 #
 
 # See readme.txt for the make API
@@ -25,17 +25,29 @@
 # CHIBIOS_PROCESS_STACKSIZE       Size of the ChibiOS process stack. Only useful if the link script supports it - default is 0x400
 # CHIBIOS_EXCEPTIONS_STACKSIZE    Size of the ChibiOS exceptopms stack. Only useful if the link script supports it - default is 0x400
 #
+# Other ChibiOS things you might want to add to your SRC in your makefile...
+#	$(TESTSRC) $(LWSRC) $(FATFSSRC) $(STREAMSSRC) $(SHELLSRC) $(CHIBIOS)/os/various/xxxx
+#
+# Other ChibiOS things you might want to add to your INCPATH in your makefile...
+#	$(TESTINC) $(LWINC) $(FATFSINC) $(STREAMSINC) $(SHELLINC) $(CHIBIOS)/os/various
+#
+# Note we don't add the above source or folders to the project by default to avoid name potential name conflicts
 
 PATHLIST += CHIBIOS
 
-
-
+# Startup files.
 include $(CHIBIOS)/os/common/ports/$(CHIBIOS_CPUCLASS)/compilers/GCC/mk/$(CHIBIOS_STARTUP).mk
+
+# HAL-OSAL files (optional).
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/hal/ports/$(CHIBIOS_PLATFORM)/$(CHIBIOS_DEVICE_FAMILY)/platform.mk
 include $(CHIBIOS)/os/hal/osal/rt/osal.mk
+
+# RTOS files (optional).
 include $(CHIBIOS)/os/rt/rt.mk
 include $(CHIBIOS)/os/rt/ports/$(CHIBIOS_CPUCLASS)/compilers/GCC/mk/port_$(CHIBIOS_PORT).mk
+
+# Specific board files
 ifneq ($(CHIBIOS_BOARD),)
   include $(CHIBIOS)/os/hal/boards/$(CHIBIOS_BOARD)/board.mk
 endif
@@ -79,6 +91,4 @@ SRC  += $(STARTUPSRC) \
         $(BOARDSRC)
 
 # Add ASM files
-SRC  += $(STARTUPASM) \
-        $(PORTASM) \
-        $(OSALASM)
+SRC  += $(STARTUPASM) $(PORTASM) $(OSALASM)

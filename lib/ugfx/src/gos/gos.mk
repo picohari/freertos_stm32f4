@@ -1,7 +1,7 @@
 # This file is subject to the terms of the GFX License. If a copy of
 # the license was not distributed with this file, you can obtain one at:
 #
-#              http://ugfx.org/license.html
+#              http://ugfx.io/license.html
 
 GFXSRC +=   $(GFXLIB)/src/gos/gos_chibios.c	\
 			$(GFXLIB)/src/gos/gos_freertos.c \
@@ -14,6 +14,6 @@ GFXSRC +=   $(GFXLIB)/src/gos/gos_chibios.c	\
 			$(GFXLIB)/src/gos/gos_arduino.c \
 			$(GFXLIB)/src/gos/gos_cmsis.c \
 			$(GFXLIB)/src/gos/gos_nios.c \
+			$(GFXLIB)/src/gos/gos_zephyr.c \
 			$(GFXLIB)/src/gos/gos_x_threads.c \
 			$(GFXLIB)/src/gos/gos_x_heap.c
-

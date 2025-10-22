@@ -35,7 +35,7 @@
 #include "uart.h"           /* hUART */
 #include "eth_if.h"         /* hETH  */
 #include "rtc_clock.h"      /* clock_timestamp*/
-//#include "adc.h"            /* AdcHandle */
+//#include "adc.h"          /* AdcHandle */
 
 extern SPI_HandleTypeDef    SpiHandle;
 
@@ -176,6 +176,20 @@ void ETH_IRQHandler(void)
 {
   HAL_ETH_IRQHandler(&hETH);
 }
+
+
+/**
+  * This releases the semaphore in eth_if.c if a hardwired interrupt is connected to PHY.
+  * Only required, if hardware interrupt is available. Otherwise keep it commented. 
+*/
+
+/*
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+    if (GPIO_Pin == PHY_INT_PIN)
+        osSemaphoreRelease(link_arg->semaphore);
+}
+*/
 
 
 /**

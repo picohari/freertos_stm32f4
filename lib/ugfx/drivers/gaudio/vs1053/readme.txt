@@ -10,5 +10,5 @@ Requires GFX_USE_GTIMER
  * 	No testing is made of the file format - if there is an error it can only be detected by the codec chip
  * 	and its behaviour is undefined (we haven't tested).
  * 	Note that some formats require a firmware patch to be installed to play correctly.
- * 	In this case define VS1053_FIRMWARE_PATCH as TRUE in your gfxconf.h file and include the patch file
+ * 	In this case define VS1053_FIRMWARE_PATCH as GFXON in your gfxconf.h file and include the patch file
  * 	in your project directory. The patch file MUST be called "vs1053_patch.plg".

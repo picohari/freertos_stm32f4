@@ -4,9 +4,9 @@ This driver is special in that it implements both the gdisp low level driver
 and a touchscreen driver.
 
 1. Add in your gfxconf.h:
-	a) #define GFX_USE_GDISP		TRUE
-	b) Optionally #define GFX_USE_GINPUT			TRUE
-					#define GINPUT_USE_MOUSE		TRUE
+	a) #define GFX_USE_GDISP		GFXON
+	b) Optionally #define GFX_USE_GINPUT			GFXON
+					#define GINPUT_USE_MOUSE		GFXON
 	c) Any optional high level driver defines (see gdisp.h) eg: GDISP_NEED_MULTITHREAD
 	d) Optionally the following (with appropriate values):
 		#define GDISP_SCREEN_WIDTH					640			// Virtual display width
@@ -21,7 +21,7 @@ and a touchscreen driver.
 		#define GDISP_GFXNET_WIFI_PASSWORD			"password"	// Your wifi password.
 																//  Not required if GDISP_GFXNET_WIFI_INIT_FUNCTION
 																//  is specified.
-		#define GDISP_DONT_WAIT_FOR_NET_DISPLAY		FALSE		// Don't halt waiting for the first connection
+		#define GDISP_DONT_WAIT_FOR_NET_DISPLAY		GFXOFF		// Don't halt waiting for the first connection
 		$define GDISP_GFXNET_PORT					13001		// The TCP port the display sits on
 
 

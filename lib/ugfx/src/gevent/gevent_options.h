@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -22,12 +22,12 @@
  */
 	/**
 	 * @brief   Should routines assert() if they run out of resources.
-	 * @details	Defaults to FALSE.
-	 * @details	If FALSE the application must be prepared to handle these
+	 * @details	Defaults to GFXOFF.
+	 * @details	If GFXOFF the application must be prepared to handle these
 	 *			failures.
 	 */
 	#ifndef GEVENT_ASSERT_NO_RESOURCE
-		#define GEVENT_ASSERT_NO_RESOURCE		FALSE
+		#define GEVENT_ASSERT_NO_RESOURCE		GFXOFF
 	#endif
 /**
  * @}

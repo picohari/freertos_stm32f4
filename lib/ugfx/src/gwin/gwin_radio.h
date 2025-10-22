@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -17,8 +17,8 @@
  * @details		RadioButtons need to be grouped together. This is archived by passing a group parameter through
  *				@p gwinRadioCreate().
  *
- * @pre			GFX_USE_GWIN must be set to TRUE in your gfxconf.h
- * @pre			GWIN_NEED_RADIO must be set to TRUE in your gfxconf.h
+ * @pre			GFX_USE_GWIN must be set to GFXON in your gfxconf.h
+ * @pre			GWIN_NEED_RADIO must be set to GFXON in your gfxconf.h
  * @{
  */
 
@@ -42,7 +42,7 @@ typedef struct GEventGWinRadio {
 	#if GWIN_WIDGET_TAGS
 		WidgetTag	tag;				// The radio tag
 	#endif
-	uint16_t		group;				// The group for this radio button
+	gU16		group;				// The group for this radio button
 } GEventGWinRadio;
 
 /**
@@ -60,14 +60,10 @@ typedef struct GEventGWinRadio {
 typedef struct GRadioObject {
 	GWidgetObject		w;
 	#if GINPUT_NEED_TOGGLE
-		uint16_t		toggle;
+		gU16		toggle;
 	#endif
-	uint16_t			group;
+	gU16			group;
 } GRadioObject;
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * @brief   Create a radio widget.
@@ -81,7 +77,7 @@ extern "C" {
  * @note				Only one radio button in any group is ever pressed at one time. Pressing one radio button will
  * 						release all others in the group.
  * @note				The drawing color and the background color get set to the current defaults. If you haven't called
- * 						@p gwinSetDefaultColor() or @p gwinSetDefaultBgColor() then these are White and Black respectively.
+ * 						@p gwinSetDefaultColor() or @p gwinSetDefaultBgColor() then these are GFX_WHITE and GFX_BLACK respectively.
  * @note				The font gets set to the current default font. If you haven't called @p gwinSetDefaultFont() then there
  * 						is no default font and text drawing operations will no nothing.
  * @note				A radio button remembers its normal drawing state. If there is a window manager then it is automatically
@@ -92,7 +88,7 @@ extern "C" {
  *
  * @api
  */	
-GHandle gwinGRadioCreate(GDisplay *g, GRadioObject *gb, const GWidgetInit *pInit, uint16_t group);
+GHandle gwinGRadioCreate(GDisplay *g, GRadioObject *gb, const GWidgetInit *pInit, gU16 group);
 #define gwinRadioCreate(w, pInit, gr)			gwinGRadioCreate(GDISP, w, pInit, gr)
 
 /**
@@ -106,13 +102,13 @@ void gwinRadioPress(GHandle gh);
 
 /**
  * @brief	Is the radio button currently pressed
- * @return	TRUE if the button is pressed
+ * @return	gTrue if the button is pressed
  *
  * @param[in] gh	The window handle (must be a radio widget)
  *
  * @api
  */
-bool_t gwinRadioIsPressed(GHandle gh);
+gBool gwinRadioIsPressed(GHandle gh);
 
 /**
  * @brief	Find the currently pressed radio button in the specified group
@@ -124,7 +120,7 @@ bool_t gwinRadioIsPressed(GHandle gh);
  *
  * @api
  */
-GHandle gwinRadioGetActive(uint16_t group);
+GHandle gwinRadioGetActive(gU16 group);
 
 /**
  * @defgroup Renderings_Radiobutton Renderings
@@ -176,10 +172,6 @@ void gwinRadioDraw_Button(GWidgetObject *gw, void *param);
  */
 void gwinRadioDraw_Tab(GWidgetObject *gw, void *param);
 /** @} */
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* _GWIN_RADIO_H */
 /** @} */

@@ -31,7 +31,7 @@
 #include "math.h"
 
 // A set of data points that will be displayed in the graph
-static const point data[5] = {
+static const gPoint data[5] = {
     { -40, -40 },
     { 70, 40 },
     { 140, 60 },
@@ -41,29 +41,29 @@ static const point data[5] = {
 
 // A graph styling
 static GGraphStyle GraphStyle1 = {
-    { GGRAPH_POINT_DOT, 0, Blue },          // Point
-    { GGRAPH_LINE_NONE, 2, Gray },          // Line
-    { GGRAPH_LINE_SOLID, 0, White },        // X axis
-    { GGRAPH_LINE_SOLID, 0, White },        // Y axis
-    { GGRAPH_LINE_DASH, 5, Gray, 50 },      // X grid
-    { GGRAPH_LINE_DOT, 7, Yellow, 50 },     // Y grid
-    GWIN_GRAPH_STYLE_POSITIVE_AXIS_ARROWS   // Flags
+    { GGRAPH_POINT_DOT, 0, GFX_BLUE },          // Point
+    { GGRAPH_LINE_NONE, 2, GFX_GRAY },          // Line
+    { GGRAPH_LINE_SOLID, 0, GFX_WHITE },        // X axis
+    { GGRAPH_LINE_SOLID, 0, GFX_WHITE },        // Y axis
+    { GGRAPH_LINE_DASH, 5, GFX_GRAY, 50 },      // X grid
+    { GGRAPH_LINE_DOT, 7, GFX_YELLOW, 50 },     // Y grid
+    GWIN_GRAPH_STYLE_POSITIVE_AXIS_ARROWS		// Flags
 };
 
 // Another graph styling 
 static const GGraphStyle GraphStyle2 = {
-    { GGRAPH_POINT_SQUARE, 5, Red },        // Point
-    { GGRAPH_LINE_DOT, 2, Pink },           // Line
-    { GGRAPH_LINE_SOLID, 0, White },        // X axis
-    { GGRAPH_LINE_SOLID, 0, White },        // Y axis
-    { GGRAPH_LINE_DASH, 5, Gray, 50 },      // X grid
-    { GGRAPH_LINE_DOT, 7, Yellow, 50 },     // Y grid
-    GWIN_GRAPH_STYLE_POSITIVE_AXIS_ARROWS   // Flags
+    { GGRAPH_POINT_SQUARE, 5, GFX_RED },        // Point
+    { GGRAPH_LINE_DOT, 2, GFX_PINK },           // Line
+    { GGRAPH_LINE_SOLID, 0, GFX_WHITE },        // X axis
+    { GGRAPH_LINE_SOLID, 0, GFX_WHITE },        // Y axis
+    { GGRAPH_LINE_DASH, 5, GFX_GRAY, 50 },      // X grid
+    { GGRAPH_LINE_DOT, 7, GFX_YELLOW, 50 },     // Y grid
+    GWIN_GRAPH_STYLE_POSITIVE_AXIS_ARROWS   	// Flags
 };
  
 int main(void) {
     GHandle     gh;
-    uint16_t    i;
+    gU16    i;
  
     gfxInit();
  
@@ -71,31 +71,31 @@ int main(void) {
     {
         GWindowInit wi;
  
-        wi.show = TRUE;
+        wi.show = gTrue;
         wi.x = wi.y = 0;
         wi.width = gdispGetWidth();
         wi.height = gdispGetHeight();
         gh = gwinGraphCreate(0, &wi);
     }
- 
+
     // Set the graph origin and style
     gwinGraphSetOrigin(gh, gwinGetWidth(gh)/2, gwinGetHeight(gh)/2);
     gwinGraphSetStyle(gh, &GraphStyle1);
     gwinGraphDrawAxis(gh);
- 
+
     // Draw a sine wave
     for(i = 0; i < gwinGetWidth(gh); i++) {
-        gwinGraphDrawPoint(gh, i-gwinGetWidth(gh)/2, 80*sin(2*0.2*M_PI*i/180));
+        gwinGraphDrawPoint(gh, i-gwinGetWidth(gh)/2, 80*sin(2*0.2*GFX_PI*i/180));
     }
- 
+
     // Modify the style
     gwinGraphStartSet(gh);
-    GraphStyle1.point.color = Green;
+    GraphStyle1.point.color = GFX_GREEN;
     gwinGraphSetStyle(gh, &GraphStyle1);
- 
+
     // Draw a different sine wave
     for(i = 0; i < gwinGetWidth(gh)*5; i++) {
-        gwinGraphDrawPoint(gh, i/5-gwinGetWidth(gh)/2, 95*sin(2*0.2*M_PI*i/180));
+        gwinGraphDrawPoint(gh, i/5-gwinGetWidth(gh)/2, 95*sin(2*0.2*GFX_PI*i/180));
     }
 
     // Change to a completely different style
@@ -104,8 +104,8 @@ int main(void) {
 
     // Draw a set of points
     gwinGraphDrawPoints(gh, data, sizeof(data)/sizeof(data[0]));
- 
-    while(TRUE) {
+
+    while(1) {
         gfxSleepMilliseconds(100);
     }
 }

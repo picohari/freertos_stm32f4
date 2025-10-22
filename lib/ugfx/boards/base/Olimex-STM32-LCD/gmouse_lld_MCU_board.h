@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #ifndef _LLD_GMOUSE_MCU_BOARD_H
@@ -27,7 +27,7 @@
 #define ADC_BUF_DEPTH      1
 
 static const ADCConversionGroup adc_y_config = {
-    FALSE,
+    0,
     ADC_NUM_CHANNELS,
     0,
     0,
@@ -39,7 +39,7 @@ static const ADCConversionGroup adc_y_config = {
 };
 
 static const ADCConversionGroup adc_x_config = {
-    FALSE,
+    0,
     ADC_NUM_CHANNELS,
     0,
     0,
@@ -58,24 +58,24 @@ static GFXINLINE void setup_z(void) {
 	palSetPad(GPIOC, 3);
 }
 
-static bool_t init_board(GMouse *m, unsigned driverinstance) {
+static gBool init_board(GMouse *m, unsigned driverinstance) {
 	(void)	m;
 
 	// Only one touch interface on this board
 	if (driverinstance)
-		return FALSE;
+		return gFalse;
 
 	adcStart(&ADCD1, 0);
 
 	// Set up for reading Z
 	setup_z();
     chThdSleepMilliseconds(1);				// Settling time
-	return TRUE;
+	return gTrue;
 }
 
-static bool_t read_xyz(GMouse *m, GMouseReading *prd) {
+static gBool read_xyz(GMouse *m, GMouseReading *prd) {
 	adcsample_t samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH];
-	uint16_t val1, val2;
+	gU16 val1, val2;
 	(void)		m;
 
 	// No buttons and assume touch off
@@ -130,7 +130,7 @@ static bool_t read_xyz(GMouse *m, GMouseReading *prd) {
 		// Set up for reading z again. We know it will be 20ms before we get called again so don't worry about settling time
 	    setup_z();
     }
-	return TRUE;
+	return gTrue;
 }
 
 #endif /* _LLD_GMOUSE_MCU_BOARD_H */

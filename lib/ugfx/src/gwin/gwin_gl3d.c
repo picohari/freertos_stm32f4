@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -35,7 +35,7 @@ static const gwinVMT gl3dVMT = {
 		0,						// The after-clear routine
 };
 
-static bool_t	haveGLwindow = FALSE;
+static gBool	haveGLwindow = gFalse;
 
 GHandle gwinGGL3DCreate(GDisplay *g, GGL3DObject *gl, const GWindowInit *pInit) {
 	ZBuffer *	zb;
@@ -71,7 +71,7 @@ GHandle gwinGGL3DCreate(GDisplay *g, GGL3DObject *gl, const GWindowInit *pInit) 
 
     glViewport(0, 0, gl->g.width, gl->g.height);
 
-    haveGLwindow = TRUE;
+    haveGLwindow = gTrue;
 	gwinSetVisible((GHandle)gl, pInit->show);
 	return (GHandle)gl;
 }
@@ -79,14 +79,14 @@ GHandle gwinGGL3DCreate(GDisplay *g, GGL3DObject *gl, const GWindowInit *pInit) 
 static void gl3dDestroy(GWindowObject *gh) {
 	(void) gh;
     glClose();
-    haveGLwindow = FALSE;
+    haveGLwindow = gFalse;
 }
 
 static void gl3dRedraw(GWindowObject *gh) {
 	ZBuffer *	zb;
 
 	zb = ((GGL3DObject *)gh)->glcxt->zb;
-	gdispGBlitArea(gh->display, gh->x, gh->y, zb->xsize, zb->ysize, 0, 0, zb->linesize/sizeof(color_t), (const pixel_t *)zb->pbuf);
+	gdispGBlitArea(gh->display, gh->x, gh->y, zb->xsize, zb->ysize, 0, 0, zb->linesize/sizeof(gColor), (const gPixel *)zb->pbuf);
 }
 
 static int gl3dResizeGLViewport(GLContext *c, int *xsize_ptr, int *ysize_ptr) {

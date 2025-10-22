@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /*
@@ -15,9 +15,11 @@
 #define _GINPUT_LLD_MOUSE_BOARD_H
 
 // Avoid naming collisions with CubeHAL
-#undef Red
-#undef Green
-#undef Blue
+#if GFX_COMPAT_V2 && GFX_COMPAT_OLDCOLORS
+	#undef Red
+	#undef Green
+	#undef Blue
+#endif
 
 // Include CubeHAL
 #include "stm32f4xx_hal.h"
@@ -38,7 +40,7 @@
 
 static I2C_HandleTypeDef _i2cHandle;
 
-static bool_t init_board(GMouse* m, unsigned driverinstance)
+static gBool init_board(GMouse* m, unsigned driverinstance)
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
 	
@@ -77,17 +79,17 @@ static bool_t init_board(GMouse* m, unsigned driverinstance)
 	_i2cHandle.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLED;  
 	HAL_I2C_Init(&_i2cHandle);
 	
-	return TRUE;
+	return gTrue;
 }
 
-static bool_t read_bytes(GMouse* m, uint8_t reg, uint8_t* buffer, uint8_t nbrBytes)
+static gBool read_bytes(GMouse* m, gU8 reg, gU8* buffer, gU8 nbrBytes)
 {
 	(void)m;
 
-	HAL_I2C_Master_Transmit(&_i2cHandle, (uint16_t)EXC7200_SLAVE_ADDR, (uint8_t*)&reg, 1, 10000);
-	HAL_I2C_Master_Receive(&_i2cHandle, (uint16_t)EXC7200_SLAVE_ADDR, buffer, nbrBytes, 10000);
+	HAL_I2C_Master_Transmit(&_i2cHandle, (gU16)EXC7200_SLAVE_ADDR, (gU8*)&reg, 1, 10000);
+	HAL_I2C_Master_Receive(&_i2cHandle, (gU16)EXC7200_SLAVE_ADDR, buffer, nbrBytes, 10000);
 	
-	return TRUE;
+	return gTrue;
 }
 
 #endif /* _GINPUT_LLD_MOUSE_BOARD_H */

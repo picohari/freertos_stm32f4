@@ -19,10 +19,10 @@ static const SPIConfig flash_spicfg = {
 };
 
 bool flash_is_write_busy(void) {
-  static uint8_t is_write_busy_cmd[1];
+  static gU8 is_write_busy_cmd[1];
   is_write_busy_cmd[0] = _SERIAL_FLASH_CMD_RDSR;
   
-  uint8_t result[1];
+  gU8 result[1];
 
   spiAcquireBus(&SPID3);
   spiStart(&SPID3, &flash_spicfg);
@@ -44,9 +44,9 @@ void flash_write_enable(void) {
   spiReleaseBus(&SPID3);
 }
 
-void flash_sector_erase(uint32_t sector) {
+void flash_sector_erase(gU32 sector) {
   flash_write_enable();
-  static uint8_t sector_erase_cmd[4];
+  static gU8 sector_erase_cmd[4];
   sector_erase_cmd[0] = _SERIAL_FLASH_CMD_SER;
   sector_erase_cmd[1] = (sector >> 16) & 0xFF;
   sector_erase_cmd[2] = (sector >> 8) & 0xFF;
@@ -64,8 +64,8 @@ void flash_sector_erase(uint32_t sector) {
   while(flash_is_write_busy());
 }
 
-void flash_read(uint32_t address, size_t bytes, uint8_t *out) {
-  static uint8_t sector_read_cmd[4];
+void flash_read(gU32 address, gMemSize bytes, gU8 *out) {
+  static gU8 sector_read_cmd[4];
   sector_read_cmd[0] = _SERIAL_FLASH_CMD_READ;
   sector_read_cmd[1] = (address >> 16) & 0xFF;
   sector_read_cmd[2] = (address >> 8) & 0xFF;
@@ -80,8 +80,8 @@ void flash_read(uint32_t address, size_t bytes, uint8_t *out) {
   spiReleaseBus(&SPID3);
 }
 
-void flash_write(uint32_t address, size_t bytes, const uint8_t *data) {
-  static uint8_t flash_write_cmd[4];
+void flash_write(gU32 address, gMemSize bytes, const gU8 *data) {
+  static gU8 flash_write_cmd[4];
 
   flash_write_enable();
 
@@ -103,21 +103,21 @@ void flash_write(uint32_t address, size_t bytes, const uint8_t *data) {
 }
 
 bool flash_tp_calibrated(void) {
-  uint8_t out[1];
+  gU8 out[1];
   flash_read(0x0F0000, 1, out);
 
   return (out[0] == 0x01);
 }
 
-void flash_tp_calibration_save(uint16_t instance, const uint8_t *calbuf, size_t sz) {
+void flash_tp_calibration_save(gU16 instance, const gU8 *calbuf, gMemSize sz) {
   if (instance) return;
   flash_sector_erase(0x0F0000);
-  uint8_t calibrated = 0x01;
+  gU8 calibrated = 0x01;
   flash_write(0x0F0000, 1, &calibrated);
   flash_write(0x0F0001, sz, calbuf);
 }
-const char *flash_tp_calibration_load(uint16_t instance) {
-  static uint8_t foo[24];
+const char *flash_tp_calibration_load(gU16 instance) {
+  static gU8 foo[24];
 
   if (instance) return 0;
   if (!flash_tp_calibrated()) return 0;

@@ -44,6 +44,7 @@
   *
   ******************************************************************************
   */
+
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 #include "lwip/opt.h"
@@ -55,7 +56,7 @@
   
 #include <string.h>
 
-//#include "uart.h"
+#include "uart.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -94,14 +95,22 @@ __ALIGN_BEGIN uint8_t Tx_Buff[ETH_TXBUFNB][ETH_TX_BUF_SIZE] __ALIGN_END; /* Ethe
 /* Semaphore to signal incoming packets */
 osSemaphoreId s_xSemaphore = NULL;
 
-/* Global Ethernet handle*/
+/* Global Ethernet handle */
 ETH_HandleTypeDef hETH;
 
+/* Network interface structure - used for interface setup, see main.c */
 struct netif gnetif;
-//static struct netif *s_pxNetIf = NULL;
+
+/* Semaphore to signal Ethernet Link state update - used in link task, see main.c */
+osSemaphoreId Netif_LinkSemaphore = NULL;
+
+/* Ethernet link thread Argument */
+struct link_str link_arg;
+
 
 /* Private function prototypes -----------------------------------------------*/
 static void ethernetif_input( void const * argument );
+static void print_phy_chip(void);
 
 /* Private functions ---------------------------------------------------------*/
 /*******************************************************************************
@@ -113,7 +122,7 @@ static void ethernetif_input( void const * argument );
   * @retval None
   */
 void HAL_ETH_MspInit(ETH_HandleTypeDef *heth)
-{
+{ 
   GPIO_InitTypeDef GPIO_InitStructure;
   
   /* Enable GPIOs clocks */
@@ -126,32 +135,36 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef *heth)
   /*
         RMII_REF_CLK ----------------------> PA1
         RMII_MDIO -------------------------> PA2
-        RMII_MDC --------------------------> PC1
         RMII_MII_CRS_DV -------------------> PA7
+        RMII_MDC --------------------------> PC1
         RMII_MII_RXD0 ---------------------> PC4
         RMII_MII_RXD1 ---------------------> PC5
-        RMII_MII_RXER ---------------------> PG2
+        RMII_MII_RXER ---------------------> PG2 (NOT IN USE)
         RMII_MII_TX_EN --------------------> PG11
-        RMII_MII_TXD0 ---------------------> PG13
-        RMII_MII_TXD1 ---------------------> PB13
+        RMII_MII_TXD0 ---------------------> PG13 // PB12 
+        RMII_MII_TXD1 ---------------------> PG14 // PB13
   */
   
   /* Configure PA1, PA2 and PA7 */
-  GPIO_InitStructure.Speed = GPIO_SPEED_HIGH;
-  GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStructure.Pull = GPIO_NOPULL; 
-  GPIO_InitStructure.Alternate = GPIO_AF11_ETH;
-  GPIO_InitStructure.Pin = GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_7 | GPIO_PIN_8;
+  GPIO_InitStructure.Speed      = GPIO_SPEED_HIGH;
+  GPIO_InitStructure.Mode       = GPIO_MODE_AF_PP;
+  GPIO_InitStructure.Pull       = GPIO_NOPULL; 
+  GPIO_InitStructure.Alternate  = GPIO_AF11_ETH;
+  GPIO_InitStructure.Pin        = GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_7;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
   
   /* Configure PC1, PC4 and PC5 */
-  GPIO_InitStructure.Pin = GPIO_PIN_1 | GPIO_PIN_4 | GPIO_PIN_5;
+  GPIO_InitStructure.Pin        = GPIO_PIN_1 | GPIO_PIN_4 | GPIO_PIN_5;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
 
-  /* Configure PG2, PG11, PG13 and PG14 */
-  GPIO_InitStructure.Pin =  GPIO_PIN_11 | GPIO_PIN_13 | GPIO_PIN_14;
+  /* Configure PG11 */
+  //GPIO_InitStructure.Pin =  GPIO_PIN_11 | GPIO_PIN_13 | GPIO_PIN_14;  (alternative on XCORE board)
+  GPIO_InitStructure.Pin        =  GPIO_PIN_11;
   HAL_GPIO_Init(GPIOG, &GPIO_InitStructure);
   
+  GPIO_InitStructure.Pin        =  GPIO_PIN_12 | GPIO_PIN_13;        // (alternative on XCORE board)
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
+
   /* Enable the Ethernet global Interrupt */
   HAL_NVIC_SetPriority(ETH_IRQn, 0x7, 0);
   HAL_NVIC_EnableIRQ(ETH_IRQn);
@@ -164,7 +177,6 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef *heth)
     /* Output HSE clock (25MHz) on MCO pin (PA8) to clock the PHY */
     HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSE, RCC_MCODIV_1);
   }
-
 }
 
 /**
@@ -202,28 +214,24 @@ void ETHERNET_IRQHandler(void)
   */
 static void low_level_init(struct netif *netif)
 {
-  
-  uint32_t regvalue  = 0;
-  uint32_t regvalue1 = 0;
-  uint32_t regvalue2 = 0;
-
+  uint32_t regvalue = 0;
   uint8_t macaddress[6]= { MAC_ADDR0, MAC_ADDR1, MAC_ADDR2, MAC_ADDR3, MAC_ADDR4, MAC_ADDR5 };
   
-  hETH.Instance = ETH;  
-  hETH.Init.MACAddr = macaddress;
+  hETH.Instance             = ETH;  
+  hETH.Init.MACAddr         = macaddress;
   hETH.Init.AutoNegotiation = ETH_AUTONEGOTIATION_DISABLE;
-  hETH.Init.Speed = ETH_SPEED_10M;
-  hETH.Init.DuplexMode = ETH_MODE_FULLDUPLEX;
-  hETH.Init.MediaInterface = ETH_MEDIA_INTERFACE_RMII;
-  hETH.Init.RxMode = ETH_RXINTERRUPT_MODE;
-  hETH.Init.ChecksumMode = ETH_CHECKSUM_BY_HARDWARE;
-  hETH.Init.PhyAddress = DP83848_PHY_ADDRESS;
+  hETH.Init.Speed           = ETH_SPEED_10M;
+  hETH.Init.DuplexMode      = ETH_MODE_FULLDUPLEX;
+  hETH.Init.MediaInterface  = ETH_MEDIA_INTERFACE_RMII;
+  hETH.Init.RxMode          = ETH_RXINTERRUPT_MODE;
+  hETH.Init.ChecksumMode    = ETH_CHECKSUM_BY_HARDWARE;
+  hETH.Init.PhyAddress      = DP83848_PHY_ADDRESS;
   
   /* configure ethernet peripheral (GPIOs, clocks, MAC, DMA) */
   if (HAL_ETH_Init(&hETH) == HAL_OK)
   {
     /* Set netif link flag */
-    netif->flags |= NETIF_FLAG_LINK_UP;
+    netif->flags |= NETIF_FLAG_LINK_UP;    
   }
   
   /* Initialize Tx Descriptors list: Chain Mode */
@@ -249,8 +257,6 @@ static void low_level_init(struct netif *netif)
   /* Accept broadcast address and ARP traffic */
   netif->flags |= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
 
-  //s_pxNetIf =netif;
-
   /* create a binary semaphore used for informing ethernetif of frame reception */
   osSemaphoreDef(SEM);
   s_xSemaphore = osSemaphoreCreate(osSemaphore(SEM) , 1 );
@@ -261,15 +267,7 @@ static void low_level_init(struct netif *netif)
 
   /* Enable MAC and DMA transmission and reception */
   HAL_ETH_Start(&hETH);
-
-   /* Read Register Configuration */
-  HAL_ETH_ReadPHYRegister(&hETH, 0x02, &regvalue1);
-  HAL_ETH_ReadPHYRegister(&hETH, 0x03, &regvalue2);
-
-  //debug("PHY: 0x%x%x", regvalue1, regvalue2 );
-
-
-#if 0
+  
   /**** Configure PHY to generate an interrupt when Eth Link state changes ****/
   /* Read Register Configuration */
   HAL_ETH_ReadPHYRegister(&hETH, PHY_MICR, &regvalue);
@@ -286,78 +284,11 @@ static void low_level_init(struct netif *netif)
     
   /* Enable Interrupt on change of link status */
   HAL_ETH_WritePHYRegister(&hETH, PHY_MISR, regvalue);
-#endif
 
-#if 0
-  HAL_ETH_ReadPHYRegister(&hETH, 0x00, &regvalue2);
-  LOG_UART("0x00: 0x%x", regvalue2 );
-
-  HAL_ETH_ReadPHYRegister(&hETH, 0x01, &regvalue2);
-  LOG_UART("0x01: 0x%x", regvalue2 );
-
-  HAL_ETH_ReadPHYRegister(&hETH, 0x02, &regvalue2);
-  LOG_UART("0x02: 0x%x", regvalue2 );
-
-  HAL_ETH_ReadPHYRegister(&hETH, 0x03, &regvalue2);
-  LOG_UART("0x03: 0x%x", regvalue2 );
-
-  HAL_ETH_ReadPHYRegister(&hETH, 0x04, &regvalue2);
-  LOG_UART("0x04: 0x%x", regvalue2 );
-
-  HAL_ETH_ReadPHYRegister(&hETH, 0x05, &regvalue2);
-  LOG_UART("0x05: 0x%x", regvalue2 );
-
-  HAL_ETH_ReadPHYRegister(&hETH, 0x06, &regvalue2);
-  LOG_UART("0x06: 0x%x", regvalue2 );
-
-  HAL_ETH_ReadPHYRegister(&hETH, 0x07, &regvalue2);
-  LOG_UART("0x07: 0x%x", regvalue2 );
-
-  HAL_ETH_ReadPHYRegister(&hETH, 0x10, &regvalue2);
-  LOG_UART("0x10: 0x%x", regvalue2 );
-
-  HAL_ETH_ReadPHYRegister(&hETH, 0x11, &regvalue2);
-  LOG_UART("0x11: 0x%x", regvalue2 );
-
-  HAL_ETH_ReadPHYRegister(&hETH, 0x12, &regvalue2);
-  LOG_UART("0x12: 0x%x", regvalue2 );
-
-  HAL_ETH_ReadPHYRegister(&hETH, 0x13, &regvalue2);
-  LOG_UART("0x13: 0x%x", regvalue2 );
-
-  HAL_ETH_ReadPHYRegister(&hETH, 0x14, &regvalue2);
-  LOG_UART("0x14: 0x%x", regvalue2 );
-
-  HAL_ETH_ReadPHYRegister(&hETH, 0x15, &regvalue2);
-  LOG_UART("0x15: 0x%x", regvalue2 );
-
-  HAL_ETH_ReadPHYRegister(&hETH, 0x16, &regvalue2);
-  LOG_UART("0x16: 0x%x", regvalue2 );
-
-  HAL_ETH_ReadPHYRegister(&hETH, 0x17, &regvalue2);
-  LOG_UART("0x17: 0x%x", regvalue2 );
-
-  HAL_ETH_ReadPHYRegister(&hETH, 0x18, &regvalue2);
-  LOG_UART("0x18: 0x%x", regvalue2 );
-
-  HAL_ETH_ReadPHYRegister(&hETH, 0x19, &regvalue2);
-  LOG_UART("0x19: 0x%x", regvalue2 );
-
-  HAL_ETH_ReadPHYRegister(&hETH, 0x1A, &regvalue2);
-  LOG_UART("0x1A: 0x%x", regvalue2 );
-
-  HAL_ETH_ReadPHYRegister(&hETH, 0x1B, &regvalue2);
-  LOG_UART("0x1B: 0x%x", regvalue2 );
-
-  HAL_ETH_ReadPHYRegister(&hETH, 0x1C, &regvalue2);
-  LOG_UART("0x1C: 0x%x", regvalue2 );
-
-  HAL_ETH_ReadPHYRegister(&hETH, 0x1D, &regvalue2);
-  LOG_UART("0x1D: 0x%x", regvalue2 );
-#endif
+   /* Read Register Configuration */
+  print_phy_chip();
 
 }
-
 
 /**
   * @brief This function should do the actual transmission of the packet. The packet is
@@ -451,7 +382,6 @@ error:
   return errval;
 }
 
-
 /**
   * @brief Should allocate a pbuf and transfer the bytes of the incoming
   * packet from the interface into the pbuf.
@@ -528,7 +458,6 @@ static struct pbuf * low_level_input(struct netif *netif)
  
   /* Clear Segment_Count */
   hETH.RxFrameInfos.SegCount =0;
-
   
   /* When Rx Buffer unavailable flag is set: clear it and resume reception */
   if ((hETH.Instance->DMASR & ETH_DMASR_RBUS) != (uint32_t)RESET)  
@@ -558,7 +487,7 @@ void ethernetif_input( void const * argument )
   
   for( ;; )
   {
-    if (osSemaphoreWait( s_xSemaphore, TIME_WAITING_FOR_INPUT)==osOK)
+    if (osSemaphoreWait( s_xSemaphore, TIME_WAITING_FOR_INPUT) == osOK)
     {
       do
       {
@@ -566,7 +495,6 @@ void ethernetif_input( void const * argument )
         if (p != NULL)
         {
           if (netif->input(p, netif) != ERR_OK )
-          //if (s_pxNetIf->input( p, s_pxNetIf) != ERR_OK )
           {
             LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));
             pbuf_free(p);
@@ -576,7 +504,6 @@ void ethernetif_input( void const * argument )
     }
   }
 }
-
 
 /**
   * @brief Should be called at the beginning of the program to set up the
@@ -611,10 +538,202 @@ err_t ethernetif_init(struct netif *netif)
   return ERR_OK;
 }
 
+/**
+  * @brief  This function sets the netif link status.
+  * @param  netif: the network interface
+  * @retval None
+  */
+  void ethernetif_set_link(void const *argument)
+  {
+    uint32_t regvalue = 0;
+    struct link_str *link_arg = (struct link_str *)argument;
+    static uint8_t prev_link = 0xFF;  // remember last link state (unknown initially)
+  
+    for(;;)
+    {
+      /* Wait for semaphore or timeout every 100 ms */
+      /* This is only required, if interrupt is hardwired to INT else we need osDelay() */
+      //if (osSemaphoreWait(link_arg->semaphore, 100) == osOK)
+      //{
+        osDelay(100);
 
-u32_t sys_now(void)
+        /* --- Read current link status from PHY --- */
+        if (HAL_ETH_ReadPHYRegister(&hETH, PHY_SR, &regvalue) != HAL_OK)
+          continue; // if read fails, skip this iteration
+  
+        uint8_t curr_link = (regvalue & PHY_LINK_STATUS) ? 1 : 0;
+  
+        /* --- Check if link state changed --- */
+        if (curr_link != prev_link)
+        {
+          prev_link = curr_link;
+  
+          /* Call callback routines for link status. See dhcp.c */
+          if (curr_link)
+          {
+            netif_set_link_up(link_arg->netif);
+          }
+          else
+          {
+            netif_set_link_down(link_arg->netif);
+          }
+        }
+      //}
+    }
+  }
+
+/**
+  * @brief  Link callback function, this function is called on change of link status
+  *         to update low level driver configuration.
+  * @param  netif: The network interface
+  * @retval None
+  */
+void ethernetif_update_config(struct netif *netif)
 {
-  return HAL_GetTick();
+  __IO uint32_t tickstart = 0;
+  uint32_t regvalue = 0;
+  
+  if(netif_is_link_up(netif))
+  { 
+    /* Restart the auto-negotiation */
+    if(hETH.Init.AutoNegotiation != ETH_AUTONEGOTIATION_DISABLE)
+    {
+      /* Enable Auto-Negotiation */
+      HAL_ETH_WritePHYRegister(&hETH, PHY_BCR, PHY_AUTONEGOTIATION);
+      
+      /* Get tick */
+      tickstart = HAL_GetTick();
+      
+      /* Wait until the auto-negotiation will be completed */
+      do
+      {
+        HAL_ETH_ReadPHYRegister(&hETH, PHY_BSR, &regvalue);
+        
+        /* Check for the Timeout ( 1s ) */
+        if((HAL_GetTick() - tickstart ) > 1000)
+        {
+          /* In case of timeout */
+          goto error;
+        }
+        
+      } while (((regvalue & PHY_AUTONEGO_COMPLETE) != PHY_AUTONEGO_COMPLETE));
+      
+      /* Read the result of the auto-negotiation */
+      HAL_ETH_ReadPHYRegister(&hETH, PHY_SR, &regvalue);
+      
+      /* Configure the MAC with the Duplex Mode fixed by the auto-negotiation process */
+      if((regvalue & PHY_DUPLEX_STATUS) != (uint32_t)RESET)
+      {
+        /* Set Ethernet duplex mode to Full-duplex following the auto-negotiation */
+        hETH.Init.DuplexMode = ETH_MODE_FULLDUPLEX;  
+      }
+      else
+      {
+        /* Set Ethernet duplex mode to Half-duplex following the auto-negotiation */
+        hETH.Init.DuplexMode = ETH_MODE_HALFDUPLEX;           
+      }
+      /* Configure the MAC with the speed fixed by the auto-negotiation process */
+      if(regvalue & PHY_SPEED_STATUS)
+      {  
+        /* Set Ethernet speed to 10M following the auto-negotiation */
+        hETH.Init.Speed = ETH_SPEED_10M; 
+      }
+      else
+      {   
+        /* Set Ethernet speed to 100M following the auto-negotiation */ 
+        hETH.Init.Speed = ETH_SPEED_100M;
+      }
+    }
+    else /* AutoNegotiation Disable */
+    {
+    error :
+      /* Check parameters */
+      assert_param(IS_ETH_SPEED(hETH.Init.Speed));
+      assert_param(IS_ETH_DUPLEX_MODE(hETH.Init.DuplexMode));
+      
+      /* Set MAC Speed and Duplex Mode to PHY */
+      HAL_ETH_WritePHYRegister(&hETH, PHY_BCR, ((uint16_t)(hETH.Init.DuplexMode >> 3) |
+                                                     (uint16_t)(hETH.Init.Speed >> 1))); 
+    }
+
+    /* ETHERNET MAC Re-Configuration */
+    HAL_ETH_ConfigMAC(&hETH, (ETH_MACInitTypeDef *) NULL);
+
+    /* Restart MAC interface */
+    HAL_ETH_Start(&hETH);   
+  }
+  else
+  {
+    /* Stop MAC interface */
+    HAL_ETH_Stop(&hETH);
+  }
+
+  /* Notify user about network change. See dhcp.c */
+  ethernetif_notify_conn_changed(netif);
 }
 
+
+
+
+
+void print_phy_chip(void)
+{
+  /* Detect PHY chip */
+  uint32_t phy_id1 = 0, phy_id2 = 0;
+  uint8_t revision = 0;
+  char phy_name[36];
+
+  // --- Local constants (static) ---
+  static const uint16_t PHY_ID1_REG = 0x02;
+  static const uint16_t PHY_ID2_REG = 0x03;
+
+  // --- TI DP83848 ---
+  static const uint16_t TI_PHY_ID1       = 0x2000;
+  static const uint16_t TI_PHY_ID2       = 0x5C90;
+  static const uint16_t TI_PHY_ID2_MASK  = 0xFFF0;
+
+  // --- Microchip LAN8720 ---
+  static const uint16_t MCHP_PHY_ID1     = 0x0007;
+  static const uint16_t MCHP_PHY_ID2     = 0xC0F0;
+  static const uint16_t MCHP_PHY_ID2_MASK= 0xFFF0;
+
+  // --- Read PHY ID registers ---
+  HAL_ETH_ReadPHYRegister(&hETH, PHY_ID1_REG, &phy_id1);
+  HAL_ETH_ReadPHYRegister(&hETH, PHY_ID2_REG, &phy_id2);
+
+  revision = phy_id2 & 0x000F;
+
+  // --- Identify PHY type ---
+  if (phy_id1 == TI_PHY_ID1 &&
+      (phy_id2 & TI_PHY_ID2_MASK) == (TI_PHY_ID2 & TI_PHY_ID2_MASK)) {
+      sprintf(phy_name, "DP83848");     // 7 chars
+  }
+  else if (phy_id1 == MCHP_PHY_ID1 &&
+           (phy_id2 & MCHP_PHY_ID2_MASK) == (MCHP_PHY_ID2 & MCHP_PHY_ID2_MASK)) {
+      sprintf(phy_name, "LAN8720");     // 7 chars
+  }
+  else {
+      sprintf(phy_name, "Unknown PHY"); // 11 chars 
+  }
+
+  // --- Output result ---
+  //writef("PHY ID read: 0x%04lx%04lx\r\n", phy_id1, phy_id2);
+  writef("ETH PHY:    %s (Rev %u)\r\n", phy_name, revision); // 21 chars + 1 for rev
+}
+
+
+/**
+  * @brief  This function notify user about link status changement.
+  * @param  netif: the network interface
+  * @retval None
+  */
+__weak void ethernetif_notify_conn_changed(struct netif *netif)
+{
+  /* NOTE : This is function could be implemented in user file 
+            when the callback is needed.
+
+     In this project, look at dhcp.c
+
+  */  
+}
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

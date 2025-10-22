@@ -41,13 +41,13 @@
  * and method 1 for any extra displays.
  */
 
-#define USE_METHOD_1		FALSE
+#define USE_METHOD_1		GFXOFF
 
 #if USE_METHOD_1
 	int main(void) {
-		coord_t		width, height;
-		coord_t		display, i, j, cnt;
-		font_t		f;
+		gCoord		width, height;
+		gCoord		display, i, j, cnt;
+		gFont		f;
 		GDisplay	*g;
 		char		buf[16];
 
@@ -71,27 +71,27 @@
 			/* Draw draw draw */
 			sprintg(buf, "Display %u", display);
 			if (width < 128) {
-				gdispGDrawBox(g, 0, 0, width/2, height/2, Yellow);
-				gdispGFillStringBox(g, 0, height/2, width, height/2, buf, f, Black, Blue, justifyCenter);
+				gdispGDrawBox(g, 0, 0, width/2, height/2, GFX_YELLOW);
+				gdispGFillStringBox(g, 0, height/2, width, height/2, buf, f, GFX_BLACK, GFX_BLUE, gJustifyCenter);
 			} else {
-				gdispGDrawBox(g, 10, 10, width/2, height/2, Yellow);
-				gdispGFillStringBox(g, width/2, height/2, width/2-10, height/2-10, buf, f, White, Blue, justifyCenter);
+				gdispGDrawBox(g, 10, 10, width/2, height/2, GFX_YELLOW);
+				gdispGFillStringBox(g, width/2, height/2, width/2-10, height/2-10, buf, f, GFX_WHITE, GFX_BLUE, gJustifyCenter);
 			}
-			gdispGDrawLine(g, 5, 30, width-50, height-40, Red);
+			gdispGDrawLine(g, 5, 30, width-50, height-40, GFX_RED);
 
 			for(i = 5, j = 0; i < width && j < height; i += 7, j += i/20)
-				gdispGDrawPixel(g, i, j, White);
+				gdispGDrawPixel(g, i, j, GFX_WHITE);
 		}
 
-		while(TRUE) {
+		while(1) {
 			gfxSleepMilliseconds(500);
 		}
 	}
 #else
 	int main(void) {
-		coord_t		width, height;
-		coord_t		display, i, j, cnt;
-		font_t		f;
+		gCoord		width, height;
+		gCoord		display, i, j, cnt;
+		gFont		f;
 		char		buf[16];
 
 		/* Initialize and clear the display */
@@ -114,19 +114,19 @@
 			/* Draw draw draw */
 			sprintg(buf, "Display %u", display);
 			if (width < 128) {
-				gdispDrawBox(0, 0, width/2, height/2, Yellow);
-				gdispFillStringBox(0, height/2, width, height/2, buf, f, Black, Blue, justifyCenter);
+				gdispDrawBox(0, 0, width/2, height/2, GFX_YELLOW);
+				gdispFillStringBox(0, height/2, width, height/2, buf, f, GFX_BLACK, GFX_BLUE, gJustifyCenter);
 			} else {
-				gdispDrawBox(10, 10, width/2, height/2, Yellow);
-				gdispFillStringBox(width/2, height/2, width/2-10, height/2-10, buf, f, White, Blue, justifyCenter);
+				gdispDrawBox(10, 10, width/2, height/2, GFX_YELLOW);
+				gdispFillStringBox(width/2, height/2, width/2-10, height/2-10, buf, f, GFX_WHITE, GFX_BLUE, gJustifyCenter);
 			}
-			gdispDrawLine(5, 30, width-50, height-40, Red);
+			gdispDrawLine(5, 30, width-50, height-40, GFX_RED);
 
 			for(i = 5, j = 0; i < width && j < height; i += 7, j += i/20)
-				gdispDrawPixel(i, j, White);
+				gdispDrawPixel(i, j, GFX_WHITE);
 		}
 
-		while(TRUE) {
+		while(1) {
 			gfxSleepMilliseconds(500);
 		}
 	}

@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "../../gfx.h"
@@ -12,15 +12,15 @@
 #include "gfile_fatfs_wrapper.h"
 
 // Include the source we want
-#include "../../3rdparty/fatfs-0.10b/src/ff.c"
-#include "../../3rdparty/fatfs-0.10b/src/option/unicode.c"
+#include "../../3rdparty/fatfs-0.13/source/ff.c"
+#include "../../3rdparty/fatfs-0.13/source/ffunicode.c"
 
 // Extra operating system support
 #if _FS_REENTRANT
 	/*------------------------------------------------------------------------*/
 	/* Static array of Synchronization Objects                                */
 	/*------------------------------------------------------------------------*/
-	static gfxSem ff_sem[_VOLUMES];
+	static gSem ff_sem[_VOLUMES];
 
 	/*------------------------------------------------------------------------*/
 	/* Create a Synchronization Object                                        */
@@ -28,7 +28,7 @@
 	int ff_cre_syncobj(BYTE vol, _SYNC_t *sobj)
 	{
 		*sobj = ff_sem[vol];
-		gfxSemInit(sobj, 1, MAX_SEMAPHORE_COUNT);
+		gfxSemInit(sobj, 1, gSemMaxCount);
 
 		return 1;
 	}
@@ -38,7 +38,7 @@
 	/*------------------------------------------------------------------------*/
 	int ff_del_syncobj(_SYNC_t sobj)
 	{
-		gfxSemDestroy( (gfxSem*)&sobj );
+		gfxSemDestroy( (gSem*)&sobj );
 
 		return 1;
 	}
@@ -48,9 +48,9 @@
 	/*------------------------------------------------------------------------*/
 	int ff_req_grant(_SYNC_t sobj)
 	{
-		if (gfxSemWait( (gfxSem*)&sobj, (delaytime_t)_FS_TIMEOUT) )
-			return TRUE;
-		return FALSE;
+		if (gfxSemWait( (gSem*)&sobj, (gDelay)_FS_TIMEOUT) )
+			return gTrue;
+		return gFalse;
 	}
 
 	/*------------------------------------------------------------------------*/
@@ -58,7 +58,7 @@
 	/*------------------------------------------------------------------------*/
 	void ff_rel_grant(_SYNC_t sobj)
 	{
-		gfxSemSignal( (gfxSem*)&sobj );
+		gfxSemSignal( (gSem*)&sobj );
 	}
 #endif /* _FS_REENTRANT */
 
@@ -68,7 +68,7 @@
 	/*------------------------------------------------------------------------*/
 	void *ff_memalloc(UINT size)
 	{
-		return gfxAlloc( (size_t)size );
+		return gfxAlloc( (gMemSize)size );
 	}
 
 	/*------------------------------------------------------------------------*/

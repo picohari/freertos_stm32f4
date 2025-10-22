@@ -8,7 +8,7 @@ static GHandle      ghButton1, ghButton2, ghButton3;
 static GHandle      ghWindow1;
 
 static void _updateColor(void) {
-    uint32_t color;
+    gU32 color;
 
     color  = (unsigned)gwinSliderGetPosition(ghSliderR) << 16;
     color |= (unsigned)gwinSliderGetPosition(ghSliderG) <<  8;
@@ -23,7 +23,7 @@ static void _createWidgets(void) {
 
     // Apply some default values for GWIN
     gwinWidgetClearInit(&wi);
-    wi.g.show = TRUE;
+    wi.g.show = gTrue;
 
     // Create a surprise label behind the frame window
     wi.g.width = 100;
@@ -119,8 +119,8 @@ int main(void) {
 
     // Set the widget defaults
     gwinSetDefaultFont(gdispOpenFont("*"));
-    gwinSetDefaultStyle(&WhiteWidgetStyle, FALSE);
-    gdispClear(White);
+    gwinSetDefaultStyle(&WhiteWidgetStyle, gFalse);
+    gdispClear(GFX_WHITE);
 
     // create the widget
     _createWidgets();
@@ -131,7 +131,7 @@ int main(void) {
 
     while(1) {
         // Get an Event
-        pe = geventEventWait(&gl, TIME_INFINITE);
+        pe = geventEventWait(&gl, gDelayForever);
 
         switch(pe->type) {
             case GEVENT_GWIN_SLIDER:

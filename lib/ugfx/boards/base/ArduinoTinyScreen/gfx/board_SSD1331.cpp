@@ -26,9 +26,9 @@
 // Wire address of the SX1505 chip
 #define GPIO_ADDR			0x20
 
-static void writeGPIO(uint8_t regAddr, uint8_t regData)
+static void writeGPIO(gU8 regAddr, gU8 regData)
 {
-  uint8_t oldTWBR=TWBR;
+  gU8 oldTWBR=TWBR;
   TWBR=0;
   Wire.beginTransmission(GPIO_ADDR + LCD_BOARD_ID);
   Wire.write(regAddr); 
@@ -69,7 +69,7 @@ void SSD1331_releasebus(void) {
 	isDataMode = isCmdMode = false;
 }
 
-void SSD1331_write_cmd(uint8_t cmd) {
+void SSD1331_write_cmd(gU8 cmd) {
 	if (!isCmdMode) {
 		writeGPIO(GPIO_RegData,GPIO_CMD_START);
 		isDataMode = false;
@@ -78,7 +78,7 @@ void SSD1331_write_cmd(uint8_t cmd) {
 	SPI.transfer(cmd);
 }
 
-void SSD1331_write_data(uint8_t data) {
+void SSD1331_write_data(gU8 data) {
 	if (!isDataMode) {
 		writeGPIO(GPIO_RegData,GPIO_DATA_START);
 		isDataMode = true;

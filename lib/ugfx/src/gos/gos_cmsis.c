@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "../../gfx.h"
@@ -19,18 +19,26 @@ void _gosInit(void)
 		if (!osKernelRunning())
 			osKernelStart();
 	#elif !GFX_OS_INIT_NO_WARNING
-		#warning "GOS: Operating System initialization has been turned off. Make sure you call osKernelInitialize() and osKernelStart() before gfxInit() in your application!"
+		#if GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_DIRECT
+			#warning "GOS: Operating System initialization has been turned off. Make sure you call osKernelInitialize() and osKernelStart() before gfxInit() in your application!"
+		#elif GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_MACRO
+			COMPILER_WARNING("GOS: Operating System initialization has been turned off. Make sure you call osKernelInitialize() and osKernelStart() before gfxInit() in your application!")
+		#endif
 	#endif
 
 	// Set up the heap allocator
 	_gosHeapInit();
 }
 
+void _gosPostInit(void)
+{
+}
+
 void _gosDeinit(void)
 {
 }
 
-void gfxMutexInit(gfxMutex* pmutex)
+void gfxMutexInit(gMutex* pmutex)
 {
 	osMutexDef_t def;
 	def.mutex = pmutex->mutex;
@@ -38,7 +46,7 @@ void gfxMutexInit(gfxMutex* pmutex)
 	pmutex->id = osMutexCreate(&def);
 }
 
-void gfxSemInit(gfxSem* psem, semcount_t val, semcount_t limit)
+void gfxSemInit(gSem* psem, gSemcount val, gSemcount limit)
 {
 	osSemaphoreDef_t def;
 	def.semaphore = psem->semaphore;
@@ -48,31 +56,31 @@ void gfxSemInit(gfxSem* psem, semcount_t val, semcount_t limit)
 	psem->id = osSemaphoreCreate(&def, val);
 }
 
-void gfxSemDestroy(gfxSem* psem)
+void gfxSemDestroy(gSem* psem)
 {
 	osSemaphoreDelete(psem->id);
 }
 
-bool_t gfxSemWait(gfxSem* psem, delaytime_t ms)
+gBool gfxSemWait(gSem* psem, gDelay ms)
 {
 	if (osSemaphoreWait(psem->id, ms) > 0) {
 		psem->available++;
-		return TRUE;
+		return gTrue;
 	}
-	return FALSE;
+	return gFalse;
 }
 
-bool_t gfxSemWaitI(gfxSem* psem)
+gBool gfxSemWaitI(gSem* psem)
 {
 	return gfxSemWait(psem, 0);
 }
 
-void gfxSemSignal(gfxSem* psem)
+void gfxSemSignal(gSem* psem)
 {
 	gfxSemSignalI(psem);
 }
 
-void gfxSemSignalI(gfxSem* psem)
+void gfxSemSignalI(gSem* psem)
 {
 	if (psem->available) {
 		psem->available--;
@@ -80,7 +88,7 @@ void gfxSemSignalI(gfxSem* psem)
 	}
 }
 
-gfxThreadHandle gfxThreadCreate(void* stackarea, size_t stacksz, threadpriority_t prio, DECLARE_THREAD_FUNCTION((*fn),p), void* param)
+gThread gfxThreadCreate(void* stackarea, gMemSize stacksz, gThreadpriority prio, GFX_THREAD_FUNCTION((*fn),p), void* param)
 {	
 	osThreadDef_t def;
 
@@ -94,7 +102,7 @@ gfxThreadHandle gfxThreadCreate(void* stackarea, size_t stacksz, threadpriority_
 	return osThreadCreate(&def, param);
 }
 
-threadreturn_t gfxThreadWait(gfxThreadHandle thread) {
+gThreadreturn gfxThreadWait(gThread thread) {
 	while(osThreadGetPriority(thread) == osPriorityError)
 		gfxYield();
 }

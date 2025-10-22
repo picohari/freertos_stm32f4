@@ -10,14 +10,14 @@ static void createWidgets(void) {
     gwinWidgetClearInit(&wi);
 
     // Apply the container parameters
-    wi.g.show = FALSE;
+    wi.g.show = gFalse;
     wi.g.width = 200;
     wi.g.height = 150;
     wi.g.y = 10;
     wi.g.x = 10;
     wi.text = "Container";
     ghContainer = gwinContainerCreate(0, &wi, GWIN_CONTAINER_BORDER);
-    wi.g.show = TRUE;
+    wi.g.show = gTrue;
 
     // Apply the button parameters
     wi.g.width = 120;
@@ -39,8 +39,8 @@ int main(void) {
 
     // Set the widget defaults
     gwinSetDefaultFont(gdispOpenFont("*"));
-    gwinSetDefaultStyle(&WhiteWidgetStyle, FALSE);
-    gdispClear(White);
+    gwinSetDefaultStyle(&WhiteWidgetStyle, gFalse);
+    gdispClear(GFX_WHITE);
 
     // Create the widget
     createWidgets();

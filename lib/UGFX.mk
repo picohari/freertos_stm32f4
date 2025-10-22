@@ -1,13 +1,14 @@
+# uGFX library path
+GFXLIB = ./lib/ugfx
 
-GFXLIB = ./lib/ugfx_2.8
-
+# uGFX main makefile skript
 include $(GFXLIB)/gfx.mk
 
-include $(GFXLIB)/boards/base/STM32F407i-XCore/board.mk
+# uGFX driver and boad skript
+include $(GFXLIB)/boards/base/STM32F407i-EVK/board.mk
 
-
+# uGFX source and ..
 CSRC   += $(GFXSRC) \
 
+# include directories
 INCDIR += $(GFXINC) \
-
-OPT_OS	= freertos

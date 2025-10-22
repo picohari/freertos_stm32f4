@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -20,12 +20,12 @@
 #define GGRAPH_ARROW_SIZE					5
 
 static const GGraphStyle GGraphDefaultStyle = {
-	{ GGRAPH_POINT_DOT, 0, White },			// point
-	{ GGRAPH_LINE_DOT, 2, Gray },			// line
-	{ GGRAPH_LINE_SOLID, 0, White },		// x axis
-	{ GGRAPH_LINE_SOLID, 0, White },		// y axis
-	{ GGRAPH_LINE_NONE, 0, White, 0 },		// x grid
-	{ GGRAPH_LINE_NONE, 0, White, 0 },		// y grid
+	{ GGRAPH_POINT_DOT, 0, GFX_WHITE },			// point
+	{ GGRAPH_LINE_DOT, 2, GFX_GRAY },			// line
+	{ GGRAPH_LINE_SOLID, 0, GFX_WHITE },		// x axis
+	{ GGRAPH_LINE_SOLID, 0, GFX_WHITE },		// y axis
+	{ GGRAPH_LINE_NONE, 0, GFX_WHITE, 0 },		// x grid
+	{ GGRAPH_LINE_NONE, 0, GFX_WHITE, 0 },		// y grid
 	GWIN_GRAPH_STYLE_XAXIS_ARROWS|GWIN_GRAPH_STYLE_YAXIS_ARROWS		// flags
 };
 
@@ -37,7 +37,7 @@ static const gwinVMT graphVMT = {
 		0,						// The after-clear routine
 };
 
-static void pointto(GGraphObject *gg, coord_t x, coord_t y, const GGraphPointStyle *style) {
+static void pointto(GGraphObject *gg, gCoord x, gCoord y, const GGraphPointStyle *style) {
 	if (style->type == GGRAPH_POINT_NONE)
 		return;
 
@@ -66,11 +66,11 @@ static void pointto(GGraphObject *gg, coord_t x, coord_t y, const GGraphPointSty
 	}
 }
 
-static void lineto(GGraphObject *gg, coord_t x0, coord_t y0, coord_t x1, coord_t y1, const GGraphLineStyle *style) {
-	coord_t	dy, dx;
-	coord_t addx, addy;
-	coord_t P, diff, i;
-	coord_t	run_on, run_off, run;
+static void lineto(GGraphObject *gg, gCoord x0, gCoord y0, gCoord x1, gCoord y1, const GGraphLineStyle *style) {
+	gCoord	dy, dx;
+	gCoord addx, addy;
+	gCoord P, diff, i;
+	gCoord	run_on, run_off, run;
 
 	if (style->type == GGRAPH_LINE_NONE)
 		return;
@@ -193,7 +193,7 @@ void gwinGraphSetStyle(GHandle gh, const GGraphStyle *pstyle) {
 	#undef gg
 }
 
-void gwinGraphSetOrigin(GHandle gh, coord_t x, coord_t y) {
+void gwinGraphSetOrigin(GHandle gh, gCoord x, gCoord y) {
 	#define gg	((GGraphObject *)gh)
 
 	if (gh->vmt != &graphVMT)
@@ -207,7 +207,7 @@ void gwinGraphSetOrigin(GHandle gh, coord_t x, coord_t y) {
 
 void gwinGraphDrawAxis(GHandle gh) {
 	#define gg	((GGraphObject *)gh)
-	coord_t		i, xmin, ymin, xmax, ymax;
+	gCoord		i, xmin, ymin, xmax, ymax;
 
 	if (gh->vmt != &graphVMT || !_gwinDrawStart(gh))
 		return;
@@ -274,7 +274,7 @@ void gwinGraphStartSet(GHandle gh) {
 	gh->flags &= ~GGRAPH_FLG_CONNECTPOINTS;
 }
 
-void gwinGraphDrawPoint(GHandle gh, coord_t x, coord_t y) {
+void gwinGraphDrawPoint(GHandle gh, gCoord x, gCoord y) {
 	#define gg	((GGraphObject *)gh)
 
 	if (gh->vmt != &graphVMT || !_gwinDrawStart(gh))
@@ -301,10 +301,10 @@ void gwinGraphDrawPoint(GHandle gh, coord_t x, coord_t y) {
 	#undef gg
 }
 
-void gwinGraphDrawPoints(GHandle gh, const point *points, unsigned count) {
+void gwinGraphDrawPoints(GHandle gh, const gPoint *points, unsigned count) {
 	#define gg	((GGraphObject *)gh)
 	unsigned		i;
-	const point		*p;
+	const gPoint	*p;
 
 	if (gh->vmt != &graphVMT || !_gwinDrawStart(gh))
 		return;

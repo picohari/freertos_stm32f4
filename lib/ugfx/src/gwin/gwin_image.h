@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -17,10 +17,10 @@
  * @details		GWIN allos it to create an image widget. The widget
  *				takes no user input.
  *
- * @pre			GFX_USE_GDISP must be set to TRUE in your gfxconf.h
- * @pre			GFX_USE_GWIN must be set to TRUE in your gfxconf.h
- * @pre			GDISP_NEED_IMAGE must be set to TRUE in your gfxconf.h
- * @pre			GWIN_NEED_IMAGE must be set to TRUE in your gfxconf.h
+ * @pre			GFX_USE_GDISP must be set to GFXON in your gfxconf.h
+ * @pre			GFX_USE_GWIN must be set to GFXON in your gfxconf.h
+ * @pre			GDISP_NEED_IMAGE must be set to GFXON in your gfxconf.h
+ * @pre			GWIN_NEED_IMAGE must be set to GFXON in your gfxconf.h
  * @pre			At least one image type must be enabled in your gfxconf.h
  *
  * @{
@@ -34,15 +34,11 @@
 // An image window
 typedef struct GImageObject {
 	GWindowObject	g;
-	gdispImage		image;			// The image itself
+	gImage			image;			// The image itself
 	#if GWIN_NEED_IMAGE_ANIMATION
 		GTimer			timer;		// Timer used for animated images
 	#endif
 } GImageObject;
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * @brief				Create an image widget.
@@ -63,18 +59,18 @@ GHandle gwinGImageCreate(GDisplay *g, GImageObject *widget, GWindowInit *pInit);
 
 /**
  * @brief				Opens the image using a GFILE
- * @return				TRUE if the image can be opened
+ * @return				gTrue if the image can be opened
  *
  * @param[in] gh		The widget (must be an image widget)
  * @param[in] f			The open (for reading) GFILE to use
  *
  * @api
  */
-bool_t gwinImageOpenGFile(GHandle gh, GFILE *f);
+gBool gwinImageOpenGFile(GHandle gh, GFILE *f);
 
 /**
  * @brief				Opens the image using the specified filename
- * @return				TRUE if the open succeeds
+ * @return				gTrue if the open succeeds
  *
  * @param[in] gh		The widget (must be an image widget)
  * @param[in] filename	The filename to open
@@ -86,8 +82,8 @@ bool_t gwinImageOpenGFile(GHandle gh, GFILE *f);
 	/**
 	 * @brief				Sets the input routines that support reading the image from memory
 	 *						in RAM or flash.
-	 * @pre					GFILE_NEED_MEMFS must be TRUE
-	 * @return				TRUE if the IO open function succeeds
+	 * @pre					GFILE_NEED_MEMFS must be GFXON
+	 * @return				gTrue if the IO open function succeeds
 	 *
 	 * @param[in] gh		The widget (must be an image widget)
 	 * @param[in] ptr		A pointer to the image in RAM or Flash
@@ -98,8 +94,8 @@ bool_t gwinImageOpenGFile(GHandle gh, GFILE *f);
 
 /**
  * @brief				Sets the input routines that support reading the image from a BaseFileStream (eg. an SD-Card).
- * @return				TRUE if the IO open function succeeds
- * @pre					GFILE_NEED_CHIBIOSFS and GFX_USE_OS_CHIBIOS must be TRUE
+ * @return				gTrue if the IO open function succeeds
+ * @pre					GFILE_NEED_CHIBIOSFS and GFX_USE_OS_CHIBIOS must be GFXON
  *
  * @param[in] gh		The widget (must be an image widget)
  * @param[in] streamPtr	A pointer to the (open) BaseFileStream object.
@@ -119,10 +115,6 @@ bool_t gwinImageOpenGFile(GHandle gh, GFILE *f);
  * @api
  */
 gdispImageError gwinImageCache(GHandle gh);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // _GWIN_IMAGE_H
 /** @} */

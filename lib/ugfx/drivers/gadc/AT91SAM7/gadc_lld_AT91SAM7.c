@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -16,7 +16,7 @@
 
 #include "../../../src/gadc/gadc_driver.h"
 
-static uint32_t		nextfreq;
+static gU32		nextfreq;
 
 // Forward references to ISR routines
 static void ISR_CompleteI(ADCDriver *adcp, adcsample_t *buffer, size_t n);
@@ -50,8 +50,8 @@ void gadc_lld_init(void) {
 	adcStart(&ADCD1, 0);
 }
 
-size_t gadc_lld_samplesperconversion(uint32_t physdev) {
-	size_t	samples;
+gMemSize gadc_lld_samplesperconversion(gU32 physdev) {
+	gMemSize	samples;
 
 	for(samples = 0; physdev; physdev >>= 1)
 		if (physdev & 0x01)
@@ -59,7 +59,7 @@ size_t gadc_lld_samplesperconversion(uint32_t physdev) {
 	return samples;
 }
 
-void gadc_lld_start_timerI(uint32_t frequency) {
+void gadc_lld_start_timerI(gU32 frequency) {
 	// Nothing to do here - the AT91SAM7 adc driver uses an internal timer
 	//	which is set up when the job is started. We save this here just to
 	//	indicate the timer should be re-initialised on the next timer job

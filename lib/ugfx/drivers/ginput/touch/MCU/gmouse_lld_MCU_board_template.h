@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #ifndef _LLD_GMOUSE_MCU_BOARD_H
@@ -23,10 +23,10 @@
 // How much extra data to allocate at the end of the GMouse structure for the board's use
 #define GMOUSE_MCU_BOARD_DATA_SIZE			0
 
-static bool_t init_board(GMouse *m, unsigned driverinstance) {
+static gBool init_board(GMouse *m, unsigned driverinstance) {
 }
 
-static bool_t read_xyz(GMouse *m, GMouseReading *prd) {
+static gBool read_xyz(GMouse *m, GMouseReading *prd) {
 }
 
 #endif /* _LLD_GMOUSE_MCU_BOARD_H */

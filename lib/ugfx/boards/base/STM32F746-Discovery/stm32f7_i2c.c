@@ -1,24 +1,26 @@
 #include "gfx.h"
-#undef Red
-#undef Green
-#undef Blue
+#if GFX_COMPAT_V2 && GFX_COMPAT_OLDCOLORS
+	#undef Red
+	#undef Green
+	#undef Blue
+#endif
 #include "stm32f7_i2c.h"
 
 /*
  * The CR2 register needs atomic access. Hence always use this function to setup a transfer configuration.
  */
-static void _i2cConfigTransfer(I2C_TypeDef* i2c, uint16_t slaveAddr, uint8_t numBytes, uint32_t mode, uint32_t request)
+static void _i2cConfigTransfer(I2C_TypeDef* i2c, gU16 slaveAddr, gU8 numBytes, gU32 mode, gU32 request)
 {
-	uint32_t tmpreg = 0;
+	gU32 tmpreg = 0;
 
 	// Get the current CR2 register value
 	tmpreg = i2c->CR2;
 
 	// Clear tmpreg specific bits
-	tmpreg &= (uint32_t) ~((uint32_t) (I2C_CR2_SADD | I2C_CR2_NBYTES | I2C_CR2_RELOAD | I2C_CR2_AUTOEND | I2C_CR2_RD_WRN | I2C_CR2_START | I2C_CR2_STOP));
+	tmpreg &= (gU32) ~((gU32) (I2C_CR2_SADD | I2C_CR2_NBYTES | I2C_CR2_RELOAD | I2C_CR2_AUTOEND | I2C_CR2_RD_WRN | I2C_CR2_START | I2C_CR2_STOP));
 
 	// update tmpreg
-	tmpreg |= (uint32_t) (((uint32_t) slaveAddr & I2C_CR2_SADD) | (((uint32_t) numBytes << 16) & I2C_CR2_NBYTES) | (uint32_t) mode | (uint32_t) request);
+	tmpreg |= (gU32) (((gU32) slaveAddr & I2C_CR2_SADD) | (((gU32) numBytes << 16) & I2C_CR2_NBYTES) | (gU32) mode | (gU32) request);
 
 	// Update the actual CR2 contents
 	i2c->CR2 = tmpreg;
@@ -29,10 +31,10 @@ static void _i2cConfigTransfer(I2C_TypeDef* i2c, uint16_t slaveAddr, uint8_t num
  */
 static void _i2cResetCr2(I2C_TypeDef* i2c)
 {
-	i2c->CR2 &= (uint32_t) ~((uint32_t) (I2C_CR2_SADD | I2C_CR2_HEAD10R | I2C_CR2_NBYTES | I2C_CR2_RELOAD | I2C_CR2_RD_WRN));
+	i2c->CR2 &= (gU32) ~((gU32) (I2C_CR2_SADD | I2C_CR2_HEAD10R | I2C_CR2_NBYTES | I2C_CR2_RELOAD | I2C_CR2_RD_WRN));
 }
 
-bool_t i2cInit(I2C_TypeDef* i2c)
+gBool i2cInit(I2C_TypeDef* i2c)
 {
 	// Enable I2Cx peripheral clock.
 	// Select APB1 as clock source
@@ -49,7 +51,7 @@ bool_t i2cInit(I2C_TypeDef* i2c)
 		RCC->DCKCFGR2 &= ~RCC_DCKCFGR2_I2C4SEL;
 		RCC->APB1ENR |= RCC_APB1ENR_I2C4EN;
 	} else {
-		return FALSE;
+		return gFalse;
 	}
 
 	// Disable the I2Cx peripheral
@@ -74,10 +76,10 @@ bool_t i2cInit(I2C_TypeDef* i2c)
 	// Enable the I2Cx peripheral
 	i2c->CR1 |= I2C_CR1_PE;
 
-	return TRUE;
+	return gTrue;
 }
 
-void i2cSend(I2C_TypeDef* i2c, uint8_t slaveAddr, uint8_t* data, uint16_t length)
+void i2cSend(I2C_TypeDef* i2c, gU8 slaveAddr, gU8* data, gU16 length)
 {
 	// We are currently not able to send more than 255 bytes at once
 	if (length > 255) {
@@ -107,21 +109,21 @@ void i2cSend(I2C_TypeDef* i2c, uint8_t slaveAddr, uint8_t* data, uint16_t length
 	_i2cResetCr2(i2c);
 }
 
-void i2cSendByte(I2C_TypeDef* i2c, uint8_t slaveAddr, uint8_t data)
+void i2cSendByte(I2C_TypeDef* i2c, gU8 slaveAddr, gU8 data)
 {
 	i2cSend(i2c, slaveAddr, &data, 1);
 }
 
-void i2cWriteReg(I2C_TypeDef* i2c, uint8_t slaveAddr, uint8_t regAddr, uint8_t value)
+void i2cWriteReg(I2C_TypeDef* i2c, gU8 slaveAddr, gU8 regAddr, gU8 value)
 {
-	uint8_t txbuf[2];
+	gU8 txbuf[2];
 	txbuf[0] = regAddr;
 	txbuf[1] = value;
 
 	i2cSend(i2c, slaveAddr, txbuf, 2);
 }
 
-void i2cRead(I2C_TypeDef* i2c, uint8_t slaveAddr, uint8_t* data, uint16_t length)
+void i2cRead(I2C_TypeDef* i2c, gU8 slaveAddr, gU8* data, gU16 length)
 {
 	int		i;
 
@@ -149,9 +151,9 @@ void i2cRead(I2C_TypeDef* i2c, uint8_t slaveAddr, uint8_t* data, uint16_t length
 	_i2cResetCr2(i2c);
 }
 
-uint8_t i2cReadByte(I2C_TypeDef* i2c, uint8_t slaveAddr, uint8_t regAddr)
+gU8 i2cReadByte(I2C_TypeDef* i2c, gU8 slaveAddr, gU8 regAddr)
 {
-	uint8_t ret = 0xAA;
+	gU8 ret = 0xAA;
 
 	i2cSend(i2c, slaveAddr, &regAddr, 1);
 	i2cRead(i2c, slaveAddr, &ret, 1);
@@ -159,12 +161,12 @@ uint8_t i2cReadByte(I2C_TypeDef* i2c, uint8_t slaveAddr, uint8_t regAddr)
 	return ret;
 }
 
-uint16_t i2cReadWord(I2C_TypeDef* i2c, uint8_t slaveAddr, uint8_t regAddr)
+gU16 i2cReadWord(I2C_TypeDef* i2c, gU8 slaveAddr, gU8 regAddr)
 {
-	uint8_t ret[2] = { 0xAA, 0xAA };
+	gU8 ret[2] = { 0xAA, 0xAA };
 
 	i2cSend(i2c, slaveAddr, &regAddr, 1);
 	i2cRead(i2c, slaveAddr, ret, 2);
 
-	return (uint16_t)((ret[0] << 8) | (ret[1] & 0x00FF));
+	return (gU16)((ret[0] << 8) | (ret[1] & 0x00FF));
 }

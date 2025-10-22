@@ -2,10 +2,10 @@
 #include "ugfx/src/ginput/ginput_driver_mouse.h"
 
 extern GMouse* qwidgetMouse;
-extern coord_t qwidgetMouseX;
-extern coord_t qwidgetMouseY;
-extern coord_t qwidgetMouseZ;
-extern uint16_t qwidgetMouseButtons;
+extern gCoord qwidgetMouseX;
+extern gCoord qwidgetMouseY;
+extern gCoord qwidgetMouseZ;
+extern gU16 qwidgetMouseButtons;
 
 MyWidget::MyWidget(QWidget* parent) : QWidget(parent)
 {

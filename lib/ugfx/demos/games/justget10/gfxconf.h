@@ -31,65 +31,65 @@
 #define _GFXCONF_H
 
 /* GFX sub-systems to turn on */
-#define GFX_USE_GDISP			                TRUE
-#define GFX_USE_GEVENT			                TRUE
-#define GFX_USE_GTIMER			                TRUE
-#define GFX_USE_GINPUT			                TRUE
+#define GFX_USE_GDISP			                GFXON
+#define GFX_USE_GEVENT			                GFXON
+#define GFX_USE_GTIMER			                GFXON
+#define GFX_USE_GINPUT			                GFXON
 
-#define GFX_USE_GFILE                           TRUE
-#define GFILE_NEED_ROMFS                        TRUE
+#define GFX_USE_GFILE                           GFXON
+#define GFILE_NEED_ROMFS                        GFXON
 #define GFILE_MAX_GFILES                         24
 
 /* Features for the GDISP sub-system. */
-#define GDISP_NEED_CONTROL		                TRUE
-#define GDISP_NEED_VALIDATION		            TRUE
-#define GDISP_NEED_CLIP			                TRUE
-#define GDISP_NEED_TEXT			                TRUE
-#define GDISP_NEED_MULTITHREAD		            TRUE
-#define GDISP_NEED_IMAGE		                TRUE
-#define GDISP_NEED_IMAGE_BMP		            TRUE
-#define GDISP_NEED_CIRCLE		                TRUE
-#define GDISP_NEED_ELLIPSE		                TRUE
-#define GDISP_NEED_ARC			                TRUE
-#define GDISP_NEED_STARTUP_LOGO                 FALSE
+#define GDISP_NEED_CONTROL		                GFXON
+#define GDISP_NEED_VALIDATION		            GFXON
+#define GDISP_NEED_CLIP			                GFXON
+#define GDISP_NEED_TEXT			                GFXON
+#define GDISP_NEED_MULTITHREAD		            GFXON
+#define GDISP_NEED_IMAGE		                GFXON
+#define GDISP_NEED_IMAGE_BMP		            GFXON
+#define GDISP_NEED_CIRCLE		                GFXON
+#define GDISP_NEED_ELLIPSE		                GFXON
+#define GDISP_NEED_ARC			                GFXON
+#define GDISP_NEED_STARTUP_LOGO                 GFXOFF
 
 
 //////////////////
-#define GFX_USE_GWIN                            TRUE
+#define GFX_USE_GWIN                            GFXON
 
-#define GWIN_NEED_WINDOWMANAGER                 TRUE
-#define GQUEUE_NEED_ASYNC                       TRUE
-#define GFX_USE_GQUEUE                          TRUE
-#define GWIN_REDRAW_IMMEDIATE                   TRUE
-#define GWIN_REDRAW_SINGLEOP                    TRUE
+#define GWIN_NEED_WINDOWMANAGER                 GFXON
+#define GQUEUE_NEED_ASYNC                       GFXON
+#define GFX_USE_GQUEUE                          GFXON
+#define GWIN_REDRAW_IMMEDIATE                   GFXON
+#define GWIN_REDRAW_SINGLEOP                    GFXON
 
-#define GWIN_NEED_WIDGET                        TRUE
-#define GWIN_NEED_BUTTON                        TRUE
-#define GWIN_BUTTON_LAZY_RELEASE                FALSE
-#define GWIN_NEED_SLIDER                        TRUE
-#define GWIN_FLAT_STYLING                       FALSE
+#define GWIN_NEED_WIDGET                        GFXON
+#define GWIN_NEED_BUTTON                        GFXON
+#define GWIN_BUTTON_LAZY_RELEASE                GFXOFF
+#define GWIN_NEED_SLIDER                        GFXON
+#define GWIN_FLAT_STYLING                       GFXOFF
 
-#define GWIN_NEED_CONTAINERS                    TRUE
-#define GWIN_NEED_CONTAINER                     TRUE
-#define GWIN_NEED_FRAME                         FALSE
-#define GWIN_NEED_TABSET                        FALSE
+#define GWIN_NEED_CONTAINERS                    GFXON
+#define GWIN_NEED_CONTAINER                     GFXON
+#define GWIN_NEED_FRAME                         GFXOFF
+#define GWIN_NEED_TABSET                        GFXOFF
 
 
-#define GWIN_NEED_CONSOLE                            TRUE
-    #define GWIN_CONSOLE_USE_HISTORY                 TRUE
-        #define GWIN_CONSOLE_HISTORY_AVERAGING       TRUE
-        #define GWIN_CONSOLE_HISTORY_ATCREATE        TRUE
-    #define GWIN_CONSOLE_ESCSEQ                      TRUE
-    #define GWIN_CONSOLE_USE_BASESTREAM              TRUE
-#define GWIN_NEED_GRAPH                              TRUE
+#define GWIN_NEED_CONSOLE                            GFXON
+    #define GWIN_CONSOLE_USE_HISTORY                 GFXON
+        #define GWIN_CONSOLE_HISTORY_AVERAGING       GFXON
+        #define GWIN_CONSOLE_HISTORY_ATCREATE        GFXON
+    #define GWIN_CONSOLE_ESCSEQ                      GFXON
+    #define GWIN_CONSOLE_USE_BASESTREAM              GFXON
+#define GWIN_NEED_GRAPH                              GFXON
 
 
 
 /* Builtin Fonts */
-#define GDISP_INCLUDE_FONT_DEJAVUSANS16      TRUE
+#define GDISP_INCLUDE_FONT_DEJAVUSANS16      GFXON
 
 
 /* Features for the GINPUT sub-system. */
-#define GINPUT_NEED_MOUSE                       TRUE
+#define GINPUT_NEED_MOUSE                       GFXON
 
 #endif /* _GFXCONF_H */

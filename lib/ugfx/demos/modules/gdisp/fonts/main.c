@@ -30,9 +30,9 @@
 #include "gfx.h"
 
 int main(void) {
-	coord_t		width, y;
-	font_t		font1, font2;
-	coord_t		fheight1, fheight2;
+	gCoord		width, y;
+	gFont		font1, font2;
+	gCoord		fheight1, fheight2;
 	const char	*line1, *line2;
 	char		buf[8];
 
@@ -53,28 +53,28 @@ int main(void) {
 	//font2 = gdispOpenFont("Apple*");
 
 	y = 0;
-	fheight1 = gdispGetFontMetric(font1, fontHeight)+2;
-	fheight2 = gdispGetFontMetric(font2, fontHeight)+2;
+	fheight1 = gdispGetFontMetric(font1, gFontHeight)+2;
+	fheight2 = gdispGetFontMetric(font2, gFontHeight)+2;
 
 	line1 = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	line2 = "0123456789~!@#$%^&*_-+=(){}[]<>|/\\:;,.?'\"`";
 
 	// Font 1
-	gdispFillStringBox(0, y, width,  fheight1, line1, font1, Black, White, justifyCenter);
+	gdispFillStringBox(0, y, width,  fheight1, line1, font1, GFX_BLACK, GFX_WHITE, gJustifyCenter);
 	y += fheight1+1;
-	gdispFillStringBox(0, y, width,  fheight1, line2, font1, Black, White, justifyCenter);
+	gdispFillStringBox(0, y, width,  fheight1, line2, font1, GFX_BLACK, GFX_WHITE, gJustifyCenter);
 	y += fheight1+1;
 
 	// Font 2
-	gdispFillStringBox(0, y, width,  fheight2, line1, font2, Black, White, justifyCenter);
+	gdispFillStringBox(0, y, width,  fheight2, line1, font2, GFX_BLACK, GFX_WHITE, gJustifyCenter);
 	y += fheight2+1;
-	gdispFillStringBox(0, y, width,  fheight2, line2, font2, Black, White, justifyCenter);
+	gdispFillStringBox(0, y, width,  fheight2, line2, font2, GFX_BLACK, GFX_WHITE, gJustifyCenter);
 	y += fheight2+1;
 
 	// Font 1 drawing White on the (black) background
-	gdispDrawStringBox(0, y, width,  fheight1, line1, font1, White, justifyCenter);
+	gdispDrawStringBox(0, y, width,  fheight1, line1, font1, GFX_WHITE, gJustifyCenter);
 	y += fheight1+1;
-	gdispDrawStringBox(0, y, width,  fheight1, line2, font1, White, justifyCenter);
+	gdispDrawStringBox(0, y, width,  fheight1, line2, font1, GFX_WHITE, gJustifyCenter);
 	y += fheight1+1;
 
 		// Show Sizes
@@ -85,10 +85,10 @@ int main(void) {
 	buf[4] = (fheight2-2)/10 + '0';
 	buf[5] = (fheight2-2)%10 + '0';
 	buf[6] = 0;
-	gdispFillStringBox(0, y, width,  fheight1, buf, font1, Red, White, justifyCenter);
+	gdispFillStringBox(0, y, width,  fheight1, buf, font1, GFX_RED, GFX_WHITE, gJustifyCenter);
 	
 	// Wait forever
-    while(TRUE) {
+    while(1) {
     	gfxSleepMilliseconds(500);
     }   
 }

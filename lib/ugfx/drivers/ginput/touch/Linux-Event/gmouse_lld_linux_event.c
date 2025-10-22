@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "gfx.h"
@@ -31,7 +31,7 @@ typedef struct privStruct {
 	GMouseReading lastReading;
 } privStruct;
 
-static bool_t _init(GMouse* m, unsigned driverInstance)
+static gBool _init(GMouse* m, unsigned driverInstance)
 {
 	(void)driverInstance;
 
@@ -42,7 +42,7 @@ static bool_t _init(GMouse* m, unsigned driverInstance)
 	priv->fd = open(GMOUSE_LINUX_EVENT_DEVICE, O_RDONLY | O_NONBLOCK);
 	if (priv->fd < 0) {
 		fprintf(stderr, "GINPUT Mouse: Cannot open input device (%s)\n", GMOUSE_LINUX_EVENT_DEVICE);
-		return FALSE;
+		return gFalse;
 	}
 
 	// Initialize
@@ -51,10 +51,10 @@ static bool_t _init(GMouse* m, unsigned driverInstance)
 	priv->lastReading.y = 0;
 	priv->lastReading.z = 0;
 
-	return TRUE;
+	return gTrue;
 }
 
-static bool_t _read(GMouse* m, GMouseReading* pdr)
+static gBool _read(GMouse* m, GMouseReading* pdr)
 {
 	int i;
 	int rb;
@@ -97,7 +97,7 @@ static bool_t _read(GMouse* m, GMouseReading* pdr)
 	priv->lastReading.z = pdr->z;
 	priv->lastReading.buttons = pdr->buttons;
 	
-	return TRUE;
+	return gTrue;
 }
 
 const GMouseVMT const GMOUSE_DRIVER_VMT[1] = {{

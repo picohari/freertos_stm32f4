@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -26,7 +26,7 @@
  * @note		This module gdriver.h file is NOT included in the general gfx.h file.
  * 				Instead it is included in each driver type's driver API.
  *
- * @pre			GFX_USE_GDRIVER must be set to TRUE in your gfxconf.h
+ * @pre			GFX_USE_GDRIVER must be set to GFXON in your gfxconf.h
  *
  * @{
  */
@@ -64,10 +64,10 @@ typedef struct GDriver {
  * @brief	All driver VMT's start with this structure.
  */
 typedef struct GDriverVMT {
-	uint16_t	type;																// @< What type of driver this is
-	uint16_t	flags;																// @< Flags for the driver. Meaning is specific to each driver type.
-	uint32_t	objsize;															// @< How big the runtime driver structure is
-	bool_t		(*init)(GDriver *driver, void *param, unsigned driverinstance, unsigned systeminstance);	// @< Initialise the driver. Returns TRUE if OK.
+	gU16	type;																// @< What type of driver this is
+	gU16	flags;																// @< Flags for the driver. Meaning is specific to each driver type.
+	gU32	objsize;															// @< How big the runtime driver structure is
+	gBool		(*init)(GDriver *driver, void *param, unsigned driverinstance, unsigned systeminstance);	// @< Initialise the driver. Returns gTrue if OK.
 																					//		driverinstance is the instance 0..n of this driver.
 																					//		systeminstance is the instance 0..n of this type of device.
 																					//      The memory allocated is cleared before this call.
@@ -86,8 +86,16 @@ typedef struct GDriverVMT {
  * 				const GDriverVMT const * mylist = { DRIVER_LIST };
  * 				</code>
  *
+ * @note This could be one single typedef. However, some major compilers complain about duplicate const specifiers even though this is perfectly
+ *       valid standard C. As this problem has become worse over time we opt for splitting this into two separate typedefs to prevent these
+ *       compilers from throwing warnings.
+ *       The single typedef would look like this:
+ *       <code>
+ *           typedef const struct GDriverVMT const GDriverVMTList[1];
+ *       </code>
  */
-typedef const struct GDriverVMT const	GDriverVMTList[1];
+typedef const struct GDriverVMT ConstGDriverVMT;
+typedef ConstGDriverVMT const GDriverVMTList[1];
 
 /*===========================================================================*/
 /* External declarations.                                                    */
@@ -120,7 +128,7 @@ extern "C" {
 	 * @param[in]	type		The type of driver to find
 	 * @param[in]	instance	The instance (0..n) to find
 	 */
-	GDriver *gdriverGetInstance(uint16_t type, unsigned instance);
+	GDriver *gdriverGetInstance(gU16 type, unsigned instance);
 
 	/**
 	 * @brief	Get the count of instances of a type of device
@@ -130,7 +138,7 @@ extern "C" {
 	 *
 	 * @param[in]	type		The type of driver to find
 	 */
-	unsigned gdriverInstanceCount(uint16_t type);
+	unsigned gdriverInstanceCount(gU16 type);
 
 	/**
 	 * @brief	Get the instance number for a device
@@ -147,7 +155,7 @@ extern "C" {
 	 * @param[in]	type		The type of driver to find
 	 * @param[in]	driver		The last driver returned or NULL to start again
 	 */
-	GDriver *gdriverGetNext(uint16_t type, GDriver *driver);
+	GDriver *gdriverGetNext(gU16 type, GDriver *driver);
 
 #ifdef __cplusplus
 }

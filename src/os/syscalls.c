@@ -140,6 +140,11 @@ int _stat(char *file, struct stat *st)
 	return 0;
 }
 
+int _getpid()
+{
+	return(1);
+}
+
 #if 0
 /*
  * _gettimeofday primitive (Stub function)

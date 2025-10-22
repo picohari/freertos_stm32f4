@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "../../gfx.h"
@@ -23,28 +23,28 @@
 /**
  * Helper Routines Needed
  */
-void *gdispImageAlloc(gdispImage *img, size_t sz);
-void gdispImageFree(gdispImage *img, void *ptr, size_t sz);
+void *gdispImageAlloc(gImage *img, gMemSize sz);
+void gdispImageFree(gImage *img, void *ptr, gMemSize sz);
 
 typedef struct gdispImagePrivate_NATIVE {
-	pixel_t		*frame0cache;
-	pixel_t		buf[BLIT_BUFFER_SIZE_NATIVE];
+	gPixel		*frame0cache;
+	gPixel		buf[BLIT_BUFFER_SIZE_NATIVE];
 	} gdispImagePrivate_NATIVE;
 
-void gdispImageClose_NATIVE(gdispImage *img) {
+void gdispImageClose_NATIVE(gImage *img) {
 	gdispImagePrivate_NATIVE *	priv;
 
 	priv = (gdispImagePrivate_NATIVE *)img->priv;
 	if (priv) {
 		if (priv->frame0cache)
-			gdispImageFree(img, (void *)priv->frame0cache, img->width * img->height * sizeof(pixel_t));
+			gdispImageFree(img, (void *)priv->frame0cache, img->width * img->height * sizeof(gPixel));
 		gdispImageFree(img, (void *)priv, sizeof(gdispImagePrivate_NATIVE));
 		img->priv = 0;
 	}
 }
 
-gdispImageError gdispImageOpen_NATIVE(gdispImage *img) {
-	uint8_t		hdr[HEADER_SIZE_NATIVE];
+gdispImageError gdispImageOpen_NATIVE(gImage *img) {
+	gU8		hdr[HEADER_SIZE_NATIVE];
 
 	/* Read the 8 byte header */
 	if (gfileRead(img->f, hdr, 8) != 8)
@@ -58,8 +58,8 @@ gdispImageError gdispImageOpen_NATIVE(gdispImage *img) {
 
 	/* We know we are a native format image */
 	img->flags = 0;
-	img->width = (((uint16_t)hdr[2])<<8) | (hdr[3]);
-	img->height = (((uint16_t)hdr[4])<<8) | (hdr[5]);
+	img->width = (((gU16)hdr[2])<<8) | (hdr[3]);
+	img->height = (((gU16)hdr[4])<<8) | (hdr[5]);
 	if (img->width < 1 || img->height < 1)
 		return GDISP_IMAGE_ERR_BADDATA;
 	if (!(img->priv = gdispImageAlloc(img, sizeof(gdispImagePrivate_NATIVE))))
@@ -70,8 +70,8 @@ gdispImageError gdispImageOpen_NATIVE(gdispImage *img) {
 	return GDISP_IMAGE_ERR_OK;
 }
 
-gdispImageError gdispImageCache_NATIVE(gdispImage *img) {
-	size_t		len;
+gdispImageError gdispImageCache_NATIVE(gImage *img) {
+	gMemSize		len;
 	gdispImagePrivate_NATIVE *	priv;
 
 	/* If we are already cached - just return OK */
@@ -80,8 +80,8 @@ gdispImageError gdispImageCache_NATIVE(gdispImage *img) {
 		return GDISP_IMAGE_ERR_OK;
 
 	/* We need to allocate the cache */
-	len = img->width * img->height * sizeof(pixel_t);
-	priv->frame0cache = (pixel_t *)gdispImageAlloc(img, len);
+	len = img->width * img->height * sizeof(gPixel);
+	priv->frame0cache = (gPixel *)gdispImageAlloc(img, len);
 	if (!priv->frame0cache)
 		return GDISP_IMAGE_ERR_NOMEMORY;
 
@@ -93,9 +93,10 @@ gdispImageError gdispImageCache_NATIVE(gdispImage *img) {
 	return GDISP_IMAGE_ERR_OK;
 }
 
-gdispImageError gdispGImageDraw_NATIVE(GDisplay *g, gdispImage *img, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t sx, coord_t sy) {
-	coord_t		mx, mcx;
-	size_t		pos, len;
+gdispImageError gdispGImageDraw_NATIVE(GDisplay *g, gImage *img, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoord sx, gCoord sy) {
+	gCoord		mx, mcx;
+	gFileSize	pos;
+	gMemSize	len;
 	gdispImagePrivate_NATIVE *	priv;
 
 	priv = (gdispImagePrivate_NATIVE *)img->priv;
@@ -112,7 +113,7 @@ gdispImageError gdispGImageDraw_NATIVE(GDisplay *g, gdispImage *img, coord_t x, 
 	}
 
 	/* For this image decoder we cheat and just seek straight to the region we want to display */
-	pos = FRAME0POS_NATIVE + (img->width * sy + sx) * sizeof(pixel_t);
+	pos = FRAME0POS_NATIVE + (img->width * sy + sx) * sizeof(gPixel);
 
 	/* Cycle through the lines */
 	for(;cy;cy--, y++) {
@@ -124,8 +125,8 @@ gdispImageError gdispGImageDraw_NATIVE(GDisplay *g, gdispImage *img, coord_t x, 
 			// Read the data
 			len = gfileRead(img->f,
 						priv->buf,
-						mcx > BLIT_BUFFER_SIZE_NATIVE ? (BLIT_BUFFER_SIZE_NATIVE*sizeof(pixel_t)) : (mcx * sizeof(pixel_t)))
-					/ sizeof(pixel_t);
+						mcx > BLIT_BUFFER_SIZE_NATIVE ? (BLIT_BUFFER_SIZE_NATIVE*sizeof(gPixel)) : (mcx * sizeof(gPixel)))
+					/ sizeof(gPixel);
 			if (!len)
 				return GDISP_IMAGE_ERR_BADDATA;
 
@@ -134,17 +135,17 @@ gdispImageError gdispGImageDraw_NATIVE(GDisplay *g, gdispImage *img, coord_t x, 
 		}
 
 		/* Get the position for the start of the next line */
-		pos += img->width*sizeof(pixel_t);
+		pos += img->width*sizeof(gPixel);
 	}
 
 	return GDISP_IMAGE_ERR_OK;
 }
 
-delaytime_t gdispImageNext_NATIVE(gdispImage *img) {
+gDelay gdispImageNext_NATIVE(gImage *img) {
 	(void) img;
 
 	/* No more frames/pages */
-	return TIME_INFINITE;
+	return gDelayForever;
 }
 
 #endif /* GFX_USE_GDISP && GDISP_NEED_IMAGE && GDISP_NEED_IMAGE_NATIVE */

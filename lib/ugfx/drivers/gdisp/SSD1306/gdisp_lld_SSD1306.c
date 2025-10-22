@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "gfx.h"
@@ -49,7 +49,7 @@
 /*===========================================================================*/
 
 // Some common routines and macros
-#define RAM(g)							((uint8_t *)g->priv)
+#define RAM(g)							((gU8 *)g->priv)
 #define write_cmd2(g, cmd1, cmd2)		{ write_cmd(g, cmd1); write_cmd(g, cmd2); }
 #define write_cmd3(g, cmd1, cmd2, cmd3)	{ write_cmd(g, cmd1); write_cmd(g, cmd2); write_cmd(g, cmd3); }
 
@@ -71,7 +71,7 @@
  * 64 * 128 / 8 = 1024 bytes.
  */
 
-LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
+LLDSPEC gBool gdisp_lld_init(GDisplay *g) {
 	// The private area is the display surface.
 	g->priv = gfxAlloc(GDISP_SCREEN_HEIGHT/8 * SSD1306_PAGE_WIDTH);
 
@@ -90,9 +90,9 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	init_board(g);
 
 	// Hardware reset
-	setpin_reset(g, TRUE);
+	setpin_reset(g, gTrue);
 	gfxSleepMilliseconds(20);
-	setpin_reset(g, FALSE);
+	setpin_reset(g, gFalse);
 	gfxSleepMilliseconds(20);
 
 	acquire_bus(g);
@@ -114,7 +114,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	#else
 		write_cmd2(g, SSD1306_SETCOMPINS, 0x22);
 	#endif
-	write_cmd2(g, SSD1306_SETCONTRAST, (uint8_t)(GDISP_INITIAL_CONTRAST*256/101));	// Set initial contrast.
+	write_cmd2(g, SSD1306_SETCONTRAST, (gU8)(GDISP_INITIAL_CONTRAST*256/101));	// Set initial contrast.
 	write_cmd2(g, SSD1306_SETVCOMDETECT, 0x10);
 	write_cmd(g, SSD1306_DISPLAYON);
 	write_cmd(g, SSD1306_NORMALDISPLAY);
@@ -130,16 +130,16 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	/* Initialise the GDISP structure */
 	g->g.Width = GDISP_SCREEN_WIDTH;
 	g->g.Height = GDISP_SCREEN_HEIGHT;
-	g->g.Orientation = GDISP_ROTATE_0;
-	g->g.Powermode = powerOn;
+	g->g.Orientation = gOrientation0;
+	g->g.Powermode = gPowerOn;
 	g->g.Backlight = GDISP_INITIAL_BACKLIGHT;
 	g->g.Contrast = GDISP_INITIAL_CONTRAST;
-	return TRUE;
+	return gTrue;
 }
 
 #if GDISP_HARDWARE_FLUSH
 	LLDSPEC void gdisp_lld_flush(GDisplay *g) {
-		uint8_t * ram;
+		gU8 * ram;
 		unsigned pages;
 
 		// Don't flush if we don't need it.
@@ -169,34 +169,34 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 
 #if GDISP_HARDWARE_FILLS
 	LLDSPEC void gdisp_lld_fill_area(GDisplay *g) {
-		coord_t		sy, ey;
-		coord_t		sx, ex;
-		coord_t		col;
+		gCoord		sy, ey;
+		gCoord		sx, ex;
+		gCoord		col;
 		unsigned	spage, zpages;
-		uint8_t *	base;
-		uint8_t		mask;
+		gU8 *	base;
+		gU8		mask;
 
 		switch(g->g.Orientation) {
 		default:
-		case GDISP_ROTATE_0:
+		case gOrientation0:
 			sx = g->p.x;
 			ex = g->p.x + g->p.cx - 1;
 			sy = g->p.y;
 			ey = sy + g->p.cy - 1;
 			break;
-		case GDISP_ROTATE_90:
+		case gOrientation90:
 			sx = g->p.y;
 			ex = g->p.y + g->p.cy - 1;
 			sy = GDISP_SCREEN_HEIGHT - g->p.x - g->p.cx;
 			ey = GDISP_SCREEN_HEIGHT-1 - g->p.x;
 			break;
-		case GDISP_ROTATE_180:
+		case gOrientation180:
 			sx = GDISP_SCREEN_WIDTH - g->p.x - g->p.cx;
 			ex = GDISP_SCREEN_WIDTH-1 - g->p.x;
 			sy = GDISP_SCREEN_HEIGHT - g->p.y - g->p.cy;
 			ey = GDISP_SCREEN_HEIGHT-1 - g->p.y;
 			break;
-		case GDISP_ROTATE_270:
+		case gOrientation270:
 			sx = GDISP_SCREEN_WIDTH - g->p.y - g->p.cy;
 			ex = GDISP_SCREEN_WIDTH-1 - g->p.y;
 			sy = g->p.x;
@@ -209,7 +209,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 		mask = 0xff << (sy&7);
 		zpages = (ey / 8) - spage;
 
-		if (gdispColor2Native(g->p.color) == gdispColor2Native(Black)) {
+		if (gdispColor2Native(g->p.color) == gdispColor2Native(GFX_BLACK)) {
 			while (zpages--) {
 				for (col = sx; col <= ex; col++)
 					base[col] &= ~mask;
@@ -236,28 +236,28 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 
 #if GDISP_HARDWARE_DRAWPIXEL
 	LLDSPEC void gdisp_lld_draw_pixel(GDisplay *g) {
-		coord_t		x, y;
+		gCoord		x, y;
 
 		switch(g->g.Orientation) {
 		default:
-		case GDISP_ROTATE_0:
+		case gOrientation0:
 			x = g->p.x;
 			y = g->p.y;
 			break;
-		case GDISP_ROTATE_90:
+		case gOrientation90:
 			x = g->p.y;
 			y = GDISP_SCREEN_HEIGHT-1 - g->p.x;
 			break;
-		case GDISP_ROTATE_180:
+		case gOrientation180:
 			x = GDISP_SCREEN_WIDTH-1 - g->p.x;
 			y = GDISP_SCREEN_HEIGHT-1 - g->p.y;
 			break;
-		case GDISP_ROTATE_270:
+		case gOrientation270:
 			x = GDISP_SCREEN_WIDTH-1 - g->p.y;
 			y = g->p.x;
 			break;
 		}
-		if (gdispColor2Native(g->p.color) != gdispColor2Native(Black))
+		if (gdispColor2Native(g->p.color) != gdispColor2Native(GFX_BLACK))
 			RAM(g)[xyaddr(x, y)] |= xybit(y);
 		else
 			RAM(g)[xyaddr(x, y)] &= ~xybit(y);
@@ -266,29 +266,29 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 #endif
 
 #if GDISP_HARDWARE_PIXELREAD
-	LLDSPEC color_t gdisp_lld_get_pixel_color(GDisplay *g) {
-		coord_t		x, y;
+	LLDSPEC gColor gdisp_lld_get_pixel_color(GDisplay *g) {
+		gCoord		x, y;
 
 		switch(g->g.Orientation) {
 		default:
-		case GDISP_ROTATE_0:
+		case gOrientation0:
 			x = g->p.x;
 			y = g->p.y;
 			break;
-		case GDISP_ROTATE_90:
+		case gOrientation90:
 			x = g->p.y;
 			y = GDISP_SCREEN_HEIGHT-1 - g->p.x;
 			break;
-		case GDISP_ROTATE_180:
+		case gOrientation180:
 			x = GDISP_SCREEN_WIDTH-1 - g->p.x;
 			y = GDISP_SCREEN_HEIGHT-1 - g->p.y;
 			break;
-		case GDISP_ROTATE_270:
+		case gOrientation270:
 			x = GDISP_SCREEN_WIDTH-1 - g->p.y;
 			y = g->p.x;
 			break;
 		}
-		return (RAM(g)[xyaddr(x, y)] & xybit(y)) ? White : Black;
+		return (RAM(g)[xyaddr(x, y)] & xybit(y)) ? GFX_WHITE : GFX_BLACK;
 	}
 #endif
 
@@ -296,17 +296,17 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	LLDSPEC void gdisp_lld_control(GDisplay *g) {
 		switch(g->p.x) {
 		case GDISP_CONTROL_POWER:
-			if (g->g.Powermode == (powermode_t)g->p.ptr)
+			if (g->g.Powermode == (gPowermode)g->p.ptr)
 				return;
-			switch((powermode_t)g->p.ptr) {
-			case powerOff:
-			case powerSleep:
-			case powerDeepSleep:
+			switch((gPowermode)g->p.ptr) {
+			case gPowerOff:
+			case gPowerSleep:
+			case gPowerDeepSleep:
 				acquire_bus(g);
 				write_cmd(g, SSD1306_DISPLAYOFF);
 				release_bus(g);
 				break;
-			case powerOn:
+			case gPowerOn:
 				acquire_bus(g);
 				write_cmd(g, SSD1306_DISPLAYON);
 				release_bus(g);
@@ -314,28 +314,28 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 			default:
 				return;
 			}
-			g->g.Powermode = (powermode_t)g->p.ptr;
+			g->g.Powermode = (gPowermode)g->p.ptr;
 			return;
 
 		case GDISP_CONTROL_ORIENTATION:
-			if (g->g.Orientation == (orientation_t)g->p.ptr)
+			if (g->g.Orientation == (gOrientation)g->p.ptr)
 				return;
-			switch((orientation_t)g->p.ptr) {
+			switch((gOrientation)g->p.ptr) {
 			/* Rotation is handled by the drawing routines */
-			case GDISP_ROTATE_0:
-			case GDISP_ROTATE_180:
+			case gOrientation0:
+			case gOrientation180:
 				g->g.Height = GDISP_SCREEN_HEIGHT;
 				g->g.Width = GDISP_SCREEN_WIDTH;
 				break;
-			case GDISP_ROTATE_90:
-			case GDISP_ROTATE_270:
+			case gOrientation90:
+			case gOrientation270:
 				g->g.Height = GDISP_SCREEN_WIDTH;
 				g->g.Width = GDISP_SCREEN_HEIGHT;
 				break;
 			default:
 				return;
 			}
-			g->g.Orientation = (orientation_t)g->p.ptr;
+			g->g.Orientation = (gOrientation)g->p.ptr;
 			return;
 
 		case GDISP_CONTROL_CONTRAST:

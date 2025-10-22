@@ -31,35 +31,34 @@
 #define _GFXCONF_H
 
 /* GFX sub-systems to turn on */
-#define GFX_USE_GDISP			                TRUE
-#define GFX_USE_GWIN			                TRUE
-#define GFX_USE_GEVENT			                TRUE
-#define GFX_USE_GTIMER			                TRUE
-#define GFX_USE_GINPUT			                TRUE
+#define GFX_USE_GDISP			                GFXON
+#define GFX_USE_GWIN			                GFXON
+#define GFX_USE_GEVENT			                GFXON
+#define GFX_USE_GTIMER			                GFXON
+#define GFX_USE_GINPUT			                GFXON
 
-#define GFX_USE_GFILE                           TRUE
-#define GFILE_NEED_ROMFS                        TRUE
+#define GFX_USE_GFILE                           GFXON
+#define GFILE_NEED_ROMFS                        GFXON
 
 /* Features for the GDISP sub-system. */
-#define GDISP_NEED_CONTROL		                TRUE
-#define GDISP_NEED_VALIDATION		            TRUE
-#define GDISP_NEED_CLIP			                TRUE
-#define GDISP_NEED_TEXT			                TRUE
-#define GDISP_NEED_MULTITHREAD		            TRUE
-#define GDISP_NEED_IMAGE		                TRUE
-#define GDISP_NEED_IMAGE_BMP		            TRUE
-#define GDISP_NEED_CIRCLE		                TRUE
-#define GDISP_NEED_ELLIPSE		                TRUE
-#define GDISP_NEED_ARC			                TRUE
-#define GDISP_NEED_STARTUP_LOGO					FALSE
+#define GDISP_NEED_CONTROL		                GFXON
+#define GDISP_NEED_VALIDATION		            GFXON
+#define GDISP_NEED_CLIP			                GFXON
+#define GDISP_NEED_TEXT			                GFXON
+#define GDISP_NEED_MULTITHREAD		            GFXON
+#define GDISP_NEED_IMAGE		                GFXON
+#define GDISP_NEED_IMAGE_BMP		            GFXON
+#define GDISP_NEED_CIRCLE		                GFXON
+#define GDISP_NEED_ELLIPSE		                GFXON
+#define GDISP_NEED_ARC			                GFXON
 
 /* Builtin Fonts */
-#define GDISP_INCLUDE_USER_FONTS                TRUE
-#define GDISP_INCLUDE_FONT_DEJAVUSANS16	        TRUE
-#define GDISP_INCLUDE_FONT_FIXED_10X20          TRUE
-#define GDISP_INCLUDE_FONT_FIXED_5X8            TRUE
+#define GDISP_INCLUDE_USER_FONTS                GFXON
+#define GDISP_INCLUDE_FONT_DEJAVUSANS16	        GFXON
+#define GDISP_INCLUDE_FONT_FIXED_10X20          GFXON
+#define GDISP_INCLUDE_FONT_FIXED_5X8            GFXON
 
 /* Features for the GINPUT sub-system. */
-#define GINPUT_NEED_MOUSE                       TRUE
+#define GINPUT_NEED_MOUSE                       GFXON
 
 #endif /* _GFXCONF_H */

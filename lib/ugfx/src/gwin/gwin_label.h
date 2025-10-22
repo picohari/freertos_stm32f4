@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -19,10 +19,10 @@
  *				dimensions of the label will change every time the text is changed
  *				through gwinSetText().
  *
- * @pre			GFX_USE_GDISP must be set to TRUE in your gfxconf.h
- * @pre			GFX_USE_GWIN must be set to TRUE in your gfxconf.h
- * @pre			GDISP_NEED_TEXT must be set to TRUE in your gfxconf.h
- * @pre			GWIN_NEED_LABEL must be set to TRUE in your gfxconf.h
+ * @pre			GFX_USE_GDISP must be set to GFXON in your gfxconf.h
+ * @pre			GFX_USE_GWIN must be set to GFXON in your gfxconf.h
+ * @pre			GDISP_NEED_TEXT must be set to GFXON in your gfxconf.h
+ * @pre			GWIN_NEED_LABEL must be set to GFXON in your gfxconf.h
  * @pre			The fonts you want to use must be enabled in your gfxconf.h
  *
  * @{
@@ -38,9 +38,7 @@
  * @note	Used only for writing a custom draw routine.
  * @{
  */
-#define GLABEL_FLG_WAUTO		0x01
-#define GLABEL_FLG_HAUTO		0x02
-#define GLABEL_FLG_BORDER		0x04
+#define GLABEL_FLG_BORDER		0x01
 /** @} */
 
 // An label window
@@ -48,14 +46,10 @@ typedef struct GLabelObject {
 	GWidgetObject	w;
 
 	#if GWIN_LABEL_ATTRIBUTE
-		coord_t         tab;
+		gCoord         tab;
 		const char*		attr;
 	#endif
 } GLabelObject;
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * @brief				Create a label widget.
@@ -80,7 +74,7 @@ GHandle gwinGLabelCreate(GDisplay *g, GLabelObject *widget, GWidgetInit *pInit);
  *
  * @api
  */
-void gwinLabelSetBorder(GHandle gh, bool_t border);
+void gwinLabelSetBorder(GHandle gh, gBool border);
 
 #if GWIN_LABEL_ATTRIBUTE || defined(__DOXYGEN__)
 	/**
@@ -106,7 +100,7 @@ void gwinLabelSetBorder(GHandle gh, bool_t border);
 	 *
 	 * @api
 	 */
-	void gwinLabelSetAttribute(GHandle gh, coord_t tab, const char* attr);
+	void gwinLabelSetAttribute(GHandle gh, gCoord tab, const char* attr);
 #endif
 
 /**
@@ -118,12 +112,21 @@ void gwinLabelSetBorder(GHandle gh, bool_t border);
  *
  * @note				In your custom label drawing function you may optionally call these
  * 						standard functions and then draw your extra details on top.
- * @note				The built-in functions below ignore the param parameter.
  * @note				These custom drawing routines don't have to worry about setting clipping as the framework
  * 						sets clipping to the object window prior to calling these routines.
  *
  * @{
  */
+
+/**
+ * @brief				Renders a label with the text justified based on the parameter.
+ *
+ * @param[in] gw		The widget object (must be a label object)
+ * @param[in] param		A parameter passed in from the user. Must be of type gJustify.
+ *
+ * @api
+ */
+void gwinLabelDrawJustified(GWidgetObject *gw, void *param);
 
 /**
  * @brief				Renders a label with the text left jestified.
@@ -158,10 +161,6 @@ void gwinLabelDrawJustifiedRight(GWidgetObject *gw, void *param);
 void gwinLabelDrawJustifiedCenter(GWidgetObject *gw, void *param);
 
 /** @} */
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // _GWIN_LABEL_H
 /** @} */

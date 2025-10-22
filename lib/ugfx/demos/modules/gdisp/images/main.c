@@ -36,10 +36,10 @@
  * The ROMFS uses the file "romfs_files.h" to describe the set of files in the ROMFS.
  */
 
-static gdispImage myImage;
+static gImage myImage;
 
 int main(void) {
-	coord_t			swidth, sheight;
+	gCoord			swidth, sheight;
 
 	// Initialize uGFX and the underlying system
 	gfxInit();

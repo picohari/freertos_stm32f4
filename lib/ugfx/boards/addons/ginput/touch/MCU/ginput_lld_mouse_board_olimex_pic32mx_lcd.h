@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -48,29 +48,29 @@ static struct ADCDriver ADCD;
 #define YPOS 11 // D
 
 static const ADCConversionGroup ADC_X_CG = {
-  .circular = FALSE,
+  .circular = 0,
   .num_channels = 1,
   .channels = 1 << XNEG,
 };
 
 static const ADCConversionGroup ADC_Y_CG = {
-  .circular = FALSE,
+  .circular = 0,
   .num_channels = 1,
   .channels = 1 << YPOS,
 };
 
-static bool_t init_board(GMouse *m, unsigned driverinstance) {
+static gBool init_board(GMouse *m, unsigned driverinstance) {
 	(void)	m;
 
 	if (driverinstance)
-		return FALSE;
+		return gFalse;
 
 	adcObjectInit(&ADCD);
 	adcStart(&ADCD, &ADCC);
-	return TRUE;
+	return gTrue;
 }
 
-static bool_t read_xyz(GMouse *m, GMouseReading *prd) {
+static gBool read_xyz(GMouse *m, GMouseReading *prd) {
 	adcsample_t samples[2];
 
 	prd->buttons = 0;
@@ -89,7 +89,7 @@ static bool_t read_xyz(GMouse *m, GMouseReading *prd) {
 
 	// Shortcut - no need to read X or Y if the touch is off.
 	if (pdr->z < GMOUSE_MCU_Z_TOUCHON)
-		return TRUE;
+		return gTrue;
 
 	// Read X
 	palSetPadMode(IOPORTB, XPOS, PAL_MODE_OUTPUT);
@@ -111,7 +111,7 @@ static bool_t read_xyz(GMouse *m, GMouseReading *prd) {
 	adcConvert(&ADCD, &ADC_X_CG, &samples[0], 1);
 	pdr->y = ADC_MAX - samples[0];
 
-	return TRUE;
+	return gTrue;
 }
 
 #endif /* _GINPUT_LLD_MOUSE_BOARD_H */

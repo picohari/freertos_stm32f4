@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -33,11 +33,11 @@
  * @{
  */
 typedef struct GadcTimerJob_t {
-	uint32_t		physdev;					// @< The physical device/s. The exact meaning of physdev is hardware dependent.
-	uint32_t		frequency;					// @< The frequency to sample
+	gU32		physdev;					// @< The physical device/s. The exact meaning of physdev is hardware dependent.
+	gU32		frequency;					// @< The frequency to sample
 	adcsample_t		*buffer;					// @< Where to put the samples
-	size_t			todo;						// @< How many conversions to do
-	size_t			done;						// @< How many conversions have already been done
+	gMemSize		todo;						// @< How many conversions to do
+	gMemSize		done;						// @< How many conversions have already been done
 } GadcTimerJob;
 /** @} */
 
@@ -46,7 +46,7 @@ typedef struct GadcTimerJob_t {
  * @{
  */
 typedef struct GadcNonTimerJob_t {
-	uint32_t				physdev;			// @< The physical device/s. The exact meaning of physdev is hardware dependent.
+	gU32				physdev;			// @< The physical device/s. The exact meaning of physdev is hardware dependent.
 	adcsample_t				*buffer;			// @< Where to put the samples.
 	} GadcNonTimerJob;
 /** @} */
@@ -75,7 +75,7 @@ extern "C" {
 	 * 				It can be called in this mode on an ADC conversion error. Any job will then be
 	 * 				restarted by the high level code as appropriate.
 	 */
-	void gadcGotDataI(size_t n);
+	void gadcGotDataI(gMemSize n);
 /**
  * @}
  */
@@ -96,7 +96,7 @@ void gadc_lld_init(void);
  *
  * @api
  */
-size_t gadc_lld_samplesperconversion(uint32_t physdev);
+gMemSize gadc_lld_samplesperconversion(gU32 physdev);
 
 /**
  * @brief				Start a periodic timer for high frequency conversions.
@@ -108,7 +108,7 @@ size_t gadc_lld_samplesperconversion(uint32_t physdev);
  * @api
  * @iclass
  */
-void gadc_lld_start_timerI(uint32_t freq);
+void gadc_lld_start_timerI(gU32 freq);
 
 /**
  * @brief				Stop the periodic timer for high frequency conversions.

@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "gfx.h"
@@ -18,11 +18,11 @@
 // Hardware definitions
 #include "drivers/ginput/touch/FT5336/ft5336.h"
 
-static bool_t ft5336Init(GMouse* m, unsigned driverinstance)
+static gBool ft5336Init(GMouse* m, unsigned driverinstance)
 {
 	// Initialize the board stuff
 	if (!init_board(m, driverinstance)) {
-		return FALSE;
+		return gFalse;
 	}
 
 	// We need at least 200 ms worth of delay here...
@@ -30,7 +30,7 @@ static bool_t ft5336Init(GMouse* m, unsigned driverinstance)
 
 	// Check Chip ID
 	if (read_byte(m, FT5336_CHIP_ID_REG) != FT5336_ID_VALUE) {
-		return FALSE;
+		return gFalse;
 	}
 
 	// Disable interrupts. We use this chip in polling mode
@@ -53,10 +53,10 @@ static bool_t ft5336Init(GMouse* m, unsigned driverinstance)
 	// Timer to enter 'idle' when in 'Monitor' (ms)
 	write_reg(m, FT5336_PERIODMONITOR_REG, 0x28);
 */
-	return TRUE;
+	return gTrue;
 }
 
-static bool_t ft5336ReadXYZ(GMouse* m, GMouseReading* pdr)
+static gBool ft5336ReadXYZ(GMouse* m, GMouseReading* pdr)
 {
 	// Assume not touched.
 	pdr->buttons = 0;
@@ -65,12 +65,12 @@ static bool_t ft5336ReadXYZ(GMouse* m, GMouseReading* pdr)
 	// Only take a reading if exactly one touch contact point
 	if (read_byte(m, FT5336_TD_STAT_REG) == 1) {
 		// Get and return X, Y an Z values
-		pdr->y = (coord_t)(read_word(m, FT5336_P1_XH_REG) & 0x0FFF);
-		pdr->x = (coord_t)(read_word(m, FT5336_P1_YH_REG) & 0x0FFF);
+		pdr->y = (gCoord)(read_word(m, FT5336_P1_XH_REG) & 0x0FFF);
+		pdr->x = (gCoord)(read_word(m, FT5336_P1_YH_REG) & 0x0FFF);
 		pdr->z = 1;
 	}
 
-	return TRUE;
+	return gTrue;
 }
 
 const GMouseVMT const GMOUSE_DRIVER_VMT[1] = {{

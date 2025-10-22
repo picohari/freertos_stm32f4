@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -16,7 +16,7 @@
  * @details	A Container is a GWindow that supports child windows. It is also
  * 			a widget in its own right and therefore can accept user input directly.
  *
- * @pre		GFX_USE_GWIN and GWIN_NEED_CONTAINERS must be set to TRUE in your gfxconf.h
+ * @pre		GFX_USE_GWIN and GWIN_NEED_CONTAINERS must be set to GFXON in your gfxconf.h
  * @{
  */
 
@@ -45,10 +45,6 @@ typedef GWidgetObject GContainerObject;
  * we unfortunately won't use this useful feature in case we get a compiler that
  * won't support it even with special flags.
  */
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * @brief	Get the first child window
@@ -85,7 +81,7 @@ GHandle gwinGetSibling(GHandle gh);
  *
  * @api
  */
-coord_t gwinGetInnerWidth(GHandle gh);
+gCoord gwinGetInnerWidth(GHandle gh);
 
 /**
  * @brief	Get the inner height of a container window
@@ -96,7 +92,7 @@ coord_t gwinGetInnerWidth(GHandle gh);
  *
  * @api
  */
-coord_t gwinGetInnerHeight(GHandle gh);
+gCoord gwinGetInnerHeight(GHandle gh);
 
 
 /**
@@ -117,7 +113,7 @@ coord_t gwinGetInnerHeight(GHandle gh);
  *
  * @api
  */
-GHandle gwinGContainerCreate(GDisplay *g, GContainerObject *gw, const GWidgetInit *pInit, uint32_t flags);
+GHandle gwinGContainerCreate(GDisplay *g, GContainerObject *gw, const GWidgetInit *pInit, gU32 flags);
 #define gwinContainerCreate(gc, pInit, flags)			gwinGContainerCreate(GDISP, gc, pInit, flags)
 
 
@@ -173,7 +169,7 @@ void gwinContainerDraw_Transparent(GWidgetObject *gw, void *param);
 	 * @note				The image must be already opened before calling  @p gwinSetCustomDraw(). The handle is passed as the parameter
 	 *						to this function.
 	 *
-	 * @pre					GDISP_NEED_IMAGE must be set to TRUE
+	 * @pre					GDISP_NEED_IMAGE must be set to GFXON
 	 *
 	 * @api
 	 */
@@ -181,10 +177,6 @@ void gwinContainerDraw_Transparent(GWidgetObject *gw, void *param);
 #endif /* GDISP_NEED_IMAGE */
 
 /** @} */
-
-#ifdef __cplusplus
-}
-#endif
 
 /* Include extra container types */
 #if GWIN_NEED_FRAME || defined(__DOXYGEN__)

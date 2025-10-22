@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -18,8 +18,8 @@
  *				and check for different meta states such as: PRESSED, CLICKED,
  *				RELEASED etc.
  *
- * @pre			GFX_USE_GWIN must be set to TRUE in your gfxconf.h
- * @pre			GWIN_NEED_BUTTON must be set to TRUE in your gfxconf.h
+ * @pre			GFX_USE_GWIN must be set to GFXON in your gfxconf.h
+ * @pre			GWIN_NEED_BUTTON must be set to GFXON in your gfxconf.h
  * @{
  */
 
@@ -54,13 +54,9 @@ typedef GEventGWin		GEventGWinButton;
 typedef struct GButtonObject {
 	GWidgetObject		w;
 	#if GINPUT_NEED_TOGGLE
-		uint16_t		toggle;
+		gU16		toggle;
 	#endif
 } GButtonObject;
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * @brief   Create a button widget.
@@ -71,7 +67,7 @@ extern "C" {
  * @param[in] pInit		The initialisation parameters
  *
  * @note				The drawing color and the background color get set to the current defaults. If you haven't called
- * 						@p gwinSetDefaultColor() or @p gwinSetDefaultBgColor() then these are White and Black respectively.
+ * 						@p gwinSetDefaultColor() or @p gwinSetDefaultBgColor() then these are GFX_WHITE and GFX_BLACK respectively.
  * @note				The font gets set to the current default font. If you haven't called @p gwinSetDefaultFont() then there
  * 						is no default font and text drawing operations will no nothing.
  * @note				A button remembers its normal drawing state. If there is a window manager then it is automatically
@@ -87,13 +83,13 @@ GHandle gwinGButtonCreate(GDisplay *g, GButtonObject *gb, const GWidgetInit *pIn
 
 /**
  * @brief	Is the button current pressed
- * @return	TRUE if the button is pressed
+ * @return	gTrue if the button is pressed
  *
  * @param[in] gh	The window handle (must be a button widget)
  *
  * @api
  */
-bool_t gwinButtonIsPressed(GHandle gh);
+gBool gwinButtonIsPressed(GHandle gh);
 
 /**
  * @defgroup Renderings_Button Renderings
@@ -105,7 +101,7 @@ bool_t gwinButtonIsPressed(GHandle gh);
  * @note				In your custom button drawing function you may optionally call these
  * 						standard functions and then draw your extra details on top.
  * @note				The standard functions below ignore the param parameter except for @p gwinButtonDraw_Image().
- * @note				The image custom draw function  @p gwinButtonDraw_Image() uses param to pass in the gdispImage pointer.
+ * @note				The image custom draw function  @p gwinButtonDraw_Image() uses param to pass in the gImage pointer.
  * @note				These custom drawing routines don't have to worry about setting clipping as the framework
  * 						sets clipping to the object window prior to calling these routines.
  *
@@ -122,8 +118,6 @@ bool_t gwinButtonIsPressed(GHandle gh);
  */
 void gwinButtonDraw_Normal(GWidgetObject *gw, void *param);
 
-void gwinButtonDraw_Clear(GWidgetObject *gw, void *param);
-
 #if GDISP_NEED_ARC || defined(__DOXYGEN__)
 	/**
 	 * @brief				Renders a rectangular button with rounded corners
@@ -131,7 +125,7 @@ void gwinButtonDraw_Clear(GWidgetObject *gw, void *param);
 	 * @param[in] gw		The widget object (must be a button object)
 	 * @param[in] param		A parameter passed in from the user. Ignored by this function.
 	 *
-	 * @pre					GDISP_NEED_ARC must be set to TRUE
+	 * @pre					GDISP_NEED_ARC must be set to GFXON
 	 *
 	 * @api
 	 */
@@ -145,7 +139,7 @@ void gwinButtonDraw_Clear(GWidgetObject *gw, void *param);
 	 * @param[in] gw		The widget object (must be a button object)
 	 * @param[in] param		A parameter passed in from the user. Ignored by this function.
 	 *
-	 * @pre					GDISP_NEED_ELLIPSE must be set to TRUE
+	 * @pre					GDISP_NEED_ELLIPSE must be set to GFXON
 	 *
 	 * @api
 	 */
@@ -159,7 +153,7 @@ void gwinButtonDraw_Clear(GWidgetObject *gw, void *param);
 	 * @param[in] gw		The widget object (must be a button object)
 	 * @param[in] param		A parameter passed in from the user. Ignored by this function.
 	 *
-	 * @pre					GDISP_NEED_CONVEX_POLYGON must be set to TRUE
+	 * @pre					GDISP_NEED_CONVEX_POLYGON must be set to GFXON
 	 *
 	 * @api
 	 */
@@ -171,7 +165,7 @@ void gwinButtonDraw_Clear(GWidgetObject *gw, void *param);
 	 * @param[in] gw		The widget object (must be a button object)
 	 * @param[in] param		A parameter passed in from the user. Ignored by this function.
 	 *
-	 * @pre					GDISP_NEED_CONVEX_POLYGON must be set to TRUE
+	 * @pre					GDISP_NEED_CONVEX_POLYGON must be set to GFXON
 	 *
 	 * @api
 	 */
@@ -183,7 +177,7 @@ void gwinButtonDraw_Clear(GWidgetObject *gw, void *param);
 	 * @param[in] gw		The widget object (must be a button object)
 	 * @param[in] param		A parameter passed in from the user. Ignored by this function.
 	 *
-	 * @pre					GDISP_NEED_CONVEX_POLYGON must be set to TRUE
+	 * @pre					GDISP_NEED_CONVEX_POLYGON must be set to GFXON
 	 *
 	 * @api
 	 */
@@ -195,7 +189,7 @@ void gwinButtonDraw_Clear(GWidgetObject *gw, void *param);
 	 * @param[in] gw		The widget object (must be a button object)
 	 * @param[in] param		A parameter passed in from the user. Ignored by this function.
 	 *
-	 * @pre					GDISP_NEED_CONVEX_POLYGON must be set to TRUE
+	 * @pre					GDISP_NEED_CONVEX_POLYGON must be set to GFXON
 	 *
 	 * @api
 	 */
@@ -216,19 +210,13 @@ void gwinButtonDraw_Clear(GWidgetObject *gw, void *param);
 	 * 						No checking is done to compare the size of the button to the size of the image.
 	 * 						Note text is drawn on top of the image.
 	 *
-	 * @pre					GDISP_NEED_IMAGE must be set to TRUE
+	 * @pre					GDISP_NEED_IMAGE must be set to GFXON
 	 *
 	 * @api
 	 */
 	void gwinButtonDraw_Image(GWidgetObject *gw, void *param);
-	
-	void gwinButtonDraw_Image_Icon(GWidgetObject *gw, void *param);
 #endif
 /** @} */
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* _GWIN_BUTTON_H */
 /** @} */

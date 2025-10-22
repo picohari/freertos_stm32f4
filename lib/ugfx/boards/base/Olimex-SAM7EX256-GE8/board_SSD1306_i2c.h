@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #ifndef _GDISP_LLD_BOARD_H
@@ -81,7 +81,7 @@
 
 	#define I2C_WAITCOMPLETE()
 	#define I2C_WRITECMDBYTE(cmd)			{						\
-		uint8_t	data[2];											\
+		gU8	data[2];											\
 		data[0] = 0;												\
 		data[1] = cmd;												\
 		i2cMasterTransmitTimeout (UEXT_I2C, I2C_ADDRESS, data, 2, 0, 0, TIME_INFINITE);	\
@@ -102,12 +102,12 @@ static GFXINLINE void post_init_board(GDisplay *g) {
 	(void) g;
 }
 
-static GFXINLINE void setpin_reset(GDisplay *g, bool_t state) {
+static GFXINLINE void setpin_reset(GDisplay *g, gBool state) {
 	(void) g;
 	(void) state;
 }
 
-static GFXINLINE void set_backlight(GDisplay *g, uint8_t percent) {
+static GFXINLINE void set_backlight(GDisplay *g, gU8 percent) {
 	(void) g;
 	(void) percent;
 }
@@ -125,7 +125,7 @@ static GFXINLINE void release_bus(GDisplay *g) {
 	I2C_RELEASEBUS();
 }
 
-static GFXINLINE void write_cmd(GDisplay *g, uint8_t cmd) {
+static GFXINLINE void write_cmd(GDisplay *g, gU8 cmd) {
 	(void) g;
 
 	I2C_WAITCOMPLETE();
@@ -134,7 +134,7 @@ static GFXINLINE void write_cmd(GDisplay *g, uint8_t cmd) {
 	I2C_WRITECMDBYTE(cmd);
 }
 
-static GFXINLINE void write_data(GDisplay *g, uint8_t* data, uint16_t length) {
+static GFXINLINE void write_data(GDisplay *g, gU8* data, gU16 length) {
 	(void) g;
 
 	I2C_WAITCOMPLETE();

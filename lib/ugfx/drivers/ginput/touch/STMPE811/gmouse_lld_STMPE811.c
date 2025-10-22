@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "gfx.h"
@@ -20,13 +20,13 @@
 
 // Extra settings for the users gfxconf.h file. See readme.txt
 #ifndef GMOUSE_STMPE811_SELF_CALIBRATE
-	#define GMOUSE_STMPE811_SELF_CALIBRATE	FALSE
+	#define GMOUSE_STMPE811_SELF_CALIBRATE	GFXOFF
 #endif
 #ifndef GMOUSE_STMPE811_READ_PRESSURE
-	#define GMOUSE_STMPE811_READ_PRESSURE	FALSE
+	#define GMOUSE_STMPE811_READ_PRESSURE	GFXOFF
 #endif
 #ifndef GMOUSE_STMPE811_TEST_MODE
-	#define GMOUSE_STMPE811_TEST_MODE		FALSE
+	#define GMOUSE_STMPE811_TEST_MODE		GFXOFF
 #endif
 
 /**
@@ -57,9 +57,9 @@
  * 		The settling times. We have set these conservatively at 1ms.
  * 		The reading window. We set this to 16 just to reduce noise. High-res panels may need a lower value.
  */
-static bool_t MouseInit(GMouse* m, unsigned driverinstance) {
+static gBool MouseInit(GMouse* m, unsigned driverinstance) {
 	if (!init_board(m, driverinstance))
-		return FALSE;
+		return gFalse;
 
 	aquire_bus(m);
 
@@ -95,15 +95,15 @@ static bool_t MouseInit(GMouse* m, unsigned driverinstance) {
 	write_reg(m, STMPE811_REG_INT_CTRL, 0x01);		// Level interrupt, enable interrupts
 
 	release_bus(m);
-	return TRUE;
+	return gTrue;
 }
 
-static bool_t read_xyz(GMouse* m, GMouseReading* pdr)
+static gBool read_xyz(GMouse* m, GMouseReading* pdr)
 {
 	#if GMOUSE_STMPE811_TEST_MODE
 		static GMouseReading n;
 	#endif
-	uint8_t		status;
+	gU8		status;
 
 	// Button information will be regenerated
 	pdr->buttons = 0;
@@ -133,14 +133,14 @@ static bool_t read_xyz(GMouse* m, GMouseReading* pdr)
 				write_reg(m, STMPE811_REG_INT_STA, 0xFF);
 			#endif
 			release_bus(m);
-			return TRUE;
+			return gTrue;
 		}
 
 	#else
 		// Is there a new sample or a touch transition
 		#if GMOUSE_STMPE811_GPIO_IRQPIN
 			if(!getpin_irq(m))
-				return FALSE;
+				return gFalse;
 		#endif
 
 		// Is there something in the fifo
@@ -157,7 +157,7 @@ static bool_t read_xyz(GMouse* m, GMouseReading* pdr)
 					write_reg(m, STMPE811_REG_INT_STA, 0xFF);
 				#endif
 				release_bus(m);
-				return TRUE;
+				return gTrue;
 			}
 
 			// No new result
@@ -165,16 +165,16 @@ static bool_t read_xyz(GMouse* m, GMouseReading* pdr)
 				write_reg(m, STMPE811_REG_INT_STA, 0xFF);
 			#endif
 			release_bus(m);
-			return FALSE;
+			return gFalse;
 		}
 
 	#endif
 
 	// Time to get some readings
-	pdr->x = (coord_t)read_word(m, STMPE811_REG_TSC_DATA_X);
-	pdr->y = (coord_t)read_word(m, STMPE811_REG_TSC_DATA_Y);
+	pdr->x = (gCoord)read_word(m, STMPE811_REG_TSC_DATA_X);
+	pdr->y = (gCoord)read_word(m, STMPE811_REG_TSC_DATA_Y);
 	#if GMOUSE_STMPE811_READ_PRESSURE
-		pdr->z = (coord_t)read_byte(m, STMPE811_REG_TSC_DATA_Z);
+		pdr->z = (gCoord)read_byte(m, STMPE811_REG_TSC_DATA_Z);
 	#else
 		pdr->z = gmvmt(m)->z_max;
 	#endif
@@ -211,13 +211,13 @@ static bool_t read_xyz(GMouse* m, GMouseReading* pdr)
 		#if GDISP_NEED_CONTROL
 			switch(gdispGGetOrientation(m->display)) {
 			default:
-			case GDISP_ROTATE_0:
-			case GDISP_ROTATE_180:
+			case gOrientation0:
+			case gOrientation180:
 				pdr->x = gdispGGetWidth(m->display) - pdr->x / (4096/gdispGGetWidth(m->display));
 				pdr->y = pdr->y / (4096/gdispGGetHeight(m->display));
 				break;
-			case GDISP_ROTATE_90:
-			case GDISP_ROTATE_270:
+			case gOrientation90:
+			case gOrientation270:
 				pdr->x = gdispGGetHeight(m->display) - pdr->x / (4096/gdispGGetHeight(m->display));
 				pdr->y = pdr->y / (4096/gdispGGetWidth(m->display));
 				break;
@@ -228,7 +228,7 @@ static bool_t read_xyz(GMouse* m, GMouseReading* pdr)
 		#endif
 	#endif
 
-	return TRUE;
+	return gTrue;
 }
 
 const GMouseVMT const GMOUSE_DRIVER_VMT[1] = {{

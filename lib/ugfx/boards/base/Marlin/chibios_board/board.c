@@ -77,7 +77,7 @@ return (bool_t)!palReadPad(GPIOD, GPIOD_SDIO_CD_N);
 bool_t sdc_lld_is_write_protected(SDCDriver *sdcp) {
 
 (void)sdcp;
-return FALSE;
+return 0;
 }
 #endif /* HAL_USE_SDC */
 

@@ -10,8 +10,8 @@
 
 #include "stm32f4xx_hal.h"
 
-#define GDISP_REG              (*((volatile uint16_t *) 0x60000000)) /* RS = 0 */
-#define GDISP_RAM              (*((volatile uint16_t *) 0x60020000)) /* RS = 1 */
+#define GDISP_REG              (*((volatile gU16 *) 0x60000000)) /* RS = 0 */
+#define GDISP_RAM              (*((volatile gU16 *) 0x60020000)) /* RS = 1 */
 
 static GFXINLINE void init_board(GDisplay *g)
 {
@@ -97,7 +97,7 @@ static GFXINLINE void post_init_board(GDisplay* g)
 	(void) g;
 }
 
-static GFXINLINE void setpin_reset(GDisplay* g, bool_t state)
+static GFXINLINE void setpin_reset(GDisplay *g, gBool state)
 {
 	(void) g;
 
@@ -108,7 +108,7 @@ static GFXINLINE void setpin_reset(GDisplay* g, bool_t state)
   }
 }
 
-static GFXINLINE void set_backlight(GDisplay* g, uint8_t percent)
+static GFXINLINE void set_backlight(GDisplay* g, gU8 percent)
 {
 	(void) g;
 
@@ -129,14 +129,14 @@ static GFXINLINE void release_bus(GDisplay* g)
 	(void) g;
 }
 
-static GFXINLINE void write_index(GDisplay* g, uint16_t index)
+static GFXINLINE void write_index(GDisplay* g, gU16 index)
 {
 	(void) g;
 
   GDISP_REG = index;
 }
 
-static GFXINLINE void write_data(GDisplay* g, uint16_t data)
+static GFXINLINE void write_data(GDisplay* g, gU16 data)
 {
 	(void) g;
 
@@ -153,11 +153,11 @@ static GFXINLINE void setwritemode(GDisplay* g)
 	(void) g;
 }
 
-static GFXINLINE uint16_t read_data(GDisplay* g)
+static GFXINLINE gU16 read_data(GDisplay* g)
 {
 	(void) g;
 
-	return (uint16_t)GDISP_RAM;
+	return (gU16)GDISP_RAM;
 }
 
 #endif /* _GDISP_LLD_BOARD_H */

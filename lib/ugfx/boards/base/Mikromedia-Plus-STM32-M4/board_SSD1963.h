@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #ifndef _GDISP_LLD_BOARD_H
@@ -68,7 +68,7 @@ static GFXINLINE void post_init_board(GDisplay *g) {
 	(void) g;
 }
 
-static GFXINLINE void setpin_reset(GDisplay *g, bool_t state) {
+static GFXINLINE void setpin_reset(GDisplay *g, gBool state) {
 	(void) g;
 	if (state) {
 		CLR_RST;
@@ -87,7 +87,7 @@ static GFXINLINE void release_bus(GDisplay *g) {
 	SET_CS;
 }
 
-static GFXINLINE void write_index(GDisplay *g, uint16_t index) {
+static GFXINLINE void write_index(GDisplay *g, gU16 index) {
 	(void) g;
 
 	CLR_DC;
@@ -97,7 +97,7 @@ static GFXINLINE void write_index(GDisplay *g, uint16_t index) {
 	SET_DC;
 }
 
-static GFXINLINE void write_data(GDisplay *g, uint16_t data) {
+static GFXINLINE void write_data(GDisplay *g, gU16 data) {
 	(void) g;
 
 	palWriteBus(&busDataLo, (data & 0xFF));
@@ -117,8 +117,8 @@ static GFXINLINE void setwritemode(GDisplay *g) {
 	palSetBusMode(&busDataHi, PAL_MODE_OUTPUT_PUSHPULL);
 }
 
-static GFXINLINE uint16_t read_data(GDisplay *g) {
-	uint16_t data;
+static GFXINLINE gU16 read_data(GDisplay *g) {
+	gU16 data;
 	(void) g;
 
 	CLR_RD;

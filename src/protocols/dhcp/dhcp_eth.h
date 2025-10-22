@@ -45,8 +45,8 @@
   ******************************************************************************
   */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __APP_ETHERNET_H
-#define __APP_ETHERNET_H
+#ifndef __DHCP_ETH_H
+#define __DHCP_ETH_H
 
 #ifdef __cplusplus
  extern "C" {
@@ -66,8 +66,8 @@
 #define DHCP_LINK_DOWN             (uint8_t) 5
 
 
-#define DHCP_LOG        /* enable LCD  */  
-//#define USE_DHCP       /* enable DHCP, if disabled static address is used*/
+#define DHCP_LOG         1      /* enable DHCP logs  */  
+//#define USE_DHCP              /* enable DHCP, if disabled static address is used*/
  
 
 
@@ -84,7 +84,7 @@ void dhcp_thread(void const * argument);
 }
 #endif
 
-#endif /* __APP_ETHERNET_H */
+#endif /* __DHCP_ETH_H */
 
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

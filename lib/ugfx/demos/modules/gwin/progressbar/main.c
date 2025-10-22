@@ -6,7 +6,7 @@ static void _createWidget(void) {
 	GWidgetInit	wi;
  
 	gwinWidgetClearInit(&wi);
-	wi.g.show = TRUE;
+	wi.g.show = gTrue;
  
 	wi.g.y = 10; wi.g.x = 10; wi.g.width = 200; wi.g.height = 20; wi.text = "Progress 1";
 	ghProgressbar = gwinProgressbarCreate(0, &wi);
@@ -16,8 +16,8 @@ int main(void) {
 	gfxInit();
 
 	gwinSetDefaultFont(gdispOpenFont("UI2"));
-	gwinSetDefaultStyle(&WhiteWidgetStyle, FALSE);
-	gdispClear(White);
+	gwinSetDefaultStyle(&WhiteWidgetStyle, gFalse);
+	gdispClear(GFX_WHITE);
 
 	_createWidget();
 

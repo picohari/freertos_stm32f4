@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -28,16 +28,28 @@
 
 	/**
 	 * @name	Various integer sizes
-	 * @note	Your platform may use slightly different definitions to these
+	 * @note	Your platform may define these differently to these.
+	 * @note	These sizes are guaranteed minimum sizes for the type. It might actually be larger.
+	 *			eg gI8 may actually be 9 bits.
 	 * @{
 	 */
-	typedef unsigned char	bool_t;
-	typedef char			int8_t;
-	typedef unsigned char	uint8_t;
-	typedef short			int16_t;
-	typedef unsigned short	uint16_t;
-	typedef long			int32_t;
-	typedef unsigned long	uint32_t;
+	typedef unsigned char	gBool;
+	typedef signed char		gI8;
+	typedef unsigned char	gU8;
+	typedef short			gI16;
+	typedef unsigned short	gU16;
+	typedef long			gI32;
+	typedef unsigned long	gU32;
+	/** @} */
+	
+	/**
+	 * @name	More integer sizes
+	 * @pre		These are only available if GFX_TYPE_64 is GFXON as not all compilers support 64 bit.
+	 * @note	GFX_TYPE_64 is set to GFXON or GFXOFF by the compiler detector. It is not a user configuration macro.
+	 * @{
+	 */
+	typedef long long			gI64;
+	typedef unsigned long long	gU64;
 	/** @} */
 
 	/**
@@ -45,12 +57,11 @@
 	 * @note	Your platform may use slightly different definitions to these
 	 * @{
 	 */
-	typedef unsigned long	size_t;
-	typedef unsigned long	delaytime_t;
-	typedef unsigned long	systemticks_t;
-	typedef short			semcount_t;
-	typedef int				threadreturn_t;
-	typedef int				threadpriority_t;
+	typedef unsigned long	gDelay;
+	typedef unsigned long	gTicks;
+	typedef short			gSemcount;
+	typedef int				gThreadreturn;
+	typedef int				gThreadpriority;
 	/** @} */
 
 	/**
@@ -59,7 +70,7 @@
 	 * @param[in] fnName	The name of the function
 	 * @param[in] param 	A custom parameter that is passed to the function
 	 */
-	#define DECLARE_THREAD_FUNCTION(fnName, param)	threadreturn_t fnName(void *param)
+	#define GFX_THREAD_FUNCTION(fnName, param)	gThreadreturn fnName(void *param)
 
 	/**
 	 * @brief	Declare a thread stack
@@ -71,58 +82,42 @@
 	 * 			Many platforms will round the size to ensure correct stack alignment.
 	 *			Other platforms may entirely ignore the suggested size.
 	 */
-	#define DECLARE_THREAD_STACK(name, sz)			uint8_t name[sz];
-
-	/*
-	 * @brief	Return from a thread
-	 *
-	 * @details	Some underlying operating systems allow to return a value from a thread while others don't.
-	 *			For systems that don't allow to return a value from a thread function this call is simply ignored.
-	 *
-	 * @param[in] reval		The value which should be returned
-	 */
-	#define THREAD_RETURN(retval)					return retval
+	#define GFX_THREAD_STACK(name, sz)			gU8 name[sz];
 
 	/**
 	 * @name	Various platform (and operating system) constants
 	 * @note	Your platform may use slightly different definitions to these
 	 * @{
 	 */
-	#define FALSE						0
-	#define TRUE						1
-	#define TIME_IMMEDIATE				0
-	#define TIME_INFINITE				((delaytime_t)-1)
-	#define MAX_SEMAPHORE_COUNT			((semcount_t)(((unsigned long)((semcount_t)(-1))) >> 1))
-	#define LOW_PRIORITY				0
-	#define NORMAL_PRIORITY				1
-	#define HIGH_PRIORITY				2
+	#define gDelayNone					0
+	#define gDelayForever				((gDelay)-1)
+	#define gSemMaxCount				((gSemcount)(((unsigned long)((gSemcount)(-1))) >> 1))
+	#define gThreadpriorityLow			0
+	#define gThreadpriorityNormal		1
+	#define gThreadpriorityHigh			2
 	/** @} */
 
 	/**
 	 * @brief	A semaphore
 	 * @note	Your operating system will have a proper definition for this structure
 	 */
-	typedef struct {} gfxSem;
+	typedef struct {} gSem;
 
 	/**
 	 * @brief	A mutex
 	 * @note	Your operating system will have a proper definition for this structure
 	 */
-	typedef struct {} gfxMutex;
+	typedef struct {} gMutex;
 
 	/**
 	 * @brief	A thread handle
 	 * @note	Your operating system will have a proper definition for this.
 	 */
-	typedef void * gfxThreadHandle;
+	typedef void * gThread;
 
 	/*===========================================================================*/
 	/* Function declarations.                                                    */
 	/*===========================================================================*/
-
-	#ifdef __cplusplus
-	extern "C" {
-	#endif
 
 	/**
 	 * @brief	Halt the GFX application due to an error.
@@ -148,7 +143,7 @@
 	 *
 	 * @api
 	 */
-	void *gfxAlloc(size_t sz);
+	void *gfxAlloc(gMemSize sz);
 
 	/**
 	 * @brief	Re-allocate memory
@@ -168,7 +163,7 @@
 	 *
 	 * @api
 	 */
-	void *gfxRealloc(void *ptr, size_t oldsz, size_t newsz);
+	void *gfxRealloc(void *ptr, gMemSize oldsz, gMemSize newsz);
 
 	/**
 	 * @brief	Free memory
@@ -193,7 +188,7 @@
 	 * @api
 	 */
 	#ifndef GFX_EMULATE_MALLOC
-		#define GFX_EMULATE_MALLOC			FALSE
+		#define GFX_EMULATE_MALLOC			GFXOFF
 	#endif
 
 	/**
@@ -210,25 +205,25 @@
 	 *
 	 * @param[in] ms	The number milliseconds to sleep
 	 *
-	 * @note		Specifying TIME_IMMEDIATE will yield the current thread but return
+	 * @note		Specifying gDelayNone will yield the current thread but return
 	 * 				on the next time slice.
-	 * @note		Specifying TIME_INFINITE will sleep forever.
+	 * @note		Specifying gDelayForever will sleep forever.
 	 *
 	 * @api
 	 */
-	void gfxSleepMilliseconds(delaytime_t ms);
+	void gfxSleepMilliseconds(gDelay ms);
 
 	/**
 	 * @brief	Put the current thread to sleep for the specified period in microseconds
 	 *
 	 * @param[in] us	The number microseconds to sleep
 	 *
-	 * @note		Specifying TIME_IMMEDIATE will return immediately (no sleeping)
-	 * @note		Specifying TIME_INFINITE will sleep forever.
+	 * @note		Specifying gDelayNone will return immediately (no sleeping)
+	 * @note		Specifying gDelayForever will sleep forever.
 	 *
 	 * @api
 	 */
-	void gfxSleepMicroseconds(delaytime_t us);
+	void gfxSleepMicroseconds(gDelay us);
 
 	/**
 	 * @brief	Get the current operating system tick time
@@ -244,7 +239,7 @@
 	 *
 	 * @api
 	 */
-	systemticks_t gfxSystemTicks(void);
+	gTicks gfxSystemTicks(void);
 
 	/**
 	 * @brief	Convert a given number of millseconds to a number of operating system ticks
@@ -257,7 +252,7 @@
 	 *
 	 * @api
 	 */
-	systemticks_t gfxMillisecondsToTicks(delaytime_t ms);
+	gTicks gfxMillisecondsToTicks(gDelay ms);
 
 	/**
 	 * @brief	Lock the operating system to protect a sequence of code
@@ -292,7 +287,7 @@
 	 *
 	 * @api
 	 */
-	void gfxMutexInit(gfxMutex *pmutex);
+	void gfxMutexInit(gMutex *pmutex);
 
 	/**
 	 * @brief	Destroy a Mutex.
@@ -301,7 +296,7 @@
 	 *
 	 * @api
 	 */
-	void gfxMutexDestroy(gfxMutex *pmutex);
+	void gfxMutexDestroy(gMutex *pmutex);
 
 	/**
 	 * @brief	Enter the critical code region protected by the mutex.
@@ -311,7 +306,7 @@
 	 *
 	 * @api
 	 */
-	void gfxMutexEnter(gfxMutex *pmutex);
+	void gfxMutexEnter(gMutex *pmutex);
 
 	/**
 	 * @brief	Exit the critical code region protected by the mutex.
@@ -321,7 +316,7 @@
 	 *
 	 * @api
 	 */
-	void gfxMutexExit(gfxMutex *pmutex);
+	void gfxMutexExit(gMutex *pmutex);
 
 	/**
 	 * @brief	Initialise a Counted Semaphore
@@ -339,7 +334,7 @@
 	 *
 	 * @api
 	 */
-	void gfxSemInit(gfxSem *psem, semcount_t val, semcount_t limit);
+	void gfxSemInit(gSem *psem, gSemcount val, gSemcount limit);
 
 	/**
 	 * @brief	Destroy a Counted Semaphore
@@ -350,32 +345,32 @@
 	 *
 	 * @api
 	 */
-	void gfxSemDestroy(gfxSem *psem);
+	void gfxSemDestroy(gSem *psem);
 
 	/**
 	 * @brief	Wait on a semaphore
 	 * @details	The semaphore counter is decreased and if the result becomes negative the thread waits for it to become
 	 * 				non-negative again
-	 * @return	FALSE if the wait timeout occurred otherwise TRUE
+	 * @return	gFalse if the wait timeout occurred otherwise gTrue
 	 *
 	 * @param[in] psem		A pointer to the semaphore
 	 * @param[in] ms		The maximum time to wait for the semaphore
 	 *
 	 * @api
 	 */
-	bool_t gfxSemWait(gfxSem *psem, delaytime_t ms);
+	gBool gfxSemWait(gSem *psem, gDelay ms);
 
 	/**
 	 * @brief	Test if a wait on a semaphore can be satisfied immediately
-	 * @details	Equivalent to @p gfxSemWait(psem, TIME_IMMEDIATE) except it can be called at interrupt level
-	 * @return	FALSE if the wait would occur occurred otherwise TRUE
+	 * @details	Equivalent to @p gfxSemWait(psem, gDelayNone) except it can be called at interrupt level
+	 * @return	gFalse if the wait would occur occurred otherwise gTrue
 	 *
 	 * @param[in] psem		A pointer to the semaphore
 	 *
 	 * @iclass
 	 * @api
 	 */
-	bool_t gfxSemWaitI(gfxSem *psem);
+	gBool gfxSemWaitI(gSem *psem);
 
 	/**
 	 * @brief	Signal a semaphore
@@ -387,7 +382,7 @@
 	 *
 	 * @api
 	 */
-	void gfxSemSignal(gfxSem *psem);
+	void gfxSemSignal(gSem *psem);
 
 	/**
 	 * @brief	Signal a semaphore
@@ -400,28 +395,7 @@
 	 * @iclass
 	 * @api
 	 */
-	void gfxSemSignalI(gfxSem *psem);
-
-	/**
-	 * @brief	Get the current semaphore count
-	 * @return	The current semaphore count
-	 *
-	 * @param[in] psem		A pointer to the semaphore
-	 *
-	 * @api
-	 */
-	semcount_t gfxSemCounter(gfxSem *psem);
-
-	/**
-	 * @brief	Get the current semaphore count
-	 * @return	The current semaphore count
-	 *
-	 * @param[in] psem		A pointer to the semaphore
-	 *
-	 * @iclass
-	 * @api
-	 */
-	semcount_t gfxSemCounterI(gfxSem *psem);
+	void gfxSemSignalI(gSem *psem);
 
 	/**
 	 * @brief	Start a new thread.
@@ -436,7 +410,7 @@
 	 *
 	 * @api
 	 */
-	gfxThreadHandle gfxThreadCreate(void *stackarea, size_t stacksz, threadpriority_t prio, DECLARE_THREAD_FUNCTION((*fn),p), void *param);
+	gThread gfxThreadCreate(void *stackarea, gMemSize stacksz, gThreadpriority prio, GFX_THREAD_FUNCTION((*fn),p), void *param);
 
 	/**
 	 * @brief	Wait for a thread to finish.
@@ -448,7 +422,7 @@
 	 * 				once the thread has ended.
 	 * @api
 	 */
-	threadreturn_t gfxThreadWait(gfxThreadHandle thread);
+	gThreadreturn gfxThreadWait(gThread thread);
 
 	/**
 	 * @brief	Get the current thread handle.
@@ -456,7 +430,7 @@
 	 *
 	 * @api
 	 */
-	gfxThreadHandle gfxThreadMe(void);
+	gThread gfxThreadMe(void);
 
 	/**
 	 * @brief	Close the thread handle.
@@ -467,11 +441,18 @@
 	 *
 	 * @api
 	 */
-	void gfxThreadClose(gfxThreadHandle thread);
+	void gfxThreadClose(gThread thread);
 
-	#ifdef __cplusplus
-	}
-	#endif
+	/*
+	 * @brief	Return from a thread
+	 *
+	 * @details	Some underlying operating systems allow to return a value from a thread while others don't.
+	 *			For systems that don't allow to return a value from a thread function this call is simply ignored.
+	 * @pre		This pseudo function can only be called within the main body of the thread function (not a sub-function)
+	 *
+	 * @param[in] reval		The value which should be returned
+	 */
+	#define gfxThreadReturn(retval)				return retval
 
 /**
  * All the above was just for the doxygen documentation. All the implementation of the above
@@ -487,6 +468,8 @@
 	#include "gos_win32.h"
 #elif GFX_USE_OS_LINUX
 	#include "gos_linux.h"
+#elif GFX_USE_OS_FREEBSD
+	#include "gos_linux.h"
 #elif GFX_USE_OS_OSX
 	#include "gos_osx.h"
 #elif GFX_USE_OS_RAW32
@@ -497,14 +480,42 @@
 	#include "gos_arduino.h"
 #elif GFX_USE_OS_CMSIS
  	#include "gos_cmsis.h"
+#elif GFX_USE_OS_CMSIS2
+ 	#include "gos_cmsis2.h"
 #elif GFX_USE_OS_KEIL
     #include "gos_keil.h"
+#elif GFX_USE_OS_RTX5
+    #include "gos_rtx5.h"
 #elif GFX_USE_OS_NIOS
     #include "gos_nios.h"
+#elif GFX_USE_OS_ZEPHYR
+	#include "gos_zephyr.h"
 #elif GFX_USE_OS_QT
     #include "gos_qt.h"
 #else
 	#error "Your operating system is not supported yet"
+#endif
+
+#if GFX_COMPAT_V2
+	typedef gDelay			delaytime_t;
+		#if !GFX_USE_OS_CHIBIOS
+			// These values are defined by ChibiOS itself
+			#define TIME_IMMEDIATE	gDelayNone
+			#define TIME_INFINITE	gDelayForever
+		#endif
+	typedef gTicks			systemticks_t;
+	typedef gThread			gfxThreadHandle;
+		#define DECLARE_THREAD_FUNCTION	GFX_THREAD_FUNCTION
+		#define DECLARE_THREAD_STACK	GFX_THREAD_STACK
+	typedef gThreadreturn	threadreturn_t;
+		#define THREAD_RETURN		gfxThreadReturn
+	typedef gThreadpriority	threadpriority_t;
+		#define LOW_PRIORITY		gThreadpriorityLow
+		#define NORMAL_PRIORITY		gThreadpriorityNormal
+		#define HIGH_PRIORITY		gThreadpriorityHigh
+	typedef gSem			gfxSem;
+		#define MAX_SEMAPHORE_COUNT	gSemMaxCount
+	typedef gMutex			gfxMutex;
 #endif
 
 #endif /* _GOS_H */

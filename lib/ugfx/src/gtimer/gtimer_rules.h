@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -19,8 +19,11 @@
 #if GFX_USE_GTIMER
 	#if GFX_USE_GDISP && !GDISP_NEED_MULTITHREAD
 		#if GFX_DISPLAY_RULE_WARNINGS
-			#warning "GTIMER: GDISP_NEED_MULTITHREAD has not been specified."
-			#warning "GTIMER: Make sure you are not performing any GDISP/GWIN drawing operations in the timer callback!"
+			#if GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_DIRECT
+				#warning "GTIMER: GDISP_NEED_MULTITHREAD has not been specified. Make sure you are not performing any GDISP/GWIN drawing operations in the timer callback!"
+			#elif GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_MACRO
+				COMPILER_WARNING("GTIMER: GDISP_NEED_MULTITHREAD has not been specified. Make sure you are not performing any GDISP/GWIN drawing operations in the timer callback!")
+			#endif
 		#endif
 	#endif
 #endif

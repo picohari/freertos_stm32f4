@@ -29,7 +29,7 @@ SPI_HandleTypeDef SpiHandle;
 
 
 static bool_t init_board(GMouse* m, unsigned driverinstance) {
-	(void)		m;
+	(void) m;
 
 	if (driverinstance)
 		return FALSE;
@@ -38,19 +38,35 @@ static bool_t init_board(GMouse* m, unsigned driverinstance) {
 
 	/* Configure the CS pin */
 	__GPIOI_CLK_ENABLE();
-	GPIO_InitStruct.Pin = GPIO_PIN_0;
-	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-	GPIO_InitStruct.Pull = GPIO_PULLUP;
+	GPIO_InitStruct.Pin   = GPIO_PIN_0;
+	GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull  = GPIO_PULLUP;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
 	HAL_GPIO_Init(GPIOI, &GPIO_InitStruct);
 
 	/* Configure the IRQ input pin */
 	__GPIOC_CLK_ENABLE();
-	GPIO_InitStruct.Pin = GPIO_PIN_6;
-	GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Pin   = GPIO_PIN_6;
+	GPIO_InitStruct.Mode  = GPIO_MODE_INPUT;
+	GPIO_InitStruct.Pull  = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
 	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+	/* Configure the MOSI, MISO and SCK pins */
+	__HAL_RCC_GPIOI_CLK_ENABLE();
+	GPIO_InitStruct.Pin       = GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3;
+	GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+	GPIO_InitStruct.Pull      = GPIO_PULLUP;
+	GPIO_InitStruct.Speed     = GPIO_SPEED_FAST;
+	GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
+	HAL_GPIO_Init(GPIOI, &GPIO_InitStruct);
+
+	/* NVIC for SPI */
+	HAL_NVIC_SetPriority(SPI2_IRQn, 0, 1);
+	HAL_NVIC_EnableIRQ(SPI2_IRQn);
+
+	/* Enable SPI clock */
+	__HAL_RCC_SPI2_CLK_ENABLE();
 
 	SpiHandle.Instance               = SPI2;
 	SpiHandle.Init.Mode 			 = SPI_MODE_MASTER;
@@ -72,17 +88,17 @@ static bool_t init_board(GMouse* m, unsigned driverinstance) {
 }
 
 static GFXINLINE bool_t getpin_pressed(GMouse* m) {
-	(void)		m;
+	(void) m;
 	return !HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_6);
 }
 
 static GFXINLINE void aquire_bus(GMouse* m) {
-	(void)		m;
+	(void) m;
 	HAL_GPIO_WritePin(GPIOI, GPIO_PIN_0, GPIO_PIN_RESET);
 }
 
 static GFXINLINE void release_bus(GMouse* m) {
-	(void)		m;
+	(void) m;
 	HAL_GPIO_WritePin(GPIOI, GPIO_PIN_0, GPIO_PIN_SET);
 
 }
@@ -90,7 +106,7 @@ static GFXINLINE void release_bus(GMouse* m) {
 static GFXINLINE uint16_t read_value(GMouse* m, uint16_t port) {
 	static uint8_t txbuf[3] = {0};
 	static uint8_t rxbuf[3] = {0};
-	(void)		m;
+	(void) m;
 
 	txbuf[0] = port;
 	HAL_SPI_TransmitReceive(&SpiHandle, (uint8_t*)txbuf, (uint8_t *)rxbuf, 3, 100);

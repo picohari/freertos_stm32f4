@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /* A compressed font format based on run length encoding and dictionary
@@ -23,44 +23,44 @@
 struct mf_rlefont_char_range_s
 {
     /* The number of the first character in this range. */
-    uint16_t first_char;
+    gU16 first_char;
     
     /* The total count of characters in this range. */
-    uint16_t char_count;
+    gU16 char_count;
     
     /* Lookup table with the start indices into glyph_data. */
-    const uint16_t *glyph_offsets;
+    const gU16 *glyph_offsets;
     
     /* The encoded glyph data for glyphs in this range. */
-    const uint8_t *glyph_data;
+    const gU8 *glyph_data;
 };
 
 /* Structure for a single encoded font. */
 struct mf_rlefont_s
 {
     struct mf_font_s font;
-    
+
     /* Version of the font definition used. */
-    const uint8_t version;
+    const gU8 version;
     
     /* Big array of the data for all the dictionary entries. */
-    const uint8_t *dictionary_data;
+    const gU8 *dictionary_data;
     
     /* Lookup table with the start indices into dictionary_data.
      * Contains N+1 entries, so that the length of the entry can
      * be determined by subtracting from the next offset. */
-    const uint16_t *dictionary_offsets;
+    const gU16 *dictionary_offsets;
     
     /* Number of dictionary entries using the RLE encoding.
      * Entries starting at this index use the dictionary encoding. */
-    const uint8_t rle_entry_count;
+    const gU8 rle_entry_count;
     
     /* Total number of dictionary entries.
      * Entries after this are nonexistent. */
-    const uint8_t dict_entry_count;
+    const gU8 dict_entry_count;
     
     /* Number of discontinuous character ranges */
-    const uint8_t char_range_count;
+    const gU16 char_range_count;
     
     /* Array of the character ranges */
     const struct mf_rlefont_char_range_s *char_ranges;
@@ -68,14 +68,14 @@ struct mf_rlefont_s
 
 #ifdef MF_RLEFONT_INTERNALS
 /* Internal functions, don't use these directly. */
-MF_EXTERN uint8_t mf_rlefont_render_character(const struct mf_font_s *font,
-                                              int16_t x0, int16_t y0,
-                                              uint16_t character,
+MF_EXTERN gU8 mf_rlefont_render_character(const struct mf_font_s *font,
+                                              gI16 x0, gI16 y0,
+                                              gU16 character,
                                               mf_pixel_callback_t callback,
                                               void *state);
 
-MF_EXTERN uint8_t mf_rlefont_character_width(const struct mf_font_s *font,
-                                             uint16_t character);
+MF_EXTERN gU8 mf_rlefont_character_width(const struct mf_font_s *font,
+                                             gU16 character);
 #endif
 
 #endif

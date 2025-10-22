@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 // We need to include stdio.h below. Turn off GFILE_NEED_STDIO just for this file to prevent conflicts
@@ -15,9 +15,11 @@
 /* Include the driver defines */
 #include "../../../src/gaudio/gaudio_driver_record.h"
 
-#undef Red
-#undef Green
-#undef Blue
+#if GFX_COMPAT_V2 && GFX_COMPAT_OLDCOLORS
+	#undef Red
+	#undef Green
+	#undef Blue
+#endif
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <stdio.h>
@@ -29,7 +31,7 @@
 
 static HWAVEIN		ah = 0;
 static volatile int	nQueuedBuffers;
-static bool_t		isRunning;
+static gBool		isRunning;
 static WAVEHDR		WaveHdrs[MAX_WAVE_HEADERS];
 static HANDLE		waveThread;
 static DWORD		threadID;
@@ -44,7 +46,7 @@ static DWORD		threadID;
  * anyway, so instead just use CALLBACK_THREAD here instead.
  *************************************************************************/
 
-static bool_t getbuffer(WAVEHDR *pwh) {
+static gBool getbuffer(WAVEHDR *pwh) {
 	GDataBuffer *paud;
 
 	// Get the next data block to send
@@ -54,7 +56,7 @@ static bool_t getbuffer(WAVEHDR *pwh) {
 		gaudioRecordDoneI();
 	gfxSystemUnlock();
 	if (!paud)
-		return FALSE;
+		return gFalse;
 
 	// Prepare the wave header for Windows
 	pwh->dwUser = (DWORD_PTR)paud;
@@ -73,7 +75,7 @@ static bool_t getbuffer(WAVEHDR *pwh) {
 	}
 
 	nQueuedBuffers++;
-	return TRUE;
+	return gTrue;
 }
 
 static DWORD WINAPI waveProc(LPVOID arg) {
@@ -122,11 +124,11 @@ static DWORD WINAPI waveProc(LPVOID arg) {
 /* External declarations.                                                    */
 /*===========================================================================*/
 
-bool_t gaudio_record_lld_init(uint16_t channel, uint32_t frequency, ArrayDataFormat format) {
+gBool gaudio_record_lld_init(gU16 channel, gU32 frequency, ArrayDataFormat format) {
 	WAVEFORMATEX	wfx;
 
 	if (format != ARRAY_DATA_8BITUNSIGNED && format != ARRAY_DATA_16BITSIGNED)
-		return FALSE;
+		return gFalse;
 
 	if (!waveThread) {
 		if (!(waveThread = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)waveProc, 0, 0, &threadID))) {
@@ -153,7 +155,7 @@ bool_t gaudio_record_lld_init(uint16_t channel, uint32_t frequency, ArrayDataFor
 		exit(-1);
 	}
 
-	return TRUE;
+	return gTrue;
 }
 
 void gaudio_record_lld_start(void) {
@@ -171,13 +173,13 @@ void gaudio_record_lld_start(void) {
 			break;
 	}
 	if (!isRunning) {
-		isRunning = TRUE;
+		isRunning = gTrue;
 		waveInStart(ah);
 	}
 }
 
 void gaudio_record_lld_stop(void) {
-	isRunning = FALSE;
+	isRunning = gFalse;
 	waveInReset(ah);
 	while(nQueuedBuffers) Sleep(1);
 }

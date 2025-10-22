@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "gfx.h"
@@ -33,7 +33,7 @@
 /*===========================================================================*/
 
 // Some common routines and macros
-#define RAM(g)			((uint8_t *)g->priv)
+#define RAM(g)			((gU8 *)g->priv)
 
 #define xyaddr(x, y)	((x) + ((y) >> 3) * GDISP_TLS8204_WIDTH)
 #define xybit(y)		(1 << ((y) & 7))
@@ -53,7 +53,7 @@
 
 #define GDISP_SCREEN_BYTES ((GDISP_TLS8204_WIDTH * GDISP_TLS8204_HEIGHT) / 8)
 
-LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
+LLDSPEC gBool gdisp_lld_init(GDisplay *g) {
 	// The private area is the display surface.
 	if (!(g->priv = gfxAlloc(GDISP_SCREEN_BYTES)))
 		gfxHalt("GDISP TLS8204: Failed to allocate private memory");
@@ -62,9 +62,9 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	init_board(g);
 
 	// Hardware reset
-	setpin_reset(g, TRUE);
+	setpin_reset(g, gTrue);
 	gfxSleepMilliseconds(100);
-	setpin_reset(g, FALSE);
+	setpin_reset(g, gFalse);
 	gfxSleepMilliseconds(100);
 
 	acquire_bus(g);
@@ -100,12 +100,12 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	/* Initialise the GDISP structure */
 	g->g.Width = GDISP_TLS8204_WIDTH;
 	g->g.Height = GDISP_TLS8204_HEIGHT;
-	g->g.Orientation = GDISP_ROTATE_0;
-	g->g.Powermode = powerOn;
+	g->g.Orientation = gOrientation0;
+	g->g.Powermode = gPowerOn;
 	g->g.Backlight = GDISP_INITIAL_BACKLIGHT;
 	g->g.Contrast = GDISP_INITIAL_CONTRAST;
 
-	return TRUE;
+	return gTrue;
 }
 
 #if GDISP_HARDWARE_FLUSH
@@ -133,24 +133,24 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 
 #if GDISP_HARDWARE_DRAWPIXEL
 	LLDSPEC void gdisp_lld_draw_pixel(GDisplay *g) {
-		coord_t x, y;
+		gCoord x, y;
 
 		#if GDISP_NEED_CONTROL
 			switch(g->g.Orientation) {
 			default:
-			case GDISP_ROTATE_0:
+			case gOrientation0:
 				x = g->p.x;
 				y = g->p.y;
 				break;
-			case GDISP_ROTATE_90:
+			case gOrientation90:
 				x = g->p.y;
 				y = g->g.Width - g->p.x - 1;
 				break;
-			case GDISP_ROTATE_180:
+			case gOrientation180:
 				x = g->g.Width  - g->p.x - 1;
 				y = g->g.Height - g->p.y - 1;
 				break;
-			case GDISP_ROTATE_270:
+			case gOrientation270:
 				x = g->g.Height - g->p.y - 1;
 				y = g->p.x;
 				break;
@@ -160,7 +160,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 			y = g->p.y;
 		#endif
 
-		if (g->p.color != Black) {
+		if (g->p.color != GFX_BLACK) {
 			RAM(g)[xyaddr(x, y)] |= xybit(y);
 		} else {
 			RAM(g)[xyaddr(x, y)] &= ~xybit(y);
@@ -171,29 +171,29 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 #endif
 
 #if GDISP_HARDWARE_PIXELREAD
-	LLDSPEC color_t gdisp_lld_get_pixel_color(GDisplay *g) {
-		coord_t		x, y;
+	LLDSPEC gColor gdisp_lld_get_pixel_color(GDisplay *g) {
+		gCoord		x, y;
 
 		switch(g->g.Orientation) {
 		default:
-		case GDISP_ROTATE_0:
+		case gOrientation0:
 			x = g->p.x;
 			y = g->p.y;
 			break;
-		case GDISP_ROTATE_90:
+		case gOrientation90:
 			x = g->p.y;
 			y = GDISP_TLS8204_HEIGHT-1 - g->p.x;
 			break;
-		case GDISP_ROTATE_180:
+		case gOrientation180:
 			x = GDISP_TLS8204_WIDTH-1 - g->p.x;
 			y = GDISP_TLS8204_HEIGHT-1 - g->p.y;
 			break;
-		case GDISP_ROTATE_270:
+		case gOrientation270:
 			x = GDISP_TLS8204_WIDTH-1 - g->p.y;
 			y = g->p.x;
 			break;
 		}
-		return (RAM(g)[xyaddr(x, y)] & xybit(y)) ? White : Black;
+		return (RAM(g)[xyaddr(x, y)] & xybit(y)) ? GFX_WHITE : GFX_BLACK;
 	}
 #endif
 
@@ -201,17 +201,17 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	LLDSPEC void gdisp_lld_control(GDisplay *g) {
 		switch(g->p.x) {
 		case GDISP_CONTROL_POWER:
-			if (g->g.Powermode == (powermode_t)g->p.ptr)
+			if (g->g.Powermode == (gPowermode)g->p.ptr)
 				return;
-			switch((powermode_t)g->p.ptr) {
-			case powerOff:
-			case powerSleep:
-			case powerDeepSleep:
+			switch((gPowermode)g->p.ptr) {
+			case gPowerOff:
+			case gPowerSleep:
+			case gPowerDeepSleep:
 				acquire_bus(g);
 				write_cmd(g, TLS8204_SET_FUNC | TLS8204_PD_BIT);
 				release_bus(g);
 				break;
-			case powerOn:
+			case gPowerOn:
 				acquire_bus(g);
 				write_cmd(g, TLS8204_SET_FUNC);
 				release_bus(g);
@@ -219,27 +219,27 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 			default:
 				return;
 			}
-			g->g.Powermode = (powermode_t)g->p.ptr;
+			g->g.Powermode = (gPowermode)g->p.ptr;
 			return;
 
 		case GDISP_CONTROL_ORIENTATION:
-			if (g->g.Orientation == (orientation_t)g->p.ptr)
+			if (g->g.Orientation == (gOrientation)g->p.ptr)
 				return;
-			switch((orientation_t)g->p.ptr) {
-				case GDISP_ROTATE_0:
-				case GDISP_ROTATE_180:
-					if (g->g.Orientation == GDISP_ROTATE_90 || g->g.Orientation == GDISP_ROTATE_270) {
-						coord_t		tmp;
+			switch((gOrientation)g->p.ptr) {
+				case gOrientation0:
+				case gOrientation180:
+					if (g->g.Orientation == gOrientation90 || g->g.Orientation == gOrientation270) {
+						gCoord		tmp;
 
 						tmp = g->g.Width;
 						g->g.Width = g->g.Height;
 						g->g.Height = tmp;
 					}
 					break;
-				case GDISP_ROTATE_90:
-				case GDISP_ROTATE_270:
-					if (g->g.Orientation == GDISP_ROTATE_0 || g->g.Orientation == GDISP_ROTATE_180) {
-						coord_t		tmp;
+				case gOrientation90:
+				case gOrientation270:
+					if (g->g.Orientation == gOrientation0 || g->g.Orientation == gOrientation180) {
+						gCoord		tmp;
 
 						tmp = g->g.Width;
 						g->g.Width = g->g.Height;
@@ -249,7 +249,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 				default:
 					return;
 			}
-			g->g.Orientation = (orientation_t)g->p.ptr;
+			g->g.Orientation = (gOrientation)g->p.ptr;
 			return;
 
 		case GDISP_CONTROL_BACKLIGHT:
@@ -261,7 +261,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 		case GDISP_CONTROL_CONTRAST:
 			if ((unsigned)g->p.ptr > 100) g->p.ptr = (void *)100;
 			{
-				uint8_t		cval;
+				gU8		cval;
 
 				cval = (unsigned)g->p.ptr * 2 + 22;
 				acquire_bus(g);

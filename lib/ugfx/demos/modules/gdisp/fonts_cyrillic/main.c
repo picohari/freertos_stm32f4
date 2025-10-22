@@ -30,7 +30,7 @@
 #include "gfx.h"
 
 int main(void) {
-	font_t font1;
+	gFont font1;
 
     // Initialize uGFX and the underlying system
     gfxInit();
@@ -39,10 +39,10 @@ int main(void) {
 	font1 = gdispOpenFont("Archangelsk Regular 12");
 
 	// Demonstrate our other fonts
-	gdispDrawString(10, 10, "привет мир", font1, Yellow);
+	gdispDrawString(10, 10, "привет мир", font1, GFX_YELLOW);
 
 	// Wait forever
-    while(TRUE) {
+    while(1) {
     	gfxSleepMilliseconds(500);
     }   
 }

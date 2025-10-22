@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -17,8 +17,8 @@
  * @details		GWIN allows it to create a console/terminal like window.
  *				You can simply use chprintf() to print to the terminal.
  *
- * @pre			GFX_USE_GWIN must be set to TRUE in your gfxconf.h
- * @pre			GWIN_NEED_CONSOLE must be set to TRUE in your gfxconf.h
+ * @pre			GFX_USE_GWIN must be set to GFXON in your gfxconf.h
+ * @pre			GWIN_NEED_CONSOLE must be set to GFXON in your gfxconf.h
  *
  * @{
  */
@@ -31,18 +31,18 @@
 // A console window. Supports wrapped text writing and a cursor.
 typedef struct GConsoleObject {
 	GWindowObject	g;
-	coord_t			cx, cy;			// Cursor position
+	gCoord			cx, cy;			// Cursor position
 
 	#if GWIN_CONSOLE_ESCSEQ
-		uint8_t		startattr;		// ANSI-like escape sequences
-		uint8_t		currattr;
-		uint16_t	escstate;
+		gU8		startattr;		// ANSI-like escape sequences
+		gU8		currattr;
+		gU16	escstate;
 	#endif
 
 	#if GWIN_CONSOLE_USE_HISTORY
 		char *		buffer;			// buffer to store console content
-		size_t		bufsize;		// size of buffer
-		size_t		bufpos;			// the position of the next char
+		gMemSize	bufsize;		// size of buffer
+		gMemSize	bufpos;			// the position of the next char
 	#endif
 
 	#if GFX_USE_OS_CHIBIOS && GWIN_CONSOLE_USE_BASESTREAM
@@ -53,10 +53,6 @@ typedef struct GConsoleObject {
 	#endif
 	
 } GConsoleObject;
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * @brief   Create a console window.
@@ -69,7 +65,7 @@ extern "C" {
  * @param[in] pInit		The initialization parameters to use
  *
  * @note				The drawing color and the background color get set to the current defaults. If you haven't called
- * 						@p gwinSetDefaultColor() or @p gwinSetDefaultBgColor() then these are White and Black respectively.
+ * 						@p gwinSetDefaultColor() or @p gwinSetDefaultBgColor() then these are GFX_WHITE and GFX_BLACK respectively.
  * @note				The font gets set to the current default font. If you haven't called @p gwinSetDefaultFont() then there
  * 						is no default font and text drawing operations will no nothing.
  * @note				On creation even if the window is visible it is not automatically cleared.
@@ -99,18 +95,18 @@ GHandle gwinGConsoleCreate(GDisplay *g, GConsoleObject *gc, const GWindowInit *p
 #if GWIN_CONSOLE_USE_HISTORY
 	/**
 	 * @brief	Assign a buffer to keep track of the content while the widget is invisible.
-	 * @pre		GWIN_CONSOLE_USE_HISTORY must be set to TRUE in your gfxconf.h
+	 * @pre		GWIN_CONSOLE_USE_HISTORY must be set to GFXON in your gfxconf.h
 	 *
 	 * @param[in] gh		The window handle (must be a console window)
-	 * @param[in] onoff		If TRUE a buffer is allocated to maintain console text
-	 * 						when the console is obscured or invisible. If FALSE, then
+	 * @param[in] onoff		If gTrue a buffer is allocated to maintain console text
+	 * 						when the console is obscured or invisible. If gFalse, then
 	 * 						any existing buffer is deallocated.
 	 * @note	When the history buffer is turned on, scrolling is implemented using the
 	 * 			history buffer.
 	 *
-	 * @return	TRUE if the history buffer is now turned on.
+	 * @return	gTrue if the history buffer is now turned on.
 	 */
-	bool_t gwinConsoleSetBuffer(GHandle gh, bool_t onoff);
+	gBool gwinConsoleSetBuffer(GHandle gh, gBool onoff);
 #endif
 
 /**
@@ -145,7 +141,7 @@ void gwinPutString(GHandle gh, const char *str);
  *
  * @api
  */
-void gwinPutCharArray(GHandle gh, const char *str, size_t n);
+void gwinPutCharArray(GHandle gh, const char *str, gMemSize n);
 
 /**
  * @brief   Print a formatted string at the cursor position in the window. It will wrap lines as required.
@@ -171,10 +167,6 @@ void gwinPutCharArray(GHandle gh, const char *str, size_t n);
  * @api
  */
 void gwinPrintf(GHandle gh, const char *fmt, ...);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* _GWIN_CONSOLE_H */
 /** @} */

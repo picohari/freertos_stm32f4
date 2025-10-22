@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -21,7 +21,7 @@
 
 #include "ginput_lld_dial_config.h"
 
-typedef void (*DialCallbackFn)(uint16_t instance, uint16_t rawvalue);
+typedef void (*DialCallbackFn)(gU16 instance, gU16 rawvalue);
 
 /*===========================================================================*/
 /* External declarations.                                                    */

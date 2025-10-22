@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 // We need to include stdio.h below for Win32 emulation. Turn off GFILE_NEED_STDIO just for this file to prevent conflicts
@@ -26,7 +26,11 @@ void _gosInit(void)
 	 * getting here!
 	 */
 	#if !GFX_OS_INIT_NO_WARNING
-		#warning "GOS: Raw32 - Make sure you initialize your hardware and the C runtime before calling gfxInit() in your application!"
+		#if GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_DIRECT
+			#warning "GOS: Raw32 - Make sure you initialize your hardware and the C runtime before calling gfxInit() in your application!"
+		#elif GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_MACRO
+			COMPILER_WARNING("GOS: Raw32 - Make sure you initialize your hardware and the C runtime before calling gfxInit() in your application!")
+		#endif
 	#endif
 
 	// Set up the heap allocator
@@ -34,6 +38,10 @@ void _gosInit(void)
 
 	// Start the scheduler
 	_gosThreadsInit();
+}
+
+void _gosPostInit(void)
+{
 }
 
 void _gosDeinit(void)
@@ -51,19 +59,23 @@ void _gosDeinit(void)
 	#ifndef _WIN32_WINNT
 		#define _WIN32_WINNT 0x0501			// Windows XP and up
 	#endif
-	#undef Red
-	#undef Green
-	#undef Blue
+	#if GFX_COMPAT_V2 && GFX_COMPAT_OLDCOLORS
+		#undef Red
+		#undef Green
+		#undef Blue
+	#endif
 	#define WIN32_LEAN_AND_MEAN
 	#include <windows.h>
 	#undef WIN32_LEAN_AND_MEAN
-	#define Blue			HTML2COLOR(0x0000FF)
-	#define Red				HTML2COLOR(0xFF0000)
-	#define Green			HTML2COLOR(0x008000)
+	#if GFX_COMPAT_V2 && GFX_COMPAT_OLDCOLORS
+		#define Red			GFX_RED
+		#define Green		GFX_GREEN
+		#define Blue		GFX_BLUE
+	#endif
 
 	#include <stdio.h>
-	systemticks_t gfxSystemTicks(void)						{ return GetTickCount(); }
-	systemticks_t gfxMillisecondsToTicks(delaytime_t ms)	{ return ms; }
+	gTicks gfxSystemTicks(void)						{ return GetTickCount(); }
+	gTicks gfxMillisecondsToTicks(gDelay ms)	{ return ms; }
 #endif
 
 /*********************************************************
@@ -75,7 +87,7 @@ void gfxHalt(const char *msg) {
 		fprintf(stderr, "%s\n", msg);
 		ExitProcess(1);
 	#else
-		volatile uint32_t	dummy;
+		volatile gU32	dummy;
 		(void)				msg;
 
 		while(1)
@@ -87,7 +99,7 @@ void gfxExit(void) {
 	#if defined(WIN32)
 		ExitProcess(0);
 	#else
-		volatile uint32_t	dummy;
+		volatile gU32	dummy;
 
 		while(1)
 			dummy++;

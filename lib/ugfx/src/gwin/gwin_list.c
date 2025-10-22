@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -54,13 +54,13 @@ static void sendListEvent(GWidgetObject *gw, int item) {
 }
 
 #if GINPUT_NEED_MOUSE
-    static void ListMouseSelect(GWidgetObject* gw, coord_t x, coord_t y) {
+    static void ListMouseSelect(GWidgetObject* gw, gCoord x, gCoord y) {
         const gfxQueueASyncItem*    qi;
         int                         item, i;
-        coord_t                     iheight;
+        gCoord                     iheight;
         (void)						x;
 
-        iheight = gdispGetFontMetric(gw->g.font, fontHeight) + LST_VERT_PAD;
+        iheight = gdispGetFontMetric(gw->g.font, gFontHeight) + LST_VERT_PAD;
 
         // Handle click over the list area
         item = (gw2obj->top + y) / iheight;
@@ -88,8 +88,8 @@ static void sendListEvent(GWidgetObject *gw, int item) {
     }
 
 	// a mouse down has occurred over the list area
-	static void ListMouseDown(GWidgetObject* gw, coord_t x, coord_t y) {
-		coord_t		iheight, pgsz;
+	static void ListMouseDown(GWidgetObject* gw, gCoord x, gCoord y) {
+		gCoord		iheight, pgsz;
 
 		// Save our mouse start position
         gw2obj->start_mouse_x = x;
@@ -101,7 +101,7 @@ static void sendListEvent(GWidgetObject *gw, int item) {
 		    return;
 
 		// Some initial stuff
-		iheight = gdispGetFontMetric(gw->g.font, fontHeight) + LST_VERT_PAD;
+		iheight = gdispGetFontMetric(gw->g.font, gFontHeight) + LST_VERT_PAD;
 		pgsz = gw->g.height-2;
 
 		// Handle click over the scroll bar
@@ -143,7 +143,7 @@ static void sendListEvent(GWidgetObject *gw, int item) {
         ListMouseSelect(gw, x, y);
 	}
 
-    static void ListMouseUp(GWidgetObject* gw, coord_t x, coord_t y) {
+    static void ListMouseUp(GWidgetObject* gw, gCoord x, gCoord y) {
         // Only act when we are a smooth scrolling list
         if (!(gw->g.flags & GLIST_FLG_SCROLLSMOOTH))
             return;
@@ -155,7 +155,7 @@ static void sendListEvent(GWidgetObject *gw, int item) {
         ListMouseSelect(gw, x, y);
     }
 
-	static void ListMouseMove(GWidgetObject* gw, coord_t x, coord_t y) {
+	static void ListMouseMove(GWidgetObject* gw, gCoord x, gCoord y) {
         int iheight, oldtop;
         (void) x;
 
@@ -163,7 +163,7 @@ static void sendListEvent(GWidgetObject *gw, int item) {
 
         if (gw2obj->last_mouse_y != y) {
             oldtop = gw2obj->top;
-            iheight = gdispGetFontMetric(gw->g.font, fontHeight) + LST_VERT_PAD;
+            iheight = gdispGetFontMetric(gw->g.font, gFontHeight) + LST_VERT_PAD;
 
             gw2obj->top -= y - gw2obj->last_mouse_y;
             if (gw2obj->top >= gw2obj->cnt * iheight - (gw->g.height-2))
@@ -179,13 +179,13 @@ static void sendListEvent(GWidgetObject *gw, int item) {
 
 #if GINPUT_NEED_TOGGLE
 	// a toggle-on has occurred
-	static void ListToggleOn(GWidgetObject *gw, uint16_t role) {
+	static void ListToggleOn(GWidgetObject *gw, gU16 role) {
 		const gfxQueueASyncItem	*	qi;
 		const gfxQueueASyncItem	*	qix;
 		int							i;
 		
-		coord_t		iheight;
-		iheight = gdispGetFontMetric(gw->g.font, fontHeight) + LST_VERT_PAD;
+		gCoord		iheight;
+		iheight = gdispGetFontMetric(gw->g.font, gFontHeight) + LST_VERT_PAD;
 
 		switch (role) {
 			// select down
@@ -236,14 +236,14 @@ static void sendListEvent(GWidgetObject *gw, int item) {
 		}
 	}
 
-	static void ListToggleAssign(GWidgetObject *gw, uint16_t role, uint16_t instance) {
+	static void ListToggleAssign(GWidgetObject *gw, gU16 role, gU16 instance) {
 		if (role)
 			gw2obj->t_up = instance;
 		else
 			gw2obj->t_dn = instance;
 	}
 
-	static uint16_t ListToggleGet(GWidgetObject *gw, uint16_t role) {
+	static gU16 ListToggleGet(GWidgetObject *gw, gU16 role) {
 		return role ? gw2obj->t_up : gw2obj->t_dn;
 	}
 #endif
@@ -297,7 +297,7 @@ static const gwidgetVMT listVMT = {
 	#endif
 };
 
-GHandle gwinGListCreate(GDisplay *g, GListObject* gobj, GWidgetInit* pInit, bool_t multiselect) {
+GHandle gwinGListCreate(GDisplay *g, GListObject* gobj, GWidgetInit* pInit, gBool multiselect) {
 	if (!(gobj = (GListObject *)_gwidgetCreate(g, &gobj->w, pInit, &listVMT)))
 		return 0;
 
@@ -315,7 +315,7 @@ GHandle gwinGListCreate(GDisplay *g, GListObject* gobj, GWidgetInit* pInit, bool
 	return (GHandle)gobj;
 }
 
-void gwinListEnableRender(GHandle gh, bool_t ena) {
+void gwinListEnableRender(GHandle gh, gBool ena) {
 	// is it a valid handle?
 	if (gh->vmt != (gwinVMT *)&listVMT)
 		return;
@@ -348,7 +348,7 @@ void gwinListSetScroll(GHandle gh, scroll_t flag) {
 	}
 }
 
-int gwinListAddItem(GHandle gh, const char* text, bool_t useAlloc) {
+int gwinListAddItem(GHandle gh, const char* text, gBool useAlloc) {
 	ListItem	*newItem;
 
 	// is it a valid handle?
@@ -356,7 +356,7 @@ int gwinListAddItem(GHandle gh, const char* text, bool_t useAlloc) {
 		return -1;
 
 	if (useAlloc) {
-		size_t len = strlen(text)+1;
+		gMemSize len = strlen(text)+1;
 		if (!(newItem = gfxAlloc(sizeof(ListItem) + len)))
 			return -1;
 
@@ -391,7 +391,7 @@ int gwinListAddItem(GHandle gh, const char* text, bool_t useAlloc) {
 	return gh2obj->cnt-1;
 }
 
-void gwinListItemSetText(GHandle gh, int item, const char* text, bool_t useAlloc) {
+void gwinListItemSetText(GHandle gh, int item, const char* text, gBool useAlloc) {
 	const gfxQueueASyncItem		*qi;
 	int							i;
 	ListItem					*newItem;
@@ -409,7 +409,7 @@ void gwinListItemSetText(GHandle gh, int item, const char* text, bool_t useAlloc
 		
 			// create the new object
 			if (useAlloc) {
-				size_t len = strlen(text)+1;
+				gMemSize len = strlen(text)+1;
 				if (!(newItem = gfxAlloc(sizeof(ListItem) + len)))
 					return;
 		
@@ -498,7 +498,7 @@ int gwinListGetSelected(GHandle gh) {
 	return -1;
 }
 
-void gwinListItemSetParam(GHandle gh, int item, uint16_t param) {
+void gwinListItemSetParam(GHandle gh, int item, gU16 param) {
 	const gfxQueueASyncItem	*	qi;
 	int							i;
 
@@ -559,7 +559,7 @@ void gwinListItemDelete(GHandle gh, int item) {
 	}
 }
 
-uint16_t gwinListItemGetParam(GHandle gh, int item) {
+gU16 gwinListItemGetParam(GHandle gh, int item) {
 	const gfxQueueASyncItem	*	qi;
 	int							i;
 
@@ -578,23 +578,23 @@ uint16_t gwinListItemGetParam(GHandle gh, int item) {
 	return 0;
 }
 
-bool_t gwinListItemIsSelected(GHandle gh, int item) {
+gBool gwinListItemIsSelected(GHandle gh, int item) {
 	const gfxQueueASyncItem	*	qi;
 	int							i;
 
 	// is it a valid handle?
 	if (gh->vmt != (gwinVMT *)&listVMT)
-		return FALSE;
+		return gFalse;
 
 	// watch out for an invalid item
 	if (item < 0 || item > (gh2obj->cnt) - 1)
-		return FALSE;
+		return gFalse;
 
 	for(qi = gfxQueueASyncPeek(&gh2obj->list_head), i = 0; qi; qi = gfxQueueASyncNext(qi), i++) {
 		if (i == item)
-			return (qi2li->flags &  GLIST_FLG_SELECTED) ? TRUE : FALSE;
+			return (qi2li->flags &  GLIST_FLG_SELECTED) ? gTrue : gFalse;
 	}
-	return FALSE;
+	return gFalse;
 }
 
 int gwinListItemCount(GHandle gh) {
@@ -617,7 +617,7 @@ const char* gwinListGetSelectedText(GHandle gh) {
 	return gwinListItemGetText(gh, gwinListGetSelected(gh));
 }
 
-void gwinListSetSelected(GHandle gh, int item, bool_t doSelect) {
+void gwinListSetSelected(GHandle gh, int item, gBool doSelect) {
 	const gfxQueueASyncItem   *   qi;
 	int                     i;
 
@@ -653,7 +653,7 @@ void gwinListSetSelected(GHandle gh, int item, bool_t doSelect) {
 }
 
 void gwinListViewItem(GHandle gh, int item) {
-	coord_t iheight;
+	gCoord iheight;
 
 	// is it a valid handle?
 	if (gh->vmt != (gwinVMT *)&listVMT)
@@ -664,7 +664,7 @@ void gwinListViewItem(GHandle gh, int item) {
 		return;
 
 	// Work out a possible new top for the list
-	iheight = gdispGetFontMetric(gh->font, fontHeight) + LST_VERT_PAD;
+	iheight = gdispGetFontMetric(gh->font, gFontHeight) + LST_VERT_PAD;
 	gh2obj->top = iheight * item;
 
 	// Adjust the list
@@ -677,7 +677,7 @@ void gwinListViewItem(GHandle gh, int item) {
 }
 
 #if GWIN_NEED_LIST_IMAGES
-	void gwinListItemSetImage(GHandle gh, int item, gdispImage *pimg) {
+	void gwinListItemSetImage(GHandle gh, int item, gImage *pimg) {
 		const gfxQueueASyncItem	*	qi;
 		int							i;
 
@@ -703,15 +703,15 @@ void gwinListViewItem(GHandle gh, int item) {
 void gwinListDefaultDraw(GWidgetObject* gw, void* param) {
 	const gfxQueueASyncItem*	qi;
 	int							i;
-	coord_t						x, y, iheight, iwidth;
-	color_t						fill;
+	gCoord						x, y, iheight, iwidth;
+	gColor						fill;
 	const GColorSet *			ps;
 	#if GWIN_NEED_LIST_IMAGES
-		coord_t					sy;
+		gCoord					sy;
 	#endif
 	#if GDISP_NEED_CONVEX_POLYGON
-		static const point upArrow[] = { {0, LST_ARROW_SZ}, {LST_ARROW_SZ, LST_ARROW_SZ}, {LST_ARROW_SZ/2, 0} };
-		static const point downArrow[] = { {0, 0}, {LST_ARROW_SZ, 0}, {LST_ARROW_SZ/2, LST_ARROW_SZ} };
+		static const gPoint upArrow[] = { {0, LST_ARROW_SZ}, {LST_ARROW_SZ, LST_ARROW_SZ}, {LST_ARROW_SZ/2, 0} };
+		static const gPoint downArrow[] = { {0, 0}, {LST_ARROW_SZ, 0}, {LST_ARROW_SZ/2, LST_ARROW_SZ} };
 	#endif
 
 	(void)param;
@@ -725,7 +725,7 @@ void gwinListDefaultDraw(GWidgetObject* gw, void* param) {
 		return;
 
 	ps = (gw->g.flags & GWIN_FLG_SYSENABLED) ? &gw->pstyle->enabled : &gw->pstyle->disabled;
-	iheight = gdispGetFontMetric(gw->g.font, fontHeight) + LST_VERT_PAD;
+	iheight = gdispGetFontMetric(gw->g.font, gFontHeight) + LST_VERT_PAD;
 	x = 1;
 
 	// the scroll area
@@ -747,7 +747,11 @@ void gwinListDefaultDraw(GWidgetObject* gw, void* param) {
 			gdispGFillConvexPoly(gw->g.display, gw->g.x+iwidth+((LST_SCROLLWIDTH-LST_ARROW_SZ)/2+2), gw->g.y+(LST_ARROW_SZ/2+1), upArrow, 3, ps->fill);
 			gdispGFillConvexPoly(gw->g.display, gw->g.x+iwidth+((LST_SCROLLWIDTH-LST_ARROW_SZ)/2+2), gw->g.y+gw->g.height-(LST_ARROW_SZ+LST_ARROW_SZ/2+1), downArrow, 3, ps->fill);
 		#else
-			#warning "GWIN: Lists display better when GDISP_NEED_CONVEX_POLYGON is turned on"
+			#if GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_DIRECT
+				#warning "GWIN: Lists display better when GDISP_NEED_CONVEX_POLYGON is turned on"
+			#elif GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_MACRO
+				COMPILER_WARNING("GWIN: Lists display better when GDISP_NEED_CONVEX_POLYGON is turned on")
+			#endif
 			gdispGFillArea(gw->g.display, gw->g.x+iwidth+((LST_SCROLLWIDTH-LST_ARROW_SZ)/2+2), gw->g.y+(LST_ARROW_SZ/2+1), LST_ARROW_SZ, LST_ARROW_SZ, ps->fill);
 			gdispGFillArea(gw->g.display, gw->g.x+iwidth+((LST_SCROLLWIDTH-LST_ARROW_SZ)/2+2), gw->g.y+gw->g.height-(LST_ARROW_SZ+LST_ARROW_SZ/2+1), LST_ARROW_SZ, LST_ARROW_SZ, ps->fill);
 		#endif
@@ -793,7 +797,7 @@ void gwinListDefaultDraw(GWidgetObject* gw, void* param) {
 				}
 			}
 		#endif
-		gdispGFillStringBox(gw->g.display, gw->g.x+x+LST_HORIZ_PAD, gw->g.y+y, iwidth-LST_HORIZ_PAD, iheight, qi2li->text, gw->g.font, ps->text, fill, justifyLeft);
+		gdispGFillStringBox(gw->g.display, gw->g.x+x+LST_HORIZ_PAD, gw->g.y+y, iwidth-LST_HORIZ_PAD, iheight, qi2li->text, gw->g.font, ps->text, fill, gJustifyLeft);
 	}
 
 	// Fill any remaining item space

@@ -37,7 +37,7 @@ static void createWidgets(void) {
 
 	// Apply some default values for GWIN
 	gwinWidgetClearInit(&wi);
-	wi.g.show = TRUE;
+	wi.g.show = gTrue;
 
 	// Apply the button parameters
 	wi.g.width = 100;
@@ -52,20 +52,20 @@ static void createWidgets(void) {
 
 int main(void) {
 	GEvent* pe;
-	static const orientation_t	orients[] = { GDISP_ROTATE_0, GDISP_ROTATE_90, GDISP_ROTATE_180, GDISP_ROTATE_270 };
+	static const gOrientation	orients[] = { gOrientation0, gOrientation90, gOrientation180, gOrientation270 };
 	unsigned which;
 
 	// Initialize the display
 	gfxInit();
 
-	// We are currently at GDISP_ROTATE_0
+	// We are currently at gOrientation0
 	which = 0;
 	gdispSetOrientation(orients[which]);
 
 	// Set the widget defaults
 	gwinSetDefaultFont(gdispOpenFont("UI2"));
-	gwinSetDefaultStyle(&WhiteWidgetStyle, FALSE);
-	gdispClear(White);
+	gwinSetDefaultStyle(&WhiteWidgetStyle, gFalse);
+	gdispClear(GFX_WHITE);
 
 	// create the widget
 	createWidgets();
@@ -76,7 +76,7 @@ int main(void) {
 
 	while(1) {
 		// Get an Event
-		pe = geventEventWait(&gl, TIME_INFINITE);
+		pe = geventEventWait(&gl, gDelayForever);
 
 		switch(pe->type) {
 			case GEVENT_GWIN_BUTTON:
@@ -89,8 +89,8 @@ int main(void) {
 					// GWIN windows. In this case however we know that the button is in the top-left
 					// corner which should translate safely into any orientation.
 					gdispSetOrientation(orients[which]);
-					gdispClear(White);
-					gwinRedrawDisplay(GDISP, FALSE);
+					gdispClear(GFX_WHITE);
+					gwinRedrawDisplay(GDISP, gFalse);
 				}
 				break;
 

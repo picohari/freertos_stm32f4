@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "../../gfx.h"
@@ -20,7 +20,7 @@
 #define GLISTENER_WITHSOURCE		0x0002			// The source is currently using the buffer
 
 /* This mutex protects access to our tables */
-static gfxMutex	geventMutex;
+static gMutex	geventMutex;
 
 /* Our table of listener/source pairs */
 static GSourceListener		Assignments[GEVENT_MAX_SOURCE_LISTENERS];
@@ -62,19 +62,19 @@ void _geventDeinit(void)
 }
 
 void geventListenerInit(GListener *pl) {
-	gfxSemInit(&pl->waitqueue, 0, MAX_SEMAPHORE_COUNT);		// Next wait'er will block
-	pl->callback = 0;										// No callback active
-	pl->event.type = GEVENT_NULL;							// Always safety
+	gfxSemInit(&pl->waitqueue, 0, gSemMaxCount);		// Next wait'er will block
+	pl->callback = 0;									// No callback active
+	pl->event.type = GEVENT_NULL;						// Always safety
 	pl->flags = 0;
 }
 
-bool_t geventAttachSource(GListener *pl, GSourceHandle gsh, uint32_t flags) {
+gBool geventAttachSource(GListener *pl, GSourceHandle gsh, gU32 flags) {
 	GSourceListener *psl, *pslfree;
 
 	// Safety first
 	if (!pl || !gsh) {
-		GEVENT_ASSERT(FALSE);
-		return FALSE;
+		GEVENT_ASSERT(gFalse);
+		return gFalse;
 	}
 
 	gfxMutexEnter(&geventMutex);
@@ -87,7 +87,7 @@ bool_t geventAttachSource(GListener *pl, GSourceHandle gsh, uint32_t flags) {
 			// Just update the flags
 			psl->listenflags = flags;
 			gfxMutexExit(&geventMutex);
-			return TRUE;
+			return gTrue;
 		}
 		if (!pslfree && !psl->pListener)
 			pslfree = psl;
@@ -115,7 +115,7 @@ void geventDetachSource(GListener *pl, GSourceHandle gsh) {
 	}
 }
 
-GEvent *geventEventWait(GListener *pl, delaytime_t timeout) {
+GEvent *geventEventWait(GListener *pl, gDelay timeout) {
 	/* NOTE:
 		We no longer try to protect against two threads trying to listen on the
 		one listener. This was never allowed, it makes little sense to try to do so,

@@ -2,7 +2,7 @@
  * File: notepadCore.c
  *
  * This file is a part of the Notepad demo application for ChibiOS/GFX
- * Copyright © 2013, Kumar Abhishek [abhishek.kakkar@edaboard.com].
+ * Copyright 2013, Kumar Abhishek [abhishek.kakkar@edaboard.com].
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,20 +43,20 @@
 									 (ev.y >= ncoreDrawingArea->y) && (ev.y <= (ncoreDrawingArea->y + ncoreDrawingArea->height)))
 
 /* This is the drawing core */
-static DECLARE_THREAD_STACK(waDrawThread, NCORE_THD_STACK_SIZE);
+static GFX_THREAD_STACK(waDrawThread, NCORE_THD_STACK_SIZE);
 
-static uint8_t 					nPenWidth = 1;
-static uint8_t 					nMode = NCORE_MODE_DRAW;
+static gU8 					nPenWidth = 1;
+static gU8 					nMode = NCORE_MODE_DRAW;
 
-static gfxThreadHandle			nThd;
+static gThread			nThd;
 
 static GHandle					ncoreDrawingArea = NULL;
 static GHandle					nStatusConsole = NULL;
 
-static volatile bool_t			doExit;
+static volatile gBool			doExit;
 
-static void draw_point(coord_t x, coord_t y) {
-  color_t c = ncoreDrawingArea->color;
+static void draw_point(gCoord x, gCoord y) {
+  gColor c = ncoreDrawingArea->color;
 
   if (nMode == NCORE_MODE_DRAW)
 	c = ncoreDrawingArea->color;
@@ -71,10 +71,10 @@ static void draw_point(coord_t x, coord_t y) {
 
 /* Bresenham's Line Drawing Algorithm
    Modified version to draw line of variable thickness */
-static void draw_line(coord_t x0, coord_t y0, coord_t x1, coord_t y1) {
-  int16_t dy, dx;
-  int16_t addx, addy;
-  int16_t P, diff, i;
+static void draw_line(gCoord x0, gCoord y0, gCoord x1, gCoord y1) {
+  gI16 dy, dx;
+  gI16 addx, addy;
+  gI16 P, diff, i;
   
   if (x1 >= x0) {
 	  dx = x1 - x0;
@@ -127,10 +127,10 @@ static void draw_line(coord_t x0, coord_t y0, coord_t x1, coord_t y1) {
 }
 
 /* Core thread */
-static DECLARE_THREAD_FUNCTION(ncoreDrawThread, msg) {
+static GFX_THREAD_FUNCTION(ncoreDrawThread, msg) {
 
   GEventMouse ev, evPrev;
-  coord_t dx, dy;
+  gCoord dx, dy;
 
   int state = 0, dist;
 
@@ -204,7 +204,7 @@ void ncoreSpawnDrawThread(GHandle drawingArea, GHandle statusConsole) {
 
   ncoreDrawingArea = drawingArea;
   nStatusConsole = statusConsole;
-  doExit = FALSE;
+  doExit = gFalse;
 
   nThd = gfxThreadCreate(waDrawThread,
                            sizeof(waDrawThread),
@@ -216,20 +216,20 @@ void ncoreSpawnDrawThread(GHandle drawingArea, GHandle statusConsole) {
 
 /* Terminate the core thread, wait for control release */
 void ncoreTerminateDrawThread(void) {
-  doExit = TRUE;
+  doExit = gTrue;
   gfxThreadWait(nThd);
   nThd = 0;
 }
 
 /* Get and set the pen width
  * Brush is cicular, width is pixel radius */
-void ncoreSetPenWidth(uint8_t penWidth) { nPenWidth = penWidth; }
-uint8_t ncoreGetPenWidth(void) 			{ return nPenWidth; }
+void ncoreSetPenWidth(gU8 penWidth) { nPenWidth = penWidth; }
+gU8 ncoreGetPenWidth(void) 			{ return nPenWidth; }
 
 /* Get and set the drawing color */
-void ncoreSetPenColor(color_t penColor) { gwinSetColor(ncoreDrawingArea, penColor); }
-color_t ncoreGetPenColor(void) 			{ return ncoreDrawingArea->color; }
+void ncoreSetPenColor(gColor penColor) { gwinSetColor(ncoreDrawingArea, penColor); }
+gColor ncoreGetPenColor(void) 			{ return ncoreDrawingArea->color; }
 
 /* Set mode */
-void ncoreSetMode(uint8_t mode)			{ nMode = mode; }
-uint8_t ncoreGetMode(void)				{ return nMode; }
+void ncoreSetMode(gU8 mode)			{ nMode = mode; }
+gU8 ncoreGetMode(void)				{ return nMode; }

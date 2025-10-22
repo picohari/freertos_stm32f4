@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "ugfx/gfx.h"
@@ -14,21 +14,21 @@
 #include "../../../../src/ginput/ginput_driver_mouse.h"
 
 GMouse* qwidgetMouse;
-coord_t qwidgetMouseX;
-coord_t qwidgetMouseY;
-coord_t qwidgetMouseZ;
-uint16_t qwidgetMouseButtons;
+gCoord qwidgetMouseX;
+gCoord qwidgetMouseY;
+gCoord qwidgetMouseZ;
+gU16 qwidgetMouseButtons;
 
-static bool_t _init(GMouse* m, unsigned driverinstance)
+static gBool _init(GMouse* m, unsigned driverinstance)
 {
     (void)driverinstance;
 
     qwidgetMouse = m;
 
-	return TRUE;
+	return gTrue;
 }
 
-static bool_t _read(GMouse* m, GMouseReading* pdr)
+static gBool _read(GMouse* m, GMouseReading* pdr)
 {
     (void)m;
 
@@ -37,7 +37,7 @@ static bool_t _read(GMouse* m, GMouseReading* pdr)
     pdr->z = qwidgetMouseZ;
     pdr->buttons = qwidgetMouseButtons;
 
-	return TRUE;
+	return gTrue;
 }
 
 const GMouseVMT GMOUSE_DRIVER_VMT[1] = {{

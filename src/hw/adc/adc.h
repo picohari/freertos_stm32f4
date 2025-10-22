@@ -37,12 +37,8 @@ extern __IO uint16_t uhADCxConvertedValue;
 /* Definition for ADCx's Channel */
 #define ADCx_CHANNEL                    ADC_CHANNEL_7
 
-
-
 /* Definition for ADCx's NVIC */
 #define ADCx_IRQn                      ADC_IRQn
-
-
 
 /* Definition for ADCx's DMA */
 #define ADCx_DMA_CHANNEL                DMA_CHANNEL_2

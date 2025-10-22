@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include <string.h>
@@ -26,7 +26,7 @@ void _gtransDeinit(void)
 const char* gtransString(const char* string)
 {
 	// Find the index of the specified string in the base language table
-	size_t i = 0;
+	unsigned i = 0;
 	while (1) {
 		// Prevent overflow
 		if (i >= _languageBase->numEntries) {
@@ -51,7 +51,7 @@ const char* gtransString(const char* string)
 	return _languageCurrent->strings[i];
 }
 
-const char* gtransIndex(unsigned index)
+const char* gtransIndex(gU32 index)
 {
 	if (!_languageCurrent) {
 		return 0;

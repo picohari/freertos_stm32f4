@@ -43,7 +43,7 @@ int main(void)
 
 	tetrisInit();
 
-	while (TRUE) {
+	while (1) {
 		// Start a new game
 		// Will return when game is over
 		tetrisStart();

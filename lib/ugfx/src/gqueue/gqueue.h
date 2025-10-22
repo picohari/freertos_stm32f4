@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -43,7 +43,7 @@ typedef struct gfxQueueASyncItem {
 
 typedef struct gfxQueueFSyncItem {
 	struct gfxQueueFSyncItem	*next;
-	gfxSem						sem;
+	gSem						sem;
 } gfxQueueFSyncItem;
 /** @} */
 
@@ -59,13 +59,13 @@ typedef struct gfxQueueASync {
 typedef struct gfxQueueGSync {
 	gfxQueueGSyncItem	*head;
 	gfxQueueGSyncItem	*tail;
-	gfxSem				sem;
+	gSem				sem;
 } gfxQueueGSync;
 
 typedef struct gfxQueueFSync {
 	gfxQueueFSyncItem	*head;
 	gfxQueueFSyncItem	*tail;
-	gfxSem				sem;
+	gSem				sem;
 } gfxQueueFSync;
 /** @} */
 
@@ -77,17 +77,13 @@ typedef struct gfxQueueFSync {
  */
 typedef struct GDataBuffer {
 	gfxQueueGSyncItem	next;		// @< Used for queueing the buffers
-	size_t				size;		// @< The size of the buffer area following this structure (in bytes)
-	size_t				len;		// @< The length of the data in the buffer area (in bytes)
+	gMemSize			size;		// @< The size of the buffer area following this structure (in bytes)
+	gMemSize			len;		// @< The length of the data in the buffer area (in bytes)
 } GDataBuffer;
 
 /*===========================================================================*/
 /* Function declarations.                                                    */
 /*===========================================================================*/
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * @name	Initialisation functions
@@ -128,7 +124,7 @@ void gfxQueueFSyncDeinit(gfxQueueFSync *pqueue);
  *
  * @param[in]	pqueue	A pointer to the queue
  * @param[in]	ms		The maxmimum time to wait for an item. For ASync queues this parameter is
- * 						not specified as TIME_IMMEDIATE is assumed.
+ * 						not specified as gDelayNone is assumed.
  *
  * @note		The routines ending in "I" are interrupt/system/iclass level routines.
  *
@@ -137,21 +133,21 @@ void gfxQueueFSyncDeinit(gfxQueueFSync *pqueue);
  */
 gfxQueueASyncItem *gfxQueueASyncGet(gfxQueueASync *pqueue);
 gfxQueueASyncItem *gfxQueueASyncGetI(gfxQueueASync *pqueue);
-gfxQueueGSyncItem *gfxQueueGSyncGet(gfxQueueGSync *pqueue, delaytime_t ms);
+gfxQueueGSyncItem *gfxQueueGSyncGet(gfxQueueGSync *pqueue, gDelay ms);
 gfxQueueGSyncItem *gfxQueueGSyncGetI(gfxQueueGSync *pqueue);
-gfxQueueFSyncItem *gfxQueueFSyncGet(gfxQueueFSync *pqueue, delaytime_t ms);
+gfxQueueFSyncItem *gfxQueueFSyncGet(gfxQueueFSync *pqueue, gDelay ms);
 /** @} */
 
 /**
  * @name	Put() Functions
  * @brief	Put an item on the end of the queue.
- * @return	none for ASync and GSync queues; For FSync queues - FALSE on timeout, otherwise TRUE
+ * @return	none for ASync and GSync queues; For FSync queues - gFalse on timeout, otherwise gTrue
  *
  * @param[in]	pqueue	A pointer to the queue
  * @param[in]	pitem	A pointer to the queue item
  * @param[in]	ms		The maxmimum time to wait for an item to be removed from the queue (only for FSync queues)
  *
- * @note		FSync: Use a delay time of TIME_IMMEDIATE if you don't want to wait until the
+ * @note		FSync: Use a delay time of gDelayNone if you don't want to wait until the
  * 				item is removed from the queue. Note that even if the timeout occurs - the item
  * 				remains in the queue.
  * @note		The routines ending in "I" are interrupt/system/iclass level routines.
@@ -163,7 +159,7 @@ void gfxQueueASyncPut(gfxQueueASync *pqueue, gfxQueueASyncItem *pitem);
 void gfxQueueASyncPutI(gfxQueueASync *pqueue, gfxQueueASyncItem *pitem);
 void gfxQueueGSyncPut(gfxQueueGSync *pqueue, gfxQueueGSyncItem *pitem);
 void gfxQueueGSyncPutI(gfxQueueGSync *pqueue, gfxQueueGSyncItem *pitem);
-bool_t gfxQueueFSyncPut(gfxQueueFSync *pqueue, gfxQueueFSyncItem *pitem, delaytime_t ms);
+gBool gfxQueueFSyncPut(gfxQueueFSync *pqueue, gfxQueueFSyncItem *pitem, gDelay ms);
 /** @} */
 
 /**
@@ -183,13 +179,13 @@ bool_t gfxQueueFSyncPut(gfxQueueFSync *pqueue, gfxQueueFSyncItem *pitem, delayti
 /**
  * @name	Push() Functions
  * @brief	Push an item into the start of the queue.
- * @return	none for ASync and GSync queues; For FSync queues - FALSE on timeout, otherwise TRUE
+ * @return	none for ASync and GSync queues; For FSync queues - gFalse on timeout, otherwise gTrue
  *
  * @param[in]	pqueue	A pointer to the queue
  * @param[in]	pitem	A pointer to the queue item
  * @param[in]	ms		The maxmimum time to wait for an item to be popped (only for FSync queues)
  *
- * @note		FSync: Use a delay time of TIME_IMMEDIATE if you don't want to wait until the
+ * @note		FSync: Use a delay time of gDelayNone if you don't want to wait until the
  * 				item is removed from the queue. Note that even if the timeout occurs - the item
  * 				remains in the queue.
  * @note		The routines ending in "I" are interrupt/system/iclass level routines.
@@ -201,13 +197,13 @@ void gfxQueueASyncPush(gfxQueueASync *pqueue, gfxQueueASyncItem *pitem);
 void gfxQueueASyncPushI(gfxQueueASync *pqueue, gfxQueueASyncItem *pitem);
 void gfxQueueGSyncPush(gfxQueueGSync *pqueue, gfxQueueGSyncItem *pitem);
 void gfxQueueGSyncPushI(gfxQueueGSync *pqueue, gfxQueueGSyncItem *pitem);
-bool_t gfxQueueFSyncPush(gfxQueueFSync *pqueue, gfxQueueFSyncItem *pitem, delaytime_t ms);
+gBool gfxQueueFSyncPush(gfxQueueFSync *pqueue, gfxQueueFSyncItem *pitem, gDelay ms);
 /** @} */
 
 /**
  * @name	Insert() Functions
  * @brief	Insert an item on the queue after the specified item.
- * @return	none for ASync and GSync queues; For FSync queues - FALSE on timeout, otherwise TRUE
+ * @return	none for ASync and GSync queues; For FSync queues - gFalse on timeout, otherwise gTrue
  *
  * @param[in]	pqueue	A pointer to the queue
  * @param[in]	pitem	A pointer to the queue item
@@ -215,7 +211,7 @@ bool_t gfxQueueFSyncPush(gfxQueueFSync *pqueue, gfxQueueFSyncItem *pitem, delayt
  * 							pafter can't be found in the queue, it puts the new item at the end of the queue.
  * @param[in]	ms		The maxmimum time to wait for an item to be removed from the queue (only for FSync queues)
  *
- * @note		FSync: Use a delay time of TIME_IMMEDIATE if you don't want to wait until the
+ * @note		FSync: Use a delay time of gDelayNone if you don't want to wait until the
  * 				item is removed from the queue. Note that even if the timeout occurs - the item
  * 				remains in the queue.
  * @note		The routines ending in "I" are interrupt/system/iclass level routines.
@@ -227,7 +223,7 @@ void gfxQueueASyncInsert(gfxQueueASync *pqueue, gfxQueueASyncItem *pitem, gfxQue
 void gfxQueueASyncInsertI(gfxQueueASync *pqueue, gfxQueueASyncItem *pitem, gfxQueueASyncItem *pafter);
 void gfxQueueGSyncInsert(gfxQueueGSync *pqueue, gfxQueueGSyncItem *pitem, gfxQueueASyncItem *pafter);
 void gfxQueueGSyncInsertI(gfxQueueGSync *pqueue, gfxQueueGSyncItem *pitem, gfxQueueASyncItem *pafter);
-bool_t gfxQueueFSyncInsert(gfxQueueFSync *pqueue, gfxQueueFSyncItem *pitem, gfxQueueASyncItem *pafter, delaytime_t ms);
+gBool gfxQueueFSyncInsert(gfxQueueFSync *pqueue, gfxQueueFSyncItem *pitem, gfxQueueFSyncItem *pafter, gDelay ms);
 /** @} */
 
 /**
@@ -256,7 +252,7 @@ void gfxQueueFSyncRemove(gfxQueueFSync *pqueue, gfxQueueFSyncItem *pitem);
 /**
  * @name	isEmpty() Functions
  * @brief	Is the queue empty?
- * @return	TRUE if the queue is empty
+ * @return	gTrue if the queue is empty
  *
  * @param[in]	pqueue	A pointer to the queue
  *
@@ -276,7 +272,7 @@ void gfxQueueFSyncRemove(gfxQueueFSync *pqueue, gfxQueueFSyncItem *pitem);
 /**
  * @name	IsInQueue() Functions
  * @brief	Is an item in the queue?
- * @return	TRUE if the item is in the queue?
+ * @return	gTrue if the item is in the queue?
  *
  * @param[in]	pqueue	A pointer to the queue
  * @param[in]	pitem	A pointer to the queue item
@@ -287,12 +283,12 @@ void gfxQueueFSyncRemove(gfxQueueFSync *pqueue, gfxQueueFSyncItem *pitem);
  * @api
  * @{
  */
-bool_t gfxQueueASyncIsIn(gfxQueueASync *pqueue, const gfxQueueASyncItem *pitem);
-bool_t gfxQueueASyncIsInI(gfxQueueASync *pqueue, const gfxQueueASyncItem *pitem);
-bool_t gfxQueueGSyncIsIn(gfxQueueGSync *pqueue, const gfxQueueGSyncItem *pitem);
-bool_t gfxQueueGSyncIsInI(gfxQueueGSync *pqueue, const gfxQueueGSyncItem *pitem);
-bool_t gfxQueueFSyncIsIn(gfxQueueFSync *pqueue, const gfxQueueFSyncItem *pitem);
-bool_t gfxQueueFSyncIsInI(gfxQueueFSync *pqueue, const gfxQueueFSyncItem *pitem);
+gBool gfxQueueASyncIsIn(gfxQueueASync *pqueue, const gfxQueueASyncItem *pitem);
+gBool gfxQueueASyncIsInI(gfxQueueASync *pqueue, const gfxQueueASyncItem *pitem);
+gBool gfxQueueGSyncIsIn(gfxQueueGSync *pqueue, const gfxQueueGSyncItem *pitem);
+gBool gfxQueueGSyncIsInI(gfxQueueGSync *pqueue, const gfxQueueGSyncItem *pitem);
+gBool gfxQueueFSyncIsIn(gfxQueueFSync *pqueue, const gfxQueueFSyncItem *pitem);
+gBool gfxQueueFSyncIsInI(gfxQueueFSync *pqueue, const gfxQueueFSyncItem *pitem);
 /** @} */
 
 /**
@@ -348,7 +344,7 @@ bool_t gfxQueueFSyncIsInI(gfxQueueFSync *pqueue, const gfxQueueFSyncItem *pitem)
 /**
  * @name		BufferAlloc() Functions
  * @brief		Allocate some buffers and put them on the free list
- * @return		TRUE is it succeeded. FALSE on allocation failure.
+ * @return		gTrue is it succeeded. gFalse on allocation failure.
  *
  * @param[in] num	The number of buffers to allocate
  * @param[in] size	The size (in bytes) of each buffer
@@ -356,18 +352,18 @@ bool_t gfxQueueFSyncIsInI(gfxQueueFSync *pqueue, const gfxQueueFSyncItem *pitem)
  * @api
  * @{
  */
-bool_t gfxBufferAlloc(unsigned num, size_t size);
+gBool gfxBufferAlloc(unsigned num, gMemSize size);
 /** @} */
 
 /**
  * @name		BufferIsAvailable() Functions
  * @brief		Is there one or more buffers currently available on the free list
- * @return		TRUE if there are buffers in the free list
+ * @return		gTrue if there are buffers in the free list
  *
  * @api
  * @{
  */
-bool_t gfxBufferIsAvailable(void);
+gBool gfxBufferIsAvailable(void);
 /** @} */
 
 /**
@@ -380,7 +376,7 @@ bool_t gfxBufferIsAvailable(void);
  * @api
  * @{
  */
-GDataBuffer *gfxBufferGet(delaytime_t ms);
+GDataBuffer *gfxBufferGet(gDelay ms);
 GDataBuffer *gfxBufferGetI(void);
 /** @} */
 
@@ -401,11 +397,6 @@ GDataBuffer *gfxBufferGetI(void);
 void gfxBufferRelease(GDataBuffer *pd);
 void gfxBufferReleaseI(GDataBuffer *pd);
 /** @} */
-
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* GFX_USE_GQUEUE */
 #endif /* _GQUEUE_H */

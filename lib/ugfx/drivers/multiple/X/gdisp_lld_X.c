@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 // We need to include stdio.h below. Turn off GFILE_NEED_STDIO just for this file to prevent conflicts
@@ -24,7 +24,7 @@
 
 // Configuration parameters for this driver
 #ifndef GDISP_FORCE_24BIT
-	#define GDISP_FORCE_24BIT			FALSE
+	#define GDISP_FORCE_24BIT			GFXOFF
 #endif
 #ifndef GDISP_SCREEN_WIDTH
 	#define GDISP_SCREEN_WIDTH			640
@@ -34,17 +34,17 @@
 #endif
 #ifndef GKEYBOARD_X_NO_LAYOUT
 	/**
-	 * Setting this to TRUE turns off the layout engine.
+	 * Setting this to GFXON turns off the layout engine.
 	 * In this situation "cooked" characters are returned but
 	 * shift states etc are lost.
 	 * As only a limited number of keyboard layouts are currently
 	 * defined for X in uGFX (currently none), setting this
-	 * to TRUE enables the X keyboard mapping to be pass non-English
+	 * to GFXON enables the X keyboard mapping to be pass non-English
 	 * characters to uGFX or to handle non-standard keyboard layouts at
 	 * the expense of losing special function keys etc.
 	 */
-	// We set this to TRUE by default as currently the X layout code is not complete!
-	#define GKEYBOARD_X_NO_LAYOUT		TRUE
+	// We set this to GFXON by default as currently the X layout code is not complete!
+	#define GKEYBOARD_X_NO_LAYOUT		GFXON
 #endif
 #ifndef GKEYBOARD_X_DEFAULT_LAYOUT
 	#define GKEYBOARD_X_DEFAULT_LAYOUT	KeyboardLayout_X_US
@@ -59,8 +59,8 @@
 	#include "../../../src/ginput/ginput_driver_mouse.h"
 
 	// Forward definitions
-	static bool_t XMouseInit(GMouse *m, unsigned driverinstance);
-	static bool_t XMouseRead(GMouse *m, GMouseReading *prd);
+	static gBool XMouseInit(GMouse *m, unsigned driverinstance);
+	static gBool XMouseRead(GMouse *m, GMouseReading *prd);
 
 	const GMouseVMT const GMOUSE_DRIVER_VMT[1] = {{
 		{
@@ -102,18 +102,18 @@
 
 	#if !GKEYBOARD_X_NO_LAYOUT
 		#if GKEYBOARD_LAYOUT_OFF
-			#error "The X keyboard driver is using the layout engine. Please set GKEYBOARD_LAYOUT_OFF=FALSE or GKEYBOARD_X_NO_LAYOUT=TRUE."
+			#error "The X keyboard driver is using the layout engine. Please set GKEYBOARD_LAYOUT_OFF=GFXOFF or GKEYBOARD_X_NO_LAYOUT=GFXON."
 		#endif
 
 		// Forward definitions
-		extern uint8_t	GKEYBOARD_X_DEFAULT_LAYOUT[];
+		extern gU8	GKEYBOARD_X_DEFAULT_LAYOUT[];
 
 		#include "../../../src/ginput/ginput_keyboard_microcode.h"
 		#include <X11/keysym.h>
 
 		// This is the layout code for the English US keyboard.
 		//	We make it public so that a user can switch to a different layout if required.
-		uint8_t	KeyboardLayout_X_US[] = {
+		gU8	KeyboardLayout_X_US[] = {
 			KMC_HEADERSTART, KMC_HEADER_ID1, KMC_HEADER_ID2, KMC_HEADER_VER_1,
 
 			// TODO
@@ -132,12 +132,16 @@
 			KMC_RECORDSTART, 0
 		};
 	#elif !GKEYBOARD_LAYOUT_OFF
-		#warning "The X keyboard driver is not using the layout engine. If no other keyboard is using it consider defining GKEYBOARD_LAYOUT_OFF=TRUE to save code size."
+		#if GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_DIRECT
+			#warning "The X keyboard driver is not using the layout engine. If no other keyboard is using it consider defining GKEYBOARD_LAYOUT_OFF=GFXON to save code size."
+		#elif GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_MACRO
+			COMPILER_WARNING("The X keyboard driver is not using the layout engine. If no other keyboard is using it consider defining GKEYBOARD_LAYOUT_OFF=GFXON to save code size.")
+		#endif
 	#endif
 
 	// Forward definitions
-	static bool_t XKeyboardInit(GKeyboard *k, unsigned driverinstance);
-	static int XKeyboardGetData(GKeyboard *k, uint8_t *pch, int sz);
+	static gBool XKeyboardInit(GKeyboard *k, unsigned driverinstance);
+	static int XKeyboardGetData(GKeyboard *k, gU8 *pch, int sz);
 
 	const GKeyboardVMT const GKEYBOARD_DRIVER_VMT[1] = {{
 		{
@@ -159,11 +163,11 @@
 	}};
 
 	static int			keypos;
-	static uint8_t		keybuffer[8];
+	static gU8		keybuffer[8];
 	static GKeyboard	*keyboard;
 #endif
 
-static bool_t			initdone;
+static gBool			initdone;
 static Display			*dis;
 static int				scr;
 static XEvent			evt;
@@ -177,8 +181,8 @@ typedef struct xPriv {
 	GC 				gc;
 	Window			win;
 	#if GINPUT_NEED_MOUSE
-		coord_t		mousex, mousey;
-		uint16_t	buttons;
+		gCoord		mousex, mousey;
+		gU16	buttons;
 		GMouse *	mouse;
 	#endif
 } xPriv;
@@ -266,8 +270,8 @@ static void ProcessEvent(GDisplay *g, xPriv *priv) {
 }
 
 /* this is the X11 thread which keeps track of all events */
-static DECLARE_THREAD_STACK(waXThread, 1024);
-static DECLARE_THREAD_FUNCTION(ThreadX, arg) {
+static GFX_THREAD_STACK(waXThread, 1024);
+static GFX_THREAD_FUNCTION(ThreadX, arg) {
 	GDisplay	*g;
 	(void)arg;
 
@@ -290,7 +294,7 @@ static int FatalXIOError(Display *d) {
 	exit(0);
 }
 
-LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
+LLDSPEC gBool gdisp_lld_init(GDisplay *g) {
 	XSizeHints				*pSH;
 	XSetWindowAttributes	xa;
 	XTextProperty			WindowTitle;
@@ -298,9 +302,9 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	xPriv					*priv;
 
 	if (!initdone) {
-		gfxThreadHandle			hth;
+		gThread			hth;
 
-		initdone = TRUE;
+		initdone = gTrue;
 		#if GFX_USE_OS_LINUX || GFX_USE_OS_OSX
 			XInitThreads();
 		#endif
@@ -315,7 +319,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 			if (!XMatchVisualInfo(dis, scr, 24, TrueColor, &vis)) {
 				fprintf(stderr, "Your display has no TrueColor mode\n");
 				XCloseDisplay(dis);
-				return FALSE;
+				return gFalse;
 			}
 			cmap = XCreateColormap(dis, RootWindow(dis, scr),
 					vis.visual, AllocNone);
@@ -326,7 +330,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 		#endif
 		fprintf(stderr, "Running GFX Window in %d bit color\n", vis.depth);
 
-		if (!(hth = gfxThreadCreate(waXThread, sizeof(waXThread), HIGH_PRIORITY, ThreadX, 0))) {
+		if (!(hth = gfxThreadCreate(waXThread, sizeof(waXThread), gThreadpriorityHigh, ThreadX, 0))) {
 			fprintf(stderr, "Cannot start X Thread\n");
 			XCloseDisplay(dis);
 			exit(0);
@@ -393,14 +397,14 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 		gfxSleepMilliseconds(100);
 
 	/* Initialise the GDISP structure to match */
-    g->g.Orientation = GDISP_ROTATE_0;
-    g->g.Powermode = powerOn;
+    g->g.Orientation = gOrientation0;
+    g->g.Powermode = gPowerOn;
     g->g.Backlight = 100;
     g->g.Contrast = 50;
     g->g.Width = GDISP_SCREEN_WIDTH;
     g->g.Height = GDISP_SCREEN_HEIGHT;
 
-    return TRUE;
+    return gTrue;
 }
 
 LLDSPEC void gdisp_lld_draw_pixel(GDisplay *g)
@@ -439,7 +443,7 @@ LLDSPEC void gdisp_lld_draw_pixel(GDisplay *g)
 		// Start of Bitblit code
 
 		//XImage			bitmap;
-		//pixel_t			*bits;
+		//gPixel			*bits;
 		//	bits = malloc(vis.depth * GDISP_SCREEN_WIDTH * GDISP_SCREEN_HEIGHT);
 		//	bitmap = XCreateImage(dis, vis, vis.depth, ZPixmap,
 		//				0, bits, GDISP_SCREEN_WIDTH, GDISP_SCREEN_HEIGHT,
@@ -448,7 +452,7 @@ LLDSPEC void gdisp_lld_draw_pixel(GDisplay *g)
 #endif
 
 #if GDISP_HARDWARE_PIXELREAD
-	LLDSPEC	color_t gdisp_lld_get_pixel_color(GDisplay *g) {
+	LLDSPEC	gColor gdisp_lld_get_pixel_color(GDisplay *g) {
 		xPriv *	priv = (xPriv *)g->priv;
 		XColor	color;
 		XImage *img;
@@ -476,12 +480,12 @@ LLDSPEC void gdisp_lld_draw_pixel(GDisplay *g)
 #endif
 
 #if GINPUT_NEED_MOUSE
-	static bool_t XMouseInit(GMouse *m, unsigned driverinstance) {
+	static gBool XMouseInit(GMouse *m, unsigned driverinstance) {
 		(void)	m;
 		(void)	driverinstance;
-		return TRUE;
+		return gTrue;
 	}
-	static bool_t XMouseRead(GMouse *m, GMouseReading *pt) {
+	static gBool XMouseRead(GMouse *m, GMouseReading *pt) {
 		xPriv	*	priv;
 
 		priv = m->display->priv;
@@ -489,23 +493,23 @@ LLDSPEC void gdisp_lld_draw_pixel(GDisplay *g)
 		pt->y = priv->mousey;
 		pt->z = (priv->buttons & GINPUT_MOUSE_BTN_LEFT) ? 1 : 0;
 		pt->buttons = priv->buttons;
-		return TRUE;
+		return gTrue;
 	}
 #endif /* GINPUT_NEED_MOUSE */
 
 #if GINPUT_NEED_KEYBOARD
-	static bool_t XKeyboardInit(GKeyboard *k, unsigned driverinstance) {
+	static gBool XKeyboardInit(GKeyboard *k, unsigned driverinstance) {
 		(void)	driverinstance;
 
 		// Only one please
 		if (keyboard)
-			return FALSE;
+			return gFalse;
 
 		keyboard = k;
-		return TRUE;
+		return gTrue;
 	}
 
-	static int XKeyboardGetData(GKeyboard *k, uint8_t *pch, int sz) {
+	static int XKeyboardGetData(GKeyboard *k, gU8 *pch, int sz) {
 		int		i, j;
 		(void)	k;
 

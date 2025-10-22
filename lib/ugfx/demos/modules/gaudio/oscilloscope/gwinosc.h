@@ -63,14 +63,14 @@
 typedef struct GScopeObject_t {
 	GWindowObject		g;						// Base Class
 
-	coord_t				*lastscopetrace;		// To store last scope trace
+	gCoord				*lastscopetrace;		// To store last scope trace
 	ArrayDataFormat		format;					// The sample format
-	coord_t				nextx;					// Where we are up to
+	gCoord				nextx;					// Where we are up to
 #if TRIGGER_METHOD == TRIGGER_POSITIVERAMP
-	coord_t				lasty;					// The last y value - used for trigger slope detection
+	gCoord				lasty;					// The last y value - used for trigger slope detection
 #elif TRIGGER_METHOD == TRIGGER_MINVALUE
-	coord_t				lasty;					// The last y value - used for trigger slope detection
-	coord_t				scopemin;				// The last scopes minimum value
+	gCoord				lasty;					// The last y value - used for trigger slope detection
+	gCoord				scopemin;				// The last scopes minimum value
 #endif
 	} GScopeObject;
 
@@ -81,7 +81,7 @@ extern "C" {
 	/**
 	 * Create a scope window.
 	 */
-	GHandle gwinGScopeCreate(GDisplay *g, GScopeObject *gs, GWindowInit *pInit, uint16_t channel, uint32_t frequency, ArrayDataFormat format);
+	GHandle gwinGScopeCreate(GDisplay *g, GScopeObject *gs, GWindowInit *pInit, gU16 channel, gU32 frequency, ArrayDataFormat format);
 	#define gwinScopeCreate(gs,pI,ch,f,fmt)		gwinGScopeCreate(GDISP,gs,pI,ch,f,fmt)
 
 	/**

@@ -42,25 +42,25 @@
  * your processor.
  *
  * You can modify the implementation of invsqrt() by firstly defining
- * 		#define GMISC_INVSQRT_MIXED_ENDIAN	TRUE
+ * 		#define GMISC_INVSQRT_MIXED_ENDIAN	GFXON
  * in your gfxconf.h file.
  *
  * If it still doesn't work then instead define
- * 		#define GMISC_INVSQRT_REAL_SLOW		TRUE
+ * 		#define GMISC_INVSQRT_REAL_SLOW		GFXON
  * in your gfxconf.h file. This should always work although it will probably be slow.
  */
-#define BALLCOLOR1		Red
-#define BALLCOLOR2		Yellow
+#define BALLCOLOR1		GFX_RED
+#define BALLCOLOR2		GFX_YELLOW
 #define WALLCOLOR		HTML2COLOR(0x303030)
 #define BACKCOLOR		HTML2COLOR(0xC0C0C0)
 #define FLOORCOLOR		HTML2COLOR(0x606060)
 #define SHADOWALPHA		(255-255*0.2)
 
 int main(void) {
-	coord_t		width, height, x, y, radius, ballx, bally, dx, floor;
-	coord_t		minx, miny, maxx, maxy;
-	coord_t		ballcx, ballcy;
-	color_t		colour;
+	gCoord		width, height, x, y, radius, ballx, bally, dx, floor;
+	gCoord		minx, miny, maxx, maxy;
+	gCoord		ballcx, ballcy;
+	gColor		colour;
 	float		ii, spin, dy, spinspeed, h, f, g;
 
 	gfxInit();
@@ -110,7 +110,7 @@ int main(void) {
 
 					// The ball shadow is darker
 					if (g*(g+.4)+h*(h+.1) < 1)
-						colour = gdispBlendColor(colour, Black, SHADOWALPHA);
+						colour = gdispBlendColor(colour, GFX_BLACK, SHADOWALPHA);
 				}
 				gdispStreamColor(colour);	/* pixel to the LCD */
 			}

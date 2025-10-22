@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "../../gfx.h"
@@ -25,11 +25,19 @@
 void _gosInit(void)
 {
 	#if !GFX_OS_NO_INIT
-		#error "GOS: Operating System initialization for RawRTOS is not yet implemented in uGFX. Please set GFX_OS_NO_INIT to TRUE in your gfxconf.h"
+		#error "GOS: Operating System initialization for RawRTOS is not yet implemented in uGFX. Please set GFX_OS_NO_INIT to GFXON in your gfxconf.h"
 	#endif
 	#if !GFX_OS_INIT_NO_WARNING
-		#warning "GOS: Operating System initialization has been turned off. Make sure you call raw_os_start() before gfxInit() in your application!"
+		#if GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_DIRECT
+			#warning "GOS: Operating System initialization has been turned off. Make sure you call raw_os_start() before gfxInit() in your application!"
+		#elif GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_MACRO
+			COMPILER_WARNING("GOS: Operating System initialization has been turned off. Make sure you call raw_os_start() before gfxInit() in your application!")
+		#endif
 	#endif
+}
+
+void _gosPostInit(void)
+{
 }
 
 void _gosDeinit(void)
@@ -37,40 +45,40 @@ void _gosDeinit(void)
 }
 
 
-void gfxSleepMilliseconds(delaytime_t ms)
+void gfxSleepMilliseconds(gDelay ms)
 {
-	systemticks_t ticks = ms*RAW_TICKS_PER_SECOND/1000;
+	gTicks ticks = ms*RAW_TICKS_PER_SECOND/1000;
 	if(!ticks)ticks = 1;
 	raw_sleep(ticks);
 }
 
-void gfxSleepMicroseconds(delaytime_t us)
+void gfxSleepMicroseconds(gDelay us)
 {
-	systemticks_t ticks = (us/1000)*RAW_TICKS_PER_SECOND/1000;
+	gTicks ticks = (us/1000)*RAW_TICKS_PER_SECOND/1000;
 	if(!ticks)ticks = 1;
 	raw_sleep(ticks);
 }
 
-bool_t gfxSemWait(gfxSem* psem, delaytime_t ms)
+gBool gfxSemWait(gSem* psem, gDelay ms)
 {
-	systemticks_t ticks = ms*RAW_TICKS_PER_SECOND/1000;
+	gTicks ticks = ms*RAW_TICKS_PER_SECOND/1000;
 	if(!ticks)ticks=1;
 	if(raw_semaphore_get((psem), ticks)==RAW_SUCCESS)
-		return TRUE;
-	return FALSE;
+		return gTrue;
+	return gFalse;
 }
 
-bool_t gfxSemWaitI(gfxSem* psem)
+gBool gfxSemWaitI(gSem* psem)
 {
-	if(raw_semaphore_get((psem), TIME_IMMEDIATE)==RAW_SUCCESS)
-		return TRUE;
-	return FALSE;
+	if(raw_semaphore_get((psem), RAW_NO_WAIT)==RAW_SUCCESS)
+		return gTrue;
+	return gFalse;
 }
 
-gfxThreadHandle gfxThreadCreate(void *stackarea, size_t stacksz, threadpriority_t prio, DECLARE_THREAD_FUNCTION((*fn),p), void *param)
+gThread gfxThreadCreate(void *stackarea, gMemSize stacksz, gThreadpriority prio, GFX_THREAD_FUNCTION((*fn),p), void *param)
 {
 	RAW_U16 ret;
-	gfxThreadHandle taskobj;
+	gThread taskobj;
 
 	taskobj = gfxAlloc(sizeof(RAW_TASK_OBJ));
 	ret = raw_task_create(taskobj, (RAW_U8  *)"uGFX_TASK", param,

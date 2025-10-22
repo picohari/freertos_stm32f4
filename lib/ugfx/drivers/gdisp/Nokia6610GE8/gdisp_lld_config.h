@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #ifndef _GDISP_LLD_CONFIG_H
@@ -20,17 +20,17 @@
  * define GDISP_NOKIA_ORIENTATION as false in your gfxconf.h.
  */
 #ifndef GDISP_NOKIA_ORIENTATION
-	#define GDISP_NOKIA_ORIENTATION			TRUE
+	#define GDISP_NOKIA_ORIENTATION			GFXON
 #endif
 
 #if GDISP_NOKIA_ORIENTATION && GDISP_NEED_CONTROL
-	#define GDISP_HARDWARE_CONTROL			TRUE
-	#define GDISP_HARDWARE_DRAWPIXEL		TRUE
-	#define GDISP_HARDWARE_FILLS			TRUE
-	#define GDISP_HARDWARE_BITFILLS			TRUE
+	#define GDISP_HARDWARE_CONTROL			GFXON
+	#define GDISP_HARDWARE_DRAWPIXEL		GFXON
+	#define GDISP_HARDWARE_FILLS			GFXON
+	#define GDISP_HARDWARE_BITFILLS			GFXON
 #else
-	#define GDISP_HARDWARE_CONTROL			TRUE
-	#define GDISP_HARDWARE_STREAM_WRITE		TRUE
+	#define GDISP_HARDWARE_CONTROL			GFXON
+	#define GDISP_HARDWARE_STREAM_WRITE		GFXON
 #endif
 
 #define GDISP_LLD_PIXELFORMAT				GDISP_PIXELFORMAT_RGB444

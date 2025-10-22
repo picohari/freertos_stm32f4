@@ -25,7 +25,7 @@
 #include "../../../src/gdisp/gdisp_driver.h"
 
 #ifndef GDISP_FORCE_24BIT
-	#define GDISP_FORCE_24BIT			FALSE
+	#define GDISP_FORCE_24BIT			GFXOFF
 #endif
 #ifndef GDISP_SCREEN_WIDTH
 	#define GDISP_SCREEN_WIDTH			640
@@ -40,8 +40,8 @@
 	#include "../../../src/ginput/ginput_driver_mouse.h"
 
 	// Forward definitions
-	static bool_t SDL_MouseInit(GMouse *m, unsigned driverinstance);
-	static bool_t SDL_MouseRead(GMouse *m, GMouseReading *prd);
+	static gBool SDL_MouseInit(GMouse *m, unsigned driverinstance);
+	static gBool SDL_MouseRead(GMouse *m, GMouseReading *prd);
 	const GMouseVMT GMOUSE_DRIVER_VMT[1] = {{
 		{
 			GDRIVER_TYPE_MOUSE,
@@ -78,8 +78,8 @@
 	#include "../../../src/ginput/ginput_driver_keyboard.h"
 
 	// Forward definitions
-	static bool_t SDL_KeyboardInit(GKeyboard *k, unsigned driverinstance);
-	static int SDL_KeyboardGetData(GKeyboard *k, uint8_t *pch, int sz);
+	static gBool SDL_KeyboardInit(GKeyboard *k, unsigned driverinstance);
+	static int SDL_KeyboardGetData(GKeyboard *k, gU8 *pch, int sz);
 
 	const GKeyboardVMT GKEYBOARD_DRIVER_VMT[1] = {{
 		{
@@ -97,7 +97,7 @@
 
 	static struct KeyMap {
 		SDL_Keycode k_sdl;
-		uint16_t k_ugfx;
+		gU16 k_ugfx;
 	} SDL_keymap[] =
 	{
 		{SDLK_UP,				GKEY_UP},
@@ -136,7 +136,7 @@
 	};
 	static struct ModMap {
 		SDL_Keycode s_sdl;
-		uint32_t s_ugfx;
+		gU32 s_ugfx;
 	} SDL_modmap[] = {
 		{KMOD_LSHIFT,	GKEYSTATE_SHIFT_L},
 		{KMOD_RSHIFT,	GKEYSTATE_SHIFT_R},
@@ -149,23 +149,23 @@
 		{0,0}
 	};
 	struct SDL_keymsg {
-		uint32_t key;
-		uint32_t keystate;
+		gU32 key;
+		gU32 keystate;
 	};
 	static GKeyboard *keyboard = 0;
 #endif
 
 // shared IPC context
 struct SDL_UGFXContext {
-	uint32_t 	framebuf[GDISP_SCREEN_WIDTH*GDISP_SCREEN_HEIGHT];
-	int16_t		need_redraw;
+	gU32 	framebuf[GDISP_SCREEN_WIDTH*GDISP_SCREEN_HEIGHT];
+	gI16		need_redraw;
 	int		minx,miny,maxx,maxy;
 #if GINPUT_NEED_MOUSE
-	coord_t 	mousex, mousey;
-	uint16_t 	buttons;
+	gCoord 	mousex, mousey;
+	gU16 	buttons;
 #endif
 #if GINPUT_NEED_KEYBOARD
-	uint16_t 	keypos;
+	gU16 	keypos;
 	struct 		SDL_keymsg keybuffer[8];
 #endif
 };
@@ -174,8 +174,8 @@ static struct SDL_UGFXContext *context;
 static sem_t *ctx_mutex;
 static sem_t *input_event;
 
-#define CTX_MUTEX_NAME 		"ugfx_ctx_mutex"
-#define INPUT_EVENT_NAME 	"ugfx_input_event"
+#define CTX_MUTEX_NAME 		"/ugfx_ctx_mutex"
+#define INPUT_EVENT_NAME 	"/ugfx_input_event"
 
 
 static int SDL_loop (void) {
@@ -198,7 +198,7 @@ static int SDL_loop (void) {
 			context->maxx = 0;
 			context->maxy = 0;
 			
-			SDL_UpdateTexture(texture, &r, context->framebuf+r.y*GDISP_SCREEN_WIDTH+r.x, GDISP_SCREEN_WIDTH*sizeof(uint32_t));
+			SDL_UpdateTexture(texture, &r, context->framebuf+r.y*GDISP_SCREEN_WIDTH+r.x, GDISP_SCREEN_WIDTH*sizeof(gU32));
 			SDL_RenderCopy(render, texture, 0, 0);
 			SDL_RenderPresent(render);
 		}
@@ -249,8 +249,8 @@ static int SDL_loop (void) {
 			case SDL_KEYDOWN: 
 			case SDL_KEYUP: {
 				SDL_Keycode k_sdl = event.key.keysym.sym;
-				uint8_t k_ugfx = 0;
-				uint32_t s_ugfx = (event.type==SDL_KEYDOWN)?0:GKEYSTATE_KEYUP;
+				gU8 k_ugfx = 0;
+				gU32 s_ugfx = (event.type==SDL_KEYDOWN)?0:GKEYSTATE_KEYUP;
 				int i;
 				if (!(k_sdl & ~0x7f) && (k_sdl <32 || k_sdl == 127)) {
 					k_ugfx = k_sdl;
@@ -311,12 +311,12 @@ static void *SDL_input_event_loop (void *arg) {
 // Must be executed on early stage of initialization:  before threads and timer
 
 void sdl_driver_init (void) {
-	if (SDL_Init(SDL_INIT_EVERYTHING) != 0){
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0){
 		fprintf(stderr, "Unable to initialize SDL: %s\n", SDL_GetError());
 		exit (1) ;
 	}
 
-	if ((context = (struct SDL_UGFXContext*) mmap (0,sizeof (struct SDL_UGFXContext ),PROT_WRITE|PROT_READ,(MAP_ANONYMOUS | MAP_SHARED),0,0)) ==MAP_FAILED) {
+	if ((context = (struct SDL_UGFXContext*) mmap (0, sizeof(struct SDL_UGFXContext), PROT_WRITE|PROT_READ, (MAP_ANONYMOUS | MAP_SHARED), -1, 0)) == MAP_FAILED) {
 		perror("Failed to allocate shared memory");
 		exit(1);
 	}
@@ -366,21 +366,21 @@ void sdl_driver_init (void) {
 }
 
 
-LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
+LLDSPEC gBool gdisp_lld_init(GDisplay *g) {
 	g->board = 0;					// No board interface for this driver
 
 #if GINPUT_NEED_MOUSE
 	gdriverRegister((const GDriverVMT *)GMOUSE_DRIVER_VMT, g);
 #endif
-	g->g.Orientation = GDISP_ROTATE_0;
-	g->g.Powermode = powerOn;
+	g->g.Orientation = gOrientation0;
+	g->g.Powermode = gPowerOn;
 	g->g.Backlight = 100;
 
 	g->g.Contrast = 50;
 	g->g.Width = GDISP_SCREEN_WIDTH;
 	g->g.Height = GDISP_SCREEN_HEIGHT;
 
-	return TRUE;
+	return gTrue;
 }
 
 
@@ -409,7 +409,7 @@ LLDSPEC void gdisp_lld_draw_pixel(GDisplay *g)
 		LLDCOLOR_TYPE c = gdispColor2Native(g->p.color);
 		if (context) {
 			int x,y;
-			uint32_t *pbuf = context->framebuf + g->p.y*GDISP_SCREEN_WIDTH + g->p.x;
+			gU32 *pbuf = context->framebuf + g->p.y*GDISP_SCREEN_WIDTH + g->p.x;
 			int dy = GDISP_SCREEN_WIDTH - g->p.cx;
 			for (y = 0; y < g->p.cy; ++y) {
 				for (x = 0; x < g->p.cx; ++x)
@@ -425,7 +425,7 @@ LLDSPEC void gdisp_lld_draw_pixel(GDisplay *g)
 #endif
 
 #if GDISP_HARDWARE_PIXELREAD
-	LLDSPEC color_t gdisp_lld_get_pixel_color(GDisplay *g) {
+	LLDSPEC gColor gdisp_lld_get_pixel_color(GDisplay *g) {
 		if (context)
 			return gdispNative2Color(context->framebuf[(g->p.y*GDISP_SCREEN_WIDTH)+g->p.x]);
 		return 0;
@@ -433,32 +433,32 @@ LLDSPEC void gdisp_lld_draw_pixel(GDisplay *g)
 #endif
 
 #if GINPUT_NEED_MOUSE
-	static bool_t SDL_MouseInit(GMouse *m, unsigned driverinstance) {
+	static gBool SDL_MouseInit(GMouse *m, unsigned driverinstance) {
 		mouse = m;
 		(void)	driverinstance;
-		return TRUE;
+		return gTrue;
 	}
 
-	static bool_t SDL_MouseRead(GMouse *m, GMouseReading *pt) {
+	static gBool SDL_MouseRead(GMouse *m, GMouseReading *pt) {
 		(void)	m;
 		if (!context)
-			return FALSE;
+			return gFalse;
 		pt->x = context->mousex;
 		pt->y = context->mousey;
 		pt->z = (context->buttons & GINPUT_MOUSE_BTN_LEFT) ? 1 : 0;
 		pt->buttons = context->buttons;
-		return TRUE;
+		return gTrue;
 	}
 #endif /* GINPUT_NEED_MOUSE */
 
 #if GINPUT_NEED_KEYBOARD
-	static bool_t SDL_KeyboardInit(GKeyboard *k, unsigned driverinstance) {
+	static gBool SDL_KeyboardInit(GKeyboard *k, unsigned driverinstance) {
 		keyboard = k;
 		(void)	driverinstance;
-		return TRUE;
+		return gTrue;
 	}
 
-	static int SDL_KeyboardGetData(GKeyboard *k, uint8_t *pch, int sz) {
+	static int SDL_KeyboardGetData(GKeyboard *k, gU8 *pch, int sz) {
 		int i = 0;
 		if (!context || !context->keypos || !sz)
 			return 0;

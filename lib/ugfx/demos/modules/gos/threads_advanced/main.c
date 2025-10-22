@@ -41,7 +41,7 @@
 #include "gfx.h"
 
 GTimer				gt;
-gfxThreadHandle		thd;
+gThread		thd;
 
 #if defined(WIN32)
 	#include <windows.h>
@@ -63,19 +63,19 @@ gfxThreadHandle		thd;
  * Thread function
  * Prints a message
  */
-threadreturn_t Thread_function(void* param)
+gThreadreturn Thread_function(void* param)
 {	
-	/* Cast the paramter into a bool pointer so we can use it */
-	bool_t* doExit = (bool_t*)param;
+	/* Cast the paramter into a gBool pointer so we can use it */
+	gBool* doExit = (gBool*)param;
 
 	/* Execute this until we shall be terminated */
-	while (*doExit == FALSE) {
+	while (!*doExit) {
 		DEBUGWRITE("Message from Thread\n");
 		gfxSleepMilliseconds(500);
 	}
 
 	/* Don't return anything */
-	return (threadreturn_t)0;
+	return (gThreadreturn)0;
 }
 
 /*
@@ -84,12 +84,12 @@ threadreturn_t Thread_function(void* param)
  */
 void timerCallback(void* param)
 {
-	/* Cast the paramter into a bool pointer so we can use it */
-	bool_t* threadExit = (bool_t*)param;
+	/* Cast the paramter into a gBool pointer so we can use it */
+	gBool* threadExit = (gBool*)param;
 	
 	/* Ask the Thread to fall over the end */
 	DEBUGWRITE("Closing thread!\n");
-	*threadExit = TRUE;
+	*threadExit = gTrue;
 }
 
 /*
@@ -97,7 +97,7 @@ void timerCallback(void* param)
  */
 int main(void)
 {
-	bool_t exitThread = FALSE;
+	gBool exitThread = gFalse;
 
 	gfxInit();
 
@@ -107,14 +107,14 @@ int main(void)
 	/* Create a static thread from the default heap with normal priority.
 	 * We pass a the parameter to the thread which tells the thread whether to return or not
 	 */
-	thd = gfxThreadCreate(NULL, 2048, NORMAL_PRIORITY, Thread_function, (void*)&exitThread);
+	thd = gfxThreadCreate(NULL, 2048, gThreadpriorityNormal, Thread_function, (void*)&exitThread);
 
 	/* Start the timer. The callback function will be called once after 2000ms
 	 * We will pass the thread handle as a parameter so the timer can ask the thread to terminate
 	 */
-	gtimerStart(&gt, timerCallback, (void*)&exitThread, FALSE, 2000);
+	gtimerStart(&gt, timerCallback, (void*)&exitThread, gFalse, 2000);
 
-	while(TRUE) {
+	while(1) {
 		DEBUGWRITE("Message from main!\n");
 		gfxSleepMilliseconds(500);
 	}   

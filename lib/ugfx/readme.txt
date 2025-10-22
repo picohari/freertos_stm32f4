@@ -1,5 +1,4 @@
-Homepage:           http://ugfx.org
-Documentation:      http://wiki.ugfx.org
-API-Reference:      http://api.ugfx.org
-Forum:              http://forum.ugfx.org
-uGFX-Studio:        http://studio.ugfx.org
+Homepage:           https://ugfx.io
+Documentation:      https://wiki.ugfx.io
+API-Reference:      https://api.ugfx.io
+Forum:              https://community.ugfx.io

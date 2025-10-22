@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -23,8 +23,8 @@
 #include "../gdriver/gdriver.h"
 
 typedef struct GMouseReading {
-	coord_t		x, y, z;
-	uint16_t	buttons;
+	gCoord		x, y, z;
+	gU16	buttons;
 	} GMouseReading;
 
 #if !GINPUT_TOUCH_NOCALIBRATE
@@ -41,7 +41,7 @@ typedef struct GMouseReading {
 typedef struct GMouse {
 	GDriver								d;					// The driver overheads and vmt
 	GMouseReading						r;					// The current position and state
-	uint16_t							flags;				// Flags
+	gU16							flags;				// Flags
 			#define GMOUSE_FLG_CLICK_TIMER		0x0001				// Currently timing a click
 			#define GMOUSE_FLG_INDELTA			0x0002				// Currently in a up/down transition test
 			#define GMOUSE_FLG_CLIP				0x0004				// Clip reading to the display
@@ -50,8 +50,8 @@ typedef struct GMouse {
 			#define GMOUSE_FLG_FINGERMODE		0x0020				// Mouse is currently in finger mode
 			#define GMOUSE_FLG_NEEDREAD			0x0040				// The mouse needs reading
 			#define GMOUSE_FLG_DRIVER_FIRST		0x0100				// The first flag available for the driver
-	point								clickpos;			// The position of the last click event
-	systemticks_t						clicktime;			// The time of the last click event
+	gPoint								clickpos;			// The position of the last click event
+	gTicks						clicktime;			// The time of the last click event
 	GDisplay *							display;			// The display the mouse is associated with
 	#if !GINPUT_TOUCH_NOCALIBRATE
 		GMouseCalibration				caldata;			// The calibration data
@@ -60,9 +60,9 @@ typedef struct GMouse {
 } GMouse;
 
 typedef struct GMouseJitter {
-	coord_t		calibrate;									// Maximum error for a calibration to succeed
-	coord_t		click;										// Movement allowed without discarding the CLICK or CLICKCXT event
-	coord_t		move;										// Movement allowed without discarding the MOVE event
+	gCoord		calibrate;									// Maximum error for a calibration to succeed
+	gCoord		click;										// Movement allowed without discarding the CLICK or CLICKCXT event
+	gCoord		move;										// Movement allowed without discarding the MOVE event
 } GMouseJitter;
 
 typedef struct GMouseVMT {
@@ -77,19 +77,19 @@ typedef struct GMouseVMT {
 		#define GMOUSE_VFLG_ONLY_DOWN		0x0100			// This device returns a valid position only when the mouse is down
 		#define GMOUSE_VFLG_POORUPDOWN		0x0200			// Position readings during up/down are unreliable
 		#define GMOUSE_VFLG_DYNAMICONLY		0x8000			// This mouse driver should not be statically initialized eg Win32
-	coord_t		z_max;										// TOUCH: Maximum possible z value (fully touched)
-	coord_t		z_min;										// TOUCH: Minimum possible z value (touch off screen). Note may also be > z_max
-	coord_t		z_touchon;									// TOUCH: z values between z_max and this are a solid touch on
-	coord_t		z_touchoff;									// TOUCH: z values between z_min and this are a solid touch off
+	gCoord		z_max;										// TOUCH: Maximum possible z value (fully touched)
+	gCoord		z_min;										// TOUCH: Minimum possible z value (touch off screen). Note may also be > z_max
+	gCoord		z_touchon;									// TOUCH: z values between z_max and this are a solid touch on
+	gCoord		z_touchoff;									// TOUCH: z values between z_min and this are a solid touch off
 
 	GMouseJitter	pen_jitter;								// PEN MODE: Jitter settings
 	GMouseJitter	finger_jitter;							// FINGER MODE: Jitter settings
 
-	bool_t	(*init)(GMouse *m, unsigned driverinstance);	// Required
+	gBool	(*init)(GMouse *m, unsigned driverinstance);	// Required
 	void	(*deinit)(GMouse *m);							// Optional
-	bool_t	(*get)(GMouse *m, GMouseReading *prd);			// Required
-	void	(*calsave)(GMouse *m, const void *buf, size_t sz);	// Optional
-	bool_t	(*calload)(GMouse *m, void *buf, size_t sz);	// Optional
+	gBool	(*get)(GMouse *m, GMouseReading *prd);			// Required
+	void	(*calsave)(GMouse *m, const void *buf, gMemSize sz);	// Optional
+	gBool	(*calload)(GMouse *m, void *buf, gMemSize sz);	// Optional
 } GMouseVMT;
 
 #define gmvmt(m)		((const GMouseVMT const *)((m)->d.vmt))
@@ -115,13 +115,13 @@ extern "C" {
 	 * @param[in] driverinstance	The driver instance		ToDo: Add some more details
 	 * @param[in] systeminstance	The mouse instance		ToDo: Add some more details
 	 *
-	 * @return	TRUE on success, FALSE otherwise
+	 * @return	gTrue on success, gFalse otherwise
 	 * @note	This routine is provided by the high level code for
 	 * 			use in the driver VMT's GMouseVMT.d structure.
 	 *
 	 * @notapi
 	 */
-	bool_t _gmouseInitDriver(GDriver *g, void *display, unsigned driverinstance, unsigned systeminstance);
+	gBool _gmouseInitDriver(GDriver *g, void *display, unsigned driverinstance, unsigned systeminstance);
 
 	/**
 	 * @brief	Routine that is called after initialization

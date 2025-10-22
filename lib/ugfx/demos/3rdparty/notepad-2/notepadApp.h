@@ -38,13 +38,13 @@
 #include "notepadCore.h"
 #include "notepadUIDefines.h"
 
-#define NPAD_THD_PRIO		NORMAL_PRIORITY
+#define NPAD_THD_PRIO		gThreadpriorityNormal
 #define NPAD_THD_WA_SIZE	512
 
 void nSetColorScheme(NColorScheme sch);
 NColorScheme nGetColorScheme(void);
 
 
-gfxThreadHandle nLaunchNotepadApp(void);
+gThread nLaunchNotepadApp(void);
 
 #endif /* NOTEPADAPP_H_ */

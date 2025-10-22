@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -23,25 +23,41 @@
 #define CALIBRATION_MINPRESS_PERIOD		300				// milliseconds
 #define CALIBRATION_MAXPRESS_PERIOD		5000			// milliseconds
 
-#define CALIBRATION_FONT				"* Double"
-#define CALIBRATION_FONT2				"* Narrow"
-#define CALIBRATION_BACKGROUND			Blue
+#ifdef GINPUT_TOUCH_CALIBRATION_FONT1
+	#define CALIBRATION_FONT1			GINPUT_TOUCH_CALIBRATION_FONT1
+#else
+	#define CALIBRATION_FONT1			"* Double"
+#endif
+#ifdef GINPUT_TOUCH_CALIBRATION_FONT2
+	#define CALIBRATION_FONT2			GINPUT_TOUCH_CALIBRATION_FONT2
+#else
+	#define CALIBRATION_FONT2			"* Narrow"
+#endif
+#define CALIBRATION_BACKGROUND			GFX_BLUE
 
-#define CALIBRATION_CROSS_COLOR1		White
+#define CALIBRATION_CROSS_COLOR1		GFX_WHITE
 #define CALIBRATION_CROSS_COLOR2		RGB2COLOR(184,158,131)
 #define CALIBRATION_CROSS_INNERGAP		2
 #define CALIBRATION_CROSS_RADIUS		15
 
-#define CALIBRATION_TITLE				"Calibration"
+#ifdef GINPUT_TOUCH_CALIBRATION_TITLE
+	#define CALIBRATION_TITLE			GINPUT_TOUCH_CALIBRATION_TITLE
+#else
+	#define CALIBRATION_TITLE			"Calibration"
+#endif
 #define CALIBRATION_TITLE_Y				5
 #define CALIBRATION_TITLE_HEIGHT		30
-#define CALIBRATION_TITLE_COLOR			White
-#define CALIBRATION_TITLE_BACKGROUND	Blue
+#define CALIBRATION_TITLE_COLOR			GFX_WHITE
+#define CALIBRATION_TITLE_BACKGROUND	GFX_BLUE
 
-#define CALIBRATION_ERROR_TEXT			"Calibration Failed!"
+#ifdef GINPUT_TOUCH_CALIBRATION_ERROR
+	#define CALIBRATION_ERROR_TEXT		GINPUT_TOUCH_CALIBRATION_ERROR
+#else
+	#define CALIBRATION_ERROR_TEXT		"Calibration Failed!"
+#endif
 #define CALIBRATION_ERROR_DELAY			3000
-#define CALIBRATION_ERROR_COLOR			Red
-#define CALIBRATION_ERROR_BACKGROUND	Yellow
+#define CALIBRATION_ERROR_COLOR			GFX_RED
+#define CALIBRATION_ERROR_BACKGROUND	GFX_YELLOW
 #define CALIBRATION_ERROR_Y				35
 #define CALIBRATION_ERROR_HEIGHT		40
 
@@ -56,11 +72,11 @@ static GTIMER_DECL(MouseTimer);
 	#include <string.h>							// Required for memcpy
 
 	static GFXINLINE void CalibrationTransform(GMouseReading *pt, const GMouseCalibration *c) {
-		coord_t x, y;
+		gCoord x, y;
 
-		x = (coord_t) (c->ax * pt->x + c->bx * pt->y + c->cx);
-		y = (coord_t) (c->ay * pt->x + c->by * pt->y + c->cy);
-		
+		x = (gCoord) (c->ax * pt->x + c->bx * pt->y + c->cx);
+		y = (gCoord) (c->ay * pt->x + c->by * pt->y + c->cy);
+
 		pt->x = x;
 		pt->y = y;
 	}
@@ -180,7 +196,7 @@ static void GetMouseReading(GMouse *m) {
 
 			// We can't clip or rotate if we don't have a display
 			if (m->display) {
-				coord_t			w, h;
+				gCoord			w, h;
 
 				// We now need display information
 				w = gdispGGetWidth(m->display);
@@ -189,21 +205,21 @@ static void GetMouseReading(GMouse *m) {
 				#if GDISP_NEED_CONTROL
 					// Do we need to rotate the reading to match the display
 					if (!(gmvmt(m)->d.flags & GMOUSE_VFLG_SELFROTATION)) {
-						coord_t		t;
+						gCoord		t;
 
 						switch(gdispGGetOrientation(m->display)) {
-							case GDISP_ROTATE_0:
+							case gOrientation0:
 								break;
-							case GDISP_ROTATE_90:
+							case gOrientation90:
 								t = r.x;
 								r.x = w - 1 - r.y;
 								r.y = t;
 								break;
-							case GDISP_ROTATE_180:
+							case gOrientation180:
 								r.x = w - 1 - r.x;
 								r.y = h - 1 - r.y;
 								break;
-							case GDISP_ROTATE_270:
+							case gOrientation270:
 								t = r.y;
 								r.y = h - 1 - r.x;
 								r.x = t;
@@ -229,15 +245,15 @@ static void GetMouseReading(GMouse *m) {
 	#if !GINPUT_TOUCH_NOTOUCH
 	{
 		const GMouseJitter	*pj;
-		uint32_t			diff;
+		gU32			diff;
 
 		// Are we in pen or finger mode
 		pj = (m->flags & GMOUSE_FLG_FINGERMODE) ? &gmvmt(m)->finger_jitter : &gmvmt(m)->pen_jitter;
 
 		// Is this just movement jitter
 		if (pj->move > 0) {
-			diff = (uint32_t)(r.x - m->r.x) * (uint32_t)(r.x - m->r.x) + (uint32_t)(r.y - m->r.y) * (uint32_t)(r.y - m->r.y);
-			if (diff < (uint32_t)pj->move * (uint32_t)pj->move) {
+			diff = (gU32)(r.x - m->r.x) * (gU32)(r.x - m->r.x) + (gU32)(r.y - m->r.y) * (gU32)(r.y - m->r.y);
+			if (diff < (gU32)pj->move * (gU32)pj->move) {
 				r.x = m->r.x;
 				r.y = m->r.y;
 			}
@@ -245,8 +261,8 @@ static void GetMouseReading(GMouse *m) {
 
 		// Check if the click has moved outside the click area and if so cancel the click
 		if (pj->click > 0 && (m->flags & GMOUSE_FLG_CLICK_TIMER)) {
-			diff = (uint32_t)(r.x - m->clickpos.x) * (uint32_t)(r.x - m->clickpos.x) + (uint32_t)(r.y - m->clickpos.y) * (uint32_t)(r.y - m->clickpos.y);
-			if (diff > (uint32_t)pj->click * (uint32_t)pj->click)
+			diff = (gU32)(r.x - m->clickpos.x) * (gU32)(r.x - m->clickpos.x) + (gU32)(r.y - m->clickpos.y) * (gU32)(r.y - m->clickpos.y);
+			if (diff > (gU32)pj->click * (gU32)pj->click)
 				m->flags &= ~GMOUSE_FLG_CLICK_TIMER;
 		}
 	}
@@ -254,7 +270,7 @@ static void GetMouseReading(GMouse *m) {
 
 	// Step 5 - Click, context-click and other meta event detection
 	{
-		uint16_t		upbtns, dnbtns;
+		gU16		upbtns, dnbtns;
 
 		// Calculate button transitions
 		dnbtns = r.buttons & ~m->r.buttons;
@@ -335,7 +351,7 @@ static void MousePoll(void *param) {
 		#error "GINPUT: GFX_USE_GDISP must be defined when calibration is required"
 	#endif
 
-	static GFXINLINE void CalibrationCrossDraw(GMouse *m, const point *pp) {
+	static GFXINLINE void CalibrationCrossDraw(GMouse *m, const gPoint *pp) {
 		gdispGDrawLine(m->display, pp->x-CALIBRATION_CROSS_RADIUS, pp->y, pp->x-CALIBRATION_CROSS_INNERGAP, pp->y, CALIBRATION_CROSS_COLOR1);
 		gdispGDrawLine(m->display, pp->x+CALIBRATION_CROSS_INNERGAP, pp->y, pp->x+CALIBRATION_CROSS_RADIUS, pp->y, CALIBRATION_CROSS_COLOR1);
 		gdispGDrawLine(m->display, pp->x, pp->y-CALIBRATION_CROSS_RADIUS, pp->x, pp->y-CALIBRATION_CROSS_INNERGAP, CALIBRATION_CROSS_COLOR1);
@@ -350,13 +366,13 @@ static void MousePoll(void *param) {
 		gdispGDrawLine(m->display, pp->x+CALIBRATION_CROSS_RADIUS, pp->y-CALIBRATION_CROSS_RADIUS, pp->x+CALIBRATION_CROSS_RADIUS, pp->y-CALIBRATION_CROSS_RADIUS/2, CALIBRATION_CROSS_COLOR2);
 	}
 
-	static GFXINLINE void CalibrationCrossClear(GMouse *m, const point *pp) {
+	static GFXINLINE void CalibrationCrossClear(GMouse *m, const gPoint *pp) {
 		gdispGFillArea(m->display, pp->x - CALIBRATION_CROSS_RADIUS, pp->y - CALIBRATION_CROSS_RADIUS, CALIBRATION_CROSS_RADIUS*2+1, CALIBRATION_CROSS_RADIUS*2+1, CALIBRATION_BACKGROUND);
 	}
 
-	static GFXINLINE void CalibrationCalculate(GMouse *m, const point *cross, const point *points) {
+	static GFXINLINE void CalibrationCalculate(GMouse *m, const gPoint *cross, const gPoint *points) {
 		float		dx;
-		coord_t		c0, c1, c2;
+		gCoord		c0, c1, c2;
 		(void)		m;
 
 		// Work on x values
@@ -366,22 +382,22 @@ static void MousePoll(void *param) {
 
 		#if GDISP_NEED_CONTROL
 			if (!(gmvmt(m)->d.flags & GMOUSE_VFLG_SELFROTATION)) {
-				/* Convert all cross points back to GDISP_ROTATE_0 convention
+				/* Convert all cross points back to gOrientation0 convention
 				 * before calculating the calibration matrix.
 				 */
 				switch(gdispGGetOrientation(m->display)) {
-				case GDISP_ROTATE_90:
+				case gOrientation90:
 					c0 = cross[0].y;
 					c1 = cross[1].y;
 					c2 = cross[2].y;
 					break;
-				case GDISP_ROTATE_180:
+				case gOrientation180:
 					c0 = c1 = c2 = gdispGGetWidth(m->display) - 1;
 					c0 -= cross[0].x;
 					c1 -= cross[1].x;
 					c2 -= cross[2].x;
 					break;
-				case GDISP_ROTATE_270:
+				case gOrientation270:
 					c0 = c1 = c2 = gdispGGetHeight(m->display) - 1;
 					c0 -= cross[0].y;
 					c1 -= cross[1].y;
@@ -413,19 +429,19 @@ static void MousePoll(void *param) {
 		#if GDISP_NEED_CONTROL
 			if (!(gmvmt(m)->d.flags & GMOUSE_VFLG_SELFROTATION)) {
 				switch(gdispGGetOrientation(m->display)) {
-				case GDISP_ROTATE_90:
+				case gOrientation90:
 					c0 = c1 = c2 = gdispGGetWidth(m->display) - 1;
 					c0 -= cross[0].x;
 					c1 -= cross[1].x;
 					c2 -= cross[2].x;
 					break;
-				case GDISP_ROTATE_180:
+				case gOrientation180:
 					c0 = c1 = c2 = gdispGGetHeight(m->display) - 1;
 					c0 -= cross[0].y;
 					c1 -= cross[1].y;
 					c2 -= cross[2].y;
 					break;
-				case GDISP_ROTATE_270:
+				case gOrientation270:
 					c0 = cross[0].x;
 					c1 = cross[1].x;
 					c2 = cross[2].x;
@@ -445,17 +461,17 @@ static void MousePoll(void *param) {
 							+ c2 * ((float)points[0].x * (float)points[1].y - (float)points[1].x * (float)points[0].y)) / dx;
 	}
 
-	static uint32_t CalibrateMouse(GMouse *m) {
-		coord_t		w, h;
-		point		cross[4];		// The locations of the test points on the display
-		point		points[4];		// The x, y readings obtained from the mouse for each test point
-		uint32_t	err;
+	static gU32 CalibrateMouse(GMouse *m) {
+		gCoord		w, h;
+		gPoint		cross[4];		// The locations of the test points on the display
+		gPoint		points[4];		// The x, y readings obtained from the mouse for each test point
+		gU32	err;
 		#if GDISP_NEED_TEXT
-			font_t		font1, font2;
+			gFont		font1, font2;
 		#endif
 
 		#if GDISP_NEED_TEXT
-			font1 = gdispOpenFont(CALIBRATION_FONT);
+			font1 = gdispOpenFont(CALIBRATION_FONT1);
 			if (!font1) font1 = gdispOpenFont("*");
 			font2 = gdispOpenFont(CALIBRATION_FONT2);
 			if (!font2) font2 = gdispOpenFont("*");
@@ -484,12 +500,12 @@ static void MousePoll(void *param) {
         }
 
 		// Set up the calibration display
-		gdispGClear(m->display, Blue);
+		gdispGClear(m->display, CALIBRATION_BACKGROUND);
 		#if GDISP_NEED_TEXT
 			gdispGFillStringBox(m->display,
 								0, CALIBRATION_TITLE_Y, w, CALIBRATION_TITLE_HEIGHT,
 								CALIBRATION_TITLE, font1,  CALIBRATION_TITLE_COLOR, CALIBRATION_TITLE_BACKGROUND,
-								justifyCenter);
+								gJustifyCenter);
 		#endif
 
 		// Calculate the calibration
@@ -500,7 +516,7 @@ static void MousePoll(void *param) {
 
 			// Loop through the calibration points
 			for(i = 0; i < maxpoints; i++) {
-				int32_t		px, py;
+				gI32		px, py;
 				unsigned	j;
 
 				// Draw the current calibration point
@@ -554,21 +570,21 @@ static void MousePoll(void *param) {
 			// Do we need to rotate the reading to match the display
 			#if GDISP_NEED_CONTROL
 				if (!(gmvmt(m)->d.flags & GMOUSE_VFLG_SELFROTATION)) {
-					coord_t		t;
+					gCoord		t;
 
 					switch(gdispGGetOrientation(m->display)) {
-						case GDISP_ROTATE_0:
+						case gOrientation0:
 							break;
-						case GDISP_ROTATE_90:
+						case gOrientation90:
 							t = points[3].x;
 							points[3].x = w - 1 - points[3].y;
 							points[3].y = t;
 							break;
-						case GDISP_ROTATE_180:
+						case gOrientation180:
 							points[3].x = w - 1 - points[3].x;
 							points[3].y = h - 1 - points[3].y;
 							break;
-						case GDISP_ROTATE_270:
+						case gOrientation270:
 							t = points[3].y;
 							points[3].y = h - 1 - points[3].x;
 							points[3].x = t;
@@ -581,13 +597,13 @@ static void MousePoll(void *param) {
 
 			// Is this accurate enough?
 			err = (points[3].x - cross[3].x) * (points[3].x - cross[3].x) + (points[3].y - cross[3].y) * (points[3].y - cross[3].y);
-			if (err > (uint32_t)pj->calibrate * (uint32_t)pj->calibrate) {
+			if (err > (gU32)pj->calibrate * (gU32)pj->calibrate) {
 				#if GDISP_NEED_TEXT
 					// No - Display error and return
 					gdispGFillStringBox(m->display,
 											0, CALIBRATION_ERROR_Y, w, CALIBRATION_ERROR_HEIGHT,
 											CALIBRATION_ERROR_TEXT, font2,  CALIBRATION_ERROR_COLOR, CALIBRATION_ERROR_BACKGROUND,
-											justifyCenter);
+											gJustifyCenter);
 					gfxSleepMilliseconds(CALIBRATION_ERROR_DELAY);
 				#endif
 			} else
@@ -647,7 +663,11 @@ void _gmouseInit(void) {
 	// One and only one mouse
 	#else
 		{
-			extern const GMouseVMT const GMOUSEVMT_OnlyOne[1];
+			/*
+			 * This should be: extern const GMouseVMT const GMOUSEVMT_OnlyOne[1];
+			 * However, some major compilers complain about the duplicate const specifier even though this is perfectly valid standard C.
+			 */
+			extern const GMouseVMT GMOUSEVMT_OnlyOne[1];
 
             if (!(GMOUSEVMT_OnlyOne->d.flags & GMOUSE_VFLG_DYNAMICONLY))
 					gdriverRegister(&GMOUSEVMT_OnlyOne->d, GDISP);
@@ -660,7 +680,7 @@ void _gmouseDeinit(void) {
 	gtimerDeinit(&MouseTimer);
 }
 
-bool_t _gmouseInitDriver(GDriver *g, void *display, unsigned driverinstance, unsigned systeminstance) {
+gBool _gmouseInitDriver(GDriver *g, void *display, unsigned driverinstance, unsigned systeminstance) {
     #define m   ((GMouse *)g)
     (void) systeminstance;
 
@@ -675,13 +695,13 @@ bool_t _gmouseInitDriver(GDriver *g, void *display, unsigned driverinstance, uns
 
 	// Init the mouse
     if (!gmvmt(m)->init((GMouse *)g, driverinstance))
-        return FALSE;
+        return gFalse;
 
 	// Ensure the Poll timer is started
 	if (!gtimerIsActive(&MouseTimer))
-		gtimerStart(&MouseTimer, MousePoll, 0, TRUE, GINPUT_MOUSE_POLL_PERIOD);
+		gtimerStart(&MouseTimer, MousePoll, 0, gTrue, GINPUT_MOUSE_POLL_PERIOD);
 
-    return TRUE;
+    return gTrue;
 
     #undef m
 }
@@ -743,7 +763,7 @@ GDisplay *ginputGetMouseDisplay(unsigned instance) {
 	return m->display;
 }
 
-bool_t ginputGetMouseStatus(unsigned instance, GEventMouse *pe) {
+gBool ginputGetMouseStatus(unsigned instance, GEventMouse *pe) {
 	GMouse *m;
 
 	// Win32 threads don't seem to recognise priority and/or pre-emption
@@ -751,11 +771,11 @@ bool_t ginputGetMouseStatus(unsigned instance, GEventMouse *pe) {
 	gfxSleepMilliseconds(1);
 
 	if (!(m = (GMouse *)gdriverGetInstance(GDRIVER_TYPE_MOUSE, instance)))
-		return FALSE;
+		return gFalse;
 
 	#if !GINPUT_TOUCH_NOCALIBRATE_GUI
 		if ((m->flags & GMOUSE_FLG_IN_CAL))
-			return FALSE;
+			return gFalse;
 	#endif
 
 	#if !GINPUT_TOUCH_NOTOUCH
@@ -768,11 +788,11 @@ bool_t ginputGetMouseStatus(unsigned instance, GEventMouse *pe) {
 	pe->z = m->r.z;
 	pe->buttons = m->r.buttons;
 	pe->display = m->display;
-	return TRUE;
+	return gTrue;
 }
 
 #if !GINPUT_TOUCH_NOTOUCH
-	void ginputSetFingerMode(unsigned instance, bool_t on) {
+	void ginputSetFingerMode(unsigned instance, gBool on) {
 		GMouse *m;
 
 		if (!(m = (GMouse *)gdriverGetInstance(GDRIVER_TYPE_MOUSE, instance)))
@@ -787,7 +807,7 @@ bool_t ginputGetMouseStatus(unsigned instance, GEventMouse *pe) {
 #endif
 
 #if !GINPUT_TOUCH_NOCALIBRATE_GUI
-	uint32_t ginputCalibrateMouse(unsigned instance) {
+	gU32 ginputCalibrateMouse(unsigned instance) {
 		GMouse *m;
 
 		// Find the instance
@@ -817,4 +837,3 @@ void _gmouseWakeupI(GMouse *m) {
 }
 
 #endif /* GFX_USE_GINPUT && GINPUT_NEED_MOUSE */
-/** @} */

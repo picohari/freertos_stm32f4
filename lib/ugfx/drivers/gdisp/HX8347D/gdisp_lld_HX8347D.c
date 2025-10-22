@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "gfx.h"
@@ -56,7 +56,7 @@ static GFXINLINE void set_viewport(GDisplay* g) {
 /* Driver exported functions.                                                */
 /*===========================================================================*/
 
-LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
+LLDSPEC gBool gdisp_lld_init(GDisplay *g) {
 	// No private area for this controller
 	g->priv = 0;
 
@@ -64,9 +64,9 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	init_board(g);
 
 	// Hardware reset
-	setpin_reset(g, TRUE);
+	setpin_reset(g, gTrue);
 	gfxSleepMilliseconds(1);
-	setpin_reset(g, FALSE);
+	setpin_reset(g, gFalse);
 	gfxSleepMilliseconds(5);
 
 	// Get the bus for the following initialisation commands
@@ -148,11 +148,11 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	/* Initialise the GDISP structure */
 	g->g.Width = GDISP_SCREEN_WIDTH;
 	g->g.Height = GDISP_SCREEN_HEIGHT;
-	g->g.Orientation = GDISP_ROTATE_0;
-	g->g.Powermode = powerOn;
+	g->g.Orientation = gOrientation0;
+	g->g.Powermode = gPowerOn;
 	g->g.Backlight = GDISP_INITIAL_BACKLIGHT;
 	g->g.Contrast = GDISP_INITIAL_CONTRAST;
-	return TRUE;
+	return gTrue;
 }
 
 #if GDISP_HARDWARE_STREAM_WRITE
@@ -174,10 +174,10 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	LLDSPEC void gdisp_lld_control(GDisplay *g) {
 		switch(g->p.x) {
 		case GDISP_CONTROL_ORIENTATION:
-			if (g->g.Orientation == (orientation_t)g->p.ptr)
+			if (g->g.Orientation == (gOrientation)g->p.ptr)
 				return;
-			switch((orientation_t)g->p.ptr) {
-				case GDISP_ROTATE_0:
+			switch((gOrientation)g->p.ptr) {
+				case gOrientation0:
 					acquire_bus(g);
 					write_reg(g, HX8347D_REG_MAC, 0x08);                    /* Memory access control */
 					release_bus(g);
@@ -185,7 +185,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 					g->g.Width = GDISP_SCREEN_WIDTH;
 					break;
 
-				case GDISP_ROTATE_90:
+				case gOrientation90:
 					acquire_bus(g);
 					write_reg(g, HX8347D_REG_MAC, 0x68);                    /* Memory access control */
 					release_bus(g);
@@ -193,7 +193,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 					g->g.Width = GDISP_SCREEN_HEIGHT;
 					break;
 
-				case GDISP_ROTATE_180:
+				case gOrientation180:
 					acquire_bus(g);
 					write_reg(g, HX8347D_REG_MAC, 0xc8);                    /* Memory access control */
 					release_bus(g);
@@ -201,7 +201,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 					g->g.Width = GDISP_SCREEN_WIDTH;
 					break;
 
-				case GDISP_ROTATE_270:
+				case gOrientation270:
 					acquire_bus(g);
 					write_reg(g, HX8347D_REG_MAC, 0xa8);                    /* Memory access control */
 					release_bus(g);
@@ -212,7 +212,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 				default:
 					return;
 			}
-			g->g.Orientation = (orientation_t)g->p.ptr;
+			g->g.Orientation = (gOrientation)g->p.ptr;
 			return;
 
         case GDISP_CONTROL_BACKLIGHT:

@@ -126,7 +126,7 @@ SNMPFILES=$(LWIPDIR)/apps/snmp/snmp_asn1.c \
 
 # HTTPDFILES: HTTP server
 HTTPDFILES=$(LWIPDIR)/apps/httpd/fs.c \
-	$(LWIPDIR)/apps/httpd/httpd.c \
+		   $(LWIPDIR)/apps/httpd/httpd.c \
 
 # LWIPERFFILES: IPERF server
 LWIPERFFILES=$(LWIPDIR)/apps/lwiperf/lwiperf.c \

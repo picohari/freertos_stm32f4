@@ -60,31 +60,31 @@ void guiCreate() {
     gdispClear(White);
 
     while(TRUE) {
-    // First demo drawing onto the surface directly
-    for(j = 0; j < PIXMAP_HEIGHT; j++)
-        for(i = 0; i < PIXMAP_WIDTH; i++)
-            surface[j*PIXMAP_WIDTH + i] = RGB2COLOR(0, 255-i*(256/PIXMAP_WIDTH), j*(256/PIXMAP_HEIGHT));
+        // First demo drawing onto the surface directly
+        for(j = 0; j < PIXMAP_HEIGHT; j++)
+            for(i = 0; i < PIXMAP_WIDTH; i++)
+                surface[j*PIXMAP_WIDTH + i] = RGB2COLOR(0, 255-i*(256/PIXMAP_WIDTH), j*(256/PIXMAP_HEIGHT));
 
-    // Secondly, show drawing a line on it like a virtual display
-    gdispGDrawLine(pixmap, 0, 0, gdispGGetWidth(pixmap)-1, gdispGGetHeight(pixmap)-1, White);
-    
-    i = j = 0;
+        // Secondly, show drawing a line on it like a virtual display
+        gdispGDrawLine(pixmap, 0, 0, gdispGGetWidth(pixmap)-1, gdispGGetHeight(pixmap)-1, White);
+        
+        i = j = 0;
+
         // Clear the old position
-        //gdispFillArea(i, j, PIXMAP_WIDTH, PIXMAP_HEIGHT, Black);
+        gdispFillArea(i, j, PIXMAP_WIDTH, PIXMAP_HEIGHT, Black);
 
-#if 0
         // Change the position
         i += PIXMAP_WIDTH/2;
         if (i >= width - PIXMAP_WIDTH/2) {
             i %= width - PIXMAP_WIDTH/2;
             j = (j + PIXMAP_HEIGHT/2) % (height - PIXMAP_HEIGHT/2);
         }
-#endif
+
         // Blit the pixmap to the real display at the new position
         gdispBlitArea(i, j, PIXMAP_WIDTH, PIXMAP_HEIGHT, surface);
 
-        //if (i == 0)
-        //    gdispClear(White);
+        if (i == 0)
+            gdispClear(White);
 
         // Wait
         gfxSleepMilliseconds(250);

@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -17,7 +17,7 @@
  * Set various display properties. These properties mostly depend on the exact controller chip you get.
  * The defaults should work for most controllers.
  */
-//#define GDISP_GE8_BROKEN_CONTROLLER		FALSE	// Uncomment this out if you have a controller thats not window wrap broken.
+//#define GDISP_GE8_BROKEN_CONTROLLER		GFXOFF	// Uncomment this out if you have a controller thats not window wrap broken.
 //#define GDISP_SCREEN_HEIGHT				130		// The visible display height
 //#define GDISP_SCREEN_WIDTH				130		// The visible display width
 //#define GDISP_RAM_X_OFFSET				0		// The x offset of the visible area
@@ -56,7 +56,7 @@ static const PWMConfig pwmcfg = {
   },
 };
 
-static bool_t pwmRunning = FALSE;
+static gBool pwmRunning = gFalse;
 
 /**
  * @brief   Initialise the board for the display.
@@ -121,7 +121,7 @@ static GFXINLINE void init_board(GDisplay *g) {
 		pSPI->SPI_CSR[0]  = 0x00000311;			//9bit, CPOL=1, ClockPhase=0, SCLK = 48Mhz/3 = 16MHz
 
 		/* Display backlight control at 100% */
-		pwmRunning = FALSE;
+		pwmRunning = gFalse;
 		palSetPad(IOPORT2, PIOB_LCD_BL);
 		break;
 	}
@@ -131,7 +131,7 @@ static GFXINLINE void post_init_board(GDisplay *g) {
 	(void) g;
 }
 
-static GFXINLINE void setpin_reset(GDisplay *g, bool_t state) {
+static GFXINLINE void setpin_reset(GDisplay *g, gBool state) {
 	(void) g;
 	if (state)
 		palClearPad(IOPORT1, PIOA_LCD_RESET);
@@ -139,27 +139,27 @@ static GFXINLINE void setpin_reset(GDisplay *g, bool_t state) {
 		palSetPad(IOPORT1, PIOA_LCD_RESET);
 }
 
-static GFXINLINE void set_backlight(GDisplay *g, uint8_t percent) {
+static GFXINLINE void set_backlight(GDisplay *g, gU8 percent) {
 	(void) g;
 	if (percent == 100) {
 		/* Turn the pin on - No PWM */
 		if (pwmRunning) {
 			pwmStop(&PWMD2);
-			pwmRunning = FALSE;
+			pwmRunning = gFalse;
 		}
 		palSetPad(IOPORT2, PIOB_LCD_BL);
 	} else if (percent == 0) {
 		/* Turn the pin off - No PWM */
 		if (pwmRunning) {
 			pwmStop(&PWMD2);
-			pwmRunning = FALSE;
+			pwmRunning = gFalse;
 		}
 		palClearPad(IOPORT2, PIOB_LCD_BL);
 	} else {
 		/* Use the PWM */
 		if (!pwmRunning) {
 			pwmStart(&PWMD2, &pwmcfg);
-			pwmRunning = TRUE;
+			pwmRunning = gTrue;
 		}
 		pwmEnableChannel(&PWMD2, 0, PWM_VALUE(percent));
 	}
@@ -173,7 +173,7 @@ static GFXINLINE void release_bus(GDisplay *g) {
 	(void) g;
 }
 
-static GFXINLINE void write_index(GDisplay *g, uint16_t index) {
+static GFXINLINE void write_index(GDisplay *g, gU16 index) {
 	(void) g;
 	// wait for the previous transfer to start
 	while(!(pSPI->SPI_SR & AT91C_SPI_TDRE));
@@ -181,7 +181,7 @@ static GFXINLINE void write_index(GDisplay *g, uint16_t index) {
 	pSPI->SPI_TDR = index & 0xFF;
 }
 
-static GFXINLINE void write_data(GDisplay *g, uint16_t data) {
+static GFXINLINE void write_data(GDisplay *g, gU16 data) {
 	(void) g;
 	// wait for the previous transfer to start
 	while(!(pSPI->SPI_SR & AT91C_SPI_TDRE));

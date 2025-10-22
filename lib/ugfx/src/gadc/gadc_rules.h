@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -19,21 +19,29 @@
 #if GFX_USE_GADC
 	#if !GFX_USE_GTIMER
 		#if GFX_DISPLAY_RULE_WARNINGS
-			#warning "GADC: GFX_USE_GTIMER is required if GFX_USE_GADC is TRUE. It has been turned on for you."
+			#if GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_DIRECT
+				#warning "GADC: GFX_USE_GTIMER is required if GFX_USE_GADC is GFXON. It has been turned on for you."
+			#elif GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_MACRO
+				COMPILER_WARNING("GADC: GFX_USE_GTIMER is required if GFX_USE_GADC is GFXON. It has been turned on for you.")
+			#endif
 		#endif
 		#undef GFX_USE_GTIMER
-		#define	GFX_USE_GTIMER		TRUE
+		#define	GFX_USE_GTIMER		GFXON
 	#endif
 	#if !GFX_USE_GQUEUE || !GQUEUE_NEED_GSYNC || !GQUEUE_NEED_BUFFERS
 		#if GFX_DISPLAY_RULE_WARNINGS
-			#warning "GADC: GFX_USE_GQUEUE, GQUEUE_NEED_BUFFERS and GQUEUE_NEED_GSYNC are required if GFX_USE_GADC is TRUE. They have been turned on for you."
+			#if GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_DIRECT
+				#warning "GADC: GFX_USE_GQUEUE, GQUEUE_NEED_BUFFERS and GQUEUE_NEED_GSYNC are required if GFX_USE_GADC is GFXON. They have been turned on for you."
+			#elif GFX_COMPILER_WARNING_TYPE == GFX_COMPILER_WARNING_MACRO
+				COMPILER_WARNING("GADC: GFX_USE_GQUEUE, GQUEUE_NEED_BUFFERS and GQUEUE_NEED_GSYNC are required if GFX_USE_GADC is GFXON. They have been turned on for you.")
+			#endif
 		#endif
 		#undef GFX_USE_GQUEUE
-		#define	GFX_USE_GQUEUE		TRUE
+		#define	GFX_USE_GQUEUE		GFXON
 		#undef GQUEUE_NEED_BUFFERS
-		#define	GQUEUE_NEED_BUFFERS		TRUE
+		#define	GQUEUE_NEED_BUFFERS		GFXON
 		#undef GQUEUE_NEED_GSYNC
-		#define	GQUEUE_NEED_GSYNC		TRUE
+		#define	GQUEUE_NEED_GSYNC		GFXON
 	#endif
 #endif
 

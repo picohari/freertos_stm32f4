@@ -49,7 +49,7 @@
 
 
 
-
+#if 0
 /**
   * @brief SPI MSP Initialization 
   *        This function configures the hardware resources used in this example: 
@@ -85,6 +85,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
   /* Enable SPI clock */
   __HAL_RCC_SPI2_CLK_ENABLE();
 }
+#endif
 
 /**
   * @brief SPI MSP De-Initialization 

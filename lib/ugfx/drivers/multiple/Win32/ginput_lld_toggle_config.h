@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #ifndef _GINPUT_LLD_TOGGLE_CONFIG_H
@@ -10,7 +10,7 @@
 
 #if GFX_USE_GINPUT && GINPUT_NEED_TOGGLE
 
-#define GINPUT_TOGGLE_POLL_PERIOD		TIME_INFINITE	// We are interrupt driven (or polled - either works here)
+#define GINPUT_TOGGLE_POLL_PERIOD		gDelayForever	// We are interrupt driven (or polled - either works here)
 
 // This driver is unique in that it can support 8 buttons per window across multiple windows.
 // GINPUT_TOGGLE_CONFIG_ENTRIES just must be less than the number of GDISP windows (GDISP_DRIVER_COUNT_WIN32).

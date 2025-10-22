@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -20,7 +20,7 @@
 #endif
 
 // Uncomment this if your frame buffer device requires flushing ("Synch" in eCos speak)
-#define GDISP_HARDWARE_FLUSH		TRUE
+#define GDISP_HARDWARE_FLUSH		GFXON
 
 #ifdef GDISP_DRIVER_VMT
 
@@ -63,7 +63,7 @@
 	#endif
 
 	#if GDISP_NEED_CONTROL
-		static void board_backlight(GDisplay *g, uint8_t percent) {
+		static void board_backlight(GDisplay *g, gU8 percent) {
 			(void) g;
 			#if (CYG_FB_FLAGS0(FRAMEBUF) & CYG_FB_FLAGS0_BACKLIGHT)
 				cyg_fb_ioctl_backlight backlight;
@@ -74,17 +74,17 @@
 				if (backlight.fbbl_max == 1)
 					backlight.fbbl_current = percent ? 1 : 0;
 				else
-					backlight.fbbl_current = (((uint32_t)percent)*backlight.fbbl_max)/100;
+					backlight.fbbl_current = (((gU32)percent)*backlight.fbbl_max)/100;
 				CYG_FB_IOCTL(FRAMEBUF, CYG_FB_IOCTL_BACKLIGHT_SET, &backlight, &len);
 			#endif
 		}
 
-		static void board_contrast(GDisplay *g, uint8_t percent) {
+		static void board_contrast(GDisplay *g, gU8 percent) {
 			(void) g;
 			(void) percent;
 		}
 
-		static void board_power(GDisplay *g, powermode_t pwr) {
+		static void board_power(GDisplay *g, gPowermode pwr) {
 			// Not implemented yet.
 			(void) g;
 			(void) pwr;

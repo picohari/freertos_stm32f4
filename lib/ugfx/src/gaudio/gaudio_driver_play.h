@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -71,7 +71,7 @@ void gaudioPlayDoneI(void);
 
 /**
  * @brief				Initialise the play driver
- * @return				TRUE if the channel, frequency and format are valid.
+ * @return				gTrue if the channel, frequency and format are valid.
  *
  * @param[in] channel	The channel to use (see the driver for the available channels provided)
  * @param[in] frequency	The sample frequency to use
@@ -81,7 +81,7 @@ void gaudioPlayDoneI(void);
  *
  * @api
  */
-bool_t gaudio_play_lld_init(uint16_t channel, uint32_t frequency, ArrayDataFormat format);
+gBool gaudio_play_lld_init(gU16 channel, gU32 frequency, ArrayDataFormat format);
 
 /**
  * @brief				Start the audio output playing
@@ -108,16 +108,16 @@ void gaudio_play_lld_stop(void);
 
 /**
  * @brief				Set the output volume.
- * @return				TRUE if successful.
+ * @return				gTrue if successful.
  *
  * @param[in] vol		0->255 (0 = muted)
  *
- * @note				Some drivers may not support this. They will return FALSE.
+ * @note				Some drivers may not support this. They will return gFalse.
  * @note				For stereo devices, both channels are set to the same volume.
  *
  * @api
  */
-bool_t gaudio_play_lld_set_volume(uint8_t vol);
+gBool gaudio_play_lld_set_volume(gU8 vol);
 
 #ifdef __cplusplus
 }

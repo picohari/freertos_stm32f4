@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "../../gfx.h"
@@ -144,7 +144,7 @@
 		}
 	#else
 		float invsqrt(float n) {
-			int32_t		i;
+			gI32		i;
 			float		x2;
 
 			x2 = n * 0.5F;
@@ -156,7 +156,7 @@
 				((char *)&i)[2] = ((char *)&n)[1];
 				((char *)&i)[3] = ((char *)&n)[0];
 			#else
-				i  = *(int32_t *)&n;
+				i  = *(gI32 *)&n;
 			#endif
 
 			// evil floating point bit level hacking

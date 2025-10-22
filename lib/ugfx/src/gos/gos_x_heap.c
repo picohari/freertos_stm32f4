@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "../../gfx.h"
@@ -17,11 +17,11 @@
 
 	void _gosHeapInit(void) {
 	}
-	void *gfxAlloc(size_t sz) {
+	void *gfxAlloc(gMemSize sz) {
 		return malloc(sz);
 	}
 
-	void *gfxRealloc(void *ptr, size_t oldsz, size_t newsz) {
+	void *gfxRealloc(void *ptr, gMemSize oldsz, gMemSize newsz) {
 		(void) oldsz;
 		return realloc(ptr, newsz);
 	}
@@ -34,7 +34,7 @@
 
 	// Slot structure - user memory follows
 	typedef struct memslot {
-		size_t			sz;			// Includes the size of this memslot.
+		gMemSize			sz;			// Includes the size of this memslot.
 		} memslot;
 
 	// Free Slot - immediately follows the memslot structure
@@ -54,7 +54,7 @@
 		gfxAddHeapBlock(heap, GFX_OS_HEAP_SIZE);
 	}
 
-	void gfxAddHeapBlock(void *ptr, size_t sz) {
+	void gfxAddHeapBlock(void *ptr, gMemSize sz) {
 		if (sz < sizeof(memslot)+sizeof(freeslot))
 			return;
 
@@ -62,7 +62,7 @@
 		gfxFree(Slot2Ptr((memslot *)ptr));
 	}
 
-	void *gfxAlloc(size_t sz) {
+	void *gfxAlloc(gMemSize sz) {
 		register memslot *prev, *p, *pnew;
 
 		if (!sz) return 0;
@@ -94,7 +94,7 @@
 		return 0;
 	}
 
-	void *gfxRealloc(void *ptr, size_t oldsz, size_t sz) {
+	void *gfxRealloc(void *ptr, gMemSize oldsz, gMemSize sz) {
 		register memslot *prev, *p, *pfree;
 		(void) oldsz;
 
@@ -135,7 +135,7 @@
 
 		// We need to do this the hard way
 		pfree = gfxAlloc(sz);
-		if (pfree)
+		if (!pfree)
 			return 0;
 		memcpy(pfree, ptr, p->sz - sizeof(memslot));
 		gfxFree(ptr);
@@ -162,7 +162,7 @@
 				break;
 			}
 		}
-		
+
 		// Find a free slot that is contiguous after and merge it into this one
 		for (prev = 0, pfree = freeSlots; pfree != 0; prev = pfree, pfree = NextFree(pfree)) {
 			if (pfree == (memslot *)((char *)p + p->sz)) {
@@ -187,7 +187,7 @@
 	#include <stdlib.h>
 
 	void* malloc(size_t size) {
-		return gfxAlloc(size);
+		return gfxAlloc((gMemSize)size);
 	}
 	void free(void *ptr) {
 		gfxFree(ptr);

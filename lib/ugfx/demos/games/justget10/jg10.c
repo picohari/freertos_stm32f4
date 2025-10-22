@@ -16,25 +16,25 @@ GHandle jg10SelectionWidgetGCreate(GDisplay* g, jg10WidgetObject* wo, GWidgetIni
 
 
 typedef struct {          // Node properties
-  uint8_t num;            // Node number
-  bool_t check;           // Node needs to be checked or not
-  bool_t sel;             // Node selected or not
+  gU8 num;            // Node number
+  gBool check;           // Node needs to be checked or not
+  gBool sel;             // Node selected or not
 } nodeProps;
 
 nodeProps             jg10Field[JG10_FIELD_WIDTH][JG10_FIELD_HEIGHT];   // jg10 field array
-bool_t                jg10GameOver                           = FALSE;
+gBool                jg10GameOver                           = gFalse;
 const char            *jg10Graph[] = {"background.bmp", "1.bmp","2.bmp","3.bmp","4.bmp","5.bmp","6.bmp","7.bmp","8.bmp", "9.bmp", "10.bmp", "11.bmp", "12.bmp", "13.bmp", "14.bmp", "15.bmp", "16.bmp", "17.bmp", "18.bmp", "19.bmp", "20.bmp"}; // 21 elements (0-20)
-gdispImage            jg10Image[JG10_MAX_COUNT];
+gImage            jg10Image[JG10_MAX_COUNT];
 #define JG10_ANIM_IMAGES 5
 #define JG10_ANIM_DELAY 60
 const char            *jg10GraphAnim[] = {"a1.bmp","a2.bmp","a3.bmp","a4.bmp","background.bmp"}; // 5 elements (0-4)
-gdispImage            jg10ImageAnim[JG10_ANIM_IMAGES];
-uint8_t               jg10MaxVal=4;                                     // Max value in field...
-font_t font;
+gImage            jg10ImageAnim[JG10_ANIM_IMAGES];
+gU8               jg10MaxVal=4;                                     // Max value in field...
+gFont font;
 #if JG10_SHOW_SPLASH
 GTimer                jg10SplashBlink;
-bool_t                jg10SplashTxtVisible = FALSE;
-gdispImage            jg10SplashImage;
+gBool                jg10SplashTxtVisible = gFalse;
+gImage            jg10SplashImage;
 #endif
 
 
@@ -42,7 +42,7 @@ static void initRng(void) {
     srand(gfxSystemTicks());
 }
 
-static uint32_t randomInt(uint32_t max) {
+static gU32 randomInt(gU32 max) {
     return rand() % max;
 }
 
@@ -86,24 +86,24 @@ static int uitoa(unsigned int value, char * buf, int max) {
   return n;
 }
 
-static bool_t inRange(int16_t x, int16_t y) {
-    if ((x >= 0) && (x < JG10_FIELD_WIDTH) && (y >= 0) && (y < JG10_FIELD_HEIGHT)) return TRUE; else return FALSE;
+static gBool inRange(gI16 x, gI16 y) {
+    if ((x >= 0) && (x < JG10_FIELD_WIDTH) && (y >= 0) && (y < JG10_FIELD_HEIGHT)) return gTrue; else return gFalse;
 }
 
 static void clean_SelCheck(void) {
-    uint16_t i ,j;
+    gU16 i ,j;
     for (i = 0; i < JG10_FIELD_WIDTH; i++) {
         for (j = 0; j < JG10_FIELD_HEIGHT; j++) {
-            jg10Field[i][j].check = FALSE;
-            jg10Field[i][j].sel = FALSE;
+            jg10Field[i][j].check = gFalse;
+            jg10Field[i][j].sel = gFalse;
         }
     }
 }
 
 static void remove_Selected(void) {
-    uint16_t i ,j, step;
-    systemticks_t delay_start = 0;
-    systemticks_t delay=0;
+    gU16 i ,j, step;
+    gTicks delay_start = 0;
+    gTicks delay=0;
     for (step = 0; step < JG10_ANIM_IMAGES; step++) {
         delay_start = gfxSystemTicks();
         for (i = 0; i < JG10_FIELD_WIDTH; i++) {
@@ -121,7 +121,7 @@ static void remove_Selected(void) {
     for (i = 0; i < JG10_FIELD_WIDTH; i++) {
         for (j = 0; j < JG10_FIELD_HEIGHT; j++) {
             if (jg10Field[i][j].sel) {
-                jg10Field[i][j].sel = FALSE;
+                jg10Field[i][j].sel = gFalse;
                 jg10Field[i][j].num = 0;
             }
         }
@@ -129,12 +129,12 @@ static void remove_Selected(void) {
 //    gwinRedraw(mainWin);
 }
 
-static uint8_t jg10_randomer(uint8_t max, uint8_t th) {
-    uint32_t r = randomInt((1<<max)-1);
+static gU8 jg10_randomer(gU8 max, gU8 th) {
+    gU32 r = randomInt((1<<max)-1);
 	
     if (r != 0) {
-        for (int8_t i = max; i >= 0; i--) {
-            if (r >= (uint32_t)(1<<i)) {
+        for (gI8 i = max; i >= 0; i--) {
+            if (r >= (gU32)(1<<i)) {
                 if ((max-i) >= th) {
                     return randomInt(max-i)+1;
                 } else {
@@ -147,24 +147,24 @@ static uint8_t jg10_randomer(uint8_t max, uint8_t th) {
 }
 
 static void movePiecesDown(void) {
-    uint8_t tmp = 0;
-    bool_t needToCheck = TRUE;
+    gU8 tmp = 0;
+    gBool needToCheck = gTrue;
     while (needToCheck) {
-        needToCheck = FALSE;
-        for (int8_t y = (JG10_FIELD_HEIGHT-1); y >= 0; y--) {
-            for (uint8_t x = 0; x < JG10_FIELD_WIDTH; x++) {
+        needToCheck = gFalse;
+        for (gI8 y = (JG10_FIELD_HEIGHT-1); y >= 0; y--) {
+            for (gU8 x = 0; x < JG10_FIELD_WIDTH; x++) {
                 if (jg10Field[x][y].num == 0) {
                     // check if there is at least single none empty piece
                     tmp = 0;
-                    for (int8_t tmpy = y; tmpy >= 0; tmpy--) {
+                    for (gI8 tmpy = y; tmpy >= 0; tmpy--) {
                         if (jg10Field[x][tmpy].num != 0) tmp++;
                     }
                     if (tmp != 0) {
-                        for (int8_t tmpy = y; tmpy > 0; tmpy--) {
+                        for (gI8 tmpy = y; tmpy > 0; tmpy--) {
                             jg10Field[x][tmpy].num = jg10Field[x][tmpy-1].num;
                         }
                         jg10Field[x][0].num = 0;
-                        needToCheck = TRUE;
+                        needToCheck = gTrue;
                     }
                 }
             }
@@ -172,17 +172,17 @@ static void movePiecesDown(void) {
     }
     gwinRedraw(mainWin);
     // Add new pieces
-    needToCheck = TRUE;
+    needToCheck = gTrue;
     while (needToCheck) {
-        needToCheck = FALSE;
-        for (int8_t y = (JG10_FIELD_HEIGHT-1); y >= 0; y--) {
-            for (uint8_t x = 0; x < JG10_FIELD_WIDTH; x++) {
+        needToCheck = gFalse;
+        for (gI8 y = (JG10_FIELD_HEIGHT-1); y >= 0; y--) {
+            for (gU8 x = 0; x < JG10_FIELD_WIDTH; x++) {
                 if (jg10Field[x][y].num == 0) {
-                    for (int8_t tmpy = y; tmpy > 0; tmpy--) {
+                    for (gI8 tmpy = y; tmpy > 0; tmpy--) {
                         jg10Field[x][tmpy].num = jg10Field[x][tmpy-1].num;
                     }
                     jg10Field[x][0].num = jg10_randomer(jg10MaxVal, 3);
-                    needToCheck = TRUE;
+                    needToCheck = gTrue;
                 }
             }
         }
@@ -191,16 +191,16 @@ static void movePiecesDown(void) {
     }
 }
 
-static bool_t checkForPossibleMove(void) {
-    bool_t canMove = FALSE;
-    uint16_t i ,j;
+static gBool checkForPossibleMove(void) {
+    gBool canMove = gFalse;
+    gU16 i ,j;
     for (i = 0; i < JG10_FIELD_WIDTH; i++) {
         for (j = 0; j < JG10_FIELD_HEIGHT; j++) {
             if ((inRange(i,j-1) && jg10Field[i][j-1].num == jg10Field[i][j].num) ||
                 (inRange(i-1,j) && jg10Field[i-1][j].num == jg10Field[i][j].num) ||
                 (inRange(i,j+1) && jg10Field[i][j+1].num == jg10Field[i][j].num) ||
                 (inRange(i+1,j) && jg10Field[i+1][j].num == jg10Field[i][j].num)) {
-                canMove = TRUE;
+                canMove = gTrue;
                 return canMove;
             }
         }
@@ -209,23 +209,23 @@ static bool_t checkForPossibleMove(void) {
 }
 
 static void printGameOver(void) {
-    gdispFillArea(JG10_TOTAL_FIELD_WIDTH, (gdispGetHeight()/2)-10, gdispGetWidth()-JG10_TOTAL_FIELD_WIDTH, 80, Black);
+    gdispFillArea(JG10_TOTAL_FIELD_WIDTH, (gdispGetHeight()/2)-10, gdispGetWidth()-JG10_TOTAL_FIELD_WIDTH, 80, GFX_BLACK);
     if (jg10GameOver) {
-        gdispDrawString(JG10_TOTAL_FIELD_WIDTH+((gdispGetWidth()-JG10_TOTAL_FIELD_WIDTH)/2)-(gdispGetStringWidth("Game Over", font)/2), gdispGetHeight()/2, "Game Over", font, White);
+        gdispDrawString(JG10_TOTAL_FIELD_WIDTH+((gdispGetWidth()-JG10_TOTAL_FIELD_WIDTH)/2)-(gdispGetStringWidth("Game Over", font)/2), gdispGetHeight()/2, "Game Over", font, GFX_WHITE);
     }
 }
 
 static void printCongrats(void) {
     char pps_str[3];
-    gdispFillArea(JG10_TOTAL_FIELD_WIDTH, (gdispGetHeight()/2)-10, gdispGetWidth()-JG10_TOTAL_FIELD_WIDTH, 80, Black);
-    gdispDrawString(JG10_TOTAL_FIELD_WIDTH+((gdispGetWidth()-JG10_TOTAL_FIELD_WIDTH)/2)-(gdispGetStringWidth("Congrats, now try to get", font)/2), gdispGetHeight()/2, "Congrats, now try to get", font, White);
+    gdispFillArea(JG10_TOTAL_FIELD_WIDTH, (gdispGetHeight()/2)-10, gdispGetWidth()-JG10_TOTAL_FIELD_WIDTH, 80, GFX_BLACK);
+    gdispDrawString(JG10_TOTAL_FIELD_WIDTH+((gdispGetWidth()-JG10_TOTAL_FIELD_WIDTH)/2)-(gdispGetStringWidth("Congrats, now try to get", font)/2), gdispGetHeight()/2, "Congrats, now try to get", font, GFX_WHITE);
     uitoa(jg10MaxVal+1, pps_str, sizeof(pps_str));
-    gdispDrawString(JG10_TOTAL_FIELD_WIDTH+((gdispGetWidth()-JG10_TOTAL_FIELD_WIDTH)/2)-(gdispGetStringWidth(pps_str, font)/2), (gdispGetHeight()/2)+20, pps_str, font, Red);
+    gdispDrawString(JG10_TOTAL_FIELD_WIDTH+((gdispGetWidth()-JG10_TOTAL_FIELD_WIDTH)/2)-(gdispGetStringWidth(pps_str, font)/2), (gdispGetHeight()/2)+20, pps_str, font, GFX_RED);
 }
 
-static DECLARE_THREAD_FUNCTION(thdJg10, msg) {
+static GFX_THREAD_FUNCTION(thdJg10, msg) {
     (void)msg;
-    uint16_t x,y;
+    gU16 x,y;
     while (!jg10GameOver) {
         srand(gfxSystemTicks());
         ginputGetMouseStatus(0, &ev);
@@ -242,10 +242,10 @@ static DECLARE_THREAD_FUNCTION(thdJg10, msg) {
                         (inRange(x-1,y) && jg10Field[x-1][y].num == jg10Field[x][y].num) ||
                         (inRange(x,y+1) && jg10Field[x][y+1].num == jg10Field[x][y].num) ||
                         (inRange(x+1,y) && jg10Field[x+1][y].num == jg10Field[x][y].num)) {
-                        gwinSetVisible(Jg10SelectWidget, FALSE);
+                        gwinSetVisible(Jg10SelectWidget, gFalse);
                         clean_SelCheck();
-                        jg10Field[x][y].check = TRUE;
-                        gwinSetVisible(Jg10SelectWidget, TRUE);
+                        jg10Field[x][y].check = gTrue;
+                        gwinSetVisible(Jg10SelectWidget, gTrue);
                     }
                 } else {
                     // already selected section clicked...
@@ -254,71 +254,71 @@ static DECLARE_THREAD_FUNCTION(thdJg10, msg) {
                         jg10MaxVal = jg10Field[x][y].num;
                         if (jg10MaxVal >= 10) printCongrats();
                         if (jg10MaxVal == 20) { // Just in case someone got so far :D I cannot imaginge though 
-                            jg10GameOver = TRUE;
+                            jg10GameOver = gTrue;
                             printGameOver();
                         }
                     }
-                    jg10Field[x][y].sel = FALSE;
-                    gwinSetVisible(Jg10SelectWidget, FALSE);
+                    jg10Field[x][y].sel = gFalse;
+                    gwinSetVisible(Jg10SelectWidget, gFalse);
                     remove_Selected();
                     movePiecesDown();
                     if (checkForPossibleMove()) {
                         clean_SelCheck();
                         //gwinRedraw(mainWin);
                     } else {
-                        jg10GameOver = TRUE;
+                        jg10GameOver = gTrue;
                         printGameOver();
                     }
                 }
             }
         }
     }
-    THREAD_RETURN(0);
+    gfxThreadReturn(0);
 }
 
 static void initField(void) {
     jg10MaxVal = 4;
-    for (uint8_t x = 0; x < JG10_FIELD_WIDTH; x++) {
-        for (uint8_t y = 0; y < JG10_FIELD_HEIGHT; y++) {
+    for (gU8 x = 0; x < JG10_FIELD_WIDTH; x++) {
+        for (gU8 y = 0; y < JG10_FIELD_HEIGHT; y++) {
           jg10Field[x][y].num = randomInt(jg10MaxVal)+1;
             //jg10Field[x][y].num = 1;      // good for animation testing
             //jg10Field[x][y].num = x+x+5;    // good to get high score fast
             //jg10Field[x][y].num = x+y+5;  // good demo to check out pieces :D
-            jg10Field[x][y].check = FALSE;
-            jg10Field[x][y].sel = FALSE;
+            jg10Field[x][y].check = gFalse;
+            jg10Field[x][y].sel = gFalse;
         }
     }
-    jg10GameOver = FALSE;
+    jg10GameOver = gFalse;
     printGameOver();
 }
 
 static void mainWinDraw(GWidgetObject* gw, void* param) {
 	(void)param;
 	
-    for (uint8_t x = 0; x < JG10_FIELD_WIDTH; x++) {
-        for (uint8_t y = 0; y < JG10_FIELD_HEIGHT; y++) {
+    for (gU8 x = 0; x < JG10_FIELD_WIDTH; x++) {
+        for (gU8 y = 0; y < JG10_FIELD_HEIGHT; y++) {
             gdispGImageDraw(gw->g.display, &jg10Image[jg10Field[x][y].num], (x*JG10_CELL_HEIGHT)+1, (y*JG10_CELL_WIDTH)+1, JG10_CELL_WIDTH, JG10_CELL_HEIGHT, 0, 0);
         }
     }
 }
 
 static void jg10SelectionWidget_Draw(GWidgetObject* gw, void* param) {
-    int16_t x, y;
-    bool_t needToCheck = TRUE;
+    gI16 x, y;
+    gBool needToCheck = gTrue;
 
 	(void)param;
 
     while (needToCheck) {
-        needToCheck = FALSE;
+        needToCheck = gFalse;
         for (x = 0; x < JG10_FIELD_WIDTH; x++) {
             for (y = 0; y < JG10_FIELD_HEIGHT; y++) {
                 if (jg10Field[x][y].check && !jg10Field[x][y].sel) {
-                    jg10Field[x][y].sel = TRUE;
-                    jg10Field[x][y].check = FALSE;
+                    jg10Field[x][y].sel = gTrue;
+                    jg10Field[x][y].check = gFalse;
                     // Up
                     if (inRange(x, y-1) && !jg10Field[x][y-1].sel && (jg10Field[x][y-1].num == jg10Field[x][y].num)) {
-                        jg10Field[x][y-1].check = TRUE;
-                        needToCheck = TRUE;
+                        jg10Field[x][y-1].check = gTrue;
+                        needToCheck = gTrue;
                     } else  if (!inRange(x, y-1) || (inRange(x, y-1) && !jg10Field[x][y-1].sel)) {
                         // We need longer line if this is wide corner inside shape
                         if (inRange(x+1, y) && inRange(x+1, y-1) && (jg10Field[x][y].num == jg10Field[x+1][y].num) && (jg10Field[x][y].num == jg10Field[x+1][y-1].num)) {
@@ -329,8 +329,8 @@ static void jg10SelectionWidget_Draw(GWidgetObject* gw, void* param) {
                     }
                     // Down
                     if (inRange(x, y+1) && !jg10Field[x][y+1].sel && (jg10Field[x][y+1].num == jg10Field[x][y].num)) {
-                        jg10Field[x][y+1].check = TRUE;
-                        needToCheck = TRUE;
+                        jg10Field[x][y+1].check = gTrue;
+                        needToCheck = gTrue;
                     } else if (!inRange(x, y+1) || (inRange(x, y+1) && !jg10Field[x][y+1].sel)) {
                         // We need longer line if this is wide corner inside shape
                         if (inRange(x-1, y) && inRange(x-1, y+1) && (jg10Field[x][y].num == jg10Field[x-1][y].num) && (jg10Field[x][y].num == jg10Field[x-1][y+1].num)) {
@@ -341,8 +341,8 @@ static void jg10SelectionWidget_Draw(GWidgetObject* gw, void* param) {
                     }
                     // Left
                     if (inRange(x-1, y) && !jg10Field[x-1][y].sel && (jg10Field[x-1][y].num == jg10Field[x][y].num)) {
-                        jg10Field[x-1][y].check = TRUE;
-                        needToCheck = TRUE;
+                        jg10Field[x-1][y].check = gTrue;
+                        needToCheck = gTrue;
                     } else if (!inRange(x-1, y) || (inRange(x-1, y) && !jg10Field[x-1][y].sel)) {
                         // We need longer line if this is wide corner inside shape
                         if (inRange(x, y-1) && inRange(x-1, y-1) && (jg10Field[x][y].num == jg10Field[x][y-1].num) && (jg10Field[x][y].num == jg10Field[x-1][y-1].num)) {
@@ -353,8 +353,8 @@ static void jg10SelectionWidget_Draw(GWidgetObject* gw, void* param) {
                     }
                     // Right
                     if (inRange(x+1, y) && !jg10Field[x+1][y].sel && (jg10Field[x+1][y].num == jg10Field[x][y].num)) {
-                        jg10Field[x+1][y].check = TRUE;
-                        needToCheck = TRUE;
+                        jg10Field[x+1][y].check = gTrue;
+                        needToCheck = gTrue;
                     } else if (!inRange(x+1, y) || (inRange(x+1, y) && !jg10Field[x+1][y].sel)) {
                         // We need longer line if this is wide corner inside shape
                         if (inRange(x, y+1) && inRange(x+1, y+1) && (jg10Field[x][y].num == jg10Field[x][y+1].num) && (jg10Field[x][y].num == jg10Field[x+1][y+1].num)) {
@@ -422,7 +422,7 @@ static void createMainWin(void) {
     GWidgetInit wi;
     gwinWidgetClearInit(&wi);
     // Container - mainWin
-    wi.g.show = FALSE;
+    wi.g.show = gFalse;
     wi.g.x = 0;
     wi.g.y = 0;
     wi.g.width = gdispGetWidth();
@@ -435,7 +435,7 @@ static void createMainWin(void) {
     mainWin = gwinContainerCreate(0, &wi, 0);
 
     // create selection widget
-    wi.g.show = FALSE;
+    wi.g.show = gFalse;
     wi.g.x = 0;
     wi.g.y = 0;
     wi.g.width = 272;
@@ -456,11 +456,11 @@ void guiCreate(void) {
 void jg10Start(void) {
 #if JG10_SHOW_SPLASH
     gtimerStop(&jg10SplashBlink);
-    gdispClear(Black);
+    gdispClear(GFX_BLACK);
 #endif
     initField();
     guiCreate();
-    gfxThreadCreate(0, 1024, NORMAL_PRIORITY, thdJg10, 0);
+    gfxThreadCreate(0, 1024, gThreadpriorityNormal, thdJg10, 0);
     while (!jg10GameOver) {
         gfxSleepMilliseconds(100);
     }
@@ -468,11 +468,11 @@ void jg10Start(void) {
 
 void jg10Init(void) {
     initRng();
-    for (uint8_t i = 0; i < JG10_MAX_COUNT; i++) {
+    for (gU8 i = 0; i < JG10_MAX_COUNT; i++) {
          gdispImageOpenFile(&jg10Image[i], jg10Graph[i]);
          gdispImageCache(&jg10Image[i]);
     }
-    for (uint8_t i = 0; i < JG10_ANIM_IMAGES; i++) {
+    for (gU8 i = 0; i < JG10_ANIM_IMAGES; i++) {
          gdispImageOpenFile(&jg10ImageAnim[i], jg10GraphAnim[i]);
          gdispImageCache(&jg10ImageAnim[i]);
     }
@@ -496,6 +496,6 @@ void jg10ShowSplash(void) {
     gdispImageOpenFile(&jg10SplashImage, "splash.bmp");
     gdispImageDraw(&jg10SplashImage, (gdispGetWidth()/2)-150, (gdispGetHeight()/2)-100, 300, 200, 0, 0);
     gdispImageClose(&jg10SplashImage);
-    gtimerStart(&jg10SplashBlink, jg10SplashBlinker, 0, TRUE, 400);
+    gtimerStart(&jg10SplashBlink, jg10SplashBlinker, 0, gTrue, 400);
 }
 #endif

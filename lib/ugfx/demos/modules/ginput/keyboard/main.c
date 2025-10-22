@@ -54,13 +54,13 @@ int main(void) {
 		GWindowInit		wi;
 
 		gwinClearInit(&wi);
-		wi.show = TRUE;
+		wi.show = gTrue;
 		wi.x = 0; wi.y = 0; wi.width = gdispGetWidth(); wi.height = gdispGetHeight();
 		GW = gwinConsoleCreate(0, &wi);
 
 		/* Set the fore- and background colors for the console */
-		gwinSetColor(GW, Yellow);
-		gwinSetBgColor(GW, Black);
+		gwinSetColor(GW, GFX_YELLOW);
+		gwinSetBgColor(GW, GFX_BLACK);
 		gwinClear(GW);
 	}
 
@@ -70,7 +70,7 @@ int main(void) {
 
 	while(1) {
 		// Get an Event
-		pk = (GEventKeyboard *)geventEventWait(&gl, TIME_INFINITE);
+		pk = (GEventKeyboard *)geventEventWait(&gl, gDelayForever);
 
 		if (pk->type != GEVENT_KEYBOARD)
 			continue;
@@ -98,7 +98,7 @@ int main(void) {
 		if (pk->bytecount) {
 			gwinPrintf(GW, " Keys:");
 			for (i = 0; i < pk->bytecount; i++)
-				gwinPrintf(GW, " 0x%02X", (uint8_t)pk->c[i]);
+				gwinPrintf(GW, " 0x%02X", (int)(gU8)pk->c[i]);
 			gwinPrintf(GW, " [");
 			for (i = 0; i < pk->bytecount; i++)
 				gwinPrintf(GW, "%c", pk->c[i] >= ' ' && pk->c[i] <= '~' ? pk->c[i] : ' ');

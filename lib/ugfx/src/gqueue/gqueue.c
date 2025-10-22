@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "../../gfx.h"
@@ -133,8 +133,8 @@ void _gqueueDeinit(void)
 		}
 	}
 
-	bool_t gfxQueueASyncIsIn(gfxQueueASync *pqueue, const gfxQueueASyncItem *pitem) {
-		bool_t	res;
+	gBool gfxQueueASyncIsIn(gfxQueueASync *pqueue, const gfxQueueASyncItem *pitem) {
+		gBool	res;
 
 		gfxSystemLock();
 		res = gfxQueueASyncIsInI(pqueue, pitem);
@@ -142,28 +142,28 @@ void _gqueueDeinit(void)
 
 		return res;
 	}
-	bool_t gfxQueueASyncIsInI(gfxQueueASync *pqueue, const gfxQueueASyncItem *pitem) {
+	gBool gfxQueueASyncIsInI(gfxQueueASync *pqueue, const gfxQueueASyncItem *pitem) {
 		gfxQueueASyncItem *pi;
 
 		for(pi = pqueue->head; pi; pi = pi->next) {
 			if (pi == pitem)
-				return TRUE;
+				return gTrue;
 		}
-		return FALSE;
+		return gFalse;
 	}
 #endif
 
 #if GQUEUE_NEED_GSYNC
 	void gfxQueueGSyncInit(gfxQueueGSync *pqueue) {
 		pqueue->head = pqueue->tail = 0;
-		gfxSemInit(&pqueue->sem, 0, MAX_SEMAPHORE_COUNT);
+		gfxSemInit(&pqueue->sem, 0, gSemMaxCount);
 	}
 	void gfxQueueGSyncDeinit(gfxQueueGSync *pqueue) {
 		pqueue->head = pqueue->tail = 0;
 		gfxSemDestroy(&pqueue->sem);
 	}
 
-	gfxQueueGSyncItem *gfxQueueGSyncGet(gfxQueueGSync *pqueue, delaytime_t ms) {
+	gfxQueueGSyncItem *gfxQueueGSyncGet(gfxQueueGSync *pqueue, gDelay ms) {
 		gfxQueueGSyncItem	*pi;
 
 		if (!gfxSemWait(&pqueue->sem, ms))
@@ -271,8 +271,8 @@ void _gqueueDeinit(void)
 		}
 	}
 
-	bool_t gfxQueueGSyncIsIn(gfxQueueGSync *pqueue, const gfxQueueGSyncItem *pitem) {
-		bool_t		res;
+	gBool gfxQueueGSyncIsIn(gfxQueueGSync *pqueue, const gfxQueueGSyncItem *pitem) {
+		gBool		res;
 
 		gfxSystemLock();
 		res = gfxQueueGSyncIsInI(pqueue, pitem);
@@ -280,29 +280,29 @@ void _gqueueDeinit(void)
 
 		return res;
 	}
-	bool_t gfxQueueGSyncIsInI(gfxQueueGSync *pqueue, const gfxQueueGSyncItem *pitem) {
+	gBool gfxQueueGSyncIsInI(gfxQueueGSync *pqueue, const gfxQueueGSyncItem *pitem) {
 		gfxQueueGSyncItem *pi;
 
 		for(pi = pqueue->head; pi; pi = pi->next) {
 			if (pi == pitem)
-				return TRUE;
+				return gTrue;
 		}
-		return FALSE;
+		return gFalse;
 	}
 #endif
 
 #if GQUEUE_NEED_FSYNC
 	void gfxQueueFSyncInit(gfxQueueFSync *pqueue) {
 		pqueue->head = pqueue->tail = 0;
-		gfxSemInit(&pqueue->sem, 0, MAX_SEMAPHORE_COUNT);
+		gfxSemInit(&pqueue->sem, 0, gSemMaxCount);
 	}
-	void gfxQueueFSyncDeinit(gfxQueueGSync *pqueue) {
-		while(gfxQueueFSyncGet(pqueue, TIME_IMMEDIATE));
+	void gfxQueueFSyncDeinit(gfxQueueFSync *pqueue) {
+		while(gfxQueueFSyncGet(pqueue, gDelayNone));
 		pqueue->head = pqueue->tail = 0;
 		gfxSemDestroy(&pqueue->sem);
 	}
 
-	gfxQueueFSyncItem *gfxQueueFSyncGet(gfxQueueFSync *pqueue, delaytime_t ms) {
+	gfxQueueFSyncItem *gfxQueueFSyncGet(gfxQueueFSync *pqueue, gDelay ms) {
 		gfxQueueFSyncItem	*pi;
 
 		if (!gfxSemWait(&pqueue->sem, ms))
@@ -320,8 +320,8 @@ void _gqueueDeinit(void)
 		return pi;
 	}
 
-	bool_t gfxQueueFSyncPut(gfxQueueFSync *pqueue, gfxQueueFSyncItem *pitem, delaytime_t ms) {
-		if (!pitem) return;				// Safety
+	gBool gfxQueueFSyncPut(gfxQueueFSync *pqueue, gfxQueueFSyncItem *pitem, gDelay ms) {
+		if (!pitem) return gFalse;				// Safety
 		gfxSemInit(&pitem->sem, 0, 1);
 		pitem->next = 0;
 
@@ -339,8 +339,8 @@ void _gqueueDeinit(void)
 		return gfxSemWait(&pitem->sem, ms);
 	}
 
-	bool_t gfxQueueFSyncPush(gfxQueueFSync *pqueue, gfxQueueFSyncItem *pitem, delaytime_t ms) {
-		if (!pitem) return;				// Safety
+	gBool gfxQueueFSyncPush(gfxQueueFSync *pqueue, gfxQueueFSyncItem *pitem, gDelay ms) {
+		if (!pitem) return gFalse;				// Safety
 		gfxSemInit(&pitem->sem, 0, 1);
 
 		gfxSystemLock();
@@ -355,12 +355,12 @@ void _gqueueDeinit(void)
 		return gfxSemWait(&pitem->sem, ms);
 	}
 
-	bool_t gfxQueueFSyncInsert(gfxQueueFSync *pqueue, gfxQueueFSyncItem *pitem, gfxQueueASyncItem *pafter, delaytime_t ms) {
-		if (!pitem) return;				// Safety
+	gBool gfxQueueFSyncInsert(gfxQueueFSync *pqueue, gfxQueueFSyncItem *pitem, gfxQueueFSyncItem *pafter, gDelay ms) {
+		if (!pitem) return gFalse;				// Safety
 		gfxSemInit(&pitem->sem, 0, 1);
 
 		gfxSystemLock();
-		if (pafter && gfxQueueGSyncIsInI(pqueue, pafter)) {
+		if (pafter && gfxQueueFSyncIsInI(pqueue, pafter)) {
 			pitem->next = pafter->next;
 			pafter->next = pitem;
 			if (pqueue->tail == pafter)
@@ -409,8 +409,8 @@ void _gqueueDeinit(void)
 		gfxSystemUnlock();
 	}
 
-	bool_t gfxQueueFSyncIsIn(gfxQueueFSync *pqueue, const gfxQueueFSyncItem *pitem) {
-		bool_t	res;
+	gBool gfxQueueFSyncIsIn(gfxQueueFSync *pqueue, const gfxQueueFSyncItem *pitem) {
+		gBool	res;
 
 		gfxSystemLock();
 		res = gfxQueueFSyncIsInI(pqueue, pitem);
@@ -418,30 +418,30 @@ void _gqueueDeinit(void)
 
 		return res;
 	}
-	bool_t gfxQueueFSyncIsInI(gfxQueueFSync *pqueue, const gfxQueueFSyncItem *pitem) {
-		gfxQueueASyncItem *pi;
+	gBool gfxQueueFSyncIsInI(gfxQueueFSync *pqueue, const gfxQueueFSyncItem *pitem) {
+		gfxQueueFSyncItem *pi;
 
 		for(pi = pqueue->head; pi; pi = pi->next) {
 			if (pi == pitem)
-				return TRUE;
+				return gTrue;
 		}
-		return FALSE;
+		return gFalse;
 	}
 #endif
 
 #if GQUEUE_NEED_BUFFERS
-	bool_t gfxBufferAlloc(unsigned num, size_t size) {
+	gBool gfxBufferAlloc(unsigned num, gMemSize size) {
 		GDataBuffer *pd;
 
 		if (num < 1)
-			return FALSE;
+			return gFalse;
 
 		// Round up to a multiple of 4 to prevent problems with structure alignment
 		size = (size + 3) & ~0x03;
 
 		// Allocate the memory
 		if (!(pd = gfxAlloc((size+sizeof(GDataBuffer)) * num)))
-			return FALSE;
+			return gFalse;
 
 		// Add each of them to our free list
 		for(;num--; pd = (GDataBuffer *)((char *)(pd+1)+size)) {
@@ -449,14 +449,14 @@ void _gqueueDeinit(void)
 			gfxBufferRelease(pd);
 		}
 
-		return TRUE;
+		return gTrue;
 	}
 
 	void gfxBufferRelease(GDataBuffer *pd)		{ gfxQueueGSyncPut(&bufferFreeList, (gfxQueueGSyncItem *)pd); }
 	void gfxBufferReleaseI(GDataBuffer *pd)		{ gfxQueueGSyncPutI(&bufferFreeList, (gfxQueueGSyncItem *)pd); }
-	GDataBuffer *gfxBufferGet(delaytime_t ms)	{ return (GDataBuffer *)gfxQueueGSyncGet(&bufferFreeList, ms); }
+	GDataBuffer *gfxBufferGet(gDelay ms)	{ return (GDataBuffer *)gfxQueueGSyncGet(&bufferFreeList, ms); }
 	GDataBuffer *gfxBufferGetI(void)			{ return (GDataBuffer *)gfxQueueGSyncGetI(&bufferFreeList); }
-	bool_t gfxBufferIsAvailable(void)			{ return bufferFreeList.head != 0; }
+	gBool gfxBufferIsAvailable(void)			{ return bufferFreeList.head != 0; }
 
 #endif
 

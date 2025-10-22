@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 // Set this to your frame buffer pixel format.
@@ -11,7 +11,7 @@
 #endif
 
 // Uncomment this if your frame buffer device requires flushing
-//#define GDISP_HARDWARE_FLUSH		TRUE
+//#define GDISP_HARDWARE_FLUSH		GFXON
 
 #ifdef GDISP_DRIVER_VMT
 
@@ -35,19 +35,19 @@
 	#endif
 
 	#if GDISP_NEED_CONTROL
-		static void board_backlight(GDisplay *g, uint8_t percent) {
+		static void board_backlight(GDisplay *g, gU8 percent) {
 			// TODO: Can be an empty function if your hardware doesn't support this
 			(void) g;
 			(void) percent;
 		}
 
-		static void board_contrast(GDisplay *g, uint8_t percent) {
+		static void board_contrast(GDisplay *g, gU8 percent) {
 			// TODO: Can be an empty function if your hardware doesn't support this
 			(void) g;
 			(void) percent;
 		}
 
-		static void board_power(GDisplay *g, powermode_t pwr) {
+		static void board_power(GDisplay *g, gPowermode pwr) {
 			// TODO: Can be an empty function if your hardware doesn't support this
 			(void) g;
 			(void) pwr;

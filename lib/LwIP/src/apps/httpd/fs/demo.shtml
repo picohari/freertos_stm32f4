@@ -1,0 +1,75 @@
+<html lang="en">
+   <head>
+      <meta charset="utf-8">
+      <title>STM32F746-DISCO | Embedded HTTP Administration</title>
+   </head>
+   <body>
+      <body>
+         <main class="wrapper">
+            <section class="container">
+               <div class="row">
+                  <div class="column">
+                     <h5 class="title">STM32F746-DISCO</h5>
+                  </div>
+               </div>
+               <div class="row">
+                  <div class="column">
+                     <a class="button" href="#">Dashboard</a>
+                     <a class="button" href="#">Settings</a>
+                     <a class="button" href="#">Commands</a>
+                     <a class="button" href="#">Help</a>
+                     <a class="button" href="#">DEV</a>
+                  </div>
+               </div>
+            </section>
+            <section class="container">
+               <div class="row">
+                  <div class="column column-25">
+                     <ul>
+                        <li><a href="#">Network</a></li>
+                        <li><a href="#">Display</a></li>
+                        <li><a href="#">Sensors</a></li>
+                        <li><a href="#">Clocks &amp; Timer</a></li>
+                        <li><a href="#">Audio</a></li>
+                        <li><a href="#">USB</a></li>
+                     </ul>
+                  </div>
+                  <div class="column column-75">
+                     <h5 class="title">About STM32F746-Disco</h5>
+                     <p></p>
+                     <h6 class="title">Examples</h6>
+                     <p>
+                        Want LED: <!--#LEDtext-->
+                     </p>
+                     <p>
+                        Want PWM: <!--#PWMtext-->
+                     </p>
+                     <p>
+                        Want FormVars: <!--#FormVars-->
+                     </p>
+                     <p>
+                        Want Test: <!--#test-->
+                     </p>
+                  </div>
+               </div>
+            </section>
+            <footer class="footer">
+               <section class="container">
+                  <div class="row">
+                     <div class="column column-50">
+                        <p class="left">Designed by <a target="_blank" href="http://labor.h9l.net" title="H9-Laboratory Ltd.">H9-Laboratory Ltd.</a>.<br>
+                           Licensed under the <a target="_blank" href="https://github.com/milligram/milligram#license" title="MIT License">MIT License</a>.
+                        </p>
+                     </div>
+                     <div class="column column-50">
+                        <p class="right">
+                           Version: <!--#version--><br>
+                           UUID: 04ae073b
+                        </p>
+                     </div>
+                  </div>
+               </section>
+            </footer>
+         </main>
+   </body>
+</html>

@@ -8,7 +8,7 @@
 #include "datafile.hh"
 
 namespace mcufont {
-    
+
 // Convert a file name to a valid C identifier
 std::string filename_to_identifier(std::string name);
 
@@ -18,7 +18,7 @@ void wordwrap_vector(std::ostream &out, const std::vector<unsigned> &data,
 
 // Write a vector of integers as a C constant array of given datatype.
 void write_const_table(std::ostream &out, const std::vector<unsigned> &data,
-                       const std::string &datatype, const std::string &tablename,
+                       const std::string &datatype, const std::string &tablename, char flg_is_data,
                        size_t width = 2);
 
 // Get minimum tracking width of font
@@ -36,7 +36,7 @@ struct char_range_t
     uint16_t first_char;
     uint16_t char_count;
     std::vector<int> glyph_indices;
-    
+
     char_range_t(): first_char(0), char_count(0) {}
 };
 

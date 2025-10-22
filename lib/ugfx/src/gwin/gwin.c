@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -30,10 +30,10 @@ static const gwinVMT basegwinVMT = {
 		0,						// The after-clear routine
 };
 
-static color_t	defaultFgColor = White;
-static color_t	defaultBgColor = Black;
+static gColor	defaultFgColor = GFX_WHITE;
+static gColor	defaultBgColor = GFX_BLACK;
 #if GDISP_NEED_TEXT
-	static font_t	defaultFont;
+	static gFont	defaultFont;
 #endif
 
 /* These init functions are defined by each module but not published */
@@ -84,7 +84,7 @@ void _gwinDeinit(void)
 
 // Internal routine for use by GWIN components only
 // Initialise a window creating it dynamically if required.
-GHandle _gwindowCreate(GDisplay *g, GWindowObject *pgw, const GWindowInit *pInit, const gwinVMT *vmt, uint32_t flags) {
+GHandle _gwindowCreate(GDisplay *g, GWindowObject *pgw, const GWindowInit *pInit, const gwinVMT *vmt, gU32 flags) {
 	// Allocate the structure if necessary
 	if (!pgw) {
 		if (!(pgw = gfxAlloc(vmt->size)))
@@ -121,7 +121,7 @@ void _gwinDestroy(GHandle gh, GRedrawMethod how) {
 		return;
 
 	// Make the window invisible
-	gwinSetVisible(gh, FALSE);
+	gwinSetVisible(gh, gFalse);
 
 	// Make sure it is flushed first - must be REDRAW_WAIT or REDRAW_INSESSION
 	_gwinFlushRedraws(how);
@@ -161,28 +161,28 @@ void gwinClearInit(GWindowInit *pwi) {
 		*p++ = 0;
 }
 
-void gwinSetDefaultColor(color_t clr) {
+void gwinSetDefaultColor(gColor clr) {
 	defaultFgColor = clr;
 }
 
-color_t gwinGetDefaultColor(void) {
+gColor gwinGetDefaultColor(void) {
 	return defaultFgColor;
 }
 
-void gwinSetDefaultBgColor(color_t bgclr) {
+void gwinSetDefaultBgColor(gColor bgclr) {
 	defaultBgColor = bgclr;
 }
 
-color_t gwinGetDefaultBgColor(void) {
+gColor gwinGetDefaultBgColor(void) {
 	return defaultBgColor;
 }
 
 #if GDISP_NEED_TEXT
-	void gwinSetDefaultFont(font_t font) {
+	void gwinSetDefaultFont(gFont font) {
 		defaultFont = font;
 	}
 
-	font_t gwinGetDefaultFont(void) {
+	gFont gwinGetDefaultFont(void) {
 		return defaultFont;
 	}
 #endif
@@ -209,16 +209,16 @@ const char *gwinGetClassName(GHandle gh) {
 	return gh->vmt->classname;
 }
 
-bool_t gwinGetVisible(GHandle gh) {
-	return (gh->flags & GWIN_FLG_SYSVISIBLE) ? TRUE : FALSE;
+gBool gwinGetVisible(GHandle gh) {
+	return (gh->flags & GWIN_FLG_SYSVISIBLE) ? gTrue : gFalse;
 }
 
-bool_t gwinGetEnabled(GHandle gh) {
-	return (gh->flags & GWIN_FLG_SYSENABLED) ? TRUE : FALSE;
+gBool gwinGetEnabled(GHandle gh) {
+	return (gh->flags & GWIN_FLG_SYSENABLED) ? gTrue : gFalse;
 }
 
 #if GDISP_NEED_TEXT
-	void gwinSetFont(GHandle gh, font_t font) {
+	void gwinSetFont(GHandle gh, gFont font) {
 		gh->font = font;
 	}
 #endif
@@ -237,44 +237,44 @@ void gwinClear(GHandle gh) {
 		gh->vmt->AfterClear(gh);
 }
 
-void gwinDrawPixel(GHandle gh, coord_t x, coord_t y) {
+void gwinDrawPixel(GHandle gh, gCoord x, gCoord y) {
 	if (!_gwinDrawStart(gh)) return;
 	gdispGDrawPixel(gh->display, gh->x+x, gh->y+y, gh->color);
 	_gwinDrawEnd(gh);
 }
 
-void gwinDrawLine(GHandle gh, coord_t x0, coord_t y0, coord_t x1, coord_t y1) {
+void gwinDrawLine(GHandle gh, gCoord x0, gCoord y0, gCoord x1, gCoord y1) {
 	if (!_gwinDrawStart(gh)) return;
 	gdispGDrawLine(gh->display, gh->x+x0, gh->y+y0, gh->x+x1, gh->y+y1, gh->color);
 	_gwinDrawEnd(gh);
 }
 
-void gwinDrawBox(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy) {
+void gwinDrawBox(GHandle gh, gCoord x, gCoord y, gCoord cx, gCoord cy) {
 	if (!_gwinDrawStart(gh)) return;
 	gdispGDrawBox(gh->display, gh->x+x, gh->y+y, cx, cy, gh->color);
 	_gwinDrawEnd(gh);
 }
 
-void gwinFillArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy) {
+void gwinFillArea(GHandle gh, gCoord x, gCoord y, gCoord cx, gCoord cy) {
 	if (!_gwinDrawStart(gh)) return;
 	gdispGFillArea(gh->display, gh->x+x, gh->y+y, cx, cy, gh->color);
 	_gwinDrawEnd(gh);
 }
 
-void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
+void gwinBlitArea(GHandle gh, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoord srcx, gCoord srcy, gCoord srccx, const gPixel *buffer) {
 	if (!_gwinDrawStart(gh)) return;
 	gdispGBlitArea(gh->display, gh->x+x, gh->y+y, cx, cy, srcx, srcy, srccx, buffer);
 	_gwinDrawEnd(gh);
 }
 
 #if GDISP_NEED_CIRCLE
-	void gwinDrawCircle(GHandle gh, coord_t x, coord_t y, coord_t radius) {
+	void gwinDrawCircle(GHandle gh, gCoord x, gCoord y, gCoord radius) {
 		if (!_gwinDrawStart(gh)) return;
 		gdispGDrawCircle(gh->display, gh->x+x, gh->y+y, radius, gh->color);
 		_gwinDrawEnd(gh);
 	}
 
-	void gwinFillCircle(GHandle gh, coord_t x, coord_t y, coord_t radius) {
+	void gwinFillCircle(GHandle gh, gCoord x, gCoord y, gCoord radius) {
 		if (!_gwinDrawStart(gh)) return;
 		gdispGFillCircle(gh->display, gh->x+x, gh->y+y, radius, gh->color);
 		_gwinDrawEnd(gh);
@@ -282,7 +282,7 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
 #endif
 
 #if GDISP_NEED_DUALCIRCLE
-	void gwinFillDualCircle(GHandle gh, coord_t x, coord_t y, coord_t radius1, coord_t radius2) {
+	void gwinFillDualCircle(GHandle gh, gCoord x, gCoord y, gCoord radius1, gCoord radius2) {
 		if (!_gwinDrawStart(gh)) return;
 		gdispGFillDualCircle(gh->display, gh->x+x, gh->y+y, radius1, gh->bgcolor, radius2, gh->color);
 		_gwinDrawEnd(gh);
@@ -290,13 +290,13 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
 #endif
 
 #if GDISP_NEED_ELLIPSE
-	void gwinDrawEllipse(GHandle gh, coord_t x, coord_t y, coord_t a, coord_t b) {
+	void gwinDrawEllipse(GHandle gh, gCoord x, gCoord y, gCoord a, gCoord b) {
 		if (!_gwinDrawStart(gh)) return;
 		gdispGDrawEllipse(gh->display, gh->x+x, gh->y+y, a, b, gh->color);
 		_gwinDrawEnd(gh);
 	}
 
-	void gwinFillEllipse(GHandle gh, coord_t x, coord_t y, coord_t a, coord_t b) {
+	void gwinFillEllipse(GHandle gh, gCoord x, gCoord y, gCoord a, gCoord b) {
 		if (!_gwinDrawStart(gh)) return;
 		gdispGFillEllipse(gh->display, gh->x+x, gh->y+y, a, b, gh->color);
 		_gwinDrawEnd(gh);
@@ -304,19 +304,19 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
 #endif
 
 #if GDISP_NEED_ARC
-	void gwinDrawArc(GHandle gh, coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle) {
+	void gwinDrawArc(GHandle gh, gCoord x, gCoord y, gCoord radius, gCoord startangle, gCoord endangle) {
 		if (!_gwinDrawStart(gh)) return;
 		gdispGDrawArc(gh->display, gh->x+x, gh->y+y, radius, startangle, endangle, gh->color);
 		_gwinDrawEnd(gh);
 	}
 
-	void gwinFillArc(GHandle gh, coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle) {
+	void gwinFillArc(GHandle gh, gCoord x, gCoord y, gCoord radius, gCoord startangle, gCoord endangle) {
 		if (!_gwinDrawStart(gh)) return;
 		gdispGFillArc(gh->display, gh->x+x, gh->y+y, radius, startangle, endangle, gh->color);
 		_gwinDrawEnd(gh);
 	}
 
-	void gwinDrawThickArc(GHandle gh, coord_t x, coord_t y, coord_t startradius, coord_t endradius, coord_t startangle, coord_t endangle) {
+	void gwinDrawThickArc(GHandle gh, gCoord x, gCoord y, gCoord startradius, gCoord endradius, gCoord startangle, gCoord endangle) {
 		if (!_gwinDrawStart(gh)) return;
 		gdispGDrawThickArc(gh->display, gh->x+x, gh->y+y, startradius, endradius, startangle, endangle, gh->color);
 		_gwinDrawEnd(gh);
@@ -324,13 +324,13 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
 #endif
 
 #if GDISP_NEED_ARCSECTORS
-	void gwinDrawArcSectors(GHandle gh, coord_t x, coord_t y, coord_t radius, uint8_t sectors) {
+	void gwinDrawArcSectors(GHandle gh, gCoord x, gCoord y, gCoord radius, gU8 sectors) {
 		if (!_gwinDrawStart(gh)) return;
 		gdispGDrawArcSectors(gh->display, gh->x+x, gh->y+y, radius, sectors, gh->color);
 		_gwinDrawEnd(gh);
 	}
 
-	void gwinFillArcSectors(GHandle gh, coord_t x, coord_t y, coord_t radius, uint8_t sectors) {
+	void gwinFillArcSectors(GHandle gh, gCoord x, gCoord y, gCoord radius, gU8 sectors) {
 		if (!_gwinDrawStart(gh)) return;
 		gdispGFillArcSectors(gh->display, gh->x+x, gh->y+y, radius, sectors, gh->color);
 		_gwinDrawEnd(gh);
@@ -338,45 +338,45 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
 #endif
 
 #if GDISP_NEED_PIXELREAD
-	color_t gwinGetPixelColor(GHandle gh, coord_t x, coord_t y) {
-		if (!_gwinDrawStart(gh)) return (color_t)0;
+	gColor gwinGetPixelColor(GHandle gh, gCoord x, gCoord y) {
+		if (!_gwinDrawStart(gh)) return (gColor)0;
 		return gdispGGetPixelColor(gh->display, gh->x+x, gh->y+y);
 		_gwinDrawEnd(gh);
 	}
 #endif
 
 #if GDISP_NEED_TEXT
-	void gwinDrawChar(GHandle gh, coord_t x, coord_t y, char c) {
+	void gwinDrawChar(GHandle gh, gCoord x, gCoord y, char c) {
 		if (!gh->font || !_gwinDrawStart(gh)) return;
 		gdispGDrawChar(gh->display, gh->x+x, gh->y+y, c, gh->font, gh->color);
 		_gwinDrawEnd(gh);
 	}
 
-	void gwinFillChar(GHandle gh, coord_t x, coord_t y, char c) {
+	void gwinFillChar(GHandle gh, gCoord x, gCoord y, char c) {
 		if (!gh->font || !_gwinDrawStart(gh)) return;
 		gdispGFillChar(gh->display, gh->x+x, gh->y+y, c, gh->font, gh->color, gh->bgcolor);
 		_gwinDrawEnd(gh);
 	}
 
-	void gwinDrawString(GHandle gh, coord_t x, coord_t y, const char *str) {
+	void gwinDrawString(GHandle gh, gCoord x, gCoord y, const char *str) {
 		if (!gh->font || !_gwinDrawStart(gh)) return;
 		gdispGDrawString(gh->display, gh->x+x, gh->y+y, str, gh->font, gh->color);
 		_gwinDrawEnd(gh);
 	}
 
-	void gwinFillString(GHandle gh, coord_t x, coord_t y, const char *str) {
+	void gwinFillString(GHandle gh, gCoord x, gCoord y, const char *str) {
 		if (!gh->font || !_gwinDrawStart(gh)) return;
 		gdispGFillString(gh->display, gh->x+x, gh->y+y, str, gh->font, gh->color, gh->bgcolor);
 		_gwinDrawEnd(gh);
 	}
 
-	void gwinDrawStringBox(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, const char* str, justify_t justify) {
+	void gwinDrawStringBox(GHandle gh, gCoord x, gCoord y, gCoord cx, gCoord cy, const char* str, gJustify justify) {
 		if (!gh->font || !_gwinDrawStart(gh)) return;
 		gdispGDrawStringBox(gh->display, gh->x+x, gh->y+y, cx, cy, str, gh->font, gh->color, justify);
 		_gwinDrawEnd(gh);
 	}
 
-	void gwinFillStringBox(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, const char* str, justify_t justify) {
+	void gwinFillStringBox(GHandle gh, gCoord x, gCoord y, gCoord cx, gCoord cy, const char* str, gJustify justify) {
 		if (!gh->font || !_gwinDrawStart(gh)) return;
 		gdispGFillStringBox(gh->display, gh->x+x, gh->y+y, cx, cy, str, gh->font, gh->color, gh->bgcolor, justify);
 		_gwinDrawEnd(gh);
@@ -384,18 +384,18 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
 #endif
 
 #if GDISP_NEED_CONVEX_POLYGON
-	void gwinDrawPoly(GHandle gh, coord_t tx, coord_t ty, const point *pntarray, unsigned cnt) {
+	void gwinDrawPoly(GHandle gh, gCoord tx, gCoord ty, const gPoint *pntarray, unsigned cnt) {
 		if (!_gwinDrawStart(gh)) return;
 		gdispGDrawPoly(gh->display, tx+gh->x, ty+gh->y, pntarray, cnt, gh->color);
 		_gwinDrawEnd(gh);
 	}
 
-	void gwinFillConvexPoly(GHandle gh, coord_t tx, coord_t ty, const point *pntarray, unsigned cnt) {
+	void gwinFillConvexPoly(GHandle gh, gCoord tx, gCoord ty, const gPoint *pntarray, unsigned cnt) {
 		if (!_gwinDrawStart(gh)) return;
 		gdispGFillConvexPoly(gh->display, tx+gh->x, ty+gh->y, pntarray, cnt, gh->color);
 		_gwinDrawEnd(gh);
 	}
-	void gwinDrawThickLine(GHandle gh, coord_t x0, coord_t y0, coord_t x1, coord_t y1, coord_t width, bool_t round) {
+	void gwinDrawThickLine(GHandle gh, gCoord x0, gCoord y0, gCoord x1, gCoord y1, gCoord width, gBool round) {
 		if (!_gwinDrawStart(gh)) return;
 		gdispGDrawThickLine(gh->display, gh->x+x0, gh->y+y0, gh->x+x1, gh->y+y1, gh->color, width, round);
 		_gwinDrawEnd(gh);
@@ -403,7 +403,7 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
 #endif
 
 #if GDISP_NEED_IMAGE
-	gdispImageError gwinDrawImage(GHandle gh, gdispImage *img, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t sx, coord_t sy) {
+	gdispImageError gwinDrawImage(GHandle gh, gImage *img, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoord sx, gCoord sy) {
 		gdispImageError		ret;
 
 		if (!_gwinDrawStart(gh)) return GDISP_IMAGE_ERR_OK;
@@ -414,5 +414,3 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
 #endif
 
 #endif /* GFX_USE_GWIN */
-/** @} */
-

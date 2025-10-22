@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #include "gfx.h"
@@ -15,7 +15,7 @@
 
 typedef struct fbInfo {
 	void *			pixels;			// The pixel buffer
-	coord_t			linelen;		// The number of bytes per display line
+	gCoord			linelen;		// The number of bytes per display line
 	} fbInfo;
 
 #include "board_fb24bpp.h"
@@ -33,13 +33,13 @@ typedef struct fbPriv {
 /*===========================================================================*/
 
 #define PIXIL_POS(g, x, y)		((y) * ((fbPriv *)(g)->priv)->fbi.linelen + (x) * 3)
-#define PIXEL_ADDR(g, pos)		(((uint8_t *)((fbPriv *)(g)->priv)->fbi.pixels)+pos)
+#define PIXEL_ADDR(g, pos)		(((gU8 *)((fbPriv *)(g)->priv)->fbi.pixels)+pos)
 
 /*===========================================================================*/
 /* Driver exported functions.                                                */
 /*===========================================================================*/
 
-LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
+LLDSPEC gBool gdisp_lld_init(GDisplay *g) {
 
 	// Initialize the private structure
 	if (!(g->priv = gfxAlloc(sizeof(fbPriv))))
@@ -48,12 +48,12 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	((fbPriv *)g->priv)->fbi.linelen = 0;
 
 	// Initialize the GDISP structure
-	g->g.Orientation = GDISP_ROTATE_0;
-	g->g.Powermode = powerOn;
+	g->g.Orientation = gOrientation0;
+	g->g.Powermode = gPowerOn;
 	g->board = 0;							// preinitialize
 	board_init(g, &((fbPriv *)g->priv)->fbi);
 
-	return TRUE;
+	return gTrue;
 }
 
 #if GDISP_HARDWARE_FLUSH
@@ -64,21 +64,21 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 
 LLDSPEC void gdisp_lld_draw_pixel(GDisplay *g) {
 	unsigned		pos;
-	uint8_t			*p;
+	gU8			*p;
 
 	#if GDISP_NEED_CONTROL
 		switch(g->g.Orientation) {
-		case GDISP_ROTATE_0:
+		case gOrientation0:
 		default:
 			pos = PIXIL_POS(g, g->p.x, g->p.y);
 			break;
-		case GDISP_ROTATE_90:
+		case gOrientation90:
 			pos = PIXIL_POS(g, g->p.y, g->g.Width-g->p.x-1);
 			break;
-		case GDISP_ROTATE_180:
+		case gOrientation180:
 			pos = PIXIL_POS(g, g->g.Width-g->p.x-1, g->g.Height-g->p.y-1);
 			break;
-		case GDISP_ROTATE_270:
+		case gOrientation270:
 			pos = PIXIL_POS(g, g->g.Height-g->p.y-1, g->p.x);
 			break;
 		}
@@ -99,23 +99,23 @@ LLDSPEC void gdisp_lld_draw_pixel(GDisplay *g) {
 	#endif
 }
 
-LLDSPEC	color_t gdisp_lld_get_pixel_color(GDisplay *g) {
+LLDSPEC	gColor gdisp_lld_get_pixel_color(GDisplay *g) {
 	unsigned		pos;
-	uint8_t			*p;
+	gU8			*p;
 
 	#if GDISP_NEED_CONTROL
 		switch(g->g.Orientation) {
-		case GDISP_ROTATE_0:
+		case gOrientation0:
 		default:
 			pos = PIXIL_POS(g, g->p.x, g->p.y);
 			break;
-		case GDISP_ROTATE_90:
+		case gOrientation90:
 			pos = PIXIL_POS(g, g->p.y, g->g.Width-g->p.x-1);
 			break;
-		case GDISP_ROTATE_180:
+		case gOrientation180:
 			pos = PIXIL_POS(g, g->g.Width-g->p.x-1, g->g.Height-g->p.y-1);
 			break;
-		case GDISP_ROTATE_270:
+		case gOrientation270:
 			pos = PIXIL_POS(g, g->g.Height-g->p.y-1, g->p.x);
 			break;
 		}
@@ -136,36 +136,36 @@ LLDSPEC	color_t gdisp_lld_get_pixel_color(GDisplay *g) {
 	LLDSPEC void gdisp_lld_control(GDisplay *g) {
 		switch(g->p.x) {
 		case GDISP_CONTROL_POWER:
-			if (g->g.Powermode == (powermode_t)g->p.ptr)
+			if (g->g.Powermode == (gPowermode)g->p.ptr)
 				return;
-			switch((powermode_t)g->p.ptr) {
-			case powerOff: case powerOn: case powerSleep: case powerDeepSleep:
-				board_power(g, (powermode_t)g->p.ptr);
+			switch((gPowermode)g->p.ptr) {
+			case gPowerOff: case gPowerOn: case gPowerSleep: case gPowerDeepSleep:
+				board_power(g, (gPowermode)g->p.ptr);
 				break;
 			default:
 				return;
 			}
-			g->g.Powermode = (powermode_t)g->p.ptr;
+			g->g.Powermode = (gPowermode)g->p.ptr;
 			return;
 
 		case GDISP_CONTROL_ORIENTATION:
-			if (g->g.Orientation == (orientation_t)g->p.ptr)
+			if (g->g.Orientation == (gOrientation)g->p.ptr)
 				return;
-			switch((orientation_t)g->p.ptr) {
-				case GDISP_ROTATE_0:
-				case GDISP_ROTATE_180:
-					if (g->g.Orientation == GDISP_ROTATE_90 || g->g.Orientation == GDISP_ROTATE_270) {
-						coord_t		tmp;
+			switch((gOrientation)g->p.ptr) {
+				case gOrientation0:
+				case gOrientation180:
+					if (g->g.Orientation == gOrientation90 || g->g.Orientation == gOrientation270) {
+						gCoord		tmp;
 
 						tmp = g->g.Width;
 						g->g.Width = g->g.Height;
 						g->g.Height = tmp;
 					}
 					break;
-				case GDISP_ROTATE_90:
-				case GDISP_ROTATE_270:
-					if (g->g.Orientation == GDISP_ROTATE_0 || g->g.Orientation == GDISP_ROTATE_180) {
-						coord_t		tmp;
+				case gOrientation90:
+				case gOrientation270:
+					if (g->g.Orientation == gOrientation0 || g->g.Orientation == gOrientation180) {
+						gCoord		tmp;
 
 						tmp = g->g.Width;
 						g->g.Width = g->g.Height;
@@ -175,7 +175,7 @@ LLDSPEC	color_t gdisp_lld_get_pixel_color(GDisplay *g) {
 				default:
 					return;
 			}
-			g->g.Orientation = (orientation_t)g->p.ptr;
+			g->g.Orientation = (gOrientation)g->p.ptr;
 			return;
 
 		case GDISP_CONTROL_BACKLIGHT:

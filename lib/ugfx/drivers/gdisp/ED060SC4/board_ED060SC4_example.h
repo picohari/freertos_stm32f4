@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /* Board interface definitions for ED060SC4 PrimeView E-ink panel.
@@ -69,58 +69,58 @@ static void eink_delay(int us)
 }
 
 /* Turn the E-ink panel Vdd supply (+3.3V) on or off. */
-static GFXINLINE void setpower_vdd(bool_t on) {
+static GFXINLINE void setpower_vdd(gBool on) {
 	palWritePad(GPIOB, GPIOB_SMPS_CTRL, !on);
 	palWritePad(GPIOA, GPIOA_EINK_VDD, on);
 }
 
 /* Turn the E-ink panel negative supplies (-15V, -20V) on or off. */
-static GFXINLINE void setpower_vneg(bool_t on) {
+static GFXINLINE void setpower_vneg(gBool on) {
 	palWritePad(GPIOA, GPIOA_VNEG_CTRL, on);
 }
 
 /* Turn the E-ink panel positive supplies (-15V, -20V) on or off. */
-static GFXINLINE void setpower_vpos(bool_t on) {
+static GFXINLINE void setpower_vpos(gBool on) {
 	palWritePad(GPIOA, GPIOA_VPOS_CTRL, on);
 }
 
 /* Set the state of the LE (source driver Latch Enable) pin. */
-static GFXINLINE void setpin_le(bool_t on) {
+static GFXINLINE void setpin_le(gBool on) {
 	palWritePad(GPIOB, GPIOB_EINK_LE, on);
 }
 
 /* Set the state of the OE (source driver Output Enable) pin. */
-static GFXINLINE void setpin_oe(bool_t on) {
+static GFXINLINE void setpin_oe(gBool on) {
 	palWritePad(GPIOB, GPIOB_EINK_OE, on);
 }
 
 /* Set the state of the CL (source driver Clock) pin. */
-static GFXINLINE void setpin_cl(bool_t on) {
+static GFXINLINE void setpin_cl(gBool on) {
 	palWritePad(GPIOB, GPIOB_EINK_CL, on);
 }
 
 /* Set the state of the SPH (source driver Start Pulse Horizontal) pin. */
-static GFXINLINE void setpin_sph(bool_t on) {
+static GFXINLINE void setpin_sph(gBool on) {
 	palWritePad(GPIOB, GPIOB_EINK_SPH, on);
 }
 
 /* Set the state of the D0-D7 (source driver Data) pins. */
-static GFXINLINE void setpins_data(uint8_t value) {
+static GFXINLINE void setpins_data(gU8 value) {
 	palWriteGroup(GPIOB, 0xFF, GPIOB_EINK_D0, value);
 }
 
 /* Set the state of the CKV (gate driver Clock Vertical) pin. */
-static GFXINLINE void setpin_ckv(bool_t on) {
+static GFXINLINE void setpin_ckv(gBool on) {
 	palWritePad(GPIOB, GPIOB_EINK_CKV, on);
 }
 
 /* Set the state of the GMODE (gate driver Gate Mode) pin. */
-static GFXINLINE void setpin_gmode(bool_t on) {
+static GFXINLINE void setpin_gmode(gBool on) {
 	palWritePad(GPIOC, GPIOC_EINK_GMODE, on);
 }
 
 /* Set the state of the SPV (gate driver Start Pulse Vertical) pin. */
-static GFXINLINE void setpin_spv(bool_t on) {
+static GFXINLINE void setpin_spv(gBool on) {
 	palWritePad(GPIOB, GPIOB_EINK_SPV, on);
 }
 

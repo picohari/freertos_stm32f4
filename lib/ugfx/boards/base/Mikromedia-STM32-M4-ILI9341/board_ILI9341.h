@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #ifndef _GDISP_LLD_BOARD_H
@@ -39,7 +39,7 @@ static GFXINLINE void post_init_board(GDisplay *g) {
 	(void) g;
 }
 
-static GFXINLINE void setpin_reset(GDisplay *g, bool_t state) {
+static GFXINLINE void setpin_reset(GDisplay *g, gBool state) {
 	(void) g;
 	if(state) {
 		// reset lcd
@@ -49,7 +49,7 @@ static GFXINLINE void setpin_reset(GDisplay *g, bool_t state) {
 	}
 }
 
-static GFXINLINE void set_backlight(GDisplay *g, uint8_t percent) {
+static GFXINLINE void set_backlight(GDisplay *g, gU8 percent) {
 	(void) g;
 	// TODO: can probably pwm this
 	if(percent) {
@@ -76,19 +76,19 @@ static GFXINLINE void release_bus(GDisplay *g) {
  *
  * @notapi
  */
-static GFXINLINE void ili9341_delay(uint16_t dly) {
-  static uint16_t i;
+static GFXINLINE void ili9341_delay(gU16 dly) {
+  static gU16 i;
   for(i = 0; i < dly; i++)
     asm("nop");
 }
 
-static GFXINLINE void write_index(GDisplay *g, uint16_t index) {
+static GFXINLINE void write_index(GDisplay *g, gU16 index) {
 	(void) g;
 	palWriteGroup(GPIOE, 0x00FF, 0, index);
 	CLR_RS; CLR_WR; ili9341_delay(1); SET_WR; ili9341_delay(1); SET_RS;
 }
 
-static GFXINLINE void write_data(GDisplay *g, uint16_t data) {
+static GFXINLINE void write_data(GDisplay *g, gU16 data) {
 	(void) g;
 	palWriteGroup(GPIOE, 0x00FF, 0, data);
 	CLR_WR; ili9341_delay(1); SET_WR; ili9341_delay(1);
@@ -106,8 +106,8 @@ static GFXINLINE void setwritemode(GDisplay *g) {
 	palSetGroupMode(GPIOE, PAL_WHOLE_PORT, 0, PAL_MODE_OUTPUT_PUSHPULL);
 }
 
-static GFXINLINE uint16_t read_data(GDisplay *g) {
-	uint16_t	value;
+static GFXINLINE gU16 read_data(GDisplay *g) {
+	gU16	value;
 	(void) g;
 	CLR_RD;
 	value = palReadPort(GPIOE);

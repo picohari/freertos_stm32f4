@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /********************************************************
@@ -16,12 +16,12 @@
 #include "gfile_fs.h"
 #include "gfile_petitfs_wrapper.h"
 
-static bool_t petitfsExists(const char* fname);
-static bool_t petitfsOpen(GFILE* f, const char* fname);
+static gBool petitfsExists(const char* fname);
+static gBool petitfsOpen(GFILE* f, const char* fname);
 static int petitfsRead(GFILE* f, void* buf, int size);
-static bool_t petitfsSetPos(GFILE* f, long int pos);
+static gBool petitfsSetPos(GFILE* f, gFileSize pos);
 #if GFILE_NEED_FILELISTS && _FS_MINIMIZE <= 1
-	static gfileList *petitfsFlOpen(const char *path, bool_t dirs);
+	static gfileList *petitfsFlOpen(const char *path, gBool dirs);
 	static const char *petitfsFlRead(gfileList *pfl);
 	static void petitfsFlClose(gfileList *pfl);
 #endif
@@ -58,38 +58,38 @@ typedef struct petitfsList {
 } petitfsList;
 
 // optimize these later on. Use an array to have multiple
-static bool_t petitfs_mounted = FALSE;
+static gBool petitfs_mounted = gFalse;
 static FATFS petitfs_fs;
 
-static bool_t petitfsExists(const char* fname)
+static gBool petitfsExists(const char* fname)
 {
 	// Mount first
 	if (!petitfs_mounted && pf_mount(&petitfs_fs) != FR_OK)
-		return FALSE;
+		return gFalse;
 
 	// Open
 	if (pf_open(fname) != FR_OK)
-		return FALSE;
+		return gFalse;
 
-	return TRUE;
+	return gTrue;
 }
 
-static bool_t petitfsOpen(GFILE* f, const char* fname)
+static gBool petitfsOpen(GFILE* f, const char* fname)
 {
 	// No writing
 	if ((f->flags & GFILEFLG_WRITE))
-		return FALSE;
+		return gFalse;
 
 	// Mount first
 	if (!petitfs_mounted && pf_mount(&petitfs_fs) != FR_OK)
-		return FALSE;
+		return gFalse;
 
 	// Open
 	if (pf_open(fname) != FR_OK)
-		return FALSE;
+		return gFalse;
 
 	f->obj = &petitfs_fs;
-	return TRUE;	
+	return gTrue;	
 }
 
 static int petitfsRead(GFILE* f, void* buf, int size)
@@ -103,14 +103,14 @@ static int petitfsRead(GFILE* f, void* buf, int size)
 	return br;
 }
 
-static bool_t petitfsSetPos(GFILE* f, long int pos)
+static gBool petitfsSetPos(GFILE* f, gFileSize pos)
 {
 	(void)	f;
 	return pf_lseek((DWORD)pos) == FR_OK;
 }
 
 #if GFILE_NEED_FILELISTS
-	static gfileList *petitfsFlOpen(const char *path, bool_t dirs) {
+	static gfileList *petitfsFlOpen(const char *path, gBool dirs) {
 		petitfsList	*p;
 		(void) dirs;
 

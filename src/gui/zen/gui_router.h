@@ -10,7 +10,6 @@
 
 
 
-
 typedef struct _GUIWindow {
 	const char 		*text;
     void (*onInit)  (struct _GUIWindow *win, GHandle handle);
@@ -27,10 +26,6 @@ extern GUIWindow *curWindow;
 //void guiWindow_EventLoop(uint32_t timeout);
 void guiWindow_Show   (GUIWindow *win);
 void guiWindow_onInit (GUIWindow *win, GHandle handle);
-
-
-
-
 
 
 #endif /* _GUI_ROUTER_H_ */

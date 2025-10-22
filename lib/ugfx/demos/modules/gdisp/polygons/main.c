@@ -33,7 +33,7 @@
 #define FRAME_DELAY		100			/* The interframe delay in milliseconds */
 
 // Our shape definition
-static const point shape[] = {
+static const gPoint shape[] = {
 		{ 10, 10 },
 		{ 10, 15 },
 		{ 17, 17 },
@@ -49,8 +49,8 @@ static const point shape[] = {
 #define NUM_POINTS	(sizeof(shape)/sizeof(shape[0]))
 
 // Where we put our calculated points
-static point result[NUM_POINTS];
-static point oldresult[NUM_POINTS];
+static gPoint result[NUM_POINTS];
+static gPoint oldresult[NUM_POINTS];
 
 // Make fixed point and floating point options look pretty similar
 #if GMISC_NEED_MATRIXFLOAT2D
@@ -69,7 +69,7 @@ static point oldresult[NUM_POINTS];
 
 
 int main(void) {
-	coord_t		width, height;
+	gCoord		width, height;
 	mtype	scalex, scaley;
 	mtype	scaleincx, scaleincy;
 	mtype	translatex, translatey;
@@ -81,7 +81,7 @@ int main(void) {
 
     // Initialize and clear the display
     gfxInit();
-    gdispClear(White);
+    gdispClear(GFX_WHITE);
 
     // Get the screen size
     width = gdispGetWidth();
@@ -103,7 +103,7 @@ int main(void) {
     transmaxy = INT2MTYPE(height - 15);
     transminy = INT2MTYPE(15);
 
-    while(TRUE) {
+    while(1) {
 
     	// Move to the new location, rotation and scale
 		scalex += scaleincx;
@@ -136,16 +136,16 @@ int main(void) {
 		#endif
 
 	    // Clear the old shape
-    	gdispDrawPoly(0, 0, oldresult, NUM_POINTS, White);
-    	gdispFillConvexPoly(0, 0, oldresult, NUM_POINTS, White);
+    	gdispDrawPoly(0, 0, oldresult, NUM_POINTS, GFX_WHITE);
+    	gdispFillConvexPoly(0, 0, oldresult, NUM_POINTS, GFX_WHITE);
 
     	// Play the new shape position
     	// NOTE: Because our shape is not a true convex polygon, we get some frames
     	//			where the line outline and the filled shape don't match. This is
     	//			expected due to the shapes non-convex nature and was left in the
     	//			demo to demonstrate this exact point.
-    	gdispFillConvexPoly(0, 0, result, NUM_POINTS, Red);
-    	gdispDrawPoly(0, 0, result, NUM_POINTS, Blue);
+    	gdispFillConvexPoly(0, 0, result, NUM_POINTS, GFX_RED);
+    	gdispDrawPoly(0, 0, result, NUM_POINTS, GFX_BLUE);
 
     	// Make sure the display is updated
     	gdispFlush();

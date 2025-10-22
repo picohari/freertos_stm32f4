@@ -41,7 +41,7 @@ static void guiCreate(void)
 	gwinWidgetClearInit(&wi);
 
 	// TextEdit1
-	wi.g.show = TRUE;
+	wi.g.show = gTrue;
 	wi.g.x = 10;
 	wi.g.y = 20;
 	wi.g.width = 200;
@@ -50,7 +50,7 @@ static void guiCreate(void)
 	ghTextedit1 = gwinTexteditCreate(0, &wi, 100);
 
 	// TextEdit2
-	wi.g.show = TRUE;
+	wi.g.show = gTrue;
 	wi.g.x = 10;
 	wi.g.y = 100;
 	wi.g.width = 200;
@@ -59,7 +59,7 @@ static void guiCreate(void)
 	ghTextedit2 = gwinTexteditCreate(0, &wi, 20);
 
 	// TextEdit3
-	wi.g.show = TRUE;
+	wi.g.show = gTrue;
 	wi.g.x = 10;
 	wi.g.y = 180;
 	wi.g.width = 200;
@@ -68,7 +68,7 @@ static void guiCreate(void)
 	ghTextedit3 = gwinTexteditCreate(0, &wi, 100);
 
 	// Virtual keyboard
-	wi.g.show = TRUE;
+	wi.g.show = gTrue;
 	wi.g.x = 0;
 	wi.g.y = (gdispGetHeight()/2);
 	wi.g.width = gdispGetWidth();
@@ -80,11 +80,11 @@ int main(void)
 {
 	gfxInit();
 
-	gdispClear(Silver);
+	gdispClear(GFX_SILVER);
 	gwinSetDefaultFont(gdispOpenFont("DejaVuSans16"));
-	gwinSetDefaultStyle(&WhiteWidgetStyle, FALSE);
-	gwinSetDefaultColor(Black);
-	gwinSetDefaultBgColor(White);
+	gwinSetDefaultStyle(&WhiteWidgetStyle, gFalse);
+	gwinSetDefaultColor(GFX_BLACK);
+	gwinSetDefaultBgColor(GFX_WHITE);
 
 	geventListenerInit(&gl);
 	geventAttachSource(&gl, ginputGetKeyboard(0), 0);

@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /**
@@ -27,13 +27,9 @@
  * @brief A table containing translated strings.
  */
 typedef struct transTable {
-	unsigned numEntries;    /**< The number of strings that this table contains */
+	gU32 numEntries;    /**< The number of strings that this table contains */
 	const char** strings;	/**< The translated strings */
 } transTable;
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * @brief A wrapper macro to make writing and reading translatable applications easier.
@@ -63,7 +59,7 @@ const char* gtransString(const char* string);
  *
  * @return The string at the given index of the current language or 0 if it doesn't exist.
  */
-const char* gtransIndex(unsigned index);
+const char* gtransIndex(gU32 index);
 
 /**
  * @brief Set the base language.
@@ -83,10 +79,6 @@ void gtransSetBaseLanguage(const transTable* const translation);
  * @param[in] translation The translation table
  */
 void gtransSetLanguage(const transTable* const translation);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* GFX_USE_GTRANS */
 

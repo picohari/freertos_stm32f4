@@ -74,7 +74,7 @@ bool_t sdc_lld_is_write_protected(SDCDriver *sdcp) {
 
   (void)sdcp;
 
-  return FALSE;
+  return 0;
 }
 #endif /* HAL_USE_SDC */
 
@@ -96,7 +96,7 @@ bool_t mmc_lld_is_write_protected(MMCDriver *mmcp) {
 
   (void)mmcp;
 
-  return FALSE;
+  return 0;
 }
 #endif
 

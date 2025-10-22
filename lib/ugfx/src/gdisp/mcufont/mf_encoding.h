@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 /* Simple UTF-8 decoder. Also implements the much simpler ASCII and UTF16
@@ -20,9 +20,9 @@
 /* Type used to represent characters internally. */
 #if MF_ENCODING == MF_ENCODING_ASCII
 	typedef char mf_char;
-	#define MFCHAR2UINT16(c)	((uint16_t)(uint8_t)(c))
+	#define MFCHAR2UINT16(c)	((gU16)(gU8)(c))
 #else
-	typedef uint16_t mf_char;
+	typedef gU16 mf_char;
 	#define MFCHAR2UINT16(c)	(c)
 #endif
 
@@ -32,7 +32,7 @@ typedef const char * mf_str;
 #elif MF_ENCODING == MF_ENCODING_UTF8
 typedef const char * mf_str;
 #elif MF_ENCODING == MF_ENCODING_UTF16
-typedef const uint16_t * mf_str;
+typedef const gU16 * mf_str;
 #elif MF_ENCODING == MF_ENCODING_WCHAR
 #include <stddef.h>
 typedef const wchar_t * mf_str;
@@ -40,10 +40,10 @@ typedef const wchar_t * mf_str;
 
 /* Returns the next character in the string and advances the pointer.
  * When the string ends, returns 0 and leaves the pointer at the 0 byte.
- * 
+ *
  * str: Pointer to variable holding current location in string.
  *      Initialize it to the start of the string.
- * 
+ *
  * Returns: The next character, as unicode codepoint.
  */
 MF_EXTERN mf_char mf_getchar(mf_str *str);

@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #ifndef _GINPUT_LLD_MOUSE_BOARD_H
@@ -20,16 +20,16 @@
 #define GMOUSE_STMPE610_BOARD_DATA_SIZE			0
 
 // Options - Leave these commented to make it user configurable in the gfxconf.h
-//#define GMOUSE_STMPE610_READ_PRESSURE		FALSE
-//#define GMOUSE_STMPE610_SELF_CALIBRATE	FALSE
-//#define GMOUSE_STMPE610_TEST_MODE			FALSE
+//#define GMOUSE_STMPE610_READ_PRESSURE		GFXOFF
+//#define GMOUSE_STMPE610_SELF_CALIBRATE	GFXOFF
+//#define GMOUSE_STMPE610_TEST_MODE			GFXOFF
 
-// If TRUE this board has the STMPE610 IRQ pin connected to a GPIO.
+// If GFXON this board has the STMPE610 IRQ pin connected to a GPIO.
 // Note: Although this board has such a pin its reliability has not been tested on this board!!!!!
-#define GMOUSE_STMPE610_GPIO_IRQPIN				FALSE
+#define GMOUSE_STMPE610_GPIO_IRQPIN				GFXOFF
 
-// If TRUE this is a really slow CPU and we should always clear the FIFO between reads.
-#define GMOUSE_STMPE610_SLOW_CPU				FALSE
+// If GFXON this is a really slow CPU and we should always clear the FIFO between reads.
+#define GMOUSE_STMPE610_SLOW_CPU				GFXOFF
 
 // Slave address
 #define STMPE610_ADDR				(0x88 >> 1)
@@ -43,12 +43,12 @@ static const I2CConfig i2ccfg = {
 	FAST_DUTY_CYCLE_2,
 };
 
-static bool_t init_board(GMouse* m, unsigned driverinstance) {
+static gBool init_board(GMouse* m, unsigned driverinstance) {
 	(void)		m;
 
 	// This board only supports one touch panel
 	if (driverinstance)
-		return FALSE;
+		return gFalse;
 
     palSetPadMode(GPIOA, 0, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING);          /* TP IRQ */
     palSetPadMode(GPIOB, 6, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN); /* SCL */
@@ -56,11 +56,11 @@ static bool_t init_board(GMouse* m, unsigned driverinstance) {
 
 	i2cStart(&I2CD1, &i2ccfg);
 
-	return TRUE;
+	return gTrue;
 }
 
 #if GMOUSE_STMPE610_GPIO_IRQPIN
-	static bool_t getpin_irq(GMouse* m) {
+	static gBool getpin_irq(GMouse* m) {
 		(void)		m;
 
 		return !palReadPad(GPIOA, 0);
@@ -77,8 +77,8 @@ static GFXINLINE void release_bus(GMouse* m) {
 
 }
 
-static void write_reg(GMouse* m, uint8_t reg, uint8_t val) {
-	uint8_t		txbuf[2];
+static void write_reg(GMouse* m, gU8 reg, gU8 val) {
+	gU8		txbuf[2];
 	(void)		m;
 
 	txbuf[0] = reg;
@@ -89,8 +89,8 @@ static void write_reg(GMouse* m, uint8_t reg, uint8_t val) {
 	i2cReleaseBus(&I2CD1);
 }
 
-static uint8_t read_byte(GMouse* m, uint8_t reg) {
-	uint8_t		rxbuf[1];
+static gU8 read_byte(GMouse* m, gU8 reg) {
+	gU8		rxbuf[1];
 	(void)		m;
 
 	rxbuf[0] = 0;
@@ -102,8 +102,8 @@ static uint8_t read_byte(GMouse* m, uint8_t reg) {
 	return rxbuf[0];
 }
 
-static uint16_t read_word(GMouse* m, uint8_t reg) {
-	uint8_t		rxbuf[2];
+static gU16 read_word(GMouse* m, gU8 reg) {
+	gU8		rxbuf[2];
 	(void)		m;
 
 	rxbuf[0] = 0;
@@ -113,7 +113,7 @@ static uint16_t read_word(GMouse* m, uint8_t reg) {
 	i2cMasterTransmitTimeout(&I2CD1, STMPE610_ADDR, &reg, 1, rxbuf, 2, MS2ST(STMPE610_TIMEOUT));
 	i2cReleaseBus(&I2CD1);
 
-	return (((uint16_t)rxbuf[0]) << 8) | rxbuf[1];
+	return (((gU16)rxbuf[0]) << 8) | rxbuf[1];
 }
 
 #endif /* _GINPUT_LLD_MOUSE_BOARD_H */

@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  */
 
 #ifndef _LLD_GINPUT_MOUSE_CONFIG_H
@@ -13,9 +13,9 @@
 //	When operating in touch mode we allow sloppier clicks etc
 #if 1
 	#define GINPUT_MOUSE_EVENT_TYPE					GEVENT_MOUSE
-	#define GINPUT_MOUSE_CLICK_TIME					TIME_INFINITE			// Long click != Context Click
-	#define GINPUT_MOUSE_NEED_CALIBRATION			FALSE
-	#define GINPUT_MOUSE_LLD_CALIBRATION_LOADSAVE	FALSE
+	#define GINPUT_MOUSE_CLICK_TIME					gDelayForever			// Long click != Context Click
+	#define GINPUT_MOUSE_NEED_CALIBRATION			GFXOFF
+	#define GINPUT_MOUSE_LLD_CALIBRATION_LOADSAVE	GFXOFF
 	#define GINPUT_MOUSE_READ_CYCLES				1
 	#define GINPUT_MOUSE_MAX_CALIBRATION_ERROR		-1
 	#define GINPUT_MOUSE_MAX_CLICK_JITTER			0
@@ -23,8 +23,8 @@
 #else
 	#define GINPUT_MOUSE_EVENT_TYPE					GEVENT_TOUCH
 	#define GINPUT_MOUSE_CLICK_TIME					700						// Long click = Context Click
-	#define GINPUT_MOUSE_NEED_CALIBRATION			FALSE					// Can be set to TRUE just for testing
-	#define GINPUT_MOUSE_LLD_CALIBRATION_LOADSAVE	FALSE
+	#define GINPUT_MOUSE_NEED_CALIBRATION			GFXOFF					// Can be set to GFXON just for testing
+	#define GINPUT_MOUSE_LLD_CALIBRATION_LOADSAVE	GFXOFF
 	#define GINPUT_MOUSE_READ_CYCLES				1
 	#define GINPUT_MOUSE_MAX_CALIBRATION_ERROR		2
 	#define GINPUT_MOUSE_MAX_CLICK_JITTER			2
@@ -32,10 +32,10 @@
 #endif
 
 // This driver supports both an "interrupt" mode, and a polled mode
-#define GINPUT_MOUSE_POLL_PERIOD				TIME_INFINITE			// Interrupt driven by the Window thread
+#define GINPUT_MOUSE_POLL_PERIOD				gDelayForever			// Interrupt driven by the Window thread
 //#define GINPUT_MOUSE_POLL_PERIOD				25						// Poll driven
 
 // This driver does not require rotation of co-ordinates for orientations other than 0.
-#define GINPUT_MOUSE_NO_ROTATION				TRUE
+#define GINPUT_MOUSE_NO_ROTATION				GFXON
 
 #endif /* _LLD_GINPUT_MOUSE_CONFIG_H */

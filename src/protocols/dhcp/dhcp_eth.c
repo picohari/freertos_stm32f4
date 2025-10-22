@@ -88,7 +88,7 @@ void dhcp_notification(struct netif *netif)
 #ifdef DHCP_LOG
     uint8_t iptxt[20];
     sprintf((char *)iptxt, "%s", ip4addr_ntoa((const ip4_addr_t *)&netif->ip_addr));
-    debug("Static IP address: %s\n", iptxt);
+    debug("Static IP address: %s\n\r", iptxt);
 #else    
 
     /* Turn On LED 1 to indicate ETH and LwIP init success*/
@@ -105,7 +105,7 @@ void dhcp_notification(struct netif *netif)
 #endif  /* USE_DHCP */
 
 #ifdef DHCP_LOG
-    debug("The network cable is not connected \n");
+    debug("The network cable is not connected \n\r");
 #else    
     /* Turn On LED 2 to indicate ETH and LwIP init error */
     BSP_LED_On(LED2);
@@ -113,6 +113,12 @@ void dhcp_notification(struct netif *netif)
 
   } 
 }
+
+
+
+
+
+
 
 /**
   * @brief  This function notify user about link status changement.
@@ -132,32 +138,36 @@ void ethernetif_notify_conn_changed(struct netif *netif)
   {
 
 #ifdef DHCP_LOG        
-    debug("The network cable is now connected \n");
+    //writef("The network cable is now connected \n\r");
 #else
     BSP_LED_Off(LED2);
     BSP_LED_On(LED1);
 #endif /* DHCP_LOG */
     
+
 #ifdef USE_DHCP
     /* Update DHCP state machine */
     DHCP_state = DHCP_START;
 #else
-    IP_ADDR4(&ipaddr,IP_ADDR0,IP_ADDR1,IP_ADDR2,IP_ADDR3);
-    IP_ADDR4(&netmask,NETMASK_ADDR0,NETMASK_ADDR1,NETMASK_ADDR2,NETMASK_ADDR3);
-    IP_ADDR4(&gw,GW_ADDR0,GW_ADDR1,GW_ADDR2,GW_ADDR3);  
+    IP_ADDR4(&ipaddr, IP_ADDR0, IP_ADDR1, IP_ADDR2, IP_ADDR3);
+    IP_ADDR4(&netmask, NETMASK_ADDR0, NETMASK_ADDR1, NETMASK_ADDR2, NETMASK_ADDR3);
+    IP_ADDR4(&gw, GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3);  
  
     netif_set_addr(netif, &ipaddr , &netmask, &gw);
     
 #ifdef DHCP_LOG        
     uint8_t iptxt[20];
     sprintf((char *)iptxt, "%s", ip4addr_ntoa((const ip4_addr_t *)&netif->ip_addr));
-    debug("Static IP address: %s\n", iptxt);
+    writef("Static IP address: %s\n\r", iptxt);
 #endif /* DHCP_LOG */
+
 #endif /* USE_DHCP */   
     
     /* When the netif is fully configured this function must be called.*/
     netif_set_up(netif);     
   }
+  
+  /* Link is down */
   else
   {
 
@@ -170,7 +180,7 @@ void ethernetif_notify_conn_changed(struct netif *netif)
     netif_set_down(netif);
     
 #ifdef DHCP_LOG
-    debug("The network cable is not connected \n");
+    writef("Network disconnected\n\r");
 #else
     BSP_LED_Off(LED1);
     BSP_LED_On(LED2);

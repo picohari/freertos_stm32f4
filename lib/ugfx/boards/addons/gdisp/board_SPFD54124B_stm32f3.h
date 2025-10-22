@@ -2,7 +2,7 @@
  * This file is subject to the terms of the GFX License. If a copy of
  * the license was not distributed with this file, you can obtain one at:
  *
- *              http://ugfx.org/license.html
+ *              http://ugfx.io/license.html
  * 
  * Mail: fede.677387@hotmail.it
  *
@@ -31,13 +31,13 @@
 #define SET_RST				palSetPad(SPFD54124B_PIN_PORT, SPFD54124B_PIN_RST);
 #define CLR_RST				palClearPad(SPFD54124B_PIN_PORT, SPFD54124B_PIN_RST);
 
-#define USE_SOFT_SPI            TRUE
+#define USE_SOFT_SPI            GFXON
 #define USE_HARD_SPI            !(USE_SOFT_SPI)
 
 #if USE_HARD_SPI
 
 #if GFX_USE_OS_CHIBIOS
-static int32_t thdPriority = 0;
+static gI32 thdPriority = 0;
 #endif
 
 /*
@@ -58,9 +58,9 @@ static GFXINLINE void soft_spi_sck(void){
   palClearPad(SPFD54124B_SPI_PORT, SPFD54124B_SPI_SCK);
 }
 
-static GFXINLINE void soft_spi_write_9bit(uint16_t data){
+static GFXINLINE void soft_spi_write_9bit(gU16 data){
 
-  uint8_t i;
+  gU8 i;
 
   // activate lcd by low on CS pin
   palClearPad(SPFD54124B_SPI_PORT, SPFD54124B_SPI_NSS);
@@ -81,7 +81,7 @@ static GFXINLINE void soft_spi_write_9bit(uint16_t data){
 }
 #endif
 
-static GFXINLINE void setpin_reset(GDisplay *g, bool_t state) {
+static GFXINLINE void setpin_reset(GDisplay *g, gBool state) {
   (void) g;
   if(state) {
     CLR_RST;
@@ -100,7 +100,7 @@ static GFXINLINE void init_board(GDisplay *g) {
      * SPI1 I/O pins setup.
      */
     palSetPadMode(SPFD54124B_PIN_PORT, SPFD54124B_PIN_RST,  PAL_MODE_OUTPUT_PUSHPULL);            /* RESET */
-    setpin_reset(g, TRUE);
+    setpin_reset(g, gTrue);
 
 #if USE_HARD_SPI
     palSetPadMode(SPFD54124B_SPI_PORT, SPFD54124B_SPI_SCK,  PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);   /* SCK. */
@@ -131,7 +131,7 @@ static GFXINLINE void acquire_bus(GDisplay *g) {
   (void) g;
 #if USE_HARD_SPI
 #if GFX_USE_OS_CHIBIOS
-  thdPriority = (int32_t)chThdGetPriority();
+  thdPriority = (gI32)chThdGetPriority();
   chThdSetPriority(HIGHPRIO);
 #endif
   spiAcquireBus(&SPFD54124B_SPID);
@@ -148,10 +148,10 @@ static GFXINLINE void release_bus(GDisplay *g) {
 #endif
 }
 
-static GFXINLINE void write_data(GDisplay *g, uint16_t data) {
+static GFXINLINE void write_data(GDisplay *g, gU16 data) {
   (void) g;
 
-  uint16_t b;
+  gU16 b;
 
 #if USE_HARD_SPI
 
@@ -176,7 +176,7 @@ static GFXINLINE void write_data(GDisplay *g, uint16_t data) {
 
 }
 
-static GFXINLINE void write_index(GDisplay *g, uint16_t index) {
+static GFXINLINE void write_index(GDisplay *g, gU16 index) {
   (void)    g;
 
 #if USE_HARD_SPI
@@ -195,7 +195,7 @@ static GFXINLINE void post_init_board(GDisplay *g) {
   (void) g;
 }
 
-static GFXINLINE void set_backlight(GDisplay *g, uint8_t percent) {
+static GFXINLINE void set_backlight(GDisplay *g, gU8 percent) {
   (void) g;
   (void) percent;
 }

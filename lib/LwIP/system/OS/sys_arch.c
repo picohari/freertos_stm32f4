@@ -417,4 +417,20 @@ void sys_arch_unprotect(sys_prot_t pval)
   osMutexRelease(lwip_sys_mutex);
 }
 
+
+/*
+  This is the required call to HAL system timer for lwIP. The declaration is made
+  in src/include/lwip/sys.h
+  
+  Returns the current time in milliseconds
+
+*/
+#include "stm32f4xx_hal.h"
+
+u32_t sys_now(void)
+{
+    return HAL_GetTick();
+}
+
+
 #endif /* !NO_SYS */
