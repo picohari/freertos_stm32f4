@@ -30,12 +30,14 @@
     #define GFX_CPU                         GFX_CPU_X64
     #define GDISP_SCREEN_WIDTH              320
     #define GDISP_SCREEN_HEIGHT             240
+    #define LOG_GUI_MENU                    TRUE    /* We log only on simulator */
 #else
 /* We the real thing ... */
     #define GFX_CPU                         GFX_CPU_CORTEX_M4_FP
     #define GFX_USE_OS_FREERTOS             TRUE
     #define GFX_OS_NO_INIT                  TRUE
     #define GFX_OS_INIT_NO_WARNING          TRUE
+    #define LOG_GUI_MENU                    FALSE
 #endif
 
 ///////////////////////////////////////////////////////////////////////////

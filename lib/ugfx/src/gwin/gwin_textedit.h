@@ -59,6 +59,10 @@ typedef struct GTexteditObject {
 GHandle gwinGTexteditCreate(GDisplay* g, GTexteditObject* wt, GWidgetInit* pInit, gMemSize maxSize);
 #define gwinTexteditCreate(wt, pInit, maxSize)			gwinGTexteditCreate(GDISP, wt, pInit, maxSize)
 
+GHandle gwinGTexteditSetCursorPosition(GTexteditObject* wt, size_t position);
+#define gwinTextEditSetCursorPosition(wt, position) gwinGTexteditSetCursorPosition(wt, position);
+
+
 /**
  * @brief				Send a special key to the textedit such as GKEY_LEFT, GKEY_RIGHT, GKEY_HOME, GKEY_END
  *

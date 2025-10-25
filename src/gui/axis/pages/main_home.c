@@ -1,11 +1,13 @@
-
-#include <stdio.h>
-
+/* ============================================================================
+ * File:        main_home.c
+ * Description: 
+ * ============================================================================ */
+ 
+#include <stdbool.h>
 #include "gfx.h"
 #include "gui.h"
 
 #ifdef UGFXSIMULATOR
-	#include <stdio.h>
 	#include <stdlib.h>
 	#include <unistd.h>
 	#include <fcntl.h>
@@ -17,47 +19,42 @@
 	#include "stm32f4xx_hal.h"
 	#include "cmsis_os.h"
 	#include "XCore407I.h"
-	#include "gwin_fastlabel.h"
 #endif
 
 #include "style.h"
+#include "gui_menu.h"
+#include "gui_logger.h"
 
-#include "ic_poweroff.h"
 
 /* PAGE CONTAINER & WIDGETS */
-GHandle ghContainer_PageHome;
-GHandle ghContainer_Header;
-GHandle ghContainer_Footer;
+GHandle ghCont_HomeHeader;
+GHandle ghCont_HomeBody;
+GHandle ghCont_HomeFooter;
+
 
 /* ICONS */
+GHandle ghIcon_Connection;
 GHandle ghIcPowerOff;
 GHandle ghIcPowerOn;
-GHandle ghIcon_Connection;
+
 
 /* LABELS (static) */
 GHandle ghLabelStatus;
 
 /* LABELS (dynamic) */
-GHandle ghLabelAxis_X, ghLabelAxis_Y, ghLabelAxis_Z;
+//GHandle ghLabelRotary;	
 
-GHandle ghLabelG53_X;	// G53: current machine coordinates
-GHandle ghLabelG53_Y;
-GHandle ghLabelG53_Z;
-GHandle ghLabelRotary;	
 
-/* Declare fast label objects (can be global or in your window structure) */
-static GFastLabelObject gFastLabelX;
-static GFastLabelObject gFastLabelY;
-static GFastLabelObject gFastLabelZ;
-
-/* Handles */
-GHandle ghFastLabelX;
-GHandle ghFastLabelY;
-GHandle ghFastLabelZ;
+/* OTHER */
 
 
 /* BUTTONS */
-GHandle ghBtn_MENU;
+GHandle ghBtn_Menu1;
+GHandle ghBtn_Menu2;
+GHandle ghBtn_Menu3;
+GHandle ghBtn_Menu4;
+GHandle ghBtn_Setup;
+
 
 /* IMAGES */
 
@@ -67,49 +64,82 @@ GTimer gtBlinker;
 
 
 
+/* Page Prototypes */
+static void MainPage_onShow(void);
+static void MainPage_onClose(void);
+static bool MainPage_onEvent(MenuPageDef_t *page, GEvent *pe);
+
+
+/* Other prototypes */
+//static void blinkTimer_callback(void* arg);
+
+
+/* Create µGFX page */
 void create_PageHome(void) {
 
 	GWidgetInit		wi;
-
 	gwinWidgetClearInit(&wi);
+
+	gwinSetDefaultFont(ctrld_16b);
+
+	/* Main home container - must be present on all pages if in menu tree */
+	wi.g.show = FALSE;
+	wi.g.x = 0;
+	wi.g.y = 0;
+	wi.g.width  = 320;
+	wi.g.height = 240;
+	wi.g.parent = 0;
+	wi.text = "Home";
+	wi.customDraw = 0;
+	wi.customParam = 0;
+	wi.customStyle = 0;
+
+	/* Menu assignments */
+	menuPages[PAGE_MAIN].title 		= wi.text;
+	menuPages[PAGE_MAIN].container 	= gwinContainerCreate(0, &wi, 0);
+    menuPages[PAGE_MAIN].id 		= PAGE_MAIN;
+    menuPages[PAGE_MAIN].onShow 	= MainPage_onShow;
+    menuPages[PAGE_MAIN].onClose 	= MainPage_onClose;
+	menuPages[PAGE_MAIN].onEvent 	= MainPage_onEvent;
+
+
+	/* Here comes the content for this page */
 
 	/* Header container */
 	wi.g.show = TRUE;
 	wi.g.x = 0;
 	wi.g.y = 0;
-	wi.g.width = 320;
+	wi.g.width  = 320;
 	wi.g.height = 18;
-	wi.g.parent = 0;
-	wi.text = "Header";
+	//wi.g.parent = ghCont_HomeMain;
+	wi.g.parent = menuPages[PAGE_MAIN].container;
+	wi.text = "";
 	wi.customDraw = 0;
 	wi.customParam = 0;
 	wi.customStyle = &color_header;
-	ghContainer_Header = gwinContainerCreate(0, &wi, 0);
+	ghCont_HomeHeader = gwinContainerCreate(0, &wi, 0);
 
-	gwinSetDefaultFont(ctrld_16b);
-
+	#if 1
 	/* Status Label */
 	wi.g.show = TRUE;
 	wi.g.x = 2;
 	wi.g.y = 1;
-	wi.g.width = 320;
+	wi.g.width  = 320;
 	wi.g.height = 16;
-	wi.g.parent = ghContainer_Header;
+	wi.g.parent = ghCont_HomeHeader;
 	wi.text = "Idle";
 	wi.customDraw = gwinLabelDrawJustifiedLeft;
 	wi.customParam = 0;
 	wi.customStyle = &color_header;
 	ghLabelStatus = gwinLabelCreate(0, &wi);
 
-
-
 	/* Connection Icon Widget */
 	wi.g.show = TRUE;
 	wi.g.x = 300;
 	wi.g.y = 0;
-	wi.g.width = 18;
+	wi.g.width  = 18;
 	wi.g.height = 18;
-	wi.g.parent = ghContainer_Header;
+	wi.g.parent = ghCont_HomeHeader;
 	wi.text = "";
 	wi.customDraw = gwinLabelDrawJustifiedCenter;
 	wi.customParam = 0;
@@ -117,15 +147,15 @@ void create_PageHome(void) {
 	ghIcon_Connection = gwinContainerCreate(0, &wi, 0);
 
 	/* Draw Icon Power OFF */
-	wi.g.show = FALSE;
+	wi.g.show = TRUE;
 	wi.g.x = 0; 
 	wi.g.y = 0;
-	wi.g.width = 18;
+	wi.g.width  = 18;
 	wi.g.height = 18;
 	wi.g.parent = ghIcon_Connection;
 	ghIcPowerOff = gwinImageCreate(0, &wi.g);
 	gwinImageOpenFile(ghIcPowerOff, "ic_power_off.bmp");
-
+	#if 0
 	/* Draw Icon Power ON*/
 	wi.g.show = FALSE;
 	wi.g.x = 0; 
@@ -135,152 +165,73 @@ void create_PageHome(void) {
 	wi.g.parent = ghIcon_Connection;
 	ghIcPowerOn = gwinImageCreate(0, &wi.g);
 	gwinImageOpenFile(ghIcPowerOn, "ic_power_on.bmp");
+	#endif
+	#endif /* Status label */
 
 
-
-	/* Display Coordinates */
-	#if 0
-	/* Base container */
+	/* Body container */
 	wi.g.show = TRUE;
 	wi.g.x = 0;
-	wi.g.y = 20;
-	wi.g.width = 320;
-	wi.g.height = 200;
-	wi.g.parent = 0;
-	wi.text = "Container";
+	wi.g.y = 19;
+	wi.g.width  = 320;
+	wi.g.height = 178;
+	//wi.g.parent = ghCont_HomeMain;
+	wi.g.parent = menuPages[PAGE_MAIN].container;
+	wi.text = "";
+	wi.customDraw = 0;
+	wi.customParam = 0;
+	wi.customStyle = &color_black;
+	ghCont_HomeBody = gwinContainerCreate(0, &wi, 0);
+
+
+	/* Footer container */
+	wi.g.show = TRUE;
+	wi.g.x = 0;
+	wi.g.y = 198;
+	wi.g.width  = 320;
+	wi.g.height = 42;				// change to 38 if borders are enabled
+	wi.g.parent = menuPages[PAGE_MAIN].container;
+	wi.text = "";
 	wi.customDraw = 0;
 	wi.customParam = 0;
 	wi.customStyle = 0;
-	ghContainer_PageHome = gwinContainerCreate(0, &wi, 0);
+	ghCont_HomeFooter = gwinContainerCreate(0, &wi, 0);
 
-	gwinSetDefaultFont(neep_12x24b);
+	/* Default parameters for buttons */
+	gwinWidgetClearInit(&wi);
 
-	/* X Label */
-	wi.g.show = TRUE;
-	wi.g.x = 4;
-	wi.g.y = 20;
-	wi.g.width = 25;
-	wi.g.height = 26;
-	wi.g.parent = ghContainer_PageHome;
-	wi.text = "X";
-	wi.customDraw = 0;
-	wi.customParam = 0;
-	wi.customStyle = &axislabels_unhomed;
-	ghLabelAxis_X = gwinButtonCreate(0, &wi);
-	
-	/* Y Label */
-	wi.g.show = TRUE;
-	wi.g.x = 4;
-	wi.g.y = 50;
-	wi.g.width = 25;
-	wi.g.height = 26;
-	wi.g.parent = ghContainer_PageHome;
-	wi.text = "Y";
-	wi.customDraw = 0;
-	wi.customParam = 0;
-	wi.customStyle = &axislabels_homed;
-	ghLabelAxis_Y = gwinButtonCreate(0, &wi);
+	wi.g.show = gTrue;
+	wi.g.x = 0;
+	wi.g.y = 0;
+	wi.g.width  = 65;
+	wi.g.height = 42;
+	wi.g.parent = ghCont_HomeFooter;
+	wi.customStyle = &color_buttons;
 
-	/* Z Label */
-	wi.g.show = TRUE;
-	wi.g.x = 4;
-	wi.g.y = 80;
-	wi.g.width = 25;
-	wi.g.height = 26;
-	wi.g.parent = ghContainer_PageHome;
-	wi.text = "Z";
-	wi.customDraw = 0;
-	wi.customParam = 0;
-	wi.customStyle = &axislabels_active;
-	ghLabelAxis_Z = gwinButtonCreate(0, &wi);
+	/* Button 1 */
+	wi.g.x = 0;
+	wi.text = "Move";
+	ghBtn_Menu1 = gwinButtonCreate(0, &wi);
 
-	#endif
-	
-	#if 0
-    // Initialize X coordinate label
-    gwinWidgetClearInit(&wi);
-	gwinSetDefaultFont(neep_12x24b);
-	
-    wi.g.show = gTrue;
-    wi.g.x = 50;
-    wi.g.y = 100;
-    wi.g.width = 150;
-    wi.g.height = 35;
-    wi.text = "0.000";
-    wi.customStyle = &color_white;  // Or use default
-    ghFastLabelX = gwinGFastLabelCreate(0, &gFastLabelX, &wi);
-    gwinFastLabelSetJustify(ghFastLabelX, justifyRight);
-	
-    // Similar for Y and Z...
-    wi.g.y = 140;
-    ghFastLabelY = gwinGFastLabelCreate(0, &gFastLabelY, &wi);
-    gwinFastLabelSetJustify(ghFastLabelY, justifyRight);
-    
-    wi.g.y = 180;
-    ghFastLabelZ = gwinGFastLabelCreate(0, &gFastLabelZ, &wi);
-    gwinFastLabelSetJustify(ghFastLabelZ, justifyRight);
+	/* Button 2 */
+	wi.g.x = 64;
+	wi.text = "View";
+	ghBtn_Menu2 = gwinButtonCreate(0, &wi);	
 
-	#endif
+	/* Button 3 */
+	wi.g.x = 128;
+	wi.text = "CMD";
+	ghBtn_Menu3 = gwinButtonCreate(0, &wi);	
 
+	/* Button 4 */
+	wi.g.x = 192;
+	wi.text = "Utils";
+	ghBtn_Menu4 = gwinButtonCreate(0, &wi);	
 
-	gwinSetDefaultFont(neep_12x24b);
-
-	#if 0
-		
-	/* X Coordinates */
-	wi.g.show = TRUE;
-	wi.g.x = 30;
-	wi.g.y = 20;
-	wi.g.width = 120;
-	wi.g.height = 24;
-	wi.g.parent = 0;
-	wi.text = "-1000.000";
-	wi.customDraw = gwinLabelDrawJustifiedRight;
-	wi.customParam = 0;
-	wi.customStyle = 0;
-	ghLabelG53_X = gwinLabelCreate(0, &wi);
-
-	/* Y Coordinates */
-	wi.g.show = TRUE;
-	wi.g.x = 30;
-	wi.g.y = 50;
-	wi.g.width = 120;
-	wi.g.height = 24;
-	wi.g.parent = 0;
-	wi.text = "600.000";
-	wi.customDraw = gwinLabelDrawJustifiedRight;
-	wi.customParam = 0;
-	wi.customStyle = 0;
-	ghLabelG53_Y = gwinLabelCreate(0, &wi);
-
-	/* Y Coordinates */
-	wi.g.show = TRUE;
-	wi.g.x = 30;
-	wi.g.y = 80;
-	wi.g.width = 120;
-	wi.g.height = 24;
-	wi.g.parent = 0;
-	wi.text = "80.000";
-	wi.customDraw = gwinLabelDrawJustifiedRight;
-	wi.customParam = 0;
-	wi.customStyle = 0;
-	ghLabelG53_Z = gwinLabelCreate(0, &wi);
-	
-	#endif
-
-	/* Rotary encoder test */
-	wi.g.show = TRUE;
-	wi.g.x = 30;
-	wi.g.y = 150;
-	wi.g.width = 120;
-	wi.g.height = 24;
-	wi.g.parent = 0;
-	wi.text = "0";
-	wi.customDraw = gwinLabelDrawJustifiedRight;
-	wi.customParam = 0;
-	wi.customStyle = 0;
-	ghLabelRotary = gwinLabelCreate(0, &wi);
-
+	/* Button 5 */
+	wi.g.x = 256;
+	wi.text = "Setup";
+	ghBtn_Setup = gwinButtonCreate(0, &wi);
 
 }
 
@@ -292,68 +243,50 @@ static void blinkTimer_callback(void* arg)
 {
     (void)arg;
  
-    if (gwinGetVisible(ghIcPowerOn) == TRUE) {
-		gwinHide(ghIcPowerOn);
+    if (gwinGetVisible(ghIcPowerOff) == TRUE) {
+		gwinHide(ghIcPowerOff);
 	} else {
-		gwinShow(ghIcPowerOn);
+		gwinShow(ghIcPowerOff);
 	}
 }
 
-static void guiMainHome_onShow(GUIWindow *win) {
 
-	(void) win;
-
+static void MainPage_onShow(void) {
+	LOG_MENU("MAIN: onShow");
 	gtimerInit(&gtBlinker);
 	gtimerStart(&gtBlinker, blinkTimer_callback, NULL, TRUE, 500);
 }
 
 
-static void guiMainHome_onClose(GUIWindow *win) {
-
-	(void) win;
-
+static void MainPage_onClose(void) {
+	LOG_MENU("MAIN: onClose");
+	gtimerStop(&gtBlinker);
+	gtimerDeinit(&gtBlinker);
 }
 
 
-static int guiMainHome_handleEvent(GUIWindow *win, GEvent *pe) {
-
-    (void) win;
+static bool MainPage_onEvent(MenuPageDef_t *page, GEvent *pe) {
+    (void)page; // not used yet
 
     switch (pe->type) {
-
+		
         case GEVENT_GWIN_BUTTON: {
-
-        	GEventGWinButton  *peb = (GEventGWinButton *)pe;
-
-            if (peb->gwin == ghBtn_MENU) {
-                //guiWindow_Show (&winMainMenuOne);
+            GEventGWinButton *be = (GEventGWinButton *)pe;
+            if (be->gwin == ghBtn_Setup) {
+                Menu_ShowPage(MENU_SETUP);
+				LOG_MENU("SETTINGS pressed!");
+                return true;
             }
-
-            else
-                return 0;
-
-            return 1;
+            else if (be->gwin == ghBtn_Menu4) {
+				//Menu_ShowPage(PAGE_ABOUT);
+				LOG_MENU("UTILS pressed!");
+                return true;
+            }
+            break;
         }
 
-        break;
+        default:
+            break;
     }
-
-    return 0;
+    return false; // not handled
 }
-
-
-
-GUIWindow winMainHome = {
-
-/* Title   */	 "Home",
-/* onInit  */    guiWindow_onInit,
-/* onShow  */    guiMainHome_onShow,
-/* onClose */    guiMainHome_onClose,
-/* onEvent */    guiMainHome_handleEvent,
-/* handle  */    0
-
-};
-
-
-
-

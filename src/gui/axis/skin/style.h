@@ -4,18 +4,16 @@
 #include "gfx.h"
 
 
-// WidgetStyle: White
+// WidgetStyle: Header styling
 extern const GWidgetStyle color_header;
 
-// WidgetStyle: White
-extern const GWidgetStyle color_white;
 
-// WidgetStyle: White
-extern const GWidgetStyle color_green;
+extern const GWidgetStyle color_black;
 
-extern const GWidgetStyle axislabels_unhomed;
-extern const GWidgetStyle axislabels_homed;
-extern const GWidgetStyle axislabels_active;
+// WidgetStyle: Buttons
+extern const GWidgetStyle color_buttons;
+
+
 
 
 

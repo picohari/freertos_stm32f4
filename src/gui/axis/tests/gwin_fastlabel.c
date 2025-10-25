@@ -399,3 +399,20 @@ void gwinFastLabelSetJustify(GHandle gh, justify_t justify) {
     fl->justify = justify;
     _gwidgetRedraw(gh);
 }
+
+/**
+ * @brief Set font for fast label
+ */
+void gwinFastLabelSetFont(GHandle gh, font_t font) {
+    GWidgetObject *gw = (GWidgetObject *)gh;
+    
+    if (!gw || !font) {
+        return;
+    }
+    
+    /* Set the font in the base widget structure */
+    gw->g.font = font;
+    
+    /* Trigger redraw with new font */
+    _gwidgetRedraw(gh);
+}

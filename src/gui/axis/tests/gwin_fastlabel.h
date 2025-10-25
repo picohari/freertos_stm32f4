@@ -51,6 +51,16 @@
   */
  void gwinFastLabelSetJustify(GHandle gh, justify_t justify);
  
+ /**
+ * @brief Set font for fast label
+ *
+ * @param gh Handle to fast label widget
+ * @param font Font to be used
+ */
+void gwinFastLabelSetFont(GHandle gh, font_t font) {
+    GWidgetObject *gw = (GWidgetObject *)gh;
+
+
  #ifdef __cplusplus
  }
  #endif

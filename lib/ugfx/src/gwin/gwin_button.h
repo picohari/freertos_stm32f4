@@ -215,8 +215,13 @@ void gwinButtonDraw_Normal(GWidgetObject *gw, void *param);
 	 * @api
 	 */
 	void gwinButtonDraw_Image(GWidgetObject *gw, void *param);
+
+	void gwinButtonDraw_Image_Icon(GWidgetObject *gw, void *param);
+	
 #endif
 /** @} */
+
+	void gwinButtonDraw_Clear(GWidgetObject *gw, void *param);
 
 #endif /* _GWIN_BUTTON_H */
 /** @} */

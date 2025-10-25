@@ -386,6 +386,91 @@ void gwinSliderDraw_Std(GWidgetObject *gw, void *param) {
 	#undef gsw
 }
 
+void gwinSliderDraw_Bars(GWidgetObject *gw, void *param) {
+	#define gsw			((GSliderObject *)gw)
+	const GColorSet *	pcol;
+	(void)				param;
+
+
+	uint8_t i;
+	uint8_t dash_width = 3;
+	uint8_t dash_gap   = 2;
+
+	int16_t num_dashes   = gsw->dpos   / (dash_width + dash_gap);
+	int16_t total_dashes = gw->g.width / (dash_width + dash_gap);
+	
+
+	if (gw->g.vmt != (gwinVMT *)&sliderVMT)
+		return;
+
+	if ((gw->g.flags & GWIN_FLG_SYSENABLED))
+		pcol = &gw->pstyle->enabled;
+	else
+		pcol = &gw->pstyle->disabled;
+
+	// Vertical slider
+	if (gw->g.width < gw->g.height) {
+		if (gsw->dpos != gw->g.height-1)
+			gdispGFillArea(gw->g.display, gw->g.x, gw->g.y+gsw->dpos, gw->g.width, gw->g.height - gsw->dpos, pcol->progress);		// Active area
+		if (gsw->dpos != 0)
+			gdispGFillArea(gw->g.display, gw->g.x, gw->g.y, gw->g.width, gsw->dpos, pcol->fill);									// Inactive area
+		gdispGDrawBox(gw->g.display, gw->g.x, gw->g.y, gw->g.width, gw->g.height, pcol->edge);										// Edge
+		gdispGDrawLine(gw->g.display, gw->g.x, gw->g.y+gsw->dpos, gw->g.x+gw->g.width-1, gw->g.y+gsw->dpos, pcol->edge);			// Thumb
+		if (gsw->dpos >= 2)
+			gdispGDrawLine(gw->g.display, gw->g.x, gw->g.y+gsw->dpos-2, gw->g.x+gw->g.width-1, gw->g.y+gsw->dpos-2, pcol->edge);	// Thumb
+		if (gsw->dpos <= gw->g.height-2)
+			gdispGDrawLine(gw->g.display, gw->g.x, gw->g.y+gsw->dpos+2, gw->g.x+gw->g.width-1, gw->g.y+gsw->dpos+2, pcol->edge);	// Thumb
+
+	// Horizontal slider
+	} else {
+
+#if 0
+		if (gsw->dpos != gw->g.width-1)
+			gdispGFillArea(gw->g.display, gw->g.x+gsw->dpos, gw->g.y, gw->g.width-gsw->dpos, gw->g.height, HTML2COLOR(0x141414));				// Inactive area
+
+		if (gsw->dpos != 0)
+			gdispGFillArea(gw->g.display, gw->g.x, gw->g.y, gsw->dpos, gw->g.height, HTML2COLOR(0xEB9300));								// Active area
+
+		gdispGDrawBox(gw->g.display, gw->g.x, gw->g.y, gw->g.width, gw->g.height, HTML2COLOR(0x6c6c6c));							// Edge
+#else
+		for ( i = 0; i < total_dashes; i++) {
+			/* GREY Background lite off */
+			//gdispGFillArea(gw->g.display, gw->g.x + (i * (dash_width + dash_gap) + 1 ), gw->g.y, (dash_width) , gw->g.height, HTML2COLOR(0x161616));
+			
+			gdispGFillArea(gw->g.display, gw->g.x + (i * (dash_width + dash_gap) + 1 ), gw->g.y, (dash_width) , gw->g.height, HTML2COLOR(0x000714));
+		}
+
+		for ( i = 0; i < num_dashes + 1; i++) {
+
+			if ( i < 40 ) {
+				if (gsw->dpos != 0) gdispGFillArea(gw->g.display, gw->g.x + (i * (dash_width + dash_gap) + 1 ), gw->g.y, (dash_width) , gw->g.height, HTML2COLOR(0x004EEB));
+			} else if ( i > 39 && i < 50 ) {
+				gdispGFillArea(gw->g.display, gw->g.x + (i * (dash_width + dash_gap) + 1 ), gw->g.y, (dash_width) , gw->g.height, HTML2COLOR(0xFFB20D));
+			}
+			else {
+				gdispGFillArea(gw->g.display, gw->g.x + (i * (dash_width + dash_gap) + 1 ), gw->g.y, (dash_width) , gw->g.height, HTML2COLOR(0xF50076));
+			}
+		}
+#endif
+		
+		
+#if 0
+		gdispGDrawLine(gw->g.display, gw->g.x+gsw->dpos, gw->g.y, gw->g.x+gsw->dpos, gw->g.y+gw->g.height-1, pcol->edge);			// Thumb
+		if (gsw->dpos >= 2)
+			gdispGDrawLine(gw->g.display, gw->g.x+gsw->dpos-2, gw->g.y, gw->g.x+gsw->dpos-2, gw->g.y+gw->g.height-1, pcol->edge);	// Thumb
+		if (gsw->dpos <= gw->g.width-2)
+			gdispGDrawLine(gw->g.display, gw->g.x+gsw->dpos+2, gw->g.y, gw->g.x+gsw->dpos+2, gw->g.y+gw->g.height-1, pcol->edge);	// Thumb
+#endif
+
+	}
+
+	// Draw the string
+	gdispGDrawStringBox(gw->g.display, gw->g.x+1, gw->g.y+1, gw->g.width-2, gw->g.height-2, gw->text, gw->g.font, pcol->text, justifyCenter);
+
+	#undef gsw
+}
+
+
 #if GDISP_NEED_IMAGE
 void gwinSliderDraw_Image(GWidgetObject *gw, void *param) {
 	#define gsw			((GSliderObject *)gw)

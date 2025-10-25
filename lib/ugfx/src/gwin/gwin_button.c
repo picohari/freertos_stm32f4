@@ -171,9 +171,10 @@ static const GColorSet *getButtonColors(GWidgetObject *gw) {
 		if (gw->g.vmt != (gwinVMT *)&buttonVMT)	return;
 		pcol = getButtonColors(gw);
 
-		gdispGFillStringBox(gw->g.display, gw->g.x, gw->g.y, gw->g.width-1, gw->g.height-1, gw->text, gw->g.font, pcol->text, pcol->fill, gJustifyCenter);
-		gdispGDrawLine(gw->g.display, gw->g.x+gw->g.width-1, gw->g.y, gw->g.x+gw->g.width-1, gw->g.y+gw->g.height-1, pcol->edge);
-		gdispGDrawLine(gw->g.display, gw->g.x, gw->g.y+gw->g.height-1, gw->g.x+gw->g.width-2, gw->g.y+gw->g.height-1, pcol->edge);
+		gdispGFillStringBox(gw->g.display, gw->g.x, gw->g.y, gw->g.width, gw->g.height, gw->text, gw->g.font, pcol->text, pcol->fill, gJustifyCenter);
+		//gdispGDrawLine(gw->g.display, gw->g.x+gw->g.width-1, gw->g.y, gw->g.x+gw->g.width-1, gw->g.y+gw->g.height-1, pcol->edge);
+		//gdispGDrawLine(gw->g.display, gw->g.x, gw->g.y+gw->g.height-1, gw->g.x+gw->g.width-2, gw->g.y+gw->g.height-1, pcol->edge);
+		gdispGDrawBox(gw->g.display, gw->g.x, gw->g.y, gw->g.width, gw->g.height, pcol->edge);
 
 		// Render highlighted border if focused
 		_gwidgetDrawFocusRect(gw, 1, 1, gw->g.width-2, gw->g.height-2);
@@ -469,6 +470,46 @@ static const GColorSet *getButtonColors(GWidgetObject *gw) {
 		gdispGImageDraw(gw->g.display, (gImage *)param, gw->g.x, gw->g.y, gw->g.width, gw->g.height, 0, sy);
 		gdispGDrawStringBox(gw->g.display, gw->g.x+1, gw->g.y+1, gw->g.width-2, gw->g.height-2, gw->text, gw->g.font, pcol->text, gJustifyCenter);
 	}
+
+	void gwinButtonDraw_Image_Icon(GWidgetObject *gw, void *param) {
+		const GColorSet *	pcol;
+		coord_t				sy = 0;
+
+		if (gw->g.vmt != (gwinVMT *)&buttonVMT)	return;
+		pcol = getButtonColors(gw);
+
+/*
+		if (!(gw->g.flags & GWIN_FLG_SYSENABLED)) {
+			sy = 2 * gw->g.height;
+		} else if ((gw->g.flags & GBUTTON_FLG_PRESSED)) {
+			sy = gw->g.height;
+		} else {
+			sy = 0;
+		}
+*/
+
+		// Draw the box
+		gdispGFillArea(gw->g.display, gw->g.x, gw->g.y, gw->g.width/*-1*/, gw->g.height/*-1*/, pcol->fill);
+		//gdispGFillArea(gw->g.display, gw->g.x, gw->g.y, gw->g.width/*-1*/, gw->g.height/*-1*/, gw->g.bgcolor);
+
+		// Draw the icon
+		gdispGImageDraw(gw->g.display, (gdispImage *)param, gw->g.x+16, gw->g.y+6, gw->g.width, gw->g.height, 0, sy);
+
+		// Draw Text below
+		gdispGDrawStringBox(gw->g.display, gw->g.x+1, gw->g.y+1+25, gw->g.width-2, gw->g.height-2, gw->text, gw->g.font, pcol->text, justifyCenter );
+
+
+		//gdispGDrawLine(gw->g.display, gw->g.x+gw->g.width-1, gw->g.y, gw->g.x+gw->g.width-1, gw->g.y+gw->g.height-1, pcol->edge);
+		//gdispGDrawLine(gw->g.display, gw->g.x, gw->g.y+gw->g.height-1, gw->g.x+gw->g.width-2, gw->g.y+gw->g.height-1, pcol->edge);
+
+		// Render highlighted border if focused
+		//_gwidgetDrawFocusRect(gw, 1, 1, gw->g.width-2, gw->g.height-2);
+
+
+	}
+
 #endif
+
+	void gwinButtonDraw_Clear(GWidgetObject *gw, void *param) { (void) param; } // draws a huge piece of best nothing we can get for free
 
 #endif /* GFX_USE_GWIN && GWIN_NEED_BUTTON */

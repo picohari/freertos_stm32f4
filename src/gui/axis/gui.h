@@ -8,11 +8,13 @@
 #define _GUI_H_
 
 #include "gfx.h"
-#include "gui_router.h"
+
 
 /* Globally used fonts */
 extern font_t ctrld_16b;
 extern font_t neep_12x24b;
+extern font_t term_12b;
+
 //extern font_t fixed_7x14;
 
 

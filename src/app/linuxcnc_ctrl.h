@@ -10,9 +10,9 @@
 /* Central machine state structure */
 typedef struct {
     
-    float   pos_x;              // Axis positions (G53 machine absolute)
-    float   pos_y;
-    float   pos_z;
+    float   G53_x;              // Axis positions (G53 machine absolute)
+    float   G53_y;
+    float   G53_z;
 
     uint8_t homed;              // Bitfield for homing status
     uint8_t num_axes;           // Number of configured axes

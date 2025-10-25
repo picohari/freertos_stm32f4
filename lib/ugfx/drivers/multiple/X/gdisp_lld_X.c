@@ -360,7 +360,7 @@ LLDSPEC gBool gdisp_lld_init(GDisplay *g) {
 
 	{
 		char					buf[132];
-		sprintf(buf, "uGFX - %u", g->systemdisplay+1);
+		sprintf(buf, "uGFX:%u - Simulator", g->systemdisplay+1);
 		WindowTitleText = buf;
 		XStringListToTextProperty(&WindowTitleText, 1, &WindowTitle);
 		XSetWMName(dis, priv->win, &WindowTitle);

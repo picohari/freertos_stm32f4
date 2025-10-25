@@ -49,11 +49,15 @@ GFXINC +=  $(SIMDIR) \
 		   $(SIMDIR)/pages \
 		   $(SIMDIR)/skin \
 		   $(SIMDIR)/rsc \
+		   $(SIMDIR)/modules \
+		   $(SIMDIR)/tests \
 
 GFXSRC +=  gui.c \
-		   gui_router.c \
+		   gui_menu.c \
 		   skin/style.c \
+		   modules/fast_text.c \
 		   pages/main_home.c \
+		   pages/menu_setup.c \
 
 
 include $(GFXLIB)/tools/gmake_scripts/library_ugfx.mk

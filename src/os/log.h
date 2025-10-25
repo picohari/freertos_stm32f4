@@ -22,7 +22,6 @@ void log_uart(void);
 
 /* Convenience macros for logging */
 
-
 #define LOG_DEBUG(...) {log_printf(__VA_ARGS__);  \
                         log_uart_lf();            \
 }

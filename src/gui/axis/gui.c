@@ -26,11 +26,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdio.h>
+//#include <stdio.h>
+#include <stdbool.h>
 
 #include "gfx.h"
 #include "gui.h"
 
+#include "gui_menu.h"
+#include "axis_menu.h"
 
 #ifdef UGFXSIMULATOR
 	#include <stdlib.h>
@@ -38,6 +41,8 @@
 	#include <fcntl.h>
 	#include <errno.h>
 	#include <linux/input.h>
+
+	#include "emulator.h"		/* Here we place all dummy code required only for simulation */
 #else
 	#include "calibration.h"
 	#include "stm32f4xx_hal.h"
@@ -47,15 +52,12 @@
 	#include <string.h>
 	#include <stdbool.h>
 	#include "linuxcnc_ctrl.h"
-	#include "display_update.h"
 	#include "encoder.h"
-	#include "gwin_fastlabel.h"
-	#include "streaming_test.h"
-	#include "fast_numbers.h"
+	#include "fast_text.h"
+	//#include "display_update.h"
+	//#include "streaming_test.h"
+	//#include "gwin_fastlabel.h"
 #endif
-
-#include "gui_router.h"
-#include "axis_gui.h"
 
 
 
@@ -66,7 +68,7 @@ GListener glistener;
 /* SHARED Fonts */
 font_t ctrld_16b;
 font_t neep_12x24b;
-
+font_t term_12b;
 
 /* SHARED IMAGES */
 //gdispImage ic_back;
@@ -77,42 +79,50 @@ font_t neep_12x24b;
    In simulator, we call this function in local loop. */
 void guiEventLoop(void) {
 
-	/* Update all labels and values (only on real thing)*/
-#ifndef UGFXSIMULATOR
 	
-	/* Fetch current machine data */
+	/* Update all fast rendering values (only on real thing) */
+#ifndef UGFXSIMULATOR
+
+	/* Fetch current machine data - anyway of current page being rendered */
 	MachineState_t machine_gui;
 	LinuxCNC_GetState(&machine_gui);
 
-    // Simple update call - no change detection needed!
-    //Display_UpdateMachineState(&machine_gui, curWindow, ghFastLabelX, ghFastLabelY, ghFastLabelZ);
+	/* Show realtime info only on main page */
+	if (Menu_GetActive() == PAGE_MAIN) {
+	
+		/* G53 Absolute position in large font */
+		FastText_SetScale(2);
+		
+		/* Draw labels (left-aligned) */
+		FastText_DrawString(5,  25, "X:", White, Black);
+		FastText_DrawString(5,  55, "Y:", White, Black);
+		FastText_DrawString(5,  85, "Z:", White, Black);
+		
+		/* Draw XYZ coordinate at position 200,50 (right edge) */
+		// "  -1234.567" in 9-character field, 3 decimals
+		FastText_DrawFloat(190, 25, machine_gui.G53_x, 3, 9, White, Black);
+		FastText_DrawFloat(190, 55, machine_gui.G53_y, 3, 9, White, Black);
+		FastText_DrawFloat(190, 85, machine_gui.G53_z, 3, 9, White, Black);
+		
+		//FastText_SetScale(1);
+		//FastText_DrawString(195, 28, "ABS", White, Black);
+	}
 
-	// Draw X coordinate at position 200,50 (right edge)
-    // "  123.456" in 8-character field, 3 decimals
-    FastNumbers_DrawFloat(200, 50, machine_gui.pos_x, 3, 8, White, Black);
-    
-    // Draw Y coordinate
-    FastNumbers_DrawFloat(200, 80, machine_gui.pos_y, 3, 8, White, Black);
-    
-    // Draw Z coordinate  
-    FastNumbers_DrawFloat(200, 110, machine_gui.pos_z, 3, 8, White, Black);
-
+#endif
+	
+	
+	
+	
 	#if 0
-	char coord_buffer[16];
-	float x_coord = machine_gui.pos_x;
-	snprintf(coord_buffer, sizeof(coord_buffer), "%0.3f", x_coord);
-	gwinSetText(ghLabelG53_X, coord_buffer, 1);
-	#endif
-
-	#if 0
+	/* Streaming tests */
 	static bool test_done = false;
     if (!test_done) {
         Test_RunAllStreamingTests();
         test_done = true;
-    }
+		}
 	#endif
 
-	#if 1
+	#if 0
     /* Update rotary encoder */
     static float last_rotary = 0.0f;
     float current_rotary = Encoder_GetPosition();
@@ -121,27 +131,49 @@ void guiEventLoop(void) {
         snprintf(temp_buffer, sizeof(temp_buffer), "%0.1f", current_rotary);
         gwinSetText(ghLabelRotary, temp_buffer, 1);
         last_rotary = current_rotary;
-    }
+		}
 	#endif
-
-#endif
-
+	
+	
+	/* EVENT Handling */
+	
 	/* Handle all other events on gui */
 	GEvent *pe;
-
+	
 	/* WAITS for an Event - is blocking !!! */
-	pe = geventEventWait(&glistener, 100);
-
+	pe = geventEventWait(&glistener, gDelayNone);
+	
 	/* No event, skip ... */
     if (!pe)
-        return;
+		return;
 
-    /* Check for Event-Function on current page and execute it.  */
-	if (curWindow && curWindow->onEvent)
-		if (curWindow->onEvent(curWindow, pe))
-			return;
+	/* Check if the active page changed externally (rare but possible)
+	if (activePage != lastActive) {
+		if (menuPages[activePage].onShow) {
+			menuPages[activePage].onShow();
+		}
+		lastActive = activePage;
+	}
+	*/
+	
+	/* Dispatch to current page handler if available */
+	if (menuPages[activePage].onEvent) {
+		/* Handle Event-Function on current page and execute it. */
+		bool handled = menuPages[activePage].onEvent(&menuPages[activePage], pe);
+		/* if (handled) return; // event fully processed by this page */
+	}
+
+	/* Optional: global event handling here */
+	switch (pe->type) {
+		case GEVENT_GWIN_BUTTON:
+			//LOG_DEBUG("Unhandled button event.");
+			break;
+
+		default:
+			break;
+	}
+
 }
-
 
 
 
@@ -152,53 +184,41 @@ int main(void) {
 	*/
 	gfxInit();
 #else
-	void guiCreate(void) {
+	/* Start creating all windows and widgets for GUI */
+void guiCreate(void) {
 #endif	
-
 
 	/* Prepare fonts */
 	ctrld_16b   = gdispOpenFont("ctrld_16b");
 	neep_12x24b = gdispOpenFont("neep_12x24b");
+	term_12b    = gdispOpenFont("term_12b");
 
-	FastNumbers_SetFontSize(2);  // 2x scale = 10x14 pixels per char
-	FastNumbers_SetSpacing(3);
 	
 	/* Create images */
 
 
-	/* Create all widgets for home  */
+	/* Create all widgets for home (all hidden first!)*/
 	create_PageHome();
-
-	/* Call onInit event of home */
-	winMainHome.onInit(&winMainHome, ghContainer_PageHome);
-
-	#if 0
-	/* Initialize the display field mappings */
-    GUI_InitDisplayFields(ghLabelG53_X, ghLabelG53_Y, ghLabelG53_Z, 
-		NULL, NULL);  // Pass NULL if you don't have feed/spindle labels yet
-	#endif
-
+	create_MenuSetup();
+	
+	
     /* We want to listen for widget events */
 	geventListenerInit(&glistener);
 	gwinAttachListener(&glistener);
-
-	/* Display initial window */
-	guiWindow_Show(&winMainHome);
 	
+
+	/* Display initial window first - should be called *after* pages creation! */
+	Menu_Init(PAGE_MAIN);
+
 
 
 /* For simulation purpose, we need a never-ending loop checking for the events here.
    On the embedded application, this is done by a task. */
 #ifdef UGFXSIMULATOR
-
 	while(1) {
-
 		guiEventLoop();
 	}
-
-	return 0;
-
+	return 0;	// Never get here in simulator
 #endif
-
 }
 

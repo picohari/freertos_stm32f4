@@ -187,6 +187,15 @@ GHandle gwinGTexteditCreate(GDisplay* g, GTexteditObject* wt, GWidgetInit* pInit
 	return (GHandle)wt;
 }
 
+GHandle gwinGTexteditSetCursorPosition(GTexteditObject* wt, size_t position)
+{
+
+	// Set cursor position
+	wt->cursorPos = position;
+
+	return (GHandle)wt;
+}
+
 #if (GFX_USE_GINPUT && GINPUT_NEED_KEYBOARD) || GWIN_NEED_KEYBOARD
 	void gwinTextEditSendSpecialKey(GHandle gh, gU8 key) {
 		unsigned sz;
