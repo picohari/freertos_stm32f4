@@ -30,9 +30,12 @@ extern struct link_str link_arg;
 
 /* Exported functions ------------------------------------------------------- */
 err_t ethernetif_init(struct netif *netif);
-     
+
+/* Handle link change */
 void ethernetif_set_link(void const *argument);
 void ethernetif_update_config(struct netif *netif);
+
+/* Currently implemented in dhcp.c */
 void ethernetif_notify_conn_changed(struct netif *netif);
 
 #endif /* __ETH_IF_H */

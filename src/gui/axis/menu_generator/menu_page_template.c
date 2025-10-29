@@ -1,5 +1,5 @@
 /* ============================================================================
- * File:        menu_setup.c
+ * File:        {{FILE_NAME}}.c
  * Description: 
  * ============================================================================ */
  
@@ -27,29 +27,38 @@
 
 
 /* PAGE CONTAINER & WIDGETS */
-GHandle ghCont_{{PAGE_NAME}}Header;
-GHandle ghCont_{{PAGE_NAME}}Body;
-GHandle ghCont_{{PAGE_NAME}}Footer;
+static GHandle ghCont_{{PAGE_NAME}}Header;
+static GHandle ghCont_{{PAGE_NAME}}Body;
+static GHandle ghCont_{{PAGE_NAME}}Footer;
 
 
 /* BUTTONS */
-GHandle ghBtn_MenuSetup1;
-GHandle ghBtn_MenuSetup2;
-GHandle ghBtn_MenuSetup3;
-GHandle ghBtn_MenuSetup4;
-GHandle ghBtn_MenuReturn;
+static GHandle ghBtn_MenuSetup1;
+static GHandle ghBtn_MenuSetup2;
+static GHandle ghBtn_MenuSetup3;
+static GHandle ghBtn_MenuSetup4;
+static GHandle ghBtn_MenuReturn;
 
 /* Page Prototypes */
-static void Menu{{PAGE_NAME}}_onShow(void);
-static void Menu{{PAGE_NAME}}_onClose(void);
-static bool Menu{{PAGE_NAME}}_onEvent(MenuPageDef_t *page, GEvent *pe);
+static void {{MENU_TYPE}}{{PAGE_NAME}}_onShow(void);
+static void {{MENU_TYPE}}{{PAGE_NAME}}_onClose(void);
+static bool {{MENU_TYPE}}{{PAGE_NAME}}_onEvent(MenuPageDef_t *page, GEvent *pe);
 
 
 /*
-{{PAGE_NAME}} = eg. Home, Setup, Edit, 
-{{MENU_TYPE}} = eg. Page, Menu, Config
 
-{{PAGE_NAME_UPPER}} = Pagename from Menusystem - member of enum MenuPage_t (see gui_menu.h)
+{{PAGE_NAME}}
+Top level menu pages names (suffix to file):
+eg. Home, Setup, View, IPv4, 
+
+{{MENU_TYPE}}
+Page/Menu type or category - kind of character description (Prefix to file):
+eg. Page, Menu, Config
+
+{{PAGE_NAME_UPPER}}
+Pagename from Menusystem - member of enum MenuPage_t (see gui_menu.h)
+Concatenation of MENU_TYPE + _ + PAGE_NAME
+
 
 */
 
@@ -57,7 +66,7 @@ static bool Menu{{PAGE_NAME}}_onEvent(MenuPageDef_t *page, GEvent *pe);
 
 
 /* Create µGFX page */
-void create_Menu{{PAGE_NAME}}(void) {
+void create_{{MENU_TYPE}}{{PAGE_NAME}}(void) {
 
 	GWidgetInit		wi;
 	gwinWidgetClearInit(&wi);
@@ -71,7 +80,7 @@ void create_Menu{{PAGE_NAME}}(void) {
 	wi.g.width  = 320;
 	wi.g.height = 240;
 	wi.g.parent = 0;
-	wi.text = "Menu: {{PAGE_NAME}}";
+	wi.text = "{{MENU_TYPE}}: {{PAGE_NAME}}";
 	wi.customDraw = 0;
 	wi.customParam = 0;
 	wi.customStyle = 0;
@@ -80,9 +89,9 @@ void create_Menu{{PAGE_NAME}}(void) {
 	menuPages[{{PAGE_NAME_UPPER}}].title 	= wi.text;
 	menuPages[{{PAGE_NAME_UPPER}}].container = gwinContainerCreate(0, &wi, 0);
     menuPages[{{PAGE_NAME_UPPER}}].id 		= {{PAGE_NAME_UPPER}};
-    menuPages[{{PAGE_NAME_UPPER}}].onShow 	= Menu{{PAGE_NAME}}_onShow;
-    menuPages[{{PAGE_NAME_UPPER}}].onClose 	= Menu{{PAGE_NAME}}_onClose;
-	menuPages[{{PAGE_NAME_UPPER}}].onEvent 	= Menu{{PAGE_NAME}}_onEvent;
+    menuPages[{{PAGE_NAME_UPPER}}].onShow 	= {{MENU_TYPE}}{{PAGE_NAME}}_onShow;
+    menuPages[{{PAGE_NAME_UPPER}}].onClose 	= {{MENU_TYPE}}{{PAGE_NAME}}_onClose;
+	menuPages[{{PAGE_NAME_UPPER}}].onEvent 	= {{MENU_TYPE}}{{PAGE_NAME}}_onEvent;
 
 
 	/* Here comes the content for this page */
@@ -103,7 +112,7 @@ void create_Menu{{PAGE_NAME}}(void) {
 	wi.customDraw = 0;
 	wi.customParam = 0;
 	wi.customStyle = 0;
-	ghCont_{{{{PAGE_NAME_UPPER}}}}Footer = gwinContainerCreate(0, &wi, 0);
+	ghCont_{{PAGE_NAME}}Footer = gwinContainerCreate(0, &wi, 0);
 
 	/* Default parameters for buttons */
 	gwinWidgetClearInit(&wi);
@@ -113,7 +122,7 @@ void create_Menu{{PAGE_NAME}}(void) {
 	wi.g.y = 0;
 	wi.g.width  = 65;
 	wi.g.height = 42;
-	wi.g.parent = ghCont_{{{{PAGE_NAME_UPPER}}}}Footer;
+	wi.g.parent = ghCont_{{PAGE_NAME}}Footer;
 	wi.customStyle = &color_buttons;
 
 	/* Button 1 */
@@ -138,28 +147,24 @@ void create_Menu{{PAGE_NAME}}(void) {
 
 	/* Button 5 */
 	wi.g.x = 256;
-	wi.text = "Return";
+	wi.text = "BACK";
 	ghBtn_MenuReturn = gwinButtonCreate(0, &wi);
 
-
-    /* Call onShow manually once after init - place this always at the end of a page creation function */
-    //if (menuPages[activePage].onShow)
-    //    menuPages[activePage].onShow();
 }
 
 
 
-static void Menu{{PAGE_NAME}}_onShow(void) {
-    fprintf(stderr, "SETUP: onShow\n\r");
+static void {{MENU_TYPE}}{{PAGE_NAME}}_onShow(void) {
+    LOG_MENU("{{PAGE_NAME_UPPER}}: onShow");
 }
 
 
-static void Menu{{PAGE_NAME}}_onClose(void) {
-    fprintf(stderr, "SETUP: onClose\n\r");
+static void {{MENU_TYPE}}{{PAGE_NAME}}_onClose(void) {
+    LOG_MENU("{{PAGE_NAME_UPPER}}: onClose");
 }
 
 
-static bool Menu{{PAGE_NAME}}_onEvent(MenuPageDef_t *page, GEvent *pe) {
+static bool {{MENU_TYPE}}{{PAGE_NAME}}_onEvent(MenuPageDef_t *page, GEvent *pe) {
     (void)page; // not used yet
 
     switch (pe->type) {
@@ -167,15 +172,15 @@ static bool Menu{{PAGE_NAME}}_onEvent(MenuPageDef_t *page, GEvent *pe) {
         case GEVENT_GWIN_BUTTON: {
             GEventGWinButton *be = (GEventGWinButton *)pe;
             if (be->gwin == ghBtn_MenuReturn) {
-                Menu_ShowPage(PAGE_MAIN);
-				fprintf(stderr, "RETURN pressed!\n\r");
-                return true;
+                Menu_ShowPage({{RETURN_PAGE}});
+				LOG_MENU("RETURN pressed!");
+                return TRUE;
             }
             /*
             else if (be->gwin == ghBtn_Menu4) {
 				//Menu_ShowPage(PAGE_ABOUT);
-				//fprintf(stderr, "UTILS pressed!\n\r");
-                return true;
+				//LOG_MENU("UTILS pressed!");
+                return TRUE;
             }
             */
             break;
@@ -184,5 +189,6 @@ static bool Menu{{PAGE_NAME}}_onEvent(MenuPageDef_t *page, GEvent *pe) {
         default:
             break;
     }
+	
     return false; // not handled
 }

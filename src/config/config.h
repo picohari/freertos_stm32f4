@@ -76,13 +76,13 @@
 /* Static IP Address */
 #define IP_ADDR0        (uint8_t) 192
 #define IP_ADDR1        (uint8_t) 168
-#define IP_ADDR2        (uint8_t) 100
+#define IP_ADDR2        (uint8_t) 0
 #define IP_ADDR3        (uint8_t) 164
 
 /* Gateway IP Address */
 #define GW_ADDR0        (uint8_t) 192
 #define GW_ADDR1        (uint8_t) 168
-#define GW_ADDR2        (uint8_t) 100
+#define GW_ADDR2        (uint8_t) 0
 #define GW_ADDR3        (uint8_t) 1
    
 /* Netmask */

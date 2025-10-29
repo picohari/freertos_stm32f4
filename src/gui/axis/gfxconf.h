@@ -57,6 +57,8 @@
 #define GDISP_NEED_TEXT                            TRUE
 #define GDISP_NEED_TEXT_KERNING                    TRUE
     #define GDISP_INCLUDE_FONT_UI2                 TRUE
+    #define GDISP_INCLUDE_FONT_DEJAVUSANS16        TRUE
+    #define GDISP_INCLUDE_FONT_FIXED_7X14          TRUE
     #define GDISP_INCLUDE_USER_FONTS               TRUE
     #define GDISP_NEED_TEXT_WORDWRAP               TRUE
 

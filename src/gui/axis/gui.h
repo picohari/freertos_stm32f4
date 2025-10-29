@@ -13,12 +13,17 @@
 /* Globally used fonts */
 extern font_t ctrld_16b;
 extern font_t neep_12x24b;
-extern font_t term_12b;
+
+extern font_t dejavu_sans_16;
+extern font_t fixed_7x14;
+
 
 //extern font_t fixed_7x14;
 
 
-// Function Prototypes
+extern GListener glistener;
+
+/* Function Prototypes */
 void guiCreate(void);
 
 void guiEventLoop(void);

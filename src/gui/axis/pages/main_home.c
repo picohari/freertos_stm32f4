@@ -7,6 +7,8 @@
 #include "gfx.h"
 #include "gui.h"
 
+
+
 #ifdef UGFXSIMULATOR
 	#include <stdlib.h>
 	#include <unistd.h>
@@ -19,6 +21,10 @@
 	#include "stm32f4xx_hal.h"
 	#include "cmsis_os.h"
 	#include "XCore407I.h"
+
+	#include "eth_if.h"
+	#include "lwip/netif.h"
+
 #endif
 
 #include "style.h"
@@ -42,7 +48,7 @@ GHandle ghIcPowerOn;
 GHandle ghLabelStatus;
 
 /* LABELS (dynamic) */
-//GHandle ghLabelRotary;	
+GHandle ghLabelRotary;	
 
 
 /* OTHER */
@@ -68,6 +74,7 @@ GTimer gtBlinker;
 static void MainPage_onShow(void);
 static void MainPage_onClose(void);
 static bool MainPage_onEvent(MenuPageDef_t *page, GEvent *pe);
+static void MainPage_onCycle(void);
 
 
 /* Other prototypes */
@@ -101,6 +108,7 @@ void create_PageHome(void) {
     menuPages[PAGE_MAIN].onShow 	= MainPage_onShow;
     menuPages[PAGE_MAIN].onClose 	= MainPage_onClose;
 	menuPages[PAGE_MAIN].onEvent 	= MainPage_onEvent;
+	menuPages[PAGE_MAIN].onCycle 	= MainPage_onCycle;
 
 
 	/* Here comes the content for this page */
@@ -119,7 +127,7 @@ void create_PageHome(void) {
 	wi.customStyle = &color_header;
 	ghCont_HomeHeader = gwinContainerCreate(0, &wi, 0);
 
-	#if 1
+#if 1
 	/* Status Label */
 	wi.g.show = TRUE;
 	wi.g.x = 2;
@@ -155,7 +163,7 @@ void create_PageHome(void) {
 	wi.g.parent = ghIcon_Connection;
 	ghIcPowerOff = gwinImageCreate(0, &wi.g);
 	gwinImageOpenFile(ghIcPowerOff, "ic_power_off.bmp");
-	#if 0
+
 	/* Draw Icon Power ON*/
 	wi.g.show = FALSE;
 	wi.g.x = 0; 
@@ -165,8 +173,7 @@ void create_PageHome(void) {
 	wi.g.parent = ghIcon_Connection;
 	ghIcPowerOn = gwinImageCreate(0, &wi.g);
 	gwinImageOpenFile(ghIcPowerOn, "ic_power_on.bmp");
-	#endif
-	#endif /* Status label */
+#endif /* Status label */
 
 
 	/* Body container */
@@ -182,6 +189,18 @@ void create_PageHome(void) {
 	wi.customParam = 0;
 	wi.customStyle = &color_black;
 	ghCont_HomeBody = gwinContainerCreate(0, &wi, 0);
+
+
+	/* Rotary encoder test label */
+	wi.g.show = TRUE;
+	wi.g.x = 5;
+	wi.g.y = 100;
+	wi.g.width  = 185;
+	wi.g.height = 25;
+	wi.g.parent = ghCont_HomeBody;
+	wi.text = "0";
+	wi.customDraw = gwinLabelDrawJustifiedRight;
+	ghLabelRotary = gwinLabelCreate(0, &wi);
 
 
 	/* Footer container */
@@ -268,19 +287,20 @@ static void MainPage_onClose(void) {
 static bool MainPage_onEvent(MenuPageDef_t *page, GEvent *pe) {
     (void)page; // not used yet
 
+	/* Handle button events first */
     switch (pe->type) {
 		
         case GEVENT_GWIN_BUTTON: {
             GEventGWinButton *be = (GEventGWinButton *)pe;
             if (be->gwin == ghBtn_Setup) {
                 Menu_ShowPage(MENU_SETUP);
-				LOG_MENU("SETTINGS pressed!");
-                return true;
+				//LOG_MENU("SETTINGS pressed!");
+                return TRUE;
             }
             else if (be->gwin == ghBtn_Menu4) {
 				//Menu_ShowPage(PAGE_ABOUT);
-				LOG_MENU("UTILS pressed!");
-                return true;
+				//LOG_MENU("UTILS pressed!");
+                return TRUE;
             }
             break;
         }
@@ -288,5 +308,25 @@ static bool MainPage_onEvent(MenuPageDef_t *page, GEvent *pe) {
         default:
             break;
     }
+
     return false; // not handled
+}
+
+void MainPage_onCycle(void) {
+
+#ifndef UGFXSIMULATOR
+	/* Other events and interactive functions */
+	if (netif_is_link_up(&gnetif)) {
+		if (gtimerIsActive(&gtBlinker)) {
+			gtimerStop(&gtBlinker);
+		}
+		gwinHide(ghIcPowerOff);
+		gwinShow(ghIcPowerOn);
+	} else {
+		if (!gtimerIsActive(&gtBlinker)) {
+			gtimerStart(&gtBlinker, blinkTimer_callback, NULL, TRUE, 500);
+		}
+		gwinHide(ghIcPowerOn);
+	}
+#endif
 }

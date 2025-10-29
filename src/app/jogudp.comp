@@ -1,0 +1,196 @@
+// component remote_jog "UDP interface between LinuxCNC and a remote handwheel controller";
+component jogudp "HAL2UDP";
+
+license "GPLv2 or later";
+author "[DK6YF) Harald Leschner";
+description "Sends axis positions and receives jog increments over UDP";
+
+// compile with: halcompile --compile jogudp.comp
+// install with: sudo halcompile --install jogudp.comp 
+
+
+// --- HAL Pins ---
+// Axis position inputs (from motion or axis)
+pin in float x_pos_fb "Axis X feedback position";
+pin in float y_pos_fb "Axis Y feedback position";
+pin in float z_pos_fb "Axis Z feedback position";
+
+// Jog delta outputs (to feed into motion.jog-increment)
+pin out s32 x_jog_delta "Jog increment for X axis (mm)";
+pin out s32 y_jog_delta "Jog increment for Y axis (mm)";
+pin out s32 z_jog_delta "Jog increment for Z axis (mm)";
+
+pin out bit x_jog_enable "Enable Jog on X axis";
+pin out bit y_jog_enable "Enable Jog on Y axis";
+pin out bit z_jog_enable "Enable Jog on Z axis";
+
+pin out bit x_jog_scale "Scale Jog on X axis";
+pin out bit y_jog_scale "Scale Jog on Y axis";
+pin out bit z_jog_scale "Scale Jog on Z axis";
+
+// Configuration parameters
+//param rw u32 local_udp_port = 58428 "UDP port to listen to";
+//param rw u32 remote_udp_port = 58427 "UDP port to send/communicate with remote";
+//param rw u8 remote_ip[64] = "192.168.0.164" "Remote handwheel IP";
+
+// Debug
+pin out bit     connected           "True if UDP socket is active";
+pin out s32     lost        = 0     "Lost packets";
+pin out bit     ready       = 0     "Module state";
+//pin out bit ready
+
+option singleton;
+option extra_setup;
+option extra_cleanup;
+
+function _;
+
+;;
+
+// --- Includes ---
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+
+
+#define SEND_TIMEOUT_US 10
+#define RECV_TIMEOUT_US 10
+#define REMOTE_IP "192.168.0.74"
+#define REMOTE_PORT 58427
+#define LOCAL_PORT 58428
+
+// --- Internal State ---
+int udpSocket, n;
+struct remoteAddr, localAddr;
+struct timeval timeout;
+
+#define BUFSIZE 80
+
+#pragma pack(push, 1)
+union {
+    uint8_t rxbuf[BUFSIZE];
+    struct {
+        uint8_t axis_control;
+        float   encoder_value;
+    } fb;
+} Recv = { 0 };
+
+union {
+    uint8_t txbuf[BUFSIZE];
+    struct {
+        union {
+            int32_t pos[3];
+            int32_t dirsetup[3];
+            int32_t accel[3];
+        };
+        float vel[3];
+        uint8_t control;
+        //uint8_t io;
+        //uint16_t pwm[6];
+    } cmd;
+} Send = { 0 };
+#pragma pack(pop)
+
+#define CTRL_DIRSETUP 0b00000001
+#define CTRL_ACCEL    0b00000010
+#define CTRL_PWMFREQ  0b00000100
+#define CTRL_READY    0b01000000
+#define CTRL_ENABLE   0b10000000
+
+// --- Real-time Function ---
+//FUNCTION(_);
+
+// --- Component Init ---
+EXTRA_SETUP()
+{
+    // Create a UDP socket
+    udpSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+
+    bzero((void*)&remoteAddr, sizeof(remoteAddr));
+    remoteAddr.sin_family = AF_INET;
+    remoteAddr.sin_addr.s_addr = inet_addr(REMOTE_IP);
+    remoteAddr.sin_port = htons(REMOTE_PORT);
+
+    bzero((void*)&localAddr, sizeof(localAddr));
+    localAddr.sin_family = AF_INET;
+    localAddr.sin_addr.s_addr = INADDR_ANY;
+    localAddr.sin_port = htons(LOCAL_PORT);
+
+    // bind the socket to local port
+    bind(udpSocket, (struct sockaddr*)&localAddr, sizeof(localAddr));
+
+    timeout.tv_sec = 0;
+    timeout.tv_usec = RECV_TIMEOUT_US;
+    setsockopt(udpSocket, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
+    timeout.tv_usec = SEND_TIMEOUT_US;
+    setsockopt(udpSocket, SOL_SOCKET, SO_SNDTIMEO, (char*)&timeout, sizeof(timeout));
+
+    return 0;
+}
+
+EXTRA_CLEANUP()
+{
+    close(udpSocket);
+}
+
+// --- Real-time Periodic Function ---
+FUNCTION(_)
+{
+    /* Send data to remote controller */
+    bzero((void*)&Send.cmd, sizeof(Send.cmd));
+
+    if (enable) Send.cmd.control = CTRL_ENABLE;
+    if (ready) {
+        Send.cmd.control |= CTRL_READY;
+        for (int i = 0; i < 3; i++) {
+            Send.cmd.vel[i] = (float)stepgen_velocity_cmd(i) * (float)stepgen_position_scale(i);
+            Send.cmd.pos[i] = (float)stepgen_position_cmd(i) * (float)stepgen_position_scale(i);
+        }
+
+        for (int i = 0; i < 6; i++) {
+            if (out(i)) Send.cmd.io |= 1 << i;
+            Send.cmd.pwm[i] = (float)pwm(i) * 1023.0f;
+            if (Send.cmd.pwm[i] > 1023) Send.cmd.pwm[i] = 1023;
+        }
+
+    } else {
+        
+        if (!(Recv.fb.control & CTRL_DIRSETUP)) {
+            Send.cmd.control = CTRL_DIRSETUP;
+            for (int i = 0; i < 3; i++) Send.cmd.dirsetup[i] = stepgen_dirsetup(i);
+        } else if (!(Recv.fb.control & CTRL_ACCEL)) {
+            Send.cmd.control = CTRL_ACCEL;
+            for (int i = 0; i < 3; i++) Send.cmd.accel[i] = (float)stepgen_maxaccel(i) * (float)stepgen_position_scale(i);
+        } else if (!(Recv.fb.control & CTRL_PWMFREQ)) {
+            Send.cmd.control = CTRL_PWMFREQ;
+            for (int i = 0; i < 6; i++) Send.cmd.pwm[i] = pwm_freq(i);
+        }
+    }
+
+    /* Receive data from remote */
+    uint8_t chk = 71;
+    for (int i = 0; i < sizeof(Send.cmd); i++) chk ^= Send.txbuf[i];
+    Send.txbuf[sizeof(Send.cmd)] = chk;
+
+    n = sendto(udpSocket, Send.txbuf, sizeof(Send.cmd) + 1, 0, &remoteAddr, sizeof(remoteAddr));
+
+    int lp = lost;
+    lp++;
+    
+    if (n < 0) ready = 0;
+    else {
+
+        n = recv(udpSocket, Recv.rxbuf, sizeof(Recv.fb), 0);
+        if (n < 0) ready = 0;
+        else {
+            lp--;
+
+            x_jog_delta = (uint32_t)Recv.fb.encoder_value;
+        }
+    }
+
+    lost = lp;
+}

@@ -16,13 +16,20 @@ template_c = (TEMPLATE_DIR / "menu_page_template.c").read_text()
 #template_h = (TEMPLATE_DIR / "menu_page_template.h").read_text()
 
 for page in pages:
-    name = page["page_name"]
-    title = page["page_title"]
+    menu_type   = page["menu_type"]
+    name        = page["page_name"]
+    page_type   = page["page_type"]
+    title       = page["page_title"]
+    return_page = page["return_page"]
+    filename    = page_type.lower() + "_" + name.lower()
 
     replacements = {
         "{{PAGE_NAME}}": name,
-        "{{PAGE_NAME_UPPER}}": name.upper(),
-        "{{PAGE_TITLE}}": title,
+        "{{PAGE_TYPE}}": page_type,
+        "{{PAGE_NAME_UPPER}}": page_type.upper() + "_" + name.upper(),
+        "{{MENU_TYPE}}": menu_type,
+        "{{FILE_NAME}}": page_type.lower() + "_" + name.lower(),
+        "{{RETURN_PAGE}}": return_page,
     }
 
     # Apply replacements
@@ -33,10 +40,10 @@ for page in pages:
         #h_code = h_code.replace(key, val)
 
     # Write new files
-    (OUTPUT_DIR / f"{name}.c").write_text(c_code)
+    (OUTPUT_DIR / f"{filename}.c").write_text(c_code)
     #(OUTPUT_DIR / f"{name}.h").write_text(h_code)
 
-    print(f"Generated: {name}.c")
+    print(f"Generated: {filename}.c")
     #print(f"Generated: {name}.h")
 
 print("✅ All menu files generated!")

@@ -1,5 +1,7 @@
-loadrt remote_jog
-addf remote_jog servo-thread
+# Load jogudp module
+loadrt jogudp
+loadrt threads name1=udp-thread period1=1000000
+addf jogudp udp-thread
 
 # Connect feedback positions (absolute machine position)
 net x-pos-fb axis.0.pos-fb => remote_jog.x-pos-fb
@@ -10,3 +12,13 @@ net z-pos-fb axis.2.pos-fb => remote_jog.z-pos-fb
 net x-jog remote_jog.x-jog-delta => motion.jog-increment[0]
 net y-jog remote_jog.y-jog-delta => motion.jog-increment[1]
 net z-jog remote_jog.z-jog-delta => motion.jog-increment[2]
+
+
+
+net jog-x jogudp.x-jog-delta axis.x.jog-counts
+
+
+setp axis.x.jog-vel-mode 0
+setp axis.x.jog-enable 1
+setp axis.x.jog-scale 0.01
+

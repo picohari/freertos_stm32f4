@@ -68,7 +68,10 @@ GListener glistener;
 /* SHARED Fonts */
 font_t ctrld_16b;
 font_t neep_12x24b;
-font_t term_12b;
+
+
+font_t dejavu_sans_16;
+font_t fixed_7x14;
 
 /* SHARED IMAGES */
 //gdispImage ic_back;
@@ -85,7 +88,7 @@ void guiEventLoop(void) {
 
 	/* Fetch current machine data - anyway of current page being rendered */
 	MachineState_t machine_gui;
-	LinuxCNC_GetState(&machine_gui);
+	LinuxCNC_GetMachineState(&machine_gui);
 
 	/* Show realtime info only on main page */
 	if (Menu_GetActive() == PAGE_MAIN) {
@@ -108,7 +111,20 @@ void guiEventLoop(void) {
 		//FastText_DrawString(195, 28, "ABS", White, Black);
 	}
 
-#endif
+
+	#if 1
+    /* Update rotary encoder */
+    static float last_rotary = 0.0f;
+    float current_rotary = Encoder_GetPosition();
+    if (current_rotary != last_rotary) {
+        char temp_buffer[16];
+        snprintf(temp_buffer, sizeof(temp_buffer), "%0.1f", current_rotary);
+        gwinSetText(ghLabelRotary, temp_buffer, 1);
+        last_rotary = current_rotary;
+		}
+	#endif
+
+#endif /* !UGFXSIMULATOR - ONLY REAL HARDWARE */
 	
 	
 	
@@ -122,19 +138,15 @@ void guiEventLoop(void) {
 		}
 	#endif
 
-	#if 0
-    /* Update rotary encoder */
-    static float last_rotary = 0.0f;
-    float current_rotary = Encoder_GetPosition();
-    if (current_rotary != last_rotary) {
-        char temp_buffer[16];
-        snprintf(temp_buffer, sizeof(temp_buffer), "%0.1f", current_rotary);
-        gwinSetText(ghLabelRotary, temp_buffer, 1);
-        last_rotary = current_rotary;
-		}
-	#endif
+
 	
+
 	
+	/* CYCLIC Handling per page */
+	if (menuPages[activePage].onCycle) {
+		menuPages[activePage].onCycle();
+	}
+
 	/* EVENT Handling */
 	
 	/* Handle all other events on gui */
@@ -147,15 +159,6 @@ void guiEventLoop(void) {
     if (!pe)
 		return;
 
-	/* Check if the active page changed externally (rare but possible)
-	if (activePage != lastActive) {
-		if (menuPages[activePage].onShow) {
-			menuPages[activePage].onShow();
-		}
-		lastActive = activePage;
-	}
-	*/
-	
 	/* Dispatch to current page handler if available */
 	if (menuPages[activePage].onEvent) {
 		/* Handle Event-Function on current page and execute it. */
@@ -191,7 +194,9 @@ void guiCreate(void) {
 	/* Prepare fonts */
 	ctrld_16b   = gdispOpenFont("ctrld_16b");
 	neep_12x24b = gdispOpenFont("neep_12x24b");
-	term_12b    = gdispOpenFont("term_12b");
+
+	dejavu_sans_16 = gdispOpenFont("DejaVuSans16");
+	fixed_7x14     = gdispOpenFont("Fixed7x14");	
 
 	
 	/* Create images */
@@ -201,6 +206,12 @@ void guiCreate(void) {
 	create_PageHome();
 	create_MenuSetup();
 	
+	#if 1
+	create_SetupRemoteIP();
+	create_SetupLocalIP();
+	create_SetupNetmask();
+	create_SetupGateway();
+	#endif
 	
     /* We want to listen for widget events */
 	geventListenerInit(&glistener);
@@ -209,6 +220,7 @@ void guiCreate(void) {
 
 	/* Display initial window first - should be called *after* pages creation! */
 	Menu_Init(PAGE_MAIN);
+	//Menu_Init(SETUP_REMOTEIP);
 
 
 

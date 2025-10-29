@@ -13,6 +13,8 @@ extern const GWidgetStyle color_black;
 // WidgetStyle: Buttons
 extern const GWidgetStyle color_buttons;
 
+extern const GWidgetStyle color_one;
+
 
 
 

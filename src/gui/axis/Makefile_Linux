@@ -56,8 +56,13 @@ GFXSRC +=  gui.c \
 		   gui_menu.c \
 		   skin/style.c \
 		   modules/fast_text.c \
+		   pages/axis_helpers.c \
 		   pages/main_home.c \
 		   pages/menu_setup.c \
+		   pages/setup_remoteip.c \
+		   pages/setup_localip.c \
+		   pages/setup_netmask.c \
+		   pages/setup_gateway.c \
 
 
 include $(GFXLIB)/tools/gmake_scripts/library_ugfx.mk

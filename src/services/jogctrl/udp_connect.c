@@ -7,14 +7,16 @@
 #include "config.h"
 #include "log.h"
 
-#include "lwip/pbuf.h"
-#include "lwip/udp.h"
-#include "lwip/tcp.h"
-
 #include "udp_connect.h"
 #include "linuxcnc_ctrl.h"
+#include "axis_menu.h"
 
 
+struct udp_pcb *upcb;
+
+ip_addr_t remote_addr;
+
+uint32_t remote_port;
 
 /**
 * @brief  Initialize the server application.
@@ -23,13 +25,17 @@
 */
 void udp_server_init(void)
 {
-    struct udp_pcb *upcb;
     err_t err;
 
     /* Create a new UDP control block  */
     upcb = udp_new();
 
     if (upcb) {
+
+        /* Assign destination IP address and port */
+        IP4_ADDR(&remote_addr, REMOTE_IP_ADDR0, REMOTE_IP_ADDR1, REMOTE_IP_ADDR2, REMOTE_IP_ADDR3 );
+        remote_port = UDP_REMOTE_PORT;
+
         /* Bind the upcb to the UDP_PORT port */
         /* Using IP_ADDR_ANY allow the upcb to be used by any local interface */
         err = udp_bind(upcb, IP_ADDR_ANY, UDP_LOCAL_PORT);
@@ -38,6 +44,24 @@ void udp_server_init(void)
             /* Set a receive callback for the upcb */
             udp_recv(upcb, udp_server_receive_callback, NULL);
         }
+
+        /* Inform GUI about network settings */
+        //uint32_t ip = ip_addr_get_ip4_u32(&remote_addr);
+
+        //axis_helper_setRemoteIP(&ip);
+
+
+        #if 0
+        err = udp_connect(upcb, &remote_addr, UDP_REMOTE_PORT);
+
+        uint8_t iptxt[20];
+        sprintf((char *)iptxt, "%s", ip4addr_ntoa((const ip4_addr_t *)&remote_addr));
+        if(err != ERR_OK) {
+            LOG_DEBUG("Could not connect to: %s", iptxt);
+        } else {
+            LOG_DEBUG("Connected JOG to: %s", iptxt);
+        }
+        #endif
     }
 }
 
@@ -54,6 +78,11 @@ void udp_server_init(void)
 */
 void udp_server_receive_callback(void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr, u16_t port)
 {
+    /* Not used yet */
+    (void) arg;
+    (void) upcb;
+    (void) addr;
+    (void) port;
 
     /* Check incoming packet */
     if (p == NULL) return;
@@ -71,7 +100,7 @@ void udp_server_receive_callback(void *arg, struct udp_pcb *upcb, struct pbuf *p
         if (LinuxCNC_ParseUDP((const uint8_t *)p->payload, p->len, &pkt)) {
 
             /* Copy parsed data to LinuxCNC machine state */
-            LinuxCNC_SetState(&pkt);
+            LinuxCNC_SetMachineState(&pkt);
 
             /* Example: print the received values
             LOG_DEBUG("Received axis data: X=%.3f Y=%.3f Z=%.3f Homed=%d",
@@ -109,29 +138,31 @@ void udp_server_receive_callback(void *arg, struct udp_pcb *upcb, struct pbuf *p
    
 }
 
-
-
-#if 0
-
-#include <string.h>   // memcpy
-#include <stdio.h>    // for printf/debugging
-
-// These functions are just placeholders for your networking code.
-// Replace them with your platform-specific UDP send/receive logic.
-
-void udp_send_jog(const JogPacket *pkt)
+void udp_send_jogstate(const JogState_t *pkt)
 {
-    // Serialize and send over UDP
-    // e.g., sendto(socket, pkt, sizeof(JogPacket), ...)
-    printf("Send JOG: Axis=%d, Δ=%.4f mm\n", pkt->axis, pkt->delta_mm);
+    /* Get size of packet */
+    uint16_t len = sizeof(JogState_t);
+
+    /* Allocate pbuf in PBUF_TRANSPORT-Pool */
+    struct pbuf *p = pbuf_alloc(PBUF_TRANSPORT, len, PBUF_RAM);
+    if (!p) {
+        LOG_DEBUG("Error: pbuf_alloc failed!");
+        return;
+    }
+
+    /* Copy JOG data to UDP payload */
+    memcpy(p->payload, pkt, len);
+
+    /* Connect to remote host */
+    //udp_connect(upcb, addr, UDP_REMOTE_PORT);
+    
+    /* Send packet */
+    err_t err = udp_sendto(upcb, p, &remote_addr, UDP_REMOTE_PORT);
+    if (err != ERR_OK) {
+        LOG_DEBUG("udp_sendto failed: %d\n", err);
+    }
+
+    /* Free the p buffer */
+    pbuf_free(p);    
 }
 
-int udp_recv_axis_position(AxisPositionPacket *pkt)
-{
-    // Non-blocking receive example
-    // Replace with real socket read or queue check.
-    // Return 1 if new data received, 0 if no new data.
-    return 0;
-}
-
-#endif

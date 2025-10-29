@@ -1,3 +1,7 @@
+Programming: sudo src/./openocd -s tcl -f tcl/interface/stlink.cfg -f tcl/target/stm32f4x.cfg
+
+Tab Size: 4
+
 
 PIN CONNECTIONS
 ===============
@@ -43,7 +47,7 @@ PC11								TX_0
 
 
 -------------------------------------------------------------------------------------------------------------------------------------------------
-PD0		FSMC_D2 																											FSMC_D2
+PD0	    FSMC_D2 																											FSMC_D2
 PD1 	FSMC_D3 																											FSMC_D3
 PD4 	LCD_RD 																												FSMC_RE
 PD5 	LCD_WR 																												FSMC_WE
@@ -59,11 +63,11 @@ PD15	FSMC_D1 																											FSMC_D1
 
 
 -------------------------------------------------------------------------------------------------------------------------------------------------
-PE2 												JOY_A
-PE3 												JOY_B
-PE4 												JOY_C
-PE5 												JOY_D
-PE6 												JOY_PRESS
+PE2 									JOY_A
+PE3 									JOY_B
+PE4 									JOY_C
+PE5 									JOY_D
+PE6 									JOY_PRESS
 PE7 	FSMC_D4 																											FSMC_D4
 PE8 	FSMC_D5 																											FSMC_D5
 PE9 	FSMC_D6 																											FSMC_D6
@@ -83,18 +87,18 @@ PG14	LCD_CS
 
 
 -------------------------------------------------------------------------------------------------------------------------------------------------
-PH2 																LED_1
-PH3 																LED_2
+PH2 												LED_1
+PH3 												LED_2
 PH11 																							HS_RESET
 
 
 -------------------------------------------------------------------------------------------------------------------------------------------------
 PI0 	TP_CS
 PI1 	TP_CLK
-PI3		TP_DIN
+PI3	TP_DIN
 PI2 	TP_DOUT
-PI8 																LED_3
-PI10 																LED_4
+PI8 												LED_3
+PI10 												LED_4
 
 
 
@@ -128,24 +132,22 @@ LwIP		: 2.0.0
 
 
 
-
- ┌───────────────────┐       ┌──────────────────────┐       ┌──────────────┐
- │   Handwheel Task  │──────▶│  Message Queue       │──────▶│   Net Task   │
- │  (encoder input)  │       │  (SystemMessages)    │       │ (UDP sender) │
- └───────────────────┘       └──────────────────────┘       └──────────────┘
-         │                           ▲                             │
-         │                           │                             │
-         │                           │                             ▼
-         │                   ┌──────────────────────┐     ┌───────────────────┐
-         │                   │ Control App Task     │◀────│  Net RX Callback  │
-         │                   │ updates global state │     │ (UDP parser)      │
-         │                   └──────────────────────┘     └───────────────────┘
-         │                           │
-         ▼                           ▼
- ┌────────────────────┐      ┌────────────────────┐
- │ Display/UI Task    │      │ LinuxCNC UDP Out   │
- │ reads global state │      │ sends status data  │
- └────────────────────┘      └────────────────────┘
-
+┌───────────────────┐       ┌──────────────────────┐       ┌──────────────┐
+│   Handwheel Task  │──────▶│  Message Queue       │──────▶│   Net Task   │
+│  (encoder input)  │       │  (SystemMessages)    │       │ (UDP sender) │
+└───────────────────┘       └──────────────────────┘       └──────────────┘
+        │                           ▲                             │
+        │                           │                             │
+        │                           │                             ▼
+        │                   ┌──────────────────────┐     ┌───────────────────┐
+        │                   │ Control App Task     │◀────│  Net RX Callback  │
+        │                   │ updates global state │     │ (UDP parser)      │
+        │                   └──────────────────────┘     └───────────────────┘
+        │                           │
+        ▼                           ▼
+┌────────────────────┐      ┌────────────────────┐
+│ Display/UI Task    │      │ LinuxCNC UDP Out   │
+│ reads global state │      │ sends status data  │
+└────────────────────┘      └────────────────────┘
 
 

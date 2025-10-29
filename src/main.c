@@ -546,13 +546,26 @@ static void LinuxCNC_start (void const * arg)
 
   LinuxCNC_Init();
 
-
+  
   while (1) {
     
     /* Read rotary encoder */
     Encoder_Update();
     
-    
+    static float last_rotary = 0.0f;
+    float current_rotary = Encoder_GetPosition();
+
+    JogState_t pkt;
+
+    pkt.axis_select   = 1;
+    pkt.encoder_value = current_rotary;
+
+    if (current_rotary != last_rotary) {
+      last_rotary = current_rotary;
+
+      udp_send_jogstate(&pkt);
+    }
+
     osDelay(1);
   }
 
@@ -584,7 +597,7 @@ static void LinuxCNC_start (void const * arg)
 *            APB1 Prescaler                 = 4
 *            APB2 Prescaler                 = 2
 *            HSE Frequency(Hz)              = 25000000
-*            PLL_M                          = 25
+*            PLL_M                          = 8
 *            PLL_N                          = 336
 *            PLL_P                          = 2
 *            PLL_Q                          = 7
@@ -708,19 +721,20 @@ while(1) {
 
 
 /*
+Print something like this:
 
-Firmware fc8f-dirty built on Oct 22 2025 02:52:04
-STM32F407i - CMSIS - FreeRTOS - LwIP - BSP - µGFX
-XCore: 0x0413, Rev. 0x1007
-UUID:  0035003c-32355118-34333432
-Flash: 1024 kB
-Pack:  7
-CLK:   168 MHz
-NAND Flash: K9F1G08U0B
-TFT Driver: ILI9325
-ETH PHY:    DP83848 (Rev 0)
-Network disconnected
-Static IP address: 192.168.100.164
+  Firmware fc8f-dirty built on Oct 22 2025 02:52:04
+  STM32F407i - CMSIS - FreeRTOS - LwIP - BSP - µGFX
+  XCore: 0x0413, Rev. 0x1007
+  UUID:  0035003c-32355118-34333432
+  Flash: 1024 kB
+  Pack:  7
+  CLK:   168 MHz
+  NAND Flash: K9F1G08U0B
+  TFT Driver: ILI9325
+  ETH PHY:    DP83848 (Rev 0)
+  Network disconnected
+  Static IP address: 192.168.100.164
 
 */
 
