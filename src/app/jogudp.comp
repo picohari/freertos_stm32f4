@@ -142,7 +142,7 @@
      // Setup remote address (for sending)
      memset(&remote_addr, 0, sizeof(remote_addr));
      remote_addr.sin_family = AF_INET;
-     //remote_addr.sin_addr.s_addr = inet_addr(REMOTE_IP);
+     remote_addr.sin_addr.s_addr = inet_addr(REMOTE_IP);
      remote_addr.sin_port = htons(REMOTE_PORT);
      
      #if 0
