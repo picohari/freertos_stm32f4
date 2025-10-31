@@ -1,196 +1,249 @@
-// component remote_jog "UDP interface between LinuxCNC and a remote handwheel controller";
-component jogudp "HAL2UDP";
+/*    This is a component of LinuxCNC for external step generator over Ethernet
+ *    Copyright 2021 Juhász Zoltán <juhasz.zoltan at freemail dot hu>
+ *
+ *    version: 20250409
+ *
+ *    This program is free software; you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation; either version 2 of the License, or
+ *    (at your option) any later version.
+ *
+ *    This program is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program; if not, write to the Free Software
+ *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+ 
+ component jogudp "JOG2UDP";
 
-license "GPLv2 or later";
-author "[DK6YF) Harald Leschner";
-description "Sends axis positions and receives jog increments over UDP";
-
-// compile with: halcompile --compile jogudp.comp
-// install with: sudo halcompile --install jogudp.comp 
-
-
-// --- HAL Pins ---
-// Axis position inputs (from motion or axis)
-pin in float x_pos_fb "Axis X feedback position";
-pin in float y_pos_fb "Axis Y feedback position";
-pin in float z_pos_fb "Axis Z feedback position";
-
-// Jog delta outputs (to feed into motion.jog-increment)
-pin out s32 x_jog_delta "Jog increment for X axis (mm)";
-pin out s32 y_jog_delta "Jog increment for Y axis (mm)";
-pin out s32 z_jog_delta "Jog increment for Z axis (mm)";
-
-pin out bit x_jog_enable "Enable Jog on X axis";
-pin out bit y_jog_enable "Enable Jog on Y axis";
-pin out bit z_jog_enable "Enable Jog on Z axis";
-
-pin out bit x_jog_scale "Scale Jog on X axis";
-pin out bit y_jog_scale "Scale Jog on Y axis";
-pin out bit z_jog_scale "Scale Jog on Z axis";
-
-// Configuration parameters
-//param rw u32 local_udp_port = 58428 "UDP port to listen to";
-//param rw u32 remote_udp_port = 58427 "UDP port to send/communicate with remote";
-//param rw u8 remote_ip[64] = "192.168.0.164" "Remote handwheel IP";
-
-// Debug
-pin out bit     connected           "True if UDP socket is active";
-pin out s32     lost        = 0     "Lost packets";
-pin out bit     ready       = 0     "Module state";
-//pin out bit ready
-
-option singleton;
-option extra_setup;
-option extra_cleanup;
-
-function _;
-
-;;
-
-// --- Includes ---
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-
-
-#define SEND_TIMEOUT_US 10
-#define RECV_TIMEOUT_US 10
-#define REMOTE_IP "192.168.0.74"
-#define REMOTE_PORT 58427
-#define LOCAL_PORT 58428
-
-// --- Internal State ---
-int udpSocket, n;
-struct remoteAddr, localAddr;
-struct timeval timeout;
-
-#define BUFSIZE 80
-
-#pragma pack(push, 1)
-union {
-    uint8_t rxbuf[BUFSIZE];
-    struct {
-        uint8_t axis_control;
-        float   encoder_value;
-    } fb;
-} Recv = { 0 };
-
-union {
-    uint8_t txbuf[BUFSIZE];
-    struct {
-        union {
-            int32_t pos[3];
-            int32_t dirsetup[3];
-            int32_t accel[3];
-        };
-        float vel[3];
-        uint8_t control;
-        //uint8_t io;
-        //uint16_t pwm[6];
-    } cmd;
-} Send = { 0 };
-#pragma pack(pop)
-
-#define CTRL_DIRSETUP 0b00000001
-#define CTRL_ACCEL    0b00000010
-#define CTRL_PWMFREQ  0b00000100
-#define CTRL_READY    0b01000000
-#define CTRL_ENABLE   0b10000000
-
-// --- Real-time Function ---
-//FUNCTION(_);
-
-// --- Component Init ---
-EXTRA_SETUP()
-{
-    // Create a UDP socket
-    udpSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-
-    bzero((void*)&remoteAddr, sizeof(remoteAddr));
-    remoteAddr.sin_family = AF_INET;
-    remoteAddr.sin_addr.s_addr = inet_addr(REMOTE_IP);
-    remoteAddr.sin_port = htons(REMOTE_PORT);
-
-    bzero((void*)&localAddr, sizeof(localAddr));
-    localAddr.sin_family = AF_INET;
-    localAddr.sin_addr.s_addr = INADDR_ANY;
-    localAddr.sin_port = htons(LOCAL_PORT);
-
-    // bind the socket to local port
-    bind(udpSocket, (struct sockaddr*)&localAddr, sizeof(localAddr));
-
-    timeout.tv_sec = 0;
-    timeout.tv_usec = RECV_TIMEOUT_US;
-    setsockopt(udpSocket, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
-    timeout.tv_usec = SEND_TIMEOUT_US;
-    setsockopt(udpSocket, SOL_SOCKET, SO_SNDTIMEO, (char*)&timeout, sizeof(timeout));
-
-    return 0;
-}
-
-EXTRA_CLEANUP()
-{
-    close(udpSocket);
-}
-
-// --- Real-time Periodic Function ---
-FUNCTION(_)
-{
-    /* Send data to remote controller */
-    bzero((void*)&Send.cmd, sizeof(Send.cmd));
-
-    if (enable) Send.cmd.control = CTRL_ENABLE;
-    if (ready) {
-        Send.cmd.control |= CTRL_READY;
-        for (int i = 0; i < 3; i++) {
-            Send.cmd.vel[i] = (float)stepgen_velocity_cmd(i) * (float)stepgen_position_scale(i);
-            Send.cmd.pos[i] = (float)stepgen_position_cmd(i) * (float)stepgen_position_scale(i);
-        }
-
-        for (int i = 0; i < 6; i++) {
-            if (out(i)) Send.cmd.io |= 1 << i;
-            Send.cmd.pwm[i] = (float)pwm(i) * 1023.0f;
-            if (Send.cmd.pwm[i] > 1023) Send.cmd.pwm[i] = 1023;
-        }
-
-    } else {
-        
-        if (!(Recv.fb.control & CTRL_DIRSETUP)) {
-            Send.cmd.control = CTRL_DIRSETUP;
-            for (int i = 0; i < 3; i++) Send.cmd.dirsetup[i] = stepgen_dirsetup(i);
-        } else if (!(Recv.fb.control & CTRL_ACCEL)) {
-            Send.cmd.control = CTRL_ACCEL;
-            for (int i = 0; i < 3; i++) Send.cmd.accel[i] = (float)stepgen_maxaccel(i) * (float)stepgen_position_scale(i);
-        } else if (!(Recv.fb.control & CTRL_PWMFREQ)) {
-            Send.cmd.control = CTRL_PWMFREQ;
-            for (int i = 0; i < 6; i++) Send.cmd.pwm[i] = pwm_freq(i);
-        }
-    }
-
-    /* Receive data from remote */
-    uint8_t chk = 71;
-    for (int i = 0; i < sizeof(Send.cmd); i++) chk ^= Send.txbuf[i];
-    Send.txbuf[sizeof(Send.cmd)] = chk;
-
-    n = sendto(udpSocket, Send.txbuf, sizeof(Send.cmd) + 1, 0, &remoteAddr, sizeof(remoteAddr));
-
-    int lp = lost;
-    lp++;
-    
-    if (n < 0) ready = 0;
-    else {
-
-        n = recv(udpSocket, Recv.rxbuf, sizeof(Recv.fb), 0);
-        if (n < 0) ready = 0;
-        else {
-            lp--;
-
-            x_jog_delta = (uint32_t)Recv.fb.encoder_value;
-        }
-    }
-
-    lost = lp;
-}
+ license "GPLv2 or later";
+ author "[DK6YF) Harald Leschner";
+ description "Sends axis positions and receives jog increments over UDP";
+  
+ pin in float disp.#.pos[3]     = 0.0  "Axis G54 (absolute) position";
+ pin in float disp.#.vel[3]     = 0.0  "Axis current velocity";
+ 
+ pin out s32 wheel.#.jog_delta[3]    = 0.0   "Jog count value for axis";
+ pin out bit wheel.#.jog_enable[3]   = 0.0   "Enable jog on axis";
+ pin out bit wheel.#.jog_scale[3]    = 0.0   "Scale jog on axis";
+ 
+ pin out bit     in.#[7]     = 0     "Digital inputs";
+ pin in  bit     out.#[6]    = 0     "Digital output";
+ 
+ pin out bit     connected   = 0     "True if UDP socket is active";
+ pin out s32     lost        = 0     "Lost packets";
+ pin out bit     ready       = 0     "Module state";
+ pin in  bit     enabled     = 0     "Module enable";
+ 
+ 
+ /*---------------- ---------------------*/
+ 
+ option singleton;
+ option extra_setup;
+ option extra_cleanup;
+ 
+ function _;
+ 
+ ;;
+ 
+ /*-------------------------------------*/
+ 
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <stdint.h>
+ 
+ #include <string.h>
+ #include <unistd.h>
+ #include <arpa/inet.h>
+ #include <sys/socket.h>
+ #include <errno.h>
+ 
+ 
+ 
+ #define BUFSIZE 64
+ 
+ #define REMOTE_IP   "192.168.0.164"
+ #define REMOTE_PORT 58427
+ #define LOCAL_PORT  58428
+ 
+ 
+ //#define CTRL_DIRSETUP 0b00000001
+ //#define CTRL_ACCEL    0b00000010
+ //#define CTRL_PWMFREQ  0b00000100
+ #define CTRL_READY    0b01000000
+ #define CTRL_ENABLE   0b10000000
+ 
+ 
+ /* OUTPUTS: Data sent to remote controller */
+ union {
+     uint8_t rxbuf[BUFSIZE];
+     
+     /* IN: Received jogwheel state */
+     struct {
+         float    encoder_value; // 4
+         int16_t  encoder_count; // 2
+         uint16_t io;            // 2
+         uint8_t  active_mask;   // 1 bitmask: bit0=X, bit1=Y, bit2=Z
+         uint8_t  control;       // 1
+         uint8_t  axis_select;   // 1
+         uint8_t  range_mode;    // 1
+     } jogstate;
+     
+ } Recv = { 0 };
+ 
+ /* INPUTS: Data to send to remote control unit */
+ union {
+     uint8_t txbuf[BUFSIZE];
+     
+     /* OUT: Axis positions & speeds */
+     struct {
+         float    pos[3];         // 12 Actual machine position
+         float    vel[3];         // 12 Calculated velocity
+         float    scale[3];       // 12
+         uint8_t  enable[3];      //  3
+         uint8_t  control;        //  1 Control register feedback
+         uint16_t io;             //  2 IO register multipurpose
+     } fb;
+     
+ } Send = { 0 };
+ 
+ int sockfd;
+ struct sockaddr_in local_addr, remote_addr;
+ socklen_t addr_len = sizeof(remote_addr);
+ 
+ 
+ /*-------------------------------------*/
+ 
+ EXTRA_SETUP()
+ {
+     // Create UDP socket
+     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+         perror("socket creation failed");
+         exit(EXIT_FAILURE);
+     }
+     
+     // Setup local address (for receiving)
+     memset(&local_addr, 0, sizeof(local_addr));
+     local_addr.sin_family = AF_INET;
+     local_addr.sin_addr.s_addr = INADDR_ANY;
+     local_addr.sin_port = htons(LOCAL_PORT);
+     
+     // Bind to local port
+     if (bind(sockfd, (const struct sockaddr *)&local_addr, sizeof(local_addr)) < 0) {
+         perror("bind failed");
+         close(sockfd);
+         exit(EXIT_FAILURE);
+     }
+     
+     // Setup remote address (for sending)
+     memset(&remote_addr, 0, sizeof(remote_addr));
+     remote_addr.sin_family = AF_INET;
+     //remote_addr.sin_addr.s_addr = inet_addr(REMOTE_IP);
+     remote_addr.sin_port = htons(REMOTE_PORT);
+     
+     #if 0
+     if (inet_pton(AF_INET, argv[1], &remote_addr.sin_addr) <= 0) {
+         fprintf(stderr, "Invalid address: %s\n", argv[1]);
+         close(sockfd);
+         exit(EXIT_FAILURE);
+     }
+     #endif
+     
+     printf("UDP connection established\n");
+     printf("Listening on port %d\n", LOCAL_PORT);
+     printf("Sending to %s:%d\n", REMOTE_IP, REMOTE_PORT);
+     
+     // Example: Initialize some test data
+     Send.fb.pos[0] = 100;
+     Send.fb.pos[1] = 200;
+     Send.fb.pos[2] = 300;
+     Send.fb.vel[0] = 1.5f;
+     Send.fb.vel[1] = 2.5f;
+     Send.fb.vel[2] = 3.5f;
+ 
+     return 0;
+ }
+ 
+ EXTRA_CLEANUP()
+ {
+     close(sockfd);
+     return;
+ }
+ 
+ FUNCTION(_)
+ {
+     /* Send data to remote */
+     if (enabled) {
+         
+         Send.fb.control = CTRL_ENABLE;
+ 
+         for (int i = 0; i < 3; i++) {
+             Send.fb.pos[i] = (float)disp_pos(i);
+             Send.fb.vel[i] = (float)disp_pos(i);
+         }
+ 
+         for (int i = 0; i < 6; i++) {
+             if (out(i)) Send.fb.io |= 1 << i;
+         }
+ 
+         ssize_t sent = sendto(sockfd, Send.txbuf, sizeof(Send.fb), 0,
+                             (const struct sockaddr *)&remote_addr, sizeof(remote_addr));
+ 
+         if (sent < 0) {
+             perror("sendto failed");
+         } else {
+             printf("Sent %zd bytes\n", sent);
+         }
+     }
+ 
+     
+     /* Try to receive data (non-blocking with timeout) */
+     fd_set readfds;
+     struct timeval tv;
+     FD_ZERO(&readfds);
+     FD_SET(sockfd, &readfds);
+     tv.tv_sec = 0;
+     tv.tv_usec = 100000; // 100ms timeout
+     
+     int ret = select(sockfd + 1, &readfds, NULL, NULL, &tv);
+     if (ret > 0) {
+         ssize_t n = recvfrom(sockfd, Recv.rxbuf, BUFSIZE, 0,
+                             (struct sockaddr *)&remote_addr, &addr_len);
+         if (n > 0) {
+ 
+             #if 1
+             /* Receive axis values and parameters */
+             for (int i = 0; i < 3; i++) {
+                 wheel_jog_delta(i) = (uint32_t)Recv.jogstate.encoder_value;
+                 //wheel_jog_enable(i) = Recv.param.enable[i];
+                 //wheel_jog_scale(i)  = Recv.param.scale[i];
+             }
+             
+             /* Receive IO */
+             for (int i = 0; i < 7; i++)
+                 in(i) = Recv.jogstate.io & (1 << i);
+             
+             /* Set ready pin */
+             ready = Recv.jogstate.control & CTRL_READY;
+             #endif
+             
+ 
+             #if 0
+             printf("Received %zd bytes - encoder: %.2f, count: %d, mask: 0x%02x\n",
+                    n, Recv.jogstate.encoder_value, 
+                    Recv.jogstate.encoder_count,
+                    Recv.jogstate.active_mask);
+             #endif
+ 
+         } else if (n < 0) {
+             perror("recvfrom failed");
+         }
+     }
+     
+     //usleep(100000); // 100ms delay between cycles
+ }
+ 

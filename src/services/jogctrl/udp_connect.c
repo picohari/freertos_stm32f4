@@ -46,11 +46,13 @@ void udp_server_init(void)
         }
 
         /* Inform GUI about network settings */
-        //uint32_t ip = ip_addr_get_ip4_u32(&remote_addr);
+        uint32_t ip = lwip_ntohl(remote_addr.addr);
+        axis_helper_setRemoteIP(&ip);
 
-        //axis_helper_setRemoteIP(&ip);
-
-
+        //uint8_t expected = sizeof(HalState_t);
+        //LOG_DEBUG("HalState_t: %d", expected);
+        
+        
         #if 0
         err = udp_connect(upcb, &remote_addr, UDP_REMOTE_PORT);
 
@@ -91,6 +93,7 @@ void udp_server_receive_callback(void *arg, struct udp_pcb *upcb, struct pbuf *p
     //LOG_DEBUG("Got UDP packet: len=%d from %s:%d", p->len, ipaddr_ntoa(addr), port);
     //LOG_DEBUG("Data: %.*s", p->len, (char *)p->payload);
 
+    #if 0
     /* Check if packet is for LinuxCNC controller */
     if (p->len >= sizeof(MachineState_t)) {
 
@@ -98,24 +101,35 @@ void udp_server_receive_callback(void *arg, struct udp_pcb *upcb, struct pbuf *p
         MachineState_t pkt;
 
         if (LinuxCNC_ParseUDP((const uint8_t *)p->payload, p->len, &pkt)) {
-
             /* Copy parsed data to LinuxCNC machine state */
             LinuxCNC_SetMachineState(&pkt);
-
-            /* Example: print the received values
-            LOG_DEBUG("Received axis data: X=%.3f Y=%.3f Z=%.3f Homed=%d",
-                       pkt.pos_x,
-                       pkt.pos_y,
-                       pkt.pos_z,
-                       pkt.homed);
-            */
-
         } else {
             LOG_DEBUG("Invalid packet format (or corrupted)");
         }
     } else {
         LOG_DEBUG("Received packet too small: %d bytes", p->len);
     }
+    #endif
+
+    /* Check if packet is for LinuxCNC controller */
+    if (p->len >= sizeof(HalState_t)) {
+
+        /* Store parsed data */
+        HalState_t     pkt;
+
+        if (LinuxCNC_ParseHAL((const uint8_t *)p->payload, p->len, &pkt)) {
+            /* Copy parsed data to LinuxCNC machine state */
+            LinuxCNC_SetHalState(&pkt);
+        } else {
+            LOG_DEBUG("Invalid packet format (or corrupted)");
+        }
+    } else {
+        LOG_DEBUG("Received packet too small: %d bytes", p->len);
+    }
+
+
+
+
 
 
     // Optionally send echo for test
@@ -155,7 +169,12 @@ void udp_send_jogstate(const JogState_t *pkt)
 
     /* Connect to remote host */
     //udp_connect(upcb, addr, UDP_REMOTE_PORT);
-    
+
+    /* Store address set by menu system */
+    uint32_t ip;
+    axis_helper_getRemoteIP(&ip);
+    remote_addr.addr = lwip_htonl(ip);
+
     /* Send packet */
     err_t err = udp_sendto(upcb, p, &remote_addr, UDP_REMOTE_PORT);
     if (err != ERR_OK) {

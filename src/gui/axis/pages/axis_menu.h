@@ -11,8 +11,12 @@
 
 
 /* SHARED SETTINGS */
+
+/* Globally exposed menu settings. */
 extern uint32_t remote_ipv4_addr;
 extern uint32_t local_ipv4_addr;
+extern uint32_t gateway;
+extern uint32_t netmask;
 
 
 /* SHARED HANDLES */
@@ -27,16 +31,18 @@ extern GHandle ghLabelRotary;
  * diffenent locations in programm. Concentrate all includes
  * into one file.
  */
+void axis_helper_Init(void);
 void axis_helper_setRemoteIP(uint32_t *new_address);
 void axis_helper_getRemoteIP(uint32_t *out_addr);
+
 void axis_helper_setLocalIP(uint32_t *new_address);
 void axis_helper_getLocalIP(uint32_t *out_addr);
 
-void axis_helper_setNetmask(uint32_t *new_address);
-void axis_helper_getNetmask(uint32_t *out_addr);
+void axis_helper_setNetmask(uint32_t *new_netmask);
+void axis_helper_getNetmask(uint32_t *out_netmask);
 
-void axis_helper_setGateway(uint32_t *new_address);
-void axis_helper_getGateway(uint32_t *out_addr);
+void axis_helper_setGateway(uint32_t *new_gateway);
+void axis_helper_getGateway(uint32_t *out_gateway);
 
 //uint32_t get_ipv4_address(void);
 

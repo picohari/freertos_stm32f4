@@ -88,7 +88,10 @@ void guiEventLoop(void) {
 
 	/* Fetch current machine data - anyway of current page being rendered */
 	MachineState_t machine_gui;
+	HalState_t     hal_gui;
+
 	LinuxCNC_GetMachineState(&machine_gui);
+	LinuxCNC_GetHalState(&hal_gui);
 
 	/* Show realtime info only on main page */
 	if (Menu_GetActive() == PAGE_MAIN) {
@@ -103,9 +106,13 @@ void guiEventLoop(void) {
 		
 		/* Draw XYZ coordinate at position 200,50 (right edge) */
 		// "  -1234.567" in 9-character field, 3 decimals
-		FastText_DrawFloat(190, 25, machine_gui.G53_x, 3, 9, White, Black);
-		FastText_DrawFloat(190, 55, machine_gui.G53_y, 3, 9, White, Black);
-		FastText_DrawFloat(190, 85, machine_gui.G53_z, 3, 9, White, Black);
+		//FastText_DrawFloat(190, 25, machine_gui.G53_x, 3, 9, White, Black);
+		//FastText_DrawFloat(190, 55, machine_gui.G53_y, 3, 9, White, Black);
+		//FastText_DrawFloat(190, 85, machine_gui.G53_z, 3, 9, White, Black);
+		
+		FastText_DrawFloat(190, 25, hal_gui.fb.pos[0], 3, 9, White, Black);
+		FastText_DrawFloat(190, 55, hal_gui.fb.pos[1], 3, 9, White, Black);
+		FastText_DrawFloat(190, 85, hal_gui.fb.pos[2], 3, 9, White, Black);
 		
 		//FastText_SetScale(1);
 		//FastText_DrawString(195, 28, "ABS", White, Black);
@@ -130,19 +137,16 @@ void guiEventLoop(void) {
 	
 	
 	#if 0
-	/* Streaming tests */
+	/* TEST AND DEBUG */
 	static bool test_done = false;
     if (!test_done) {
         Test_RunAllStreamingTests();
         test_done = true;
 		}
 	#endif
-
-
-	
-
 	
 	/* CYCLIC Handling per page */
+
 	if (menuPages[activePage].onCycle) {
 		menuPages[activePage].onCycle();
 	}
@@ -189,6 +193,9 @@ int main(void) {
 #else
 	/* Start creating all windows and widgets for GUI */
 void guiCreate(void) {
+
+	/* Start some menu helper functions (only for MCU)*/
+	axis_helper_Init();
 #endif	
 
 	/* Prepare fonts */

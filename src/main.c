@@ -546,22 +546,28 @@ static void LinuxCNC_start (void const * arg)
 
   LinuxCNC_Init();
 
+
+  JogState_t pkt;
+  static float last_rotary = 0.0f;
+  
+  pkt.jogstate.control       = 74;
+  pkt.jogstate.axis_select   = 1;
+  pkt.jogstate.range_mode    = 1;
+  pkt.jogstate.io            = 0xDEAD;
+  
   
   while (1) {
     
     /* Read rotary encoder */
     Encoder_Update();
     
-    static float last_rotary = 0.0f;
     float current_rotary = Encoder_GetPosition();
-
-    JogState_t pkt;
-
-    pkt.axis_select   = 1;
-    pkt.encoder_value = current_rotary;
-
+    
     if (current_rotary != last_rotary) {
+      pkt.jogstate.encoder_count = (int32_t)current_rotary;
+      pkt.jogstate.encoder_value = current_rotary;
       last_rotary = current_rotary;
+
 
       udp_send_jogstate(&pkt);
     }

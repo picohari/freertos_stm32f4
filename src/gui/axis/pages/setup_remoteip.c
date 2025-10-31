@@ -2,11 +2,10 @@
  * File:        setup_remoteip.c
  * Description: 
  * ============================================================================ */
- 
+
 #include <stdbool.h>
 #include "gfx.h"
 #include "gui.h"
-//#include "src/gwin/gwin_keyboard.h"
 
 
 #ifdef UGFXSIMULATOR
@@ -28,7 +27,7 @@
 #include "axis_menu.h"
 #include "gui_logger.h"
 
-
+#include <stdlib.h>	// for stroul()
 
 /* PAGE CONTAINER & WIDGETS */
 //static GHandle ghCont_RemoteIPHeader;
@@ -201,7 +200,7 @@ static void SetupRemoteIP_onShow(void) {
 	gwinSetVisible(ghKeyboard, TRUE);
 
 	uint32_t ipv4_address;
-	//axis_helper_getRemoteIP(&ipv4_address);
+	axis_helper_getRemoteIP(&ipv4_address);
 
 	char firstBlock[4];
 	char secondBlock[4];
@@ -210,8 +209,8 @@ static void SetupRemoteIP_onShow(void) {
 
 	snprintf(firstBlock,  sizeof(firstBlock), 	"%lu", ((ipv4_address >> 24) & 0xFF));
 	snprintf(secondBlock, sizeof(secondBlock), 	"%lu", ((ipv4_address >> 16) & 0xFF));
-	snprintf(thirdBlock,  sizeof(thirdBlock), 	"%lu", ((ipv4_address >> 8) & 0xFF));
-	snprintf(fourthBlock, sizeof(fourthBlock), 	"%lu", ((ipv4_address >> 0) & 0xFF));
+	snprintf(thirdBlock,  sizeof(thirdBlock), 	"%lu", ((ipv4_address >>  8) & 0xFF));
+	snprintf(fourthBlock, sizeof(fourthBlock), 	"%lu", ((ipv4_address >>  0) & 0xFF));
 
 	gwinSetText(ghTexteditFirstBlock, 	firstBlock,  TRUE);
 	gwinSetText(ghTexteditSecondBlock, 	secondBlock, TRUE);
@@ -224,6 +223,9 @@ static void SetupRemoteIP_onShow(void) {
 static void SetupRemoteIP_onClose(void) {
     LOG_MENU("SETUP_REMOTEIP: onClose");
 }
+
+
+
 
 
 static bool SetupRemoteIP_onEvent(MenuPageDef_t *page, GEvent *pe) {
@@ -240,27 +242,29 @@ static bool SetupRemoteIP_onEvent(MenuPageDef_t *page, GEvent *pe) {
             }
 
             else if (be->gwin == ghBtn_MenuSave) {
-            	uint8_t firstBlock;
-            	uint8_t secondBlock;
-            	uint8_t thirdBlock;
-            	uint8_t fourthBlock;
 
-            	sscanf(gwinGetText(ghTexteditFirstBlock),  "%hhd", &firstBlock);
-            	sscanf(gwinGetText(ghTexteditSecondBlock), "%hhd", &secondBlock);
-            	sscanf(gwinGetText(ghTexteditThirdBlock),  "%hhd", &thirdBlock);
-            	sscanf(gwinGetText(ghTexteditFourthBlock), "%hhd", &fourthBlock);
+				uint8_t firstBlock  = (uint8_t)strtoul(gwinGetText(ghTexteditFirstBlock),  NULL, 10);
+				uint8_t secondBlock = (uint8_t)strtoul(gwinGetText(ghTexteditSecondBlock), NULL, 10);
+				uint8_t thirdBlock  = (uint8_t)strtoul(gwinGetText(ghTexteditThirdBlock),  NULL, 10);
+				uint8_t fourthBlock = (uint8_t)strtoul(gwinGetText(ghTexteditFourthBlock), NULL, 10);
+
+				uint32_t new_ipv4_address;
+
+				LOG_MENU("Have IP: %d.%d.%d.%d", firstBlock, secondBlock, thirdBlock, fourthBlock);
 #if 0
             	if(firstBlock >= 255 || secondBlock >= 255 || thirdBlock >= 255 || fourthBlock >= 255) {
             		gwinSetText(ghLabelMenuName, "Invalid IP Address!", TRUE);
             		return 1;
             	}
 #endif
-            	uint32_t new_ipv4_address = (firstBlock << 24) + (secondBlock << 16) + (thirdBlock << 8) + (fourthBlock << 0);
+				new_ipv4_address = (uint32_t)(firstBlock << 24) + (uint32_t)(secondBlock << 16) + (uint32_t)(thirdBlock << 8) + (uint32_t)(fourthBlock << 0);
 
             	// Set the newly entered IP Address
-            	//axis_helper_setRemoteIP(&new_ipv4_address);
+            	axis_helper_setRemoteIP(&new_ipv4_address);
 
 				LOG_MENU("SAVED IP: 0x%08x", new_ipv4_address);
+
+
                 return TRUE;
             }
 

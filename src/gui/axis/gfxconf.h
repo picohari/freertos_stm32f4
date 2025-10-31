@@ -37,7 +37,7 @@
     #define GFX_USE_OS_FREERTOS             TRUE
     #define GFX_OS_NO_INIT                  TRUE
     #define GFX_OS_INIT_NO_WARNING          TRUE
-    #define LOG_GUI_MENU                    FALSE
+    #define LOG_GUI_MENU                    TRUE
 #endif
 
 ///////////////////////////////////////////////////////////////////////////

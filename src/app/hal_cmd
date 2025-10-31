@@ -1,24 +1,48 @@
+# Include your custom HAL commands here
+# This file will not be overwritten when you run stepconf again
+
 # Load jogudp module
 loadrt jogudp
 loadrt threads name1=udp-thread period1=1000000
 addf jogudp udp-thread
 
 # Connect feedback positions (absolute machine position)
-net x-pos-fb axis.0.pos-fb => remote_jog.x-pos-fb
-net y-pos-fb axis.1.pos-fb => remote_jog.y-pos-fb
-net z-pos-fb axis.2.pos-fb => remote_jog.z-pos-fb
+#net x-pos-fb axis.0.pos-fb => remote_jog.x-pos-fb
+#net y-pos-fb axis.1.pos-fb => remote_jog.y-pos-fb
+#net z-pos-fb axis.2.pos-fb => remote_jog.z-pos-fb
 
 # Connect jog deltas to motion
-net x-jog remote_jog.x-jog-delta => motion.jog-increment[0]
-net y-jog remote_jog.y-jog-delta => motion.jog-increment[1]
-net z-jog remote_jog.z-jog-delta => motion.jog-increment[2]
+#net x-jog remote_jog.x-jog-delta => motion.jog-increment[0]
+#net y-jog remote_jog.y-jog-delta => motion.jog-increment[1]
+#net z-jog remote_jog.z-jog-delta => motion.jog-increment[2]
 
+# Connect the jog increment output to axis.x.jog-increment
+# Replace 'yourcomp' with your actual component name
+# net x-jog-increment jogudp.x-jog-delta => axis.x.jog-increment
 
+# If you also want to control the jog increment from the UI,
+# you might want to use halui instead:
+# net x-jog-increment jogudp.x-jog-delta => axisui.jog.increment
 
-net jog-x jogudp.x-jog-delta axis.x.jog-counts
+# Set Jogwheel pins
+net jog-x jogudp.wheel.0.jog-delta axis.x.jog-counts
+net jog-y jogudp.wheel.1.jog-delta axis.y.jog-counts
+net jog-z jogudp.wheel.2.jog-delta axis.z.jog-counts
 
+# Set Jog modes
+setp axis.x.jog-vel-mode 	0
+setp axis.x.jog-enable 		1
+setp axis.x.jog-scale 		0.01
 
-setp axis.x.jog-vel-mode 0
-setp axis.x.jog-enable 1
-setp axis.x.jog-scale 0.01
+setp axis.y.jog-vel-mode 	0
+setp axis.y.jog-enable 		1
+setp axis.y.jog-scale 		0.01
 
+setp axis.z.jog-vel-mode 	0
+setp axis.z.jog-enable 		1
+setp axis.z.jog-scale 		0.01
+
+# Display G54 coordinates
+net disp-x axis.x.pos-cmd jogudp.disp.0.pos
+net disp-y axis.y.pos-cmd jogudp.disp.1.pos
+net disp-z axis.z.pos-cmd jogudp.disp.2.pos
