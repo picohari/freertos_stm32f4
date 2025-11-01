@@ -1,0 +1,48 @@
+# Build / distribution folders
+build/
+lib/ugfx/tools/file2c/binaries/
+lib/ugfx/tools/mcufontencoder/binaries/
+lib/ugfx_2.8/tools/file2c/binaries/
+lib/ugfx_2.8/tools/mcufontencoder/binaries/
+src/gui/axis/.build/
+src/gui/zen/.build/
+
+# Obsolete, not worth tracking
+alt/
+lib/ugfx_2.8/
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+.dep/
+
+# Temporary files
+*.log
+*.tmp
+*.swp
+
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.venv/
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# IDEs / Editors
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Environment / config files
+.env.local
+.env.*
+!.env.example
