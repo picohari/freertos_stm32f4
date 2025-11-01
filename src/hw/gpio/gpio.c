@@ -57,14 +57,15 @@ void MX_GPIO_Init(void)
 
   GPIO_InitTypeDef GPIO_InitStruct;
 
+  /* RAW JOYSTICK INPUTS */
+
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOE_CLK_ENABLE();
 
-  /*Configure GPIO pins : PEPin PEPin PEPin PEPin 
-                           PEPin */
-  GPIO_InitStruct.Pin = JOY_A_Pin | JOY_B_Pin | JOY_C_Pin | JOY_D_Pin | JOY_CTR_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  /* Configure GPIO pins */
+  GPIO_InitStruct.Pin   = JOY_A_Pin | JOY_B_Pin | JOY_C_Pin | JOY_D_Pin | JOY_OK_Pin;
+  GPIO_InitStruct.Mode  = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull  = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
 }

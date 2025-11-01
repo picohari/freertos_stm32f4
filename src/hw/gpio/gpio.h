@@ -56,8 +56,10 @@
 #define JOY_C_GPIO_Port     GPIOE
 #define JOY_D_Pin           GPIO_PIN_5
 #define JOY_D_GPIO_Port     GPIOE
-#define JOY_CTR_Pin         GPIO_PIN_6
-#define JOY_CTR_GPIO_Port   GPIOE
+
+#define JOY_OK_Pin          GPIO_PIN_6
+#define JOY_OK_GPIO_Port    GPIOE
+
 
 /* USER CODE END Private defines */
 

@@ -104,11 +104,6 @@ typedef enum
                                             }while(0)
 
 
-#define JOY_GPIO_PINS                   JOY_A_PIN | JOY_B_PIN | JOY_C_PIN | JOY_D_PIN | JOY_OK_PIN
-#define JOY_GPIO_PORT                   GPIOE
-#define JOY_GPIO_CLK_ENABLE()           __GPIOE_CLK_ENABLE()
-#define JOY_GPIO_CLK_DISABLE()          __GPIOE_CLK_DISABLE()
-
 #define JOY_A_PIN                       GPIO_PIN_2
 #define JOY_A_GPIO_PORT                 GPIOE
 #define JOY_A_GPIO_CLK_ENABLE()         __GPIOE_CLK_ENABLE()
@@ -133,6 +128,11 @@ typedef enum
 #define JOY_OK_GPIO_PORT                 GPIOE
 #define JOY_OK_GPIO_CLK_ENABLE()         __GPIOE_CLK_ENABLE()
 #define JOY_OK_GPIO_CLK_DISABLE()        __GPIOE_CLK_DISABLE()
+
+#define JOY_GPIO_PINS                   JOY_A_PIN | JOY_B_PIN | JOY_C_PIN | JOY_D_PIN | JOY_OK_PIN
+#define JOY_GPIO_PORT                   GPIOE
+#define JOY_GPIO_CLK_ENABLE()           __GPIOE_CLK_ENABLE()
+#define JOY_GPIO_CLK_DISABLE()          __GPIOE_CLK_DISABLE()
 
 
 /** @defgroup STM324xG_EVAL_LOW_LEVEL_Exported_Functions STM324xG EVAL LOW LEVEL Exported Functions

@@ -75,12 +75,12 @@ bool LinuxCNC_ParseUDP(const uint8_t *data, size_t len, MachineState_t *out)
         return false;
 
     const uint8_t *ptr = data;
-
+#if 0
     memcpy(&out->G53_x,     ptr, sizeof(float));    ptr += sizeof(float);
     memcpy(&out->G53_y,     ptr, sizeof(float));    ptr += sizeof(float);
     memcpy(&out->G53_z,     ptr, sizeof(float));    ptr += sizeof(float);
     memcpy(&out->homed,     ptr, sizeof(uint8_t));  ptr += sizeof(uint8_t);
-
+#endif
     return true;
 }
 

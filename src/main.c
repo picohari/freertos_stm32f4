@@ -47,6 +47,7 @@
 #include "XCore407I.h"
 
 /* Hardware peripherals */
+#include "gpio.h"
 #include "uart.h"
 #include "rtc_clock.h"
 #include "eth_if.h"
@@ -190,6 +191,7 @@ static void os_init(void)
   BSP_LED_Init(LED2);
   BSP_LED_Init(LED3);
   BSP_LED_Init(LED4);
+  BSP_JoyStick_Init();
 
   /* Configure UART */
   uart_init();
@@ -544,33 +546,72 @@ static void LinuxCNC_start (void const * arg)
 
   (void) arg;
 
-  LinuxCNC_Init();
-
-
-  JogState_t pkt;
-  static float last_rotary = 0.0f;
-  
-  pkt.jogstate.control       = 74;
-  pkt.jogstate.axis_select   = 1;
-  pkt.jogstate.range_mode    = 1;
-  pkt.jogstate.io            = 0xDEAD;
-  
+  LinuxCNC_Init();  
   
   while (1) {
     
+    /* Output application data */
+    static JogState_t last_pkt;
+    JogState_t current_pkt;
+ 
+    /* Fetch current data */
+    LinuxCNC_GetJogState(&current_pkt);
+
+    // DEMO DATA
+    current_pkt.jogstate.control       = 74;
+    current_pkt.jogstate.axis_select   = 1;
+    current_pkt.jogstate.range_mode    = 1;
+    current_pkt.jogstate.io            = 0xDEAD;
+
     /* Read rotary encoder */
     Encoder_Update();
     
+    static float last_rotary = 0.0f;
     float current_rotary = Encoder_GetPosition();
     
     if (current_rotary != last_rotary) {
-      pkt.jogstate.encoder_count = (int32_t)current_rotary;
-      pkt.jogstate.encoder_value = current_rotary;
+      current_pkt.jogstate.encoder_count = (int32_t)current_rotary;
+      current_pkt.jogstate.encoder_value = current_rotary;
       last_rotary = current_rotary;
 
-
-      udp_send_jogstate(&pkt);
+      //udp_send_jogstate(&pkt);  // Send immediately ?
     }
+
+    /* Read external inputs */
+    if(HAL_GPIO_ReadPin(JOY_OK_GPIO_Port, JOY_OK_Pin) == GPIO_PIN_RESET) {
+      current_pkt.jogstate.io |= (HAL_IO_ESTOP);
+    } else {
+      current_pkt.jogstate.io &= ~(HAL_IO_ESTOP);
+    }
+
+
+    /* Check if new packets to send */
+    if (memcmp(&current_pkt, &last_pkt, sizeof(JogState_t)) != 0) {
+      last_pkt = current_pkt;
+      
+      udp_send_jogstate(&current_pkt);
+    }
+
+
+    /* Input application data */
+    HalState_t new_state;
+    
+    /* Fetch current data */
+    LinuxCNC_GetHalState(&new_state);
+
+    if (new_state.fb.io & (HAL_IO_ESTOP)) {
+      LOG_DEBUG("ESTOP!");
+    }
+
+    if (new_state.fb.io & (HAL_IO_MACHINE)) {
+      LOG_DEBUG("Machine On");
+    } else {
+      LOG_DEBUG("Machine Off");
+    }
+
+
+
+
 
     osDelay(1);
   }

@@ -31,14 +31,17 @@ pin out s32 wheel.#.jog_delta[3]    = 0.0   "Jog count value for axis";
 pin out bit wheel.#.jog_enable[3]   = 0.0   "Enable jog on axis";
 pin out bit wheel.#.jog_scale[3]    = 0.0   "Scale jog on axis";
 
-pin out bit     in.#[7]     = 0     "Digital inputs";
-pin in  bit     out.#[7]    = 0     "Digital output";
+pin out bit  in.#[8]     = 0     "Digital inputs";
+pin in  bit  out.#[8]    = 0     "Digital output";
 
-pin out bit     connected   = 0     "True if UDP socket is active";
-pin out s32     lost        = 0     "Lost packets";
-pin out bit     ready       = 0     "Module state";
-pin in  bit     enabled     = 0     "Module enable";
+pin out bit  connected   = 0     "True if UDP socket is active";
+pin out s32  lost        = 0     "Lost packets";
+pin out bit  ready       = 0     "Module state";
+pin in  bit  enabled     = 0     "Module enable";
 
+pin out bit  machine.extstop = 0     "External ESTOP";
+pin in  bit  machine.estop   = 0     "Internal ESTOP";
+pin in  bit  machine.power   = 0     "Machine on/off";  
 
 /*---------------- ---------------------*/
 
@@ -58,10 +61,10 @@ function _;
 
 #include <string.h>
 #include <unistd.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
 #include <errno.h>
 
+#include <arpa/inet.h>
+#include <sys/socket.h>
 
 
 #define BUFSIZE 64
@@ -71,12 +74,19 @@ function _;
 #define LOCAL_PORT  58428
 
 
-//#define CTRL_DIRSETUP 0b00000001
-//#define CTRL_ACCEL    0b00000010
-//#define CTRL_PWMFREQ  0b00000100
-#define CTRL_READY    0b01000000
-#define CTRL_ENABLE   0b10000000
+//#define CTRL_DIRSETUP     0b00000001
+//#define CTRL_ACCEL        0b00000010
+//#define CTRL_PWMFREQ      0b00000100
+#define CTRL_ENABLE         0b10000000
+#define CTRL_READY          0b01000000
 
+#define HAL_IO_ESTOP        0b1000000000000000
+#define HAL_IO_MACHINE      0b0100000000000000
+#define HAL_IO_COOLANT      0b0010000000000000
+
+#define AXIS_ENABLED        0b00000001
+#define AXIS_HOMED          0b00000010
+#define AXIS_ERROR          0b00000100
 
 /* OUTPUTS: Data sent to remote controller */
 union {
@@ -176,29 +186,64 @@ EXTRA_CLEANUP()
 
 FUNCTION(_)
 {
+    /* Keep time */
+    static uint64_t last_time_ns = 0;
+    uint64_t now_ns = rtapi_get_time();  // current time in nanoseconds
+    /* Elapsed time in milliseconds */
+    uint64_t elapsed_ms = (now_ns - last_time_ns) / 1000000;
+
+
+    /* Sending not enabled */
+    Send.fb.control &= ~CTRL_ENABLE;
+    
+    /* Axis data */
+    for (int i = 0; i < 3; i++) {
+        Send.fb.pos[i] = (float)disp_pos(i);
+        Send.fb.vel[i] = (float)disp_vel(i);
+    }
+    
+    /* Lower byte goes to single pins */
+    for (int i = 0; i < 8; i++) {
+        out(i) ? Send.fb.io |= (1 << i) : Send.fb.io &= ~(1 << i);
+    }
+    
+    /* Catch LinuxCNC ESTOP and power state */
+    if (machine_estop) {
+        Send.fb.io |= (HAL_IO_ESTOP);
+    } else {
+        Send.fb.io &= ~(HAL_IO_ESTOP);
+    }
+    if (machine_power) {
+        Send.fb.io |= (HAL_IO_MACHINE);
+    } else {
+        Send.fb.io &= ~(HAL_IO_MACHINE);
+    }
+    
+    ssize_t sent = 0;
+
     /* Send data to remote */
     if (enabled) {
-        
+
         Send.fb.control |= CTRL_ENABLE;
 
-        for (int i = 0; i < 3; i++) {
-            Send.fb.pos[i] = (float)disp_pos(i);
-            Send.fb.vel[i] = (float)disp_vel(i);
-        }
-
-        for (int i = 0; i < 7; i++) {
-            if (out(i)) Send.fb.io |= 1 << i;
-        }
-
-        ssize_t sent = sendto(sockfd, Send.txbuf, sizeof(Send.fb), 0,
-                            (const struct sockaddr *)&remote_addr, sizeof(remote_addr));
+        sent = sendto(sockfd, Send.txbuf, sizeof(Send.fb), 0,
+                     (const struct sockaddr *)&remote_addr, sizeof(remote_addr));
 
         if (sent < 0) {
             perror("sendto failed");
         } else {
             printf("Sent %zd bytes\n", sent);
         }
+    } 
+    
+    /* Send regular heartbeat */
+    if (!enabled && elapsed_ms >= 100) {
+
+        sent = sendto(sockfd, Send.txbuf, sizeof(Send.fb), 0,
+                     (const struct sockaddr *)&remote_addr, sizeof(remote_addr));
     }
+
+
     
     /* Try to receive data (non-blocking with timeout) */
     fd_set readfds;
@@ -221,13 +266,15 @@ FUNCTION(_)
                 //wheel_jog_scale(i)  = Recv.param.scale[i];
             }
             
-            /* Receive IO */
-            for (int i = 0; i < 7; i++)
+            /* Receive IO - lower byte goes to single pins */
+            for (int i = 0; i < 8; i++)
                 in(i) = Recv.jogstate.io & (1 << i);
             
             /* Set ready pin */
             ready = Recv.jogstate.control & CTRL_READY;
             
+            /* Link other io */
+            machine_extstop = (Recv.jogstate.io & (HAL_IO_ESTOP));
 
             #if 0
             printf("Received %zd bytes - encoder: %.2f, count: %d, mask: 0x%02x\n",
@@ -240,6 +287,8 @@ FUNCTION(_)
             perror("recvfrom failed");
         }
     }
+
+
     
     //usleep(100000); // 100ms delay between cycles
 }

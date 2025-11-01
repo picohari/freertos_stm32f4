@@ -7,9 +7,25 @@
 #include "semphr.h"
 
 
+#define CTRL_ENABLE         0b10000000
+#define CTRL_READY          0b01000000
+
+#define HAL_IO_ESTOP        0b1000000000000000
+#define HAL_IO_MACHINE      0b0100000000000000
+#define HAL_IO_COOLANT      0b0010000000000000
+
+#define AXIS_ENABLED        0b00000001
+#define AXIS_HOMED          0b00000010
+#define AXIS_ERROR          0b00000100
+
+
 /* Central machine state structure (remote LinuxCNC machine)*/
 typedef struct {
     
+    uint8_t ESTOP;              // Machine halted
+    uint8_t power;              // Machine enabled/on
+
+#if 0
     float   G53_x;              // Axis positions (G53 machine absolute)
     float   G53_y;
     float   G53_z;
@@ -22,9 +38,9 @@ typedef struct {
 
     uint32_t status_flags;      // bitfield for states (running, homed, etc.)
     uint32_t last_update_ms;    // timestamp
+#endif
 
 } __attribute__((packed)) MachineState_t;
-
 
 
 typedef enum {
@@ -34,6 +50,7 @@ typedef enum {
     RANGE_COARSE,
     RANGE_VERY_COARSE
 } RangeMode;
+
 
 typedef enum {
     AXIS_X = 0,
@@ -80,7 +97,6 @@ typedef struct {
 
 
 void LinuxCNC_Init(void);
-
 
 /* Partial updates (faster) */
 void LinuxCNC_UpdateHomed(uint8_t homed, uint8_t num_axes);
