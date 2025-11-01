@@ -82,15 +82,14 @@ font_t fixed_7x14;
    In simulator, we call this function in local loop. */
 void guiEventLoop(void) {
 
-	
 	/* Update all fast rendering values (only on real thing) */
 #ifndef UGFXSIMULATOR
 
 	/* Fetch current machine data - anyway of current page being rendered */
-	MachineState_t machine_gui;
+	//MachineState_t machine_gui;
 	HalState_t     hal_gui;
 
-	LinuxCNC_GetMachineState(&machine_gui);
+	//LinuxCNC_GetMachineState(&machine_gui);
 	LinuxCNC_GetHalState(&hal_gui);
 
 	/* Show realtime info only on main page */
@@ -119,7 +118,7 @@ void guiEventLoop(void) {
 	}
 
 
-	#if 1
+	#if 0
     /* Update rotary encoder */
     static float last_rotary = 0.0f;
     float current_rotary = Encoder_GetPosition();
@@ -146,13 +145,11 @@ void guiEventLoop(void) {
 	#endif
 	
 	/* CYCLIC Handling per page */
-
 	if (menuPages[activePage].onCycle) {
 		menuPages[activePage].onCycle();
 	}
 
 	/* EVENT Handling */
-	
 	/* Handle all other events on gui */
 	GEvent *pe;
 	
@@ -167,7 +164,9 @@ void guiEventLoop(void) {
 	if (menuPages[activePage].onEvent) {
 		/* Handle Event-Function on current page and execute it. */
 		bool handled = menuPages[activePage].onEvent(&menuPages[activePage], pe);
-		/* if (handled) return; // event fully processed by this page */
+		/* Page needs more event processing? */
+		if (handled)
+			return; // event fully processed by this page
 	}
 
 	/* Optional: global event handling here */
@@ -219,6 +218,10 @@ void guiCreate(void) {
 	create_SetupNetmask();
 	create_SetupGateway();
 	#endif
+
+	#if 1
+	create_PageIOstate();
+	#endif
 	
     /* We want to listen for widget events */
 	geventListenerInit(&glistener);
@@ -226,8 +229,8 @@ void guiCreate(void) {
 	
 
 	/* Display initial window first - should be called *after* pages creation! */
-	Menu_Init(PAGE_MAIN);
-	//Menu_Init(SETUP_REMOTEIP);
+	//Menu_Init(PAGE_MAIN);
+	Menu_Init(VIEW_IOSTATE);
 
 
 

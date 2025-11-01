@@ -104,6 +104,37 @@ typedef enum
                                             }while(0)
 
 
+#define JOY_GPIO_PINS                   JOY_A_PIN | JOY_B_PIN | JOY_C_PIN | JOY_D_PIN | JOY_OK_PIN
+#define JOY_GPIO_PORT                   GPIOE
+#define JOY_GPIO_CLK_ENABLE()           __GPIOE_CLK_ENABLE()
+#define JOY_GPIO_CLK_DISABLE()          __GPIOE_CLK_DISABLE()
+
+#define JOY_A_PIN                       GPIO_PIN_2
+#define JOY_A_GPIO_PORT                 GPIOE
+#define JOY_A_GPIO_CLK_ENABLE()         __GPIOE_CLK_ENABLE()
+#define JOY_A_GPIO_CLK_DISABLE()        __GPIOE_CLK_DISABLE()
+
+#define JOY_B_PIN                       GPIO_PIN_3
+#define JOY_B_GPIO_PORT                 GPIOE
+#define JOY_B_GPIO_CLK_ENABLE()         __GPIOE_CLK_ENABLE()
+#define JOY_B_GPIO_CLK_DISABLE()        __GPIOE_CLK_DISABLE()
+
+#define JOY_C_PIN                       GPIO_PIN_4
+#define JOY_C_GPIO_PORT                 GPIOE
+#define JOY_C_GPIO_CLK_ENABLE()         __GPIOE_CLK_ENABLE()
+#define JOY_C_GPIO_CLK_DISABLE()        __GPIOE_CLK_DISABLE()
+
+#define JOY_D_PIN                       GPIO_PIN_5
+#define JOY_D_GPIO_PORT                 GPIOE
+#define JOY_D_GPIO_CLK_ENABLE()         __GPIOE_CLK_ENABLE()
+#define JOY_D_GPIO_CLK_DISABLE()        __GPIOE_CLK_DISABLE()
+
+#define JOY_OK_PIN                       GPIO_PIN_6
+#define JOY_OK_GPIO_PORT                 GPIOE
+#define JOY_OK_GPIO_CLK_ENABLE()         __GPIOE_CLK_ENABLE()
+#define JOY_OK_GPIO_CLK_DISABLE()        __GPIOE_CLK_DISABLE()
+
+
 /** @defgroup STM324xG_EVAL_LOW_LEVEL_Exported_Functions STM324xG EVAL LOW LEVEL Exported Functions
   * @{
   */
@@ -111,6 +142,8 @@ void BSP_LED_Init(Led_TypeDef Led);
 void BSP_LED_On(Led_TypeDef Led);
 void BSP_LED_Off(Led_TypeDef Led);
 void BSP_LED_Toggle(Led_TypeDef Led);
+
+void BSP_Joystick_Init(void);
 
 void BSP_LCD_Init(void);
 

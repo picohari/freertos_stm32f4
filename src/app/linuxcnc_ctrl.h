@@ -46,29 +46,29 @@ typedef enum {
 
 /* Central Jogwheel state structure (local JogWheel device)*/
 typedef struct {
-    /* OUT: Axis positions & speeds */
+    /* OUT: Axis positions & speeds: 42 bytes */
     struct {
-        float     pos[3];         // Actual machine position
-        float     vel[3];         // Calculated velocity from LinuxCNC
-        float     scale[3];
-        uint8_t   enable[3];
-        uint8_t   control;        // Control register feedback
-        uint16_t  io;             // IO register multipurpose
+        float     pos[3];         // 12 Actual machine position
+        float     vel[3];         // 12 Calculated velocity from LinuxCNC
+        float     scale[3];       // 12
+        uint8_t   enable[3];      //  3
+        uint8_t   control;        //  1 Control register feedback
+        uint16_t  io;             //  2 IO register multipurpose
     } fb;
-} __attribute__((packed)) HalState_t;   // Sends:
+} __attribute__((packed)) HalState_t;
 
 typedef struct {
-    /* OUT: Jogwheel state*/
+    /* OUT: Jogwheel state:          12 bytes */
     struct {
-        float      encoder_value; // 4
-        int16_t    encoder_count; // 2
-        uint16_t   io;            // 2
-        uint8_t    active_mask;   // 1 bitmask: bit0=X, bit1=Y, bit2=Z
-        uint8_t    control;       // 1
-        AxisSelect axis_select;   // 1
-        RangeMode  range_mode;    // 1
+        float      encoder_value; //  4
+        int16_t    encoder_count; //  2
+        uint16_t   io;            //  2
+        uint8_t    active_mask;   //  1 bitmask: bit0=X, bit1=Y, bit2=Z
+        uint8_t    control;       //  1
+        AxisSelect axis_select;   //  1
+        RangeMode  range_mode;    //  1
     } jogstate;
-} __attribute__((packed)) JogState_t;   // Sends: 0100002041
+} __attribute__((packed)) JogState_t;
 
 #pragma pack()
 

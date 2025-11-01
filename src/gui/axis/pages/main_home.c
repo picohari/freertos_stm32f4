@@ -56,7 +56,7 @@ GHandle ghLabelRotary;
 
 /* BUTTONS */
 GHandle ghBtn_Menu1;
-GHandle ghBtn_Menu2;
+GHandle ghBtn_View;
 GHandle ghBtn_Menu3;
 GHandle ghBtn_Menu4;
 GHandle ghBtn_Setup;
@@ -192,7 +192,7 @@ void create_PageHome(void) {
 
 
 	/* Rotary encoder test label */
-	wi.g.show = TRUE;
+	wi.g.show = FALSE;
 	wi.g.x = 5;
 	wi.g.y = 100;
 	wi.g.width  = 185;
@@ -235,7 +235,7 @@ void create_PageHome(void) {
 	/* Button 2 */
 	wi.g.x = 64;
 	wi.text = "View";
-	ghBtn_Menu2 = gwinButtonCreate(0, &wi);	
+	ghBtn_View = gwinButtonCreate(0, &wi);	
 
 	/* Button 3 */
 	wi.g.x = 128;
@@ -297,8 +297,8 @@ static bool MainPage_onEvent(MenuPageDef_t *page, GEvent *pe) {
 				//LOG_MENU("SETTINGS pressed!");
                 return TRUE;
             }
-            else if (be->gwin == ghBtn_Menu4) {
-				//Menu_ShowPage(PAGE_ABOUT);
+            else if (be->gwin == ghBtn_View) {
+				Menu_ShowPage(VIEW_IOSTATE);
 				//LOG_MENU("UTILS pressed!");
                 return TRUE;
             }
@@ -312,7 +312,8 @@ static bool MainPage_onEvent(MenuPageDef_t *page, GEvent *pe) {
     return false; // not handled
 }
 
-void MainPage_onCycle(void) {
+
+static void MainPage_onCycle(void) {
 
 #ifndef UGFXSIMULATOR
 	/* Other events and interactive functions */

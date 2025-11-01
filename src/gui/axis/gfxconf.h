@@ -150,7 +150,7 @@
     #define GINPUT_TOUCH_USER_CALIBRATION_LOAD     FALSE
 #else
     #define GINPUT_TOUCH_USER_CALIBRATION_LOAD     TRUE
-    #define GINPUT_NEED_TOGGLE                     FALSE
+    #define GINPUT_NEED_TOGGLE                     TRUE         /* currently: JOYSTICK on XCORE */
     #define GINPUT_NEED_DIAL                       FALSE
 
 #endif

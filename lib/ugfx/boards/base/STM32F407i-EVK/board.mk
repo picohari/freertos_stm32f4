@@ -15,7 +15,7 @@ include $(GFXLIB)/drivers/gdisp/ILI93xx/driver.mk
 include $(GFXLIB)/drivers/ginput/touch/ADS7843/driver.mk
 
 # Driver for joystick
-include $(GFXLIB)/drivers/ginput/toggle/Pal/driver.mk
+include $(GFXLIB)/drivers/ginput/toggle/Hal/driver.mk
 
 # Driver for analog input
 include $(GFXLIB)/drivers/ginput/dial/GADC/driver.mk

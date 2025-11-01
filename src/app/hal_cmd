@@ -31,15 +31,15 @@ net jog-z jogudp.wheel.2.jog-delta axis.z.jog-counts
 
 # Set Jog modes
 setp axis.x.jog-vel-mode 	0
-setp axis.x.jog-enable 		1
+setp axis.x.jog-enable 		0
 setp axis.x.jog-scale 		0.01
 
 setp axis.y.jog-vel-mode 	0
-setp axis.y.jog-enable 		1
+setp axis.y.jog-enable 		0
 setp axis.y.jog-scale 		0.01
 
 setp axis.z.jog-vel-mode 	0
-setp axis.z.jog-enable 		1
+setp axis.z.jog-enable 		0
 setp axis.z.jog-scale 		0.01
 
 # Display G54 coordinates

@@ -1,5 +1,5 @@
 [
-    { "menu_type": "Setup", "page_type": "setup", "page_name": "RemoteIP", "page_title": "Page: Remote IP Address", "return_page": "MENU_SETUP" }
+    { "menu_type": "Page", "page_type": "view", "page_name": "IOstate", "page_title": "Page: IO Status", "return_page": "PAGE_MAIN" }
 
 ]
   

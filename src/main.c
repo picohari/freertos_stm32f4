@@ -701,10 +701,20 @@ static void LED1_thread (void const * arg)
 
   (void) arg;
 
+  uint8_t toggle = TRUE;
+
   while(1) {
-    BSP_LED_On(LED1);
-    osDelay(LED1_UPDATE_DELAY);
-    BSP_LED_Off(LED1);
+  
+    if (toggle) {
+      BSP_LED_On(LED1);
+      BSP_LED_Off(LED2);
+      toggle = FALSE;
+    } else {
+      BSP_LED_Off(LED1);
+      BSP_LED_On(LED2);
+      toggle = TRUE;
+    }
+
     osDelay(LED1_UPDATE_DELAY);
   }
 }

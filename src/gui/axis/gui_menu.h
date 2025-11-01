@@ -17,6 +17,7 @@ typedef enum {
     SETUP_LOCALIP,
     SETUP_NETMASK,
     SETUP_GATEWAY,
+    VIEW_IOSTATE,
     PAGE_COUNT          /* MUST (!) be last - automatic count of page numering */
 } MenuPage_t;
 

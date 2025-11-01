@@ -128,14 +128,6 @@ void udp_server_receive_callback(void *arg, struct udp_pcb *upcb, struct pbuf *p
     }
 
 
-
-
-
-
-    // Optionally send echo for test
-    // udp_sendto(upcb, p, addr, port);
-
-
     #if 0
     /* Connect to the remote client */
     udp_connect(upcb, addr, UDP_REMOTE_PORT);
@@ -170,7 +162,7 @@ void udp_send_jogstate(const JogState_t *pkt)
     /* Connect to remote host */
     //udp_connect(upcb, addr, UDP_REMOTE_PORT);
 
-    /* Store address set by menu system */
+    /* Use address set by menu system */
     uint32_t ip;
     axis_helper_getRemoteIP(&ip);
     remote_addr.addr = lwip_htonl(ip);

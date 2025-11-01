@@ -61,6 +61,6 @@ void create_SetupLocalIP(void);
 void create_SetupNetmask(void);
 void create_SetupGateway(void);
 
-
+void create_PageIOstate(void);
 
 #endif /* _AXIS_MENU_H_ */

@@ -43,6 +43,7 @@ static GHandle ghBtn_MenuReturn;
 static void {{MENU_TYPE}}{{PAGE_NAME}}_onShow(void);
 static void {{MENU_TYPE}}{{PAGE_NAME}}_onClose(void);
 static bool {{MENU_TYPE}}{{PAGE_NAME}}_onEvent(MenuPageDef_t *page, GEvent *pe);
+static void {{MENU_TYPE}}{{PAGE_NAME}}_onCycle(void);
 
 
 /*
@@ -92,6 +93,7 @@ void create_{{MENU_TYPE}}{{PAGE_NAME}}(void) {
     menuPages[{{PAGE_NAME_UPPER}}].onShow 	= {{MENU_TYPE}}{{PAGE_NAME}}_onShow;
     menuPages[{{PAGE_NAME_UPPER}}].onClose 	= {{MENU_TYPE}}{{PAGE_NAME}}_onClose;
 	menuPages[{{PAGE_NAME_UPPER}}].onEvent 	= {{MENU_TYPE}}{{PAGE_NAME}}_onEvent;
+	menuPages[{{PAGE_NAME_UPPER}}].onCycle 	= {{MENU_TYPE}}{{PAGE_NAME}}_onCycle;
 
 
 	/* Here comes the content for this page */
@@ -192,3 +194,11 @@ static bool {{MENU_TYPE}}{{PAGE_NAME}}_onEvent(MenuPageDef_t *page, GEvent *pe) 
 	
     return false; // not handled
 }
+
+
+static void {{MENU_TYPE}}{{PAGE_NAME}}_onCycle(void) {
+
+	#ifndef UGFXSIMULATOR
+	
+	#endif
+	}

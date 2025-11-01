@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 TEMPLATE_DIR = Path(".")
-OUTPUT_DIR = Path("../pages")
+OUTPUT_DIR = Path(".")
 
 # Make sure output directory exists
 OUTPUT_DIR.mkdir(exist_ok = True)

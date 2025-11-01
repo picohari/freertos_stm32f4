@@ -19,9 +19,7 @@
 #define UDP_LOCAL_PORT  58427   /* define the UDP local connection port */
 
 
-
 extern ip_addr_t remote_addr;
-
 
 
 void udp_server_init(void);
