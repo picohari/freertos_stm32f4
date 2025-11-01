@@ -150,8 +150,7 @@ void BSP_LED_Toggle(Led_TypeDef Led)
   HAL_GPIO_TogglePin(GPIO_PORT[Led], GPIO_PIN[Led]);
 }
 
-
-void BSP_Joystick_Init(void)
+void BSP_JoyStick_Init(void)
 {
   GPIO_InitTypeDef  GPIO_InitStruct;
   
@@ -164,23 +163,6 @@ void BSP_Joystick_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(JOY_GPIO_PORT, &GPIO_InitStruct);
 }
-
-void BSP_Joystick_Deinit(void)
-{
-  GPIO_InitTypeDef  GPIO_InitStruct;
-  
-  /* Enable the GPIO_JOYSTICK clock */
-  JOY_GPIO_CLK_ENABLE();
-
-  /* Configure the GPIO_JOYSTICK pins */
-  GPIO_InitStruct.Pin  = JOY_GPIO_PINS;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(JOY_GPIO_PORT, &GPIO_InitStruct);
-}
-
-
-
 
 void BSP_LCD_Init(void)
 {

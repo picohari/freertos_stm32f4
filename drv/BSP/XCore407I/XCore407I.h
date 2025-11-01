@@ -143,7 +143,7 @@ void BSP_LED_On(Led_TypeDef Led);
 void BSP_LED_Off(Led_TypeDef Led);
 void BSP_LED_Toggle(Led_TypeDef Led);
 
-void BSP_Joystick_Init(void);
+void BSP_JoyStick_Init(void);
 
 void BSP_LCD_Init(void);
 

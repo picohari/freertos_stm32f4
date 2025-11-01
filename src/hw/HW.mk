@@ -11,6 +11,7 @@ CSRC += $(HW_SRC)/uart/uart.c \
 		$(HW_SRC)/usbh/usbh_conf.c \
 		$(HW_SRC)/encoder/encoder.c \
 		$(HW_SRC)/timer/timer.c \
+		$(HW_SRC)/gpio/gpio.c \
 
 INCDIR += $(HW_SRC)/uart \
 		  $(HW_SRC)/ethernet \
@@ -21,6 +22,7 @@ INCDIR += $(HW_SRC)/uart \
 		  $(HW_SRC)/usbh \
 		  $(HW_SRC)/encoder \
 		  $(HW_SRC)/timer \
+		  $(HW_SRC)/gpio \
 
 
 
