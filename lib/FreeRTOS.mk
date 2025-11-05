@@ -1,11 +1,11 @@
-
+# FreeRTOS library path
 LIB_FREERTOS = ./lib/FreeRTOS/Source
 
+# Portable settings
 FREE_RTOS_PORT      = GCC/ARM_CM4F
 FREE_RTOS_HEAP      = heap_4
 
-
-# FreeRTOS basis files
+# FreeRTOS files
 CSRC += $(LIB_FREERTOS)/croutine.c \
 		$(LIB_FREERTOS)/event_groups.c \
 		$(LIB_FREERTOS)/list.c  \

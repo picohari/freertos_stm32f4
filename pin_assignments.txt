@@ -105,9 +105,8 @@ PI10 												LED_4
 LIB VERSIONS
 ============
 
-
 FreeRTOS	: 9.0.0
-µGFX		: 2.8
+µGFX		: 2.9
 LwIP		: 2.0.0
 
 

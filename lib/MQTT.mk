@@ -1,7 +1,7 @@
-
+# MQTT library path
 LIB_MQTT = ./lib/mqtt
 
-# FatFS basis files
+# MQTT files
 CSRC += $(LIB_MQTT)/MQTTClient.c \
 		$(LIB_MQTT)/MQTTConnectClient.c \
 		$(LIB_MQTT)/MQTTConnectServer.c \
@@ -17,7 +17,7 @@ CSRC += $(LIB_MQTT)/MQTTClient.c \
 		#$(LIB_MQTT)/mqtt.c \
 
 
-# FatFS Includes
+# MQTT includes
 INCDIR += $(LIB_MQTT)/ \
 
 

@@ -185,6 +185,8 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef *heth)
   */
 void HAL_ETH_RxCpltCallback(ETH_HandleTypeDef *heth)
 {
+  (void) heth;
+
   osSemaphoreRelease(s_xSemaphore);
 }
 
@@ -306,6 +308,8 @@ static void low_level_init(struct netif *netif)
   */
 static err_t low_level_output(struct netif *netif, struct pbuf *p)
 {
+  (void) netif;
+
   err_t errval;
   struct pbuf *q;
   uint8_t *buffer = (uint8_t *)(hETH.TxDesc->Buffer1Addr);
@@ -391,6 +395,8 @@ error:
   */
 static struct pbuf * low_level_input(struct netif *netif)
 {
+  (void) netif;
+
   struct pbuf *p = NULL, *q = NULL;
   u16_t len = 0;
   uint8_t *buffer;
@@ -728,6 +734,8 @@ void print_phy_chip(void)
   */
 __weak void ethernetif_notify_conn_changed(struct netif *netif)
 {
+  (void) netif;
+  
   /* NOTE : This is function could be implemented in user file 
             when the callback is needed.
 

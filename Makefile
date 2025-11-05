@@ -1,3 +1,6 @@
+##############################################################################
+# Project Title and Version
+#
 
 PROJECT = stm32f4-firmware
 
@@ -282,7 +285,6 @@ CPPFLAGS += -MD -MP -MF .dep/$(@F).d
 VPATH     = $(SRCPATHS)
 
 
-
 ##############################################################################
 # Makefile rules
 #
@@ -397,8 +399,6 @@ else
 	@echo
 	@$(SZ) $<
 	@echo
-	@$(RELF) $<
-	@echo
 	@echo Done
 endif
 
@@ -418,5 +418,47 @@ clean:
 flash: all
 	openocd -f $(OPENOCD_BOARD_DIR)/$(OPENOCD_BOARD_CFG) -f openocd/stm32f0-flash.cfg \
             -c "stm_flash `pwd`/$(BUILDDIR)/$(PROJECT).bin" -c shutdown
+
+
+
+# Memory configuration for STM32F4 (adjust these to match your specific chip)
+FLASH_SIZE = 524288  # 512KB for STM32F407, adjust as needed
+RAM_SIZE   = 131072  # 128KB for STM32F407, adjust as needed
+
+
+# Memory usage analysis target (add this after your main build target)
+memory-usage: %.elf $(LDSCRIPT)
+	@echo "========================================================="
+	@echo "Memory Usage Analysis (Free RAM for heap and stack alloc)"
+	@echo "========================================================="
+	@$(SZ) $< | tail -n 1 | awk '{print "Text (Flash): " $$1 " bytes\nData (RAM):   " $$2 " bytes\nBSS  (RAM):   " $$3 " bytes"}'
+	@echo ""
+	@echo "Flash Memory Usage:"
+	@$(SZ) $< | tail -n 1 | awk -v flash=$(FLASH_SIZE) '\
+		{ \
+			text = $$1; \
+			data = $$2; \
+			flash_used = text + data; \
+			flash_percent = (flash_used * 100) / flash; \
+			flash_free = flash - flash_used; \
+			flash_free_percent = 100 - flash_percent; \
+			printf "  Used:       %d bytes (%.2f%%)\n", flash_used, flash_percent; \
+			printf "  Free:       %d bytes (%.2f%%)\n", flash_free, flash_free_percent; \
+		}'
+	@echo ""
+	@echo "RAM Memory Usage:"
+	@$(SZ) $< | tail -n 1 | awk -v ram=$(RAM_SIZE) '\
+		{ \
+			data = $$2; \
+			bss = $$3; \
+			ram_used = data + bss; \
+			ram_percent = (ram_used * 100) / ram; \
+			ram_free = ram - ram_used; \
+			ram_free_percent = 100 - ram_percent; \
+			printf "  Used:       %d bytes (%.2f%%) [Data + BSS]\n", ram_used, ram_percent; \
+			printf "  Free:       %d bytes (%.2f%%) [Heap + Stack]\n", ram_free, ram_free_percent; \
+		}'
+	@echo ""
+	@echo "========================================================="
 
 # *** EOF ***

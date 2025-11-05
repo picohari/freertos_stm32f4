@@ -1,5 +1,5 @@
 # uGFX library path
-GFXLIB = ./lib/ugfx
+GFXLIB = ./lib/ugfx-2.9
 
 # uGFX main makefile skript
 include $(GFXLIB)/gfx.mk

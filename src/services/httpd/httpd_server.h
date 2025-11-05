@@ -60,6 +60,43 @@
 /* Exported functions ------------------------------------------------------- */
 void http_server_init(void);
 
+
+
+
+
+
+/* JSON parsing functions */
+
+#define MAX_TOKENS  32
+#define MAX_KEY_LEN 32
+#define MAX_VAL_LEN 32
+
+typedef enum {
+  JSON_STRING,
+  JSON_NUMBER,
+  JSON_ARRAY,
+  JSON_OBJECT
+} JsonType;
+
+typedef struct {
+  char key[MAX_KEY_LEN];
+  char val[MAX_VAL_LEN];
+  JsonType type;
+  int array_start;  // Index where array items start
+  int array_count;  // Number of items in array
+} JsonToken;
+
+typedef struct {
+  JsonToken tokens[MAX_TOKENS];
+  int count;
+} JsonParser;
+
+int json_parse(const char* json, JsonParser* p);
+const char* json_get(JsonParser* p, const char* key);
+int json_get_array(JsonParser* p, const char* key, char values[][MAX_VAL_LEN]);
+int json_test(void);
+
+
 #ifdef __cplusplus
 }
 #endif

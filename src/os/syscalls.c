@@ -101,6 +101,14 @@ int _read(int file, char *ptr, int len)
    return len;
 }
 
+int _open(const char *path, int flags, int mode) {
+    (void)path;
+    (void)flags;
+    (void)mode;
+    errno = ENOENT;
+    return -1;
+}
+
 int _close(int file)
 {
 	return -1;
@@ -140,7 +148,7 @@ int _stat(char *file, struct stat *st)
 	return 0;
 }
 
-int _getpid()
+int _getpid(void)
 {
 	return(1);
 }

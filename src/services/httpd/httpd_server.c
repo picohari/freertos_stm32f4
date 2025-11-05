@@ -48,8 +48,15 @@
 /* Includes ------------------------------------------------------------------*/
 #include "config.h"
 
-#include "lwip/debug.h"
+#include "lwip/apps/httpd_opts.h"
+#include "lwip/opt.h"
+
+#if LWIP_HTTPD_SUPPORT_WEBSOCKET
+#include "lwip/altcp.h" // must use for websockets
+#else
 #include "lwip/tcp.h"
+#endif
+#include "lwip/debug.h"
 
 #include "lwip/apps/httpd.h"
 #include "httpd_server.h"
@@ -59,6 +66,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "FreeRTOS.h"  // portTICK_RATE_MS
+#include "stm32f4xx_hal.h"
+#include "cmsis_os.h"
 #include "log.h"
 
 /* SSI functions */
@@ -68,7 +78,10 @@
 #define SSI_INDEX_PWMDUTY   3
 #define SSI_INDEX_FORMVARS  4
 #define SSI_INDEX_TEST      5
+
 #define SSI_INDEX_VERSION   6
+#define SSI_INDEX_UPTIME    7
+#define SSI_FREE_HEAP       8
 
 /* Array of TAGS must be in same order as definitions above !! */
 const char *SSI_TAGS[] =
@@ -79,34 +92,38 @@ const char *SSI_TAGS[] =
     "PWMduty",        // SSI_INDEX_PWMDUTY
     "FormVars",       // SSI_INDEX_FORMVARS
     "test",           // SSI_INDEX_TEST
+
     "version",        // SSI_INDEX_VERSION
+    "uptime",         // SSI_INDEX_UPTIME
+    "heap",           // SSI_FREE_HEAP
 };
 
 #define NUM_CONFIG_SSI_TAGS     (sizeof(SSI_TAGS) / sizeof (char *))
 
-static tSSIHandler SSIHandler(int iIndex, char *pcInsert, int iInsertLen);
-
-
-
-
+/* SSI functions */
+u16_t SSIHandler(int iIndex, char *pcInsert, int iInsertLen);
 
 /* CGI functions */
-static char * control_GCI_Handler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
-static char *   debug_GCI_Handler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
-
-#define CGI_INDEX_CONTROL       0
-#define CGI_INDEX_TEXT          1
+const char * control_GCI_Handler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
+const char *   debug_GCI_Handler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
 
 static const tCGI ECMD_CGI[2]  =  {
-
   { "/ecmd.cgi",  control_GCI_Handler },
   { "/debug.cgi",   debug_GCI_Handler }
-
 };
 
 #define NUM_CONFIG_CGI_URIS     (sizeof(ECMD_CGI) / sizeof(tCGI))
 
 #define DEFAULT_CGI_RESPONSE    "/index.html"
+
+
+
+/* WEBSOCKET functions */
+void websocket_cb(struct altcp_pcb *pcb, uint8_t *data, u16_t data_len, uint8_t mode);
+void websocket_open_cb(struct altcp_pcb *pcb, const char *uri);
+
+
+#include "json_parser.c"
 
 
 
@@ -118,115 +135,232 @@ void http_server_init(void)
   /* Httpd Init */
   httpd_init();
   
-  /* configure SSI handlers (ADC page SSI) */
+  /* Configure SSI handlers (ADC page SSI) */
   //http_set_ssi_handler(ADC_Handler, (char const **)TAGS, 1);
   http_set_ssi_handler(SSIHandler, SSI_TAGS, NUM_CONFIG_SSI_TAGS);
 
-
-  /* configure CGI handlers (ECMD) */
-  http_set_cgi_handlers(ECMD_CGI, NUM_CONFIG_CGI_URIS);  
+  /* Configure CGI handlers (ECMD) */
+  http_set_cgi_handlers(ECMD_CGI, NUM_CONFIG_CGI_URIS);
+  
+  /* Configure WEBSOCKET handlers */
+  //httpd_websocket_register_callbacks((tWsOpenHandler) websocket_open_cb, (tWsHandler) websocket_cb);
+  httpd_websocket_register_callbacks(websocket_open_cb, websocket_cb);
 }
 
 
 
 
-static char * control_GCI_Handler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
+const char * control_GCI_Handler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
 {
-    uint16_t i;
+  (void) iIndex;
 
-    /* Check cgi parameter : example GET /ecmd.cgi?param=value&set=off */
-    for (i = 0; i < iNumParams; i++)
-    {
+  uint16_t i;
 
-      LOG_DEBUG((char *)  "%s = %s", pcParam[i], pcValue[i]);
+  /* Check cgi parameter : example GET /ecmd.cgi?param=value&set=off */
+  for (i = 0; i < iNumParams; i++)
+  {
+
+    LOG_DEBUG((char *)  "%s = %s", pcParam[i], pcValue[i]);
 
 #if 0
-      /* check parameter "led" */
-      if (strcmp(pcParam[i] , "led")==0)   
-      {
-        /* Switch LED1 ON if 1 */
-        if(strcmp(pcValue[i], "1") ==0) 
-          BSP_LED_On(LED1);
-      }
+    /* check parameter "led" */
+    if (strcmp(pcParam[i] , "led")==0)   
+    {
+      /* Switch LED1 ON if 1 */
+      if(strcmp(pcValue[i], "1") ==0) 
+        BSP_LED_On(LED1);
+    }
 #endif
 
-    }
+  }
 
-    return(DEFAULT_CGI_RESPONSE);
+  return(DEFAULT_CGI_RESPONSE);
 }
 
 
-static char * debug_GCI_Handler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
+const char * debug_GCI_Handler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
 {
 
+  (void) iIndex;
+  (void) iNumParams;
+  (void) pcParam;
+  (void) pcValue;
+  
   //LOG_DEBUG((char *)  "CGI-debug" );
   
   return(DEFAULT_CGI_RESPONSE);
 }
 
 
-
-
-static tSSIHandler SSIHandler(int iIndex, char *pcInsert, int iInsertLen)
+//static tSSIHandler SSIHandler(int iIndex, char *pcInsert, int iInsertLen)
+u16_t SSIHandler(int iIndex, char *pcInsert, int iInsertLen)
 {
-    //unsigned long ulVal;
+  //unsigned long ulVal;
 
-    //
-    // Which SSI tag have we been passed?
-    //
-    switch(iIndex)
-    {
-        case SSI_INDEX_LEDSTATE:
-            //io_get_ledstate(pcInsert, iInsertLen);
-            snprintf(pcInsert, iInsertLen, "LED");
-            break;
+  //
+  // Which SSI tag have we been passed?
+  //
+  switch(iIndex)
+  {
+      case SSI_INDEX_LEDSTATE:
+          //io_get_ledstate(pcInsert, iInsertLen);
+          snprintf(pcInsert, iInsertLen, "LED");
+          break;
 
-        case SSI_INDEX_PWMSTATE:
-            //io_get_pwmstate(pcInsert, iInsertLen);
-            snprintf(pcInsert, iInsertLen, "PWM");
-            break;
+      case SSI_INDEX_PWMSTATE:
+          //io_get_pwmstate(pcInsert, iInsertLen);
+          snprintf(pcInsert, iInsertLen, "PWM");
+          break;
 
-        case SSI_INDEX_PWMFREQ:
-            //ulVal = io_get_pwmfreq();
-            //usnprintf(pcInsert, iInsertLen, "%d", ulVal);
-            break;
+      case SSI_INDEX_PWMFREQ:
+          //ulVal = io_get_pwmfreq();
+          //usnprintf(pcInsert, iInsertLen, "%d", ulVal);
+          break;
 
-        case SSI_INDEX_PWMDUTY:
-            //ulVal = io_get_pwmdutycycle();
-            //usnprintf(pcInsert, iInsertLen, "%d", ulVal);
-            break;
+      case SSI_INDEX_PWMDUTY:
+          //ulVal = io_get_pwmdutycycle();
+          //usnprintf(pcInsert, iInsertLen, "%d", ulVal);
+          break;
 
-        case SSI_INDEX_FORMVARS:
-            //LOG_UART ((char *)  "FormVars" );
-            //ulVal = io_get_pwmdutycycle();
-            snprintf(pcInsert, iInsertLen, "INFO");
-            //snprintf(pcInsert, iInsertLen, "%s", VERSION_STRING_LONG);
-            break;
+      case SSI_INDEX_FORMVARS:
+          //LOG_UART ((char *)  "FormVars" );
+          //ulVal = io_get_pwmdutycycle();
+          snprintf(pcInsert, iInsertLen, "INFO");
+          //snprintf(pcInsert, iInsertLen, "%s", VERSION_STRING_LONG);
+          break;
 
-        case SSI_INDEX_TEST:
-            //LOG_UART ((char *)  "FormVars" );
-            //ulVal = io_get_pwmdutycycle();
-            //snprintf(pcInsert, iInsertLen, "%s", VERSION_STRING_LONG);
-            snprintf(pcInsert, iInsertLen, "TEST");
-            break;
+      case SSI_INDEX_TEST:
+          //LOG_UART ((char *)  "FormVars" );
+          //ulVal = io_get_pwmdutycycle();
+          //snprintf(pcInsert, iInsertLen, "%s", VERSION_STRING_LONG);
+          snprintf(pcInsert, iInsertLen, "TEST");
+          break;
 
-        case SSI_INDEX_VERSION:
-            //LOG_UART ((char *)  "FormVars" );
-            //ulVal = io_get_pwmdutycycle();
-            snprintf(pcInsert, iInsertLen, "%s", VERSION_STRING_LONG);
-            break;
+      case SSI_INDEX_VERSION:
+          //LOG_UART ((char *)  "FormVars" );
+          //ulVal = io_get_pwmdutycycle();
+          snprintf(pcInsert, iInsertLen, "%s", VERSION_STRING_LONG);
+          break;
 
-        default:
-            snprintf(pcInsert, iInsertLen, "?");
-            break;
+      case SSI_INDEX_UPTIME:
+          snprintf(pcInsert, iInsertLen, "%ld", xTaskGetTickCount() * portTICK_PERIOD_MS / 1000);
+          break;
+
+      case SSI_FREE_HEAP:
+          snprintf(pcInsert, iInsertLen, "%d", (int) xPortGetFreeHeapSize());
+          break;
+
+      default:
+          snprintf(pcInsert, iInsertLen, "?");
+          break;
+  }
+
+  //LOG_UART ((char *)  "SSI" );
+  //
+  // Tell the server how many characters our insert string contains.
+  //
+  return(strlen(pcInsert));
+}
+
+
+
+
+
+void websocket_task(void *pvParameter)
+{
+  struct altcp_pcb *pcb = (struct altcp_pcb *) pvParameter;
+
+  for (;;) {
+    if (pcb == NULL || pcb->state != ESTABLISHED) {
+      LWIP_DEBUGF(HTTPD_DEBUG, ("[ws_task] connection closed, deleting task\n"));
+      break;
     }
 
-    //LOG_UART ((char *)  "SSI" );
-    //
-    // Tell the server how many characters our insert string contains.
-    //
-    return(strlen(pcInsert));
+    int uptime = xTaskGetTickCount() * portTICK_RATE_MS / 1000;
+    int heap = (int) xPortGetFreeHeapSize();
+    float temp = 18.75;
+
+    /* Generate response in JSON format */
+    char response[128];
+    uint len = snprintf(response, sizeof (response),
+    "{\"uptime\" : \"%d\","
+    " \"heap\" : \"%d\","
+    " \"temperature\" : \"%+6.2f\" }", uptime, heap, temp);
+    if (len < sizeof (response))
+      httpd_websocket_write(pcb, (unsigned char *) response, len, WS_TEXT_MODE);
+
+    vTaskDelay(2000 / portTICK_RATE_MS);
+  }
+
+  vTaskDelete(NULL);
 }
+
+/**
+ * This function is called when new websocket is open and
+ * creates a new websocket_task if requested URI equals '/stream'.
+ */
+void websocket_open_cb(struct altcp_pcb *pcb, const char *uri)
+{
+  LWIP_DEBUGF(HTTPD_DEBUG, ("WS URI: %s\n", uri));
+  if (!strcmp(uri, "/stream")) {
+    LWIP_DEBUGF(HTTPD_DEBUG, ("[ws_opencb] request for streaming\n"));
+    xTaskCreate(&websocket_task, "websocket_task", 512, (void *) pcb, 2, NULL);
+  }
+}
+
+/**
+ * This function is called when websocket frame is received.
+ *
+ * Note: this function is executed on TCP thread and should return as soon
+ * as possible.
+ */
+void websocket_cb(struct altcp_pcb *pcb, uint8_t *data, u16_t data_len, uint8_t mode)
+{
+
+  (void) mode;
+  
+  JsonParser parser;
+
+
+  if (json_parse((const char *)data, &parser) == 0) {
+  
+    if (json_get(&parser, "cmd")) {
+
+      /* Parse command*/
+      if (strcmp(      json_get(&parser, "cmd"), "gpio") == 0) {
+        LWIP_DEBUGF(HTTPD_DEBUG, ("[json] gpio: %s = %s\n", json_get(&parser, "pin"), json_get(&parser, "action")));
+
+      } else if (strcmp(json_get(&parser, "cmd"), "led") == 0) {
+        LWIP_DEBUGF(HTTPD_DEBUG, ("[json] led: %s\n", json_get(&parser, "action")));
+      }
+
+    } else if (json_get(&parser, "values")) {
+
+      char values[10][MAX_VAL_LEN];
+      int count = json_get_array(&parser, "values", values);
+      printf("values: [");
+      for (int i = 0; i < count; i++) {
+          printf("%s%s", values[i], i < count - 1 ? ", " : "");
+      }
+      printf("]\n");
+
+    }
+  
+  }
+
+  /* Data example {"uptime":"294","heap":"39496","temperature":"+18.75"} */
+  static uint8_t echo_data[64] = {0}; // 64 bytes MAX!!
+  memset(echo_data, 0, sizeof(echo_data)); // zero
+  memcpy(echo_data, data, data_len);
+
+
+
+
+  LWIP_DEBUGF(HTTPD_DEBUG, ("[ws_cb]: Send back %d bytes:\n\r%s\n", (int) data_len, (char*) echo_data));
+
+  httpd_websocket_write(pcb, echo_data, data_len, WS_BIN_MODE);    //TODO: CHeck Format!
+}
+
 
 
 

@@ -617,13 +617,13 @@ static const unsigned char data_index_html[] = {
 	0x3c, 0x2f, 0x68, 0x74, 0x6d, 0x6c, 0x3e, 0xd, 0xa, 0xd, 
 	0xa, };
 
-const struct fsdata_file file_demo_shtml[] = {{NULL, data_demo_shtml, data_demo_shtml + 12, sizeof(data_demo_shtml) - 12}};
+const struct fsdata_file file_demo_shtml[] = {{NULL, data_demo_shtml, data_demo_shtml + 12, sizeof(data_demo_shtml) - 12, 0}};
 
-const struct fsdata_file file_404_html[] = {{file_demo_shtml, data_404_html, data_404_html + 10, sizeof(data_404_html) - 10}};
+const struct fsdata_file file_404_html[] = {{file_demo_shtml, data_404_html, data_404_html + 10, sizeof(data_404_html) - 10, 0}};
 
-const struct fsdata_file file_img_sics_gif[] = {{file_404_html, data_img_sics_gif, data_img_sics_gif + 14, sizeof(data_img_sics_gif) - 14}};
+const struct fsdata_file file_img_sics_gif[] = {{file_404_html, data_img_sics_gif, data_img_sics_gif + 14, sizeof(data_img_sics_gif) - 14, 0}};
 
-const struct fsdata_file file_index_html[] = {{file_img_sics_gif, data_index_html, data_index_html + 12, sizeof(data_index_html) - 12}};
+const struct fsdata_file file_index_html[] = {{file_img_sics_gif, data_index_html, data_index_html + 12, sizeof(data_index_html) - 12, 0}};
 
 #define FS_ROOT file_index_html
 

@@ -58,6 +58,10 @@
   
 #include "httplog.h"
 
+#include "lwip/tcp.h"
+#include "lwip/err.h"
+
+#if 0
 #include "lwip/debug.h"
 #include "lwip/opt.h"
 #include "lwip/timeouts.h"
@@ -66,8 +70,7 @@
 #include "lwip/pbuf.h"
 #include "lwip/stats.h"
 #include "lwip/memp.h"
-#include "lwip/tcp.h"
-
+#endif
 
 #define DEBUG_HTTPLOG			
 #include "log.h"
@@ -390,7 +393,7 @@ static void httplog_dns_query_cb(const char* hostname, const ip_addr_t *ipaddr, 
 
 static void httplog_resolve_address(void)
 {
-	ip_addr_t httplog_server_address;
+	ip4_addr_t httplog_server_address;
 
 #if 0
 	ip_addr_set_zero(&httplog_server_address);

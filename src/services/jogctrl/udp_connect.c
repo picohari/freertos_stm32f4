@@ -14,7 +14,7 @@
 
 struct udp_pcb *upcb;
 
-ip_addr_t remote_addr;
+ip4_addr_t remote_addr;
 
 uint32_t remote_port;
 
@@ -78,7 +78,7 @@ void udp_server_init(void)
 * @param port the remote port from which the packet was received
 * @retval None
 */
-void udp_server_receive_callback(void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr, u16_t port)
+void udp_server_receive_callback(void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip4_addr_t *addr, u16_t port)
 {
     /* Not used yet */
     (void) arg;

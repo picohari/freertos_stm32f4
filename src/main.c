@@ -68,6 +68,7 @@
 //#include "test.h"
 
 /* LWIP stack */
+#include "lwip/init.h"
 #include "lwip/netif.h"
 #include "lwip/tcpip.h"
 #include "lwip/dns.h"
@@ -82,7 +83,7 @@
 #include "udp_connect.h"
 
 /* Clients */
-#include "httplog.h"
+//#include "httplog.h"
 //#include "lwip/apps/mqtt.h"
 #include "MQTTlwip.h"
 #include "MQTTClient.h"
@@ -339,10 +340,10 @@ static void NET_start (void const * arg)
 
   (void) arg;
 
-  static ip_addr_t ipaddr;
-  static ip_addr_t netmask;
-  static ip_addr_t gw;
-  static ip_addr_t dns;
+  static ip4_addr_t ipaddr;
+  static ip4_addr_t netmask;
+  static ip4_addr_t gw;
+  static ip4_addr_t dns;
 
 #ifdef USE_DHCP
   ipaddr.addr = 0;
@@ -364,7 +365,10 @@ static void NET_start (void const * arg)
   /* Registers the default network interface */
   netif_set_default(&gnetif);
 
+  /* Bring up interface */
+  netif_set_up(&gnetif);
 
+  #if 0
   if (netif_is_link_up(&gnetif))
   {
     /* When the netif is fully configured this function must be called */
@@ -391,13 +395,13 @@ static void NET_start (void const * arg)
   /* Start LINK STATUS task - poll PHY for link status as we do not have a dedicated interrupt line */
   osThreadDef(link_status, ethernetif_set_link, osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 2);
   osThreadCreate (osThread(link_status), &link_arg);
-
+  #endif
 
 
   /* Start DNS service - set to ip of gateway (most routers do offer dns) */
-  dns_init();
-  IP4_ADDR(&dns, GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3);
-  dns_setserver(0, &dns);
+  //dns_init();
+  //IP4_ADDR(&dns, GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3);
+  //dns_setserver(0, &dns);
 
 #if 0
   /* Start NTP service */
@@ -437,7 +441,7 @@ static void HTTP_start (void const * arg)
   http_server_init();
   //http_server_socket_init();
 
-  while(1) { }
+  while(1) { osDelay(1); }
 
 }
 
@@ -449,7 +453,7 @@ static void UDP_start (void const * arg)
   /* Starts the UDP jogwheel server */
   udp_server_init();
 
-  while(1) { }
+  while(1) { osDelay(1); }
 
 }
 
@@ -498,8 +502,8 @@ static void GUI_start (void const * arg)
   guiCreate();
 
   /* Create GUI thread */
-  osThreadDef(gui, GUI_thread,  osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 2);
-  osThreadCreate( osThread(gui), NULL);
+  //osThreadDef(gui, GUI_thread,  osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 2);
+  //osThreadCreate( osThread(gui), NULL);
 
   osDelay(100);
 
@@ -508,7 +512,9 @@ static void GUI_start (void const * arg)
 
 
   while (1) {
-    osThreadTerminate( NULL );  /* important to stop task here !! */
+    //    osThreadTerminate( NULL );  /* important to stop task here !! */
+    guiEventLoop();
+    osDelay(1);
   }
 
 }
@@ -546,15 +552,18 @@ static void LinuxCNC_start (void const * arg)
 
   (void) arg;
 
-  LinuxCNC_Init();  
-  
+  LinuxCNC_Init();
+
+  /* Output application data */
+  JogState_t current_pkt;
+  static JogState_t last_pkt;
+
+  /* Input application data */
+  HalState_t new_state;
+
   while (1) {
     
-    /* Output application data */
-    static JogState_t last_pkt;
-    JogState_t current_pkt;
- 
-    /* Fetch current data */
+     /* Fetch current data */
     LinuxCNC_GetJogState(&current_pkt);
 
     // DEMO DATA
@@ -574,7 +583,7 @@ static void LinuxCNC_start (void const * arg)
       current_pkt.jogstate.encoder_value = current_rotary;
       last_rotary = current_rotary;
 
-      //udp_send_jogstate(&pkt);  // Send immediately ?
+      udp_send_jogstate(&current_pkt);  // Send immediately ?
     }
 
     /* Read external inputs */
@@ -585,16 +594,15 @@ static void LinuxCNC_start (void const * arg)
     }
 
 
+    #if 0
     /* Check if new packets to send */
     if (memcmp(&current_pkt, &last_pkt, sizeof(JogState_t)) != 0) {
       last_pkt = current_pkt;
       
       udp_send_jogstate(&current_pkt);
     }
+    #endif
 
-
-    /* Input application data */
-    HalState_t new_state;
     
     /* Fetch current data */
     LinuxCNC_GetHalState(&new_state);
@@ -605,13 +613,7 @@ static void LinuxCNC_start (void const * arg)
 
     if (new_state.fb.io & (HAL_IO_MACHINE)) {
       LOG_DEBUG("Machine On");
-    } else {
-      LOG_DEBUG("Machine Off");
     }
-
-
-
-
 
     osDelay(1);
   }
