@@ -1,0 +1,6 @@
+[submodule "lib/lwip"]
+    path = lib/lwip-2.2.2
+    url = https://github.com/picohari/lwip.git
+[submodule "lib/ugfx"]
+    path = lib/ugfx-2.9
+    url = https://github.com/picohari/ugfx.git

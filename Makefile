@@ -14,6 +14,10 @@ MCU_MODEL_FAMILY  = STM32F407xx
 MCU_MODEL         = STM32F407IGHx
 MCU_CPU           = cortex-m4
 
+# Memory configuration for STM32F4 (adjust these to match your specific chip)
+FLASH_SIZE = 524288  # 512KB for STM32F407, adjust as needed
+RAM_SIZE   = 131072  # 128KB for STM32F407, adjust as needed
+
 
 # 1. Hardware drivers for XCore STM32F407
 include ./drv/CMSIS.mk
@@ -402,32 +406,9 @@ else
 	@echo Done
 endif
 
-clean:
-	@echo Cleaning
-	-rm -fR .dep $(BUILDDIR)
-	@echo
-	@echo Done
-
-#
-# Include the dependency files, should be the last of the makefile
-#
--include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
-
-
-# Flashes your board using OpenOCD
-flash: all
-	openocd -f $(OPENOCD_BOARD_DIR)/$(OPENOCD_BOARD_CFG) -f openocd/stm32f0-flash.cfg \
-            -c "stm_flash `pwd`/$(BUILDDIR)/$(PROJECT).bin" -c shutdown
-
-
-
-# Memory configuration for STM32F4 (adjust these to match your specific chip)
-FLASH_SIZE = 524288  # 512KB for STM32F407, adjust as needed
-RAM_SIZE   = 131072  # 128KB for STM32F407, adjust as needed
-
 
 # Memory usage analysis target (add this after your main build target)
-memory-usage: %.elf $(LDSCRIPT)
+%.memory-usage:
 	@echo "========================================================="
 	@echo "Memory Usage Analysis (Free RAM for heap and stack alloc)"
 	@echo "========================================================="
@@ -460,5 +441,30 @@ memory-usage: %.elf $(LDSCRIPT)
 		}'
 	@echo ""
 	@echo "========================================================="
+	@echo "Finished!"
+
+
+
+
+clean:
+	@echo Cleaning
+	-rm -fR .dep $(BUILDDIR)
+	@echo
+	@echo Done
+
+#
+# Include the dependency files, should be the last of the makefile
+#
+-include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
+
+
+# Flashes your board using OpenOCD
+flash: all
+	openocd -f $(OPENOCD_BOARD_DIR)/$(OPENOCD_BOARD_CFG) -f openocd/stm32f0-flash.cfg \
+            -c "stm_flash `pwd`/$(BUILDDIR)/$(PROJECT).bin" -c shutdown
+
+
+
+
 
 # *** EOF ***
