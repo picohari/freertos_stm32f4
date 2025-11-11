@@ -60,13 +60,6 @@ typedef enum
 }Led_TypeDef;
 
 
-/** 
-  * @brief  Define for STM324xG_EVAL board  
-  */ 
-#if !defined (USE_STM324xG_EVAL)
- #define USE_STM324xG_EVAL
-#endif
-
 /** @addtogroup STM324xG_EVAL_LOW_LEVEL_LED STM324xG EVAL LOW LEVEL LED
   * @{
   */

@@ -1,5 +1,5 @@
 
-LIB_CMSIS = ./drv/CMSIS
+LIB_CMSIS = ./drv/CMSIS-4.30
 
 MCU_FAMILY_LOWERCASE = $(shell echo $(MCU_FAMILY) | tr '[:upper:]' '[:lower:]')
 

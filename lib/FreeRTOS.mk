@@ -1,5 +1,5 @@
 # FreeRTOS library path
-LIB_FREERTOS = ./lib/FreeRTOS/Source
+LIB_FREERTOS = ./lib/FreeRTOS-9.0.0/Source
 
 # Portable settings
 FREE_RTOS_PORT      = GCC/ARM_CM4F

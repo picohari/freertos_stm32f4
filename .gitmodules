@@ -4,3 +4,6 @@
 [submodule "lib/ugfx"]
     path = lib/ugfx-2.9
     url = https://github.com/picohari/ugfx.git
+[submodule "lib/FreeRTOS-11.2.0"]
+	path = lib/FreeRTOS-11.2.0
+	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git
